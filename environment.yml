@@ -1,0 +1,9 @@
+name: mm
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - zarr
+  - pyinterp
+prefix: /usr/local/Caskroom/miniforge/base/envs/mm
