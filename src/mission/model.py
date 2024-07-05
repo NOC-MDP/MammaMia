@@ -1,19 +1,17 @@
-from dataclasses import dataclass,field
 from pyinterp import RTree
-
-@dataclass
-class Meta:
-    description: str
-    zarr_path: str
+import zarr
 
 
-@dataclass
-class Model:
-    name: str
-    #zarr: zarr.Group = field(init=False)
-    tree: RTree = field(init=False)
-    #meta: Meta
+class Model(zarr.Group):
+    def __init__(self, path:str):
+        store = zarr.DirectoryStore(path=path)
+        # Create the group using the separate method
+        group = zarr.open_group(store=store)
+        # Initialize the base class with the created group attributes
+        super().__init__(store=group.store, path=group.path, read_only=True, chunk_store=group.chunk_store,
+                         synchronizer=group.synchronizer)
+        # Add any additional initialization here
+        self.spatial_tree = RTree()
 
-    def __post_init__(self):
-        self.tree = RTree()
-        #self.zarr = zarr.group()
+    def build_tree(self):
+        print(f"would be building tree here at {self.spatial_tree}")
