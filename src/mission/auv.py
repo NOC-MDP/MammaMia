@@ -9,14 +9,14 @@ class AUV:
 class Autosub(AUV):
     def __init__(self, name):
         super().__init__()
-        self.name = "Autosub" + name
+        self.name = "Autosub " + name
 
 
 @dataclass
 class Slocum(AUV):
     def __init__(self, name):
         super().__init__()
-        self.name = "Slocum" + name
+        self.name = "Slocum " + name
 
 
 AUVs = Autosub | Slocum
