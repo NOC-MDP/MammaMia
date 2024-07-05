@@ -2,3 +2,4 @@
 .lapce
 __pycache__
 *.zarr
+.DS_Store

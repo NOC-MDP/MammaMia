@@ -1,17 +1,10 @@
 import zarr
 import numpy as np
-from enum import Enum, auto
-
-
-# different reality types
-class Realities(Enum):
-    T = auto()
-    TS = auto()
-    TSUV = auto()
+from src.mission import sensors
 
 
 class Reality(zarr.Group):
-    def __init__(self, reality: Realities, numpoints=1, store=None, overwrite=False):
+    def __init__(self, sensors2: sensors.Sensors, numpoints=1, store=None, overwrite=False):
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
 
@@ -20,14 +13,11 @@ class Reality(zarr.Group):
                          synchronizer=group.synchronizer)
 
         # Add any additional initialization here
-        match reality:
-            case Realities.T:
+        match sensors2:
+            case sensors.CTD:
                 self.full(name="temperature", shape=numpoints, dtype=np.float64, fill_value=np.nan)
-            case Realities.TS:
                 self.full(name="salinity", shape=numpoints, dtype=np.float64, fill_value=np.nan)
-            case Realities.TSUV:
-                self.full(name="temperature", shape=numpoints, dtype=np.float64, fill_value=np.nan)
-                self.full(name="salinty", shape=numpoints, dtype=np.float64, fill_value=np.nan)
+            case sensors.ADCP:
                 self.full(name="U component", shape=numpoints, dtype=np.float64, fill_value=np.nan)
                 self.full(name="V component", shape=numpoints, dtype=np.float64, fill_value=np.nan)
             case _:

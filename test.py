@@ -1,20 +1,21 @@
-from src.mission import Realities, Reality, Model, Flight, Trajectory, Autosub
+from src.mission import Model, Flight, Trajectory, Autosub,Reality,sensors
+
 
 flight = Flight(id=1,
                 description="flight of the conchords",
                 model=Model(path="model.zarr"),
-                auv=Autosub(name="AL3"),
+                auv=Autosub(sensors=sensors.CTD),
                 trajectory=Trajectory(num_points=4),
-                reality=Reality(reality=Realities.TSUV)
+                reality=Reality(sensors2=sensors.CTD)
                 )
-
+print("debug point!")
 
 def test_trajectory():
     assert flight.trajectory["latitudes"].__len__() == 4
 
 
 def test_auv():
-    assert flight.auv.name == "Autosub AL3"
+    assert flight.auv.name == "Autosub"
 
 
 def test_flight():
