@@ -2,7 +2,7 @@ from pyinterp import RTree
 import zarr
 
 
-class Model(zarr.Group):
+class World(zarr.Group):
     def __init__(self, path:str):
         store = zarr.DirectoryStore(path=path)
         # Create the group using the separate method

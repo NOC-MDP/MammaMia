@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 import numpy as np
-from src.mission import auv, realities,trajectory,model
+from src.mission import auv, realities,trajectory,world
 
 
 @dataclass
@@ -8,7 +8,7 @@ class Flight:
     id: int
     attributes: dict = field(init=False)
     description: str
-    model: model.Model
+    world: world.World
     trajectory: trajectory.Trajectory
     auv: auv.AUVs
     reality: realities.Reality
