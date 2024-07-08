@@ -41,7 +41,7 @@ def test_flight():
 
 
 def test_model():
-    assert flight.model.read_only is True
+    assert flight.world.read_only is True
 
 
 def test_reality():

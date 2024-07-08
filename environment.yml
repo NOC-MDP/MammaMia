@@ -1,9 +1,10 @@
 name: mm
 channels:
-  - conda-forge
+  - defaults
 dependencies:
-  - python=3.11
   - numpy
-  - zarr
   - pyinterp
-prefix: /usr/local/Caskroom/miniforge/base/envs/mm
+  - python=3.11
+  - zarr
+  - pytest
+prefix: /home/thopri/.conda/envs/mm
