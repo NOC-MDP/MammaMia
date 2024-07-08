@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.mission import World, Flight, Trajectory, Autosub, Reality, sensors
+from src.mission import World, Flight, Trajectory, Slocum, Reality, sensors
 
 # make empty suite of sensors to use in AUV
 ss = sensors.SensorSuite()
@@ -16,7 +16,7 @@ ss["mygroup"] = sensors.SensorGroup(
                                     )
 
 # build an auv while adding in sensor suite
-auv = Autosub(sensorsuite=ss)
+auv = Slocum(sensorsuite=ss)
 
 # define which model/world to use
 world = World(path="model.zarr")
@@ -44,7 +44,7 @@ def test_trajectory():
 
 
 def test_auv():
-    assert flight.auv.name == "Autosub"
+    assert flight.auv.name == "Slocum"
 
 
 def test_flight():

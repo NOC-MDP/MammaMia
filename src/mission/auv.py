@@ -28,9 +28,9 @@ class Autosub(AUV):
 class Slocum(AUV):
     def __init__(self, sensorsuite: sensors.SensorSuite):
         self.name = "Slocum"
-        self.dive_rate = 2.0
-        self.surface_rate = 2.0
-        self.speed = 0.5
+        self.dive_rate = 0.19
+        self.surface_rate = 0.24
+        self.speed = 0.25
         self.max_depth = 200.0
         self.sensors = sensorsuite
 
