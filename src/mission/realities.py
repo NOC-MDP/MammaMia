@@ -12,8 +12,7 @@ class Reality(zarr.Group):
         super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
                          synchronizer=group.synchronizer)
 
-        for group in auv.sensors.groups.values():
-            zgrp = self.create_group(name=group.name)
+        for group in auv.sensors.values():
             for sensor in group.sensors.values():
-                zarr2 = zgrp.full(name=sensor.name, shape=numpoints, dtype=np.float64, fill_value=np.nan)
-                zarr2.attrs["mapped_name"] = sensor.name
+                self.full(name=sensor.name, shape=numpoints, dtype=np.float64, fill_value=np.nan)
+                self.attrs["mapped_name"] = sensor.name

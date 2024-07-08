@@ -1,9 +1,16 @@
 import zarr
 import numpy as np
+import geojson
 
 
 class Trajectory(zarr.Group):
-    def __init__(self, num_points: int, store=None, overwrite=False):
+    """
+    pass in a waypoints file or object to build a trajectory
+    """
+    def __init__(self, waypoint_path: str, store=None, overwrite=False):
+        with open(waypoint_path, "r") as f:
+            gj = geojson.load(f)
+        features = gj["features"]
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
 
@@ -11,13 +18,30 @@ class Trajectory(zarr.Group):
         super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
                          synchronizer=group.synchronizer)
         self.attrs["created"] = str(np.datetime64("1970-01-01"))
-
+        waypts = self.create_group(name="waypoints")
         # Add any additional initialization here
-        self.attrs['created'] = str(np.datetime64("now"))
-        self.full(name="latitudes", shape=(num_points,), dtype=np.float64, fill_value=np.nan)
-        self.full(name="longitudes", shape=(num_points,), dtype=np.float64, fill_value=np.nan)
-        self.full(name="depths", shape=(num_points,), dtype=np.float64, fill_value=np.nan)
-        self.full(name="datatimes", shape=(num_points,), dtype="M8[ns]", fill_value="1970-01-01T00:00:00")
+        waypts.attrs['created'] = str(np.datetime64("now"))
+        waypts.full(name="latitudes", shape=(features.__len__(),), dtype=np.float64, fill_value=np.nan)
+        waypts.full(name="longitudes", shape=(features.__len__(),), dtype=np.float64, fill_value=np.nan)
+        waypts.full(name="depths", shape=(features.__len__(),), dtype=np.float64, fill_value=np.nan)
+        waypts.full(name="datatimes", shape=(features.__len__(),), dtype="M8[ns]", fill_value="1970-01-01T00:00:00")
+
+        for i in range(features.__len__()):
+            waypts["longitudes"][i] = features[i].geometry.coordinates[0][0]
+            waypts["latitudes"][i] = features[i].geometry.coordinates[0][1]
+
+        trajectory = self.create_group(name="trajectory")
+        trajectory.full(name="latitudes", shape=(features.__len__(),), dtype=np.float64, fill_value=np.nan)
+        trajectory.full(name="longitudes", shape=(features.__len__(),), dtype=np.float64, fill_value=np.nan)
+        trajectory.full(name="depths", shape=(features.__len__(),), dtype=np.float64, fill_value=np.nan)
+        trajectory.full(name="datatimes", shape=(features.__len__(),), dtype="M8[ns]", fill_value="1970-01-01T00:00:00")
+
+    def create_trajectory(self):
+        """
+        Create a trajectory based on the AUV class using the provided waypoints.
+        :return:
+        """
+        pass
 
     def update_traj(self, lat: float, lng: float, depth: float, idx: int):
         self["latitudes"][idx] = lat
