@@ -20,30 +20,6 @@ class Sensor(ABC):
 
 
 @dataclass
-class Temperature(Sensor):
-    name: str = "temperature"
-    units: str = "degreesC"
-
-
-@dataclass
-class Salinity(Sensor):
-    name: str = "salinity"
-    units: str = "PSU"
-
-
-@dataclass
-class Ucomponent(Sensor):
-    name: str = "ucomponent"
-    units: str = "ms-1"
-
-
-@dataclass
-class Vcomponent(Sensor):
-    name: str = "vcomponent"
-    units: str = "ms-1"
-
-
-@dataclass
 class SensorGroup(ABC):
     name: str
     sensors: dict[str, Sensor] = field(default_factory=dict)
@@ -54,7 +30,10 @@ class CTD(SensorGroup):
     name: str = "CTD"
 
     def __post_init__(self):
-        self.sensors = {"temperature": Temperature(),"salinity": Salinity()}
+        self.sensors = {
+                        "temperature": Sensor(name="temperature",units="degreesC"),
+                        "salinity": Sensor(name="salinity",units="PSU")
+                        }
 
 
 @dataclass
@@ -62,4 +41,7 @@ class ADCP(SensorGroup):
     name: str = "ADCP"
 
     def __post_init__(self):
-        self.sensors = {"Ucomponent": Ucomponent(),"Vcomponent": Vcomponent(),}
+        self.sensors = {
+                        "Ucomponent": Sensor(name="Ucomponent", units="ms-1"),
+                        "Vcomponent": Sensor(name="Vcomponent", units="ms-1"),
+                        }

@@ -9,8 +9,9 @@ ss = sensors.SensorSuite()
 # as a defined group
 ss["CTD"] = sensors.CTD()
 ss["ADCP"] = sensors.ADCP()
-# or custom group
-ss["group"] = sensors.SensorGroup(
+# or custom group with a custom sensor
+ss2 = sensors.SensorSuite()
+ss2["custom group"] = sensors.SensorGroup(
     name="my group",
     sensors={"my sensor": sensors.Sensor(name="my sensor", units="my units")}
 )
@@ -21,7 +22,7 @@ auv = Slocum(sensorsuite=ss)
 auv_custom = AUV(name="my AUV",
                  dive_rate=0.1,
                  dive_angle=20,
-                 sensors=ss,
+                 sensors=ss2,
                  surface_rate=0.1,
                  surface_angle=30,
                  target_depth=150,
@@ -33,13 +34,13 @@ auv_custom = AUV(name="my AUV",
 # define which model/world to use
 world = World(path="model.zarr")
 
-# define trajectory through world
+# create trajectory object filled with waypoints
 trajectory = Trajectory(waypoint_path="waypoints.geojson")
-
+# generate a Slocum glider path based on waypoints and Slocum config
 trajectory.create_trajectory(start_time=datetime(2023, 1, 1), auv=auv)
 
 # create reality to return (based on model/world and sensor suite and trajectory)
-reality = Reality(auv=auv, numpoints=4)
+reality = Reality(auv=auv,trajectory=trajectory)
 
 flight = Flight(id=1,
                 description="flight of the conchords",
