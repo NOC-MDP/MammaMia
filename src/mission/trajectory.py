@@ -8,16 +8,17 @@ class Trajectory(zarr.Group):
     pass in a waypoints file or object to build a trajectory
     """
     def __init__(self, waypoint_path: str, store=None, overwrite=False):
-        with open(waypoint_path, "r") as f:
-            gj = geojson.load(f)
-        features = gj["features"]
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
-
         # Initialize the base class with the created group attributes
         super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
                          synchronizer=group.synchronizer)
-        self.attrs["created"] = str(np.datetime64("1970-01-01"))
+        self.attrs["created"] = str(np.datetime64("now"))
+
+        with open(waypoint_path, "r") as f:
+            gj = geojson.load(f)
+        features = gj["features"]
+
         waypts = self.create_group(name="waypoints")
         # Add any additional initialization here
         waypts.attrs['created'] = str(np.datetime64("now"))
