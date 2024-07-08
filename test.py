@@ -4,9 +4,8 @@ from src.mission import World, Flight, Trajectory, Autosub, Reality, sensors
 ss = sensors.SensorSuite()
 
 # add required sensors for mission
-ss["sensor1"] = sensors.CTD(name="CTD1")
-ss["sensor2"] = sensors.ADCP(name="ADCP1")
-
+ss.groups["CTD"] = sensors.CTD()
+ss.groups["ADCP"] = sensors.ADCP()
 # create auv adding in sensor suite
 auv = Autosub(sensorsuite=ss)
 
@@ -17,7 +16,7 @@ world = World(path="model.zarr")
 trajectory = Trajectory(num_points=4)
 
 # create reality to return (based on model/world and sensor suite and trajectory)
-reality = Reality()
+reality = Reality(auv=auv,numpoints=4)
 
 flight = Flight(id=1,
                 description="flight of the conchords",
