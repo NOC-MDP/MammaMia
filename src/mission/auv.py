@@ -7,32 +7,45 @@ from abc import ABC
 class AUV(ABC):
     name: str
     dive_rate: float
+    dive_angle: float
     surface_rate: float
+    surface_angle: float
+    time_surface: int  #time step intervals
+    time_depth: int  # time_step intervals
+    time_step: int  # seconds
     speed: float
-    max_depth: float
+    target_depth: float
     sensors: sensors.SensorSuite
-
-
-@dataclass
-class Autosub(AUV):
-    def __init__(self, sensorsuite: sensors.SensorSuite):
-        self.name = "Autosub"
-        self.dive_rate = 1.0
-        self.surface_rate = 1.0
-        self.speed = 1.0
-        self.max_depth = 1500.0
-        self.sensors = sensorsuite
 
 
 @dataclass
 class Slocum(AUV):
     def __init__(self, sensorsuite: sensors.SensorSuite):
         self.name = "Slocum"
-        self.dive_rate = 0.19
-        self.surface_rate = 0.24
+        self.dive_rate = 0.24
+        self.dive_angle = 27.0
+        self.surface_rate = 0.19
+        self.surface_angle = 27.0
         self.speed = 0.25
-        self.max_depth = 200.0
+        self.time_surface = 10
+        self.time_depth = 10
+        self.time_step = 60
+        self.target_depth = 200.0
         self.sensors = sensorsuite
 
 
-AUVs = Autosub | Slocum
+@dataclass
+class Autosub(AUV):
+    def __init__(self, sensorsuite: sensors.SensorSuite):
+        self.name = "Autosub"
+        self.dive_rate = 0.24
+        self.dive_angle = 27.0
+        self.surface_rate = 0.19
+        self.surface_angle = 27.0
+        self.speed = 0.25
+        self.time_surface = 10
+        self.time_depth = 10
+        self.time_step = 60
+        self.target_depth = 200.0
+        self.sensors = sensorsuite
+

@@ -10,7 +10,7 @@ class Flight:
     description: str
     world: world.World
     trajectory: trajectory.Trajectory
-    auv: auv.AUVs
+    auv: auv.AUV
     reality: realities.Reality
 
     def __post_init__(self):

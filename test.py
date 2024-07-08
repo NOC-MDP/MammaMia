@@ -1,6 +1,6 @@
-import numpy as np
+from datetime import datetime
 
-from src.mission import World, Flight, Trajectory, Slocum, Reality, sensors
+from src.mission import World, Flight, Trajectory, Slocum, Reality, sensors, AUV
 
 # make empty suite of sensors to use in AUV
 ss = sensors.SensorSuite()
@@ -10,13 +10,25 @@ ss = sensors.SensorSuite()
 ss["CTD"] = sensors.CTD()
 ss["ADCP"] = sensors.ADCP()
 # or custom group
-ss["mygroup"] = sensors.SensorGroup(
-                                    name="my group",
-                                    sensors={"my sensor": sensors.Sensor(name="my sensor",units="my units")}
-                                    )
+ss["group"] = sensors.SensorGroup(
+    name="my group",
+    sensors={"my sensor": sensors.Sensor(name="my sensor", units="my units")}
+)
 
-# build an auv while adding in sensor suite
+# build a defined auv while adding in sensor suite
 auv = Slocum(sensorsuite=ss)
+# or make your own!
+auv_custom = AUV(name="my AUV",
+                 dive_rate=0.1,
+                 dive_angle=20,
+                 sensors=ss,
+                 surface_rate=0.1,
+                 surface_angle=30,
+                 target_depth=150,
+                 speed=0.5,
+                 time_depth=10,
+                 time_step=60,
+                 time_surface=10)
 
 # define which model/world to use
 world = World(path="model.zarr")
@@ -24,10 +36,10 @@ world = World(path="model.zarr")
 # define trajectory through world
 trajectory = Trajectory(waypoint_path="waypoints.geojson")
 
-trajectory.create_trajectory(start_time=np.datetime64("2023-01-01T00:00:00Z"))
+trajectory.create_trajectory(start_time=datetime(2023, 1, 1), auv=auv)
 
 # create reality to return (based on model/world and sensor suite and trajectory)
-reality = Reality(auv=auv,numpoints=4)
+reality = Reality(auv=auv, numpoints=4)
 
 flight = Flight(id=1,
                 description="flight of the conchords",

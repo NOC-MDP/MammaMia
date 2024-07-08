@@ -3,7 +3,7 @@ import numpy as np
 import geojson
 from math import radians, cos, sin, asin, sqrt
 from datetime import timedelta, datetime
-
+from src.mission import auv as auv2
 
 class Trajectory(zarr.Group):
     """
@@ -34,36 +34,26 @@ class Trajectory(zarr.Group):
             waypts["longitudes"][i] = features[i].geometry.coordinates[0][0]
             waypts["latitudes"][i] = features[i].geometry.coordinates[0][1]
 
-    def create_trajectory(self, start_time: np.datetime64):
+    def create_trajectory(self, start_time: datetime, auv:auv2.AUV):
         """
         Create a trajectory based on the AUV class using the provided waypoints and AUV specification
         :return:
         """
-        # TODO get AUV parameters from AUV class
-        # TODO get interval from sensor class?
-        speed = 0.25
-        sink_rate = 0.24
-        surface_rate = 0.19
-        target_depth = 200
-        dive_angle = 27.0
-        surface_angle = 27.0
-        time_surface = 10  #in intervals
-        time_depth = 10  #in intervals
+        if not isinstance(auv, auv2.AUV):
+            raise Exception("auv must be an AUV object")
 
-        traj_interval = 60
-        start_time = datetime(2023, 1, 1)
         lats, lngs, depths, times = interpolate_waypoints(lat_way=self.waypoints["latitudes"],
                                                           lng_way=self.waypoints["longitudes"],
                                                           start_time=start_time,
-                                                          speed_ms=speed,
-                                                          interval_seconds=traj_interval,
-                                                          sink_rate=sink_rate,
-                                                          surface_rate=surface_rate,
-                                                          target_depth=target_depth,
-                                                          dive_angle=dive_angle,
-                                                          surface_angle=surface_angle,
-                                                          time_surface=time_surface,
-                                                          time_depth=time_depth
+                                                          speed_ms=auv.speed,
+                                                          interval_seconds=auv.time_step,
+                                                          sink_rate=auv.dive_rate,
+                                                          surface_rate=auv.surface_rate,
+                                                          target_depth=auv.target_depth,
+                                                          dive_angle=auv.dive_angle,
+                                                          surface_angle=auv.surface_angle,
+                                                          time_surface=auv.time_surface,
+                                                          time_depth=auv.time_depth
                                                           )
         num_points = lats.__len__()
         trajectory = self.create_group(name="trajectory")
