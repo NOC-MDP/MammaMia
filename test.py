@@ -24,6 +24,8 @@ world = World(path="model.zarr")
 # define trajectory through world
 trajectory = Trajectory(waypoint_path="waypoints.geojson")
 
+trajectory.create_trajectory(start_time=np.datetime64("2023-01-01T00:00:00Z"))
+
 # create reality to return (based on model/world and sensor suite and trajectory)
 reality = Reality(auv=auv,numpoints=4)
 
