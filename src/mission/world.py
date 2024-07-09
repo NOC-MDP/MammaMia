@@ -40,6 +40,3 @@ class World():
 
     def build_interpolator(self):
         self.interpolator = pyinterp.backends.xarray.Grid4D(self.world.thetao)
-
-
-        print("debug!")

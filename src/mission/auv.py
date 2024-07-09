@@ -15,6 +15,7 @@ class AUV(ABC):
     time_step: int  # seconds
     speed: float
     target_depth: float
+    min_depth: float
     sensors: sensors.SensorSuite
 
 
@@ -31,6 +32,7 @@ class Slocum(AUV):
         self.time_depth = 10
         self.time_step = 60
         self.target_depth = 200.0
+        self.min_depth = 0.5
         self.sensors = sensorsuite
 
 
@@ -47,5 +49,6 @@ class Autosub(AUV):
         self.time_depth = 10
         self.time_step = 60
         self.target_depth = 200.0
+        self.min_depth = 0.5
         self.sensors = sensorsuite
 

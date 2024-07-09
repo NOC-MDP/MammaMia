@@ -42,7 +42,7 @@ class Trajectory(zarr.Group):
         """
         if not isinstance(auv, auv2.AUV):
             raise Exception("auv must be an AUV object")
-        min_depth = 0.5
+
         # TODO clean up this code, e.g. lat_way and lng_way will be accessible via self.
         lats, lngs, depths, times = self.__interpolate_waypoints(lat_way=self.waypoints["latitudes"],
                                                                  lng_way=self.waypoints["longitudes"],
@@ -56,7 +56,7 @@ class Trajectory(zarr.Group):
                                                                  surface_angle=auv.surface_angle,
                                                                  time_surface=auv.time_surface,
                                                                  time_depth=auv.time_depth,
-                                                                 min_depth=min_depth
+                                                                 min_depth=auv.min_depth
                                                                  )
         num_points = lats.__len__()
         trajectory = self.create_group(name="trajectory")
