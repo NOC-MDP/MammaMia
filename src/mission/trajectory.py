@@ -4,6 +4,7 @@ import geojson
 from math import radians, cos, sin, asin, sqrt
 from datetime import timedelta, datetime
 from src.mission import auv as auv2
+import plotly.graph_objects as go
 
 class Trajectory(zarr.Group):
     """
@@ -69,6 +70,17 @@ class Trajectory(zarr.Group):
             trajectory["longitudes"][i] = lngs[i]
             trajectory["depths"][i] = depths[i]
             trajectory["datatimes"][i] = times[i]
+
+    def plot_trajectory(self):
+
+        x = self.trajectory["longitudes"][:,]
+        y = self.trajectory["latitudes"][:,]
+        z = self.trajectory["depths"][:,]
+        fig = go.Figure(data=[go.Scatter3d(x=x,y=y,z=z,mode='markers')])
+
+        fig.show()
+
+
 
     @staticmethod
     def __haversine(lon1, lat1, lon2, lat2):

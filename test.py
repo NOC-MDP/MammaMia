@@ -36,7 +36,7 @@ auv_custom = AUV(name="my AUV",
 trajectory = Trajectory(waypoint_path="waypoints.geojson")
 # generate a Slocum glider path based on waypoints and Slocum config
 trajectory.create_trajectory(start_time="2023-01-01T00:00:00Z", auv=auv)
-
+trajectory.plot_trajectory()
 # create reality to return (based on model/world and sensor suite and trajectory)
 reality = Reality(auv=auv,trajectory=trajectory)
 
