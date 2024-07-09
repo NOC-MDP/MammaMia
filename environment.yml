@@ -7,4 +7,6 @@ dependencies:
   - python=3.11
   - zarr
   - pytest
+  - geojson
+  - copernicusmarine
 prefix: /home/thopri/.conda/envs/mm

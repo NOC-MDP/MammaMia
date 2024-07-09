@@ -5,6 +5,7 @@ from math import radians, cos, sin, asin, sqrt
 from datetime import timedelta, datetime
 from src.mission import auv as auv2
 
+
 class Trajectory(zarr.Group):
     """
     pass in a waypoints file or object to build a trajectory
@@ -34,7 +35,7 @@ class Trajectory(zarr.Group):
             waypts["longitudes"][i] = features[i].geometry.coordinates[0][0]
             waypts["latitudes"][i] = features[i].geometry.coordinates[0][1]
 
-    def create_trajectory(self, start_time: datetime, auv:auv2.AUV):
+    def create_trajectory(self, start_time: datetime, auv: auv2.AUV):
         """
         Create a trajectory based on the AUV class using the provided waypoints and AUV specification
         :return:
@@ -42,19 +43,20 @@ class Trajectory(zarr.Group):
         if not isinstance(auv, auv2.AUV):
             raise Exception("auv must be an AUV object")
 
-        lats, lngs, depths, times = interpolate_waypoints(lat_way=self.waypoints["latitudes"],
-                                                          lng_way=self.waypoints["longitudes"],
-                                                          start_time=start_time,
-                                                          speed_ms=auv.speed,
-                                                          interval_seconds=auv.time_step,
-                                                          sink_rate=auv.dive_rate,
-                                                          surface_rate=auv.surface_rate,
-                                                          target_depth=auv.target_depth,
-                                                          dive_angle=auv.dive_angle,
-                                                          surface_angle=auv.surface_angle,
-                                                          time_surface=auv.time_surface,
-                                                          time_depth=auv.time_depth
-                                                          )
+        # TODO clean up this code, e.g. lat_way and lng_way will be accessible via self.
+        lats, lngs, depths, times = self.__interpolate_waypoints(lat_way=self.waypoints["latitudes"],
+                                                                 lng_way=self.waypoints["longitudes"],
+                                                                 start_time=start_time,
+                                                                 speed_ms=auv.speed,
+                                                                 interval_seconds=auv.time_step,
+                                                                 sink_rate=auv.dive_rate,
+                                                                 surface_rate=auv.surface_rate,
+                                                                 target_depth=auv.target_depth,
+                                                                 dive_angle=auv.dive_angle,
+                                                                 surface_angle=auv.surface_angle,
+                                                                 time_surface=auv.time_surface,
+                                                                 time_depth=auv.time_depth
+                                                                 )
         num_points = lats.__len__()
         trajectory = self.create_group(name="trajectory")
         trajectory.full(name="latitudes", shape=(num_points,), dtype=np.float64, fill_value=np.nan)
@@ -68,152 +70,146 @@ class Trajectory(zarr.Group):
             trajectory["depths"][i] = depths[i]
             trajectory["datatimes"][i] = times[i]
 
-    def update_traj(self, lat: float, lng: float, depth: float, idx: int):
-        self["latitudes"][idx] = lat
-        self["longitudes"][idx] = lng
-        self["depths"][idx] = depth
+    @staticmethod
+    def __haversine(lon1, lat1, lon2, lat2):
+        """
+        Calculate the great circle distance in kilometers between two points
+        on the earth (specified in decimal degrees)
+        """
+        # convert decimal degrees to radians
+        lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
 
+        # haversine formula
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+        c = 2 * asin(sqrt(a))
+        r = 6371  # Radius of earth in kilometres. Use 3956 for miles. Determines return value units.
+        return c * r
 
-def haversine(lon1, lat1, lon2, lat2):
-    """
-    Calculate the great circle distance in kilometers between two points
-    on the earth (specified in decimal degrees)
-    """
-    # convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    def __interpolate_waypoints(self, lat_way, lng_way, start_time, speed_ms, interval_seconds, sink_rate, surface_rate,
+                                target_depth, surface_angle, dive_angle, time_surface, time_depth):
+        # Convert speed to km/s
+        speed_kms = speed_ms / 1000.0
 
-    # haversine formula
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * asin(sqrt(a))
-    r = 6371  # Radius of earth in kilometres. Use 3956 for miles. Determines return value units.
-    return c * r
+        # Convert pitch angle to radians
+        dive_radians = radians(dive_angle)
+        surface_radians = radians(surface_angle)
 
+        # Adjust sink and surface rates based on pitch angle
+        effective_sink_rate = sink_rate * cos(dive_radians)
+        effective_surface_rate = surface_rate * cos(surface_radians)
 
-def interpolate_waypoints(lat_way, lng_way, start_time, speed_ms, interval_seconds, sink_rate, surface_rate,
-                          target_depth, surface_angle, dive_angle, time_surface, time_depth):
-    # Convert speed to km/s
-    speed_kms = speed_ms / 1000.0
+        # Prepare lists for results
+        interpolated_lats = []
+        interpolated_lngs = []
+        interpolated_depths = []
+        interpolated_times = []
 
-    # Convert pitch angle to radians
-    dive_radians = radians(dive_angle)
-    surface_radians = radians(surface_angle)
+        # Initialize time
+        current_time = start_time
+        current_depth = 0
 
-    # Adjust sink and surface rates based on pitch angle
-    effective_sink_rate = sink_rate * cos(dive_radians)
-    effective_surface_rate = surface_rate * cos(surface_radians)
+        for i in range(len(lat_way) - 1):
 
-    # Prepare lists for results
-    interpolated_lats = []
-    interpolated_lngs = []
-    interpolated_depths = []
-    interpolated_times = []
+            lat1 = lat_way[i]
+            lon1 = lng_way[i]
+            lat2 = lat_way[i + 1]
+            lon2 = lng_way[i + 1]
 
-    # Initialize time
-    current_time = start_time
-    current_depth = 0
+            # Calculate distance between waypoints
+            distance = self.__haversine(lat1, lon1, lat2, lon2)
 
-    for i in range(len(lat_way) - 1):
+            # Calculate time to travel this segment
+            time_to_travel = distance / speed_kms
 
-        lat1 = lat_way[i]
-        lon1 = lng_way[i]
-        lat2 = lat_way[i + 1]
-        lon2 = lng_way[i + 1]
+            # Calculate time to sink to target depth and back to surface
+            time_to_sink = target_depth / effective_sink_rate
+            time_to_surface = target_depth / effective_surface_rate
 
-        # Calculate distance between waypoints
-        distance = haversine(lat1, lon1, lat2, lon2)
+            # Calculate time to travel at target depth
+            time_at_depth = interval_seconds * time_depth
+            time_at_surface = interval_seconds * time_surface
 
-        # Calculate time to travel this segment
-        time_to_travel = distance / speed_kms
+            # Number of intervals for each phase
+            num_intervals_sink = int(time_to_sink // interval_seconds)
+            num_intervals_surface = int(time_to_surface // interval_seconds)
 
-        # Calculate time to sink to target depth and back to surface
-        time_to_sink = target_depth / effective_sink_rate
-        time_to_surface = target_depth / effective_surface_rate
+            if time_to_travel < time_to_sink + time_to_surface + time_at_depth:
+                raise ValueError(
+                    "Speed is too slow or target depth is too high to complete the travel within segment time.")
 
-        # Calculate time to travel at target depth
-        time_at_depth = interval_seconds * time_depth
-        time_at_surface = interval_seconds * time_surface
+            # Number of intervals for traveling at target depth
+            num_intervals_travel = int((time_at_depth) // interval_seconds)
 
-        # Number of intervals for each phase
-        num_intervals_sink = int(time_to_sink // interval_seconds)
-        num_intervals_surface = int(time_to_surface // interval_seconds)
+            # Interpolation during sinking
+            for j in range(num_intervals_sink + 1):
+                t = j / num_intervals_sink if num_intervals_sink > 0 else 1
+                interpolated_lat = lat1 + t * (lat2 - lat1) * (time_to_sink / time_to_travel)
+                interpolated_lng = lon1 + t * (lon2 - lon1) * (time_to_sink / time_to_travel)
+                interpolated_depth = current_depth + t * target_depth
 
-        if time_to_travel < time_to_sink + time_to_surface + time_at_depth:
-            raise ValueError(
-                "Speed is too slow or target depth is too high to complete the travel within segment time.")
+                interpolated_lats.append(interpolated_lat)
+                interpolated_lngs.append(interpolated_lng)
+                interpolated_depths.append(interpolated_depth)
+                interpolated_times.append(current_time)
 
-        # Number of intervals for traveling at target depth
-        num_intervals_travel = int((time_at_depth) // interval_seconds)
+                current_time += timedelta(seconds=interval_seconds)
 
-        # Interpolation during sinking
-        for j in range(num_intervals_sink + 1):
-            t = j / num_intervals_sink if num_intervals_sink > 0 else 1
-            interpolated_lat = lat1 + t * (lat2 - lat1) * (time_to_sink / time_to_travel)
-            interpolated_lng = lon1 + t * (lon2 - lon1) * (time_to_sink / time_to_travel)
-            interpolated_depth = current_depth + t * target_depth
+            # Interpolation during travel at target depth
+            for j in range(num_intervals_travel):
+                t = j / 1 if num_intervals_travel > 0 else 1
+                interpolated_lat = lat1 + (time_to_sink / time_to_travel) * (lat2 - lat1) + t * (lat2 - lat1) * (
+                        time_at_depth / time_to_travel)
+                interpolated_lng = lon1 + (time_to_sink / time_to_travel) * (lon2 - lon1) + t * (lon2 - lon1) * (
+                        time_at_depth / time_to_travel)
+                interpolated_depth = target_depth
 
-            interpolated_lats.append(interpolated_lat)
-            interpolated_lngs.append(interpolated_lng)
-            interpolated_depths.append(interpolated_depth)
-            interpolated_times.append(current_time)
+                interpolated_lats.append(interpolated_lat)
+                interpolated_lngs.append(interpolated_lng)
+                interpolated_depths.append(interpolated_depth)
+                interpolated_times.append(current_time)
 
-            current_time += timedelta(seconds=interval_seconds)
+                current_time += timedelta(seconds=interval_seconds)
 
-        # Interpolation during travel at target depth
-        for j in range(num_intervals_travel):
-            t = j / 1 if num_intervals_travel > 0 else 1
-            interpolated_lat = lat1 + (time_to_sink / time_to_travel) * (lat2 - lat1) + t * (lat2 - lat1) * (
-                    time_at_depth / time_to_travel)
-            interpolated_lng = lon1 + (time_to_sink / time_to_travel) * (lon2 - lon1) + t * (lon2 - lon1) * (
-                    time_at_depth / time_to_travel)
-            interpolated_depth = target_depth
+            # Interpolation during surfacing
+            for j in range(num_intervals_surface + 1):
+                t = j / num_intervals_surface if num_intervals_surface > 0 else 1
+                interpolated_lat = lat1 + ((time_to_sink + time_at_depth) / time_to_travel) * (lat2 - lat1) + t * (
+                        lat2 - lat1) * (time_to_surface / time_to_travel)
+                interpolated_lng = lon1 + ((time_to_sink + time_at_depth) / time_to_travel) * (lon2 - lon1) + t * (
+                        lon2 - lon1) * (time_to_surface / time_to_travel)
+                interpolated_depth = target_depth - t * target_depth
 
-            interpolated_lats.append(interpolated_lat)
-            interpolated_lngs.append(interpolated_lng)
-            interpolated_depths.append(interpolated_depth)
-            interpolated_times.append(current_time)
+                interpolated_lats.append(interpolated_lat)
+                interpolated_lngs.append(interpolated_lng)
+                interpolated_depths.append(interpolated_depth)
+                interpolated_times.append(current_time)
 
-            current_time += timedelta(seconds=interval_seconds)
+                current_time += timedelta(seconds=interval_seconds)
 
-        # Interpolation during surfacing
-        for j in range(num_intervals_surface + 1):
-            t = j / num_intervals_surface if num_intervals_surface > 0 else 1
-            interpolated_lat = lat1 + ((time_to_sink + time_at_depth) / time_to_travel) * (lat2 - lat1) + t * (
-                    lat2 - lat1) * (time_to_surface / time_to_travel)
-            interpolated_lng = lon1 + ((time_to_sink + time_at_depth) / time_to_travel) * (lon2 - lon1) + t * (
-                    lon2 - lon1) * (time_to_surface / time_to_travel)
-            interpolated_depth = target_depth - t * target_depth
+            # Interpolation during travel at surface
+            for j in range(num_intervals_travel):
+                t = j / 1 if num_intervals_travel > 0 else 1
+                interpolated_lat = lat1 + (time_to_sink / time_to_travel) * (lat2 - lat1) + t * (lat2 - lat1) * (
+                        time_at_surface / time_to_travel)
+                interpolated_lng = lon1 + (time_to_sink / time_to_travel) * (lon2 - lon1) + t * (lon2 - lon1) * (
+                        time_at_surface / time_to_travel)
+                interpolated_depth = 0
 
-            interpolated_lats.append(interpolated_lat)
-            interpolated_lngs.append(interpolated_lng)
-            interpolated_depths.append(interpolated_depth)
-            interpolated_times.append(current_time)
+                interpolated_lats.append(interpolated_lat)
+                interpolated_lngs.append(interpolated_lng)
+                interpolated_depths.append(interpolated_depth)
+                interpolated_times.append(current_time)
 
-            current_time += timedelta(seconds=interval_seconds)
+                current_time += timedelta(seconds=interval_seconds)
 
-        # Interpolation during travel at surface
-        for j in range(num_intervals_travel):
-            t = j / 1 if num_intervals_travel > 0 else 1
-            interpolated_lat = lat1 + (time_to_sink / time_to_travel) * (lat2 - lat1) + t * (lat2 - lat1) * (
-                    time_at_surface / time_to_travel)
-            interpolated_lng = lon1 + (time_to_sink / time_to_travel) * (lon2 - lon1) + t * (lon2 - lon1) * (
-                    time_at_surface / time_to_travel)
-            interpolated_depth = 0
+            current_depth = 0  # Reset depth to surface at the end of each segment
 
-            interpolated_lats.append(interpolated_lat)
-            interpolated_lngs.append(interpolated_lng)
-            interpolated_depths.append(interpolated_depth)
-            interpolated_times.append(current_time)
+        # Add the final waypoint at the surface
+        interpolated_lats.append(lat2)
+        interpolated_lngs.append(lon2)
+        interpolated_depths.append(0)
+        interpolated_times.append(current_time)
 
-            current_time += timedelta(seconds=interval_seconds)
-
-        current_depth = 0  # Reset depth to surface at the end of each segment
-
-    # Add the final waypoint at the surface
-    interpolated_lats.append(lat2)
-    interpolated_lngs.append(lon2)
-    interpolated_depths.append(0)
-    interpolated_times.append(current_time)
-
-    return interpolated_lats, interpolated_lngs, interpolated_depths, interpolated_times
+        return interpolated_lats, interpolated_lngs, interpolated_depths, interpolated_times
