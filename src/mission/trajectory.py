@@ -5,7 +5,6 @@ from math import radians, cos, sin, asin, sqrt
 from datetime import timedelta, datetime
 from src.mission import auv as auv2
 
-
 class Trajectory(zarr.Group):
     """
     pass in a waypoints file or object to build a trajectory
@@ -35,18 +34,18 @@ class Trajectory(zarr.Group):
             waypts["longitudes"][i] = features[i].geometry.coordinates[0][0]
             waypts["latitudes"][i] = features[i].geometry.coordinates[0][1]
 
-    def create_trajectory(self, start_time: datetime, auv: auv2.AUV):
+    def create_trajectory(self, start_time: str, auv: auv2.AUV):
         """
         Create a trajectory based on the AUV class using the provided waypoints and AUV specification
         :return:
         """
         if not isinstance(auv, auv2.AUV):
             raise Exception("auv must be an AUV object")
-
+        start_timeDT = datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%SZ")
         # TODO clean up this code, e.g. lat_way and lng_way will be accessible via self.
         lats, lngs, depths, times = self.__interpolate_waypoints(lat_way=self.waypoints["latitudes"],
                                                                  lng_way=self.waypoints["longitudes"],
-                                                                 start_time=start_time,
+                                                                 start_time=start_timeDT,
                                                                  speed_ms=auv.speed,
                                                                  interval_seconds=auv.time_step,
                                                                  sink_rate=auv.dive_rate,
@@ -54,8 +53,8 @@ class Trajectory(zarr.Group):
                                                                  target_depth=auv.target_depth,
                                                                  dive_angle=auv.dive_angle,
                                                                  surface_angle=auv.surface_angle,
-                                                                 time_surface=auv.time_surface,
-                                                                 time_depth=auv.time_depth,
+                                                                 time_surface=auv.time_at_surface,
+                                                                 time_depth=auv.time_at_depth,
                                                                  min_depth=auv.min_depth
                                                                  )
         num_points = lats.__len__()

@@ -1,6 +1,6 @@
 name: mm
 channels:
-  - defaults
+  - conda-forge
 dependencies:
   - numpy
   - pyinterp

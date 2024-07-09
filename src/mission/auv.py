@@ -10,8 +10,8 @@ class AUV(ABC):
     dive_angle: float
     surface_rate: float
     surface_angle: float
-    time_surface: int  #time step intervals
-    time_depth: int  # time_step intervals
+    time_at_surface: int  #time step intervals
+    time_at_depth: int  # time_step intervals
     time_step: int  # seconds
     speed: float
     target_depth: float
@@ -28,8 +28,8 @@ class Slocum(AUV):
         self.surface_rate = 0.19
         self.surface_angle = 27.0
         self.speed = 0.25
-        self.time_surface = 10
-        self.time_depth = 10
+        self.time_at_surface = 10
+        self.time_at_depth = 10
         self.time_step = 60
         self.target_depth = 200.0
         self.min_depth = 0.5
@@ -45,8 +45,8 @@ class Autosub(AUV):
         self.surface_rate = 0.19
         self.surface_angle = 27.0
         self.speed = 0.25
-        self.time_surface = 10
-        self.time_depth = 10
+        self.time_at_surface = 10
+        self.time_at_depth = 10
         self.time_step = 60
         self.target_depth = 200.0
         self.min_depth = 0.5

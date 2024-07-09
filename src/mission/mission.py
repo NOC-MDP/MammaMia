@@ -4,7 +4,7 @@ from src.mission import auv, realities,trajectory,world
 
 
 @dataclass
-class Flight:
+class Mission:
     id: int
     attributes: dict = field(init=False)
     description: str
