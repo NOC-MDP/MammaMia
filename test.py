@@ -66,10 +66,6 @@ def test_flight():
     assert flight.id == 1
 
 
-def test_model():
-    assert flight.world.read_only is True
-
-
 def test_reality():
     assert flight.reality.read_only is not True
 

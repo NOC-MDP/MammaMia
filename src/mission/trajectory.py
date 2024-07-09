@@ -42,7 +42,7 @@ class Trajectory(zarr.Group):
         """
         if not isinstance(auv, auv2.AUV):
             raise Exception("auv must be an AUV object")
-
+        min_depth = 0.5
         # TODO clean up this code, e.g. lat_way and lng_way will be accessible via self.
         lats, lngs, depths, times = self.__interpolate_waypoints(lat_way=self.waypoints["latitudes"],
                                                                  lng_way=self.waypoints["longitudes"],
@@ -55,7 +55,8 @@ class Trajectory(zarr.Group):
                                                                  dive_angle=auv.dive_angle,
                                                                  surface_angle=auv.surface_angle,
                                                                  time_surface=auv.time_surface,
-                                                                 time_depth=auv.time_depth
+                                                                 time_depth=auv.time_depth,
+                                                                 min_depth=min_depth
                                                                  )
         num_points = lats.__len__()
         trajectory = self.create_group(name="trajectory")
@@ -88,7 +89,7 @@ class Trajectory(zarr.Group):
         return c * r
 
     def __interpolate_waypoints(self, lat_way, lng_way, start_time, speed_ms, interval_seconds, sink_rate, surface_rate,
-                                target_depth, surface_angle, dive_angle, time_surface, time_depth):
+                                target_depth, surface_angle, dive_angle, time_surface, time_depth,min_depth):
         # Convert speed to km/s
         speed_kms = speed_ms / 1000.0
 
@@ -108,7 +109,7 @@ class Trajectory(zarr.Group):
 
         # Initialize time
         current_time = start_time
-        current_depth = 0
+        current_depth = min_depth
 
         for i in range(len(lat_way) - 1):
 
@@ -180,6 +181,8 @@ class Trajectory(zarr.Group):
                 interpolated_lng = lon1 + ((time_to_sink + time_at_depth) / time_to_travel) * (lon2 - lon1) + t * (
                         lon2 - lon1) * (time_to_surface / time_to_travel)
                 interpolated_depth = target_depth - t * target_depth
+                if interpolated_depth < min_depth:
+                    interpolated_depth = min_depth
 
                 interpolated_lats.append(interpolated_lat)
                 interpolated_lngs.append(interpolated_lng)
@@ -195,7 +198,7 @@ class Trajectory(zarr.Group):
                         time_at_surface / time_to_travel)
                 interpolated_lng = lon1 + (time_to_sink / time_to_travel) * (lon2 - lon1) + t * (lon2 - lon1) * (
                         time_at_surface / time_to_travel)
-                interpolated_depth = 0
+                interpolated_depth = min_depth
 
                 interpolated_lats.append(interpolated_lat)
                 interpolated_lngs.append(interpolated_lng)
@@ -204,12 +207,12 @@ class Trajectory(zarr.Group):
 
                 current_time += timedelta(seconds=interval_seconds)
 
-            current_depth = 0  # Reset depth to surface at the end of each segment
+            current_depth = min_depth  # Reset depth to surface at the end of each segment
 
         # Add the final waypoint at the surface
         interpolated_lats.append(lat2)
         interpolated_lngs.append(lon2)
-        interpolated_depths.append(0)
+        interpolated_depths.append(min_depth)
         interpolated_times.append(current_time)
 
         return interpolated_lats, interpolated_lngs, interpolated_depths, interpolated_times

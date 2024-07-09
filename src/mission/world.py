@@ -18,19 +18,18 @@ class World():
         min_lng = np.min(trajectory.trajectory["longitudes"])
         start_time = np.datetime_as_string(trajectory.trajectory["datatimes"][0]-np.timedelta64(1,'D'), unit="s")
         end_time = np.datetime_as_string(trajectory.trajectory["datatimes"][-1]+np.timedelta64(1,'D'), unit="s")
-        min_depth = np.min(trajectory.trajectory["depths"])
         max_depth = np.max(trajectory.trajectory["depths"])
         if not os.path.isdir("copernicus-data/CMEMS_world.zarr"):
             copernicusmarine.subset(
                 dataset_id="cmems_mod_glo_phy-thetao_anfc_0.083deg_PT6H-i",
                 variables=["thetao"],
-                minimum_longitude=min_lat-0.5,
-                maximum_longitude=max_lat+0.5,
-                minimum_latitude=min_lng-0.5,
-                maximum_latitude=max_lng+0.5,
+                minimum_longitude=min_lng-0.5,
+                maximum_longitude=max_lng+0.5,
+                minimum_latitude=min_lat-0.5,
+                maximum_latitude=max_lat+0.5,
                 start_datetime=str(start_time),
                 end_datetime=str(end_time),
-                minimum_depth=min_depth,
+                minimum_depth=0,
                 maximum_depth=max_depth+100,
                 output_filename="CMEMS_world.zarr",
                 output_directory="copernicus-data",
@@ -40,8 +39,7 @@ class World():
         self.world = xr.open_zarr(store="copernicus-data/CMEMS_world.zarr")
 
     def build_interpolator(self):
-        ds = xr.open_zarr(store="copernicus-data/CMEMS_world.zarr")
-        self.interpolator = pyinterp.backends.xarray.Grid4D(ds.thetao)
+        self.interpolator = pyinterp.backends.xarray.Grid4D(self.world.thetao)
 
 
         print("debug!")
