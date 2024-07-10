@@ -2,11 +2,12 @@ name: mm
 channels:
   - conda-forge
 dependencies:
+  - copernicusmarine
+  - geojson
   - numpy
   - pyinterp
+  - pytest
   - python=3.11
   - zarr
-  - pytest
-  - geojson
-  - copernicusmarine
-prefix: /home/thopri/.conda/envs/mm
+  - plotly
+prefix: /home/thopri/miniforge3/envs/mm

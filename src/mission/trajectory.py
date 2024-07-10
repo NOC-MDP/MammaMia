@@ -72,7 +72,7 @@ class Trajectory(zarr.Group):
 
         trajectory["latitudes"] = np.array(ds["LATITUDE"])
         trajectory["longitudes"] = np.array(ds["LONGITUDE"])
-        trajectory["depths"] = np.array(ds["PRES"])
+        trajectory["depths"] = np.array(ds["GLIDER_DEPTH"])
 
     def plot_trajectory(self):
 

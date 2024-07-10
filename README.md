@@ -1,17 +1,21 @@
 # Mamma Mia toolbox
 
 ## Description
-This toolbox enables the simulation of a glider through a models "virtual reality". A user provides a set of way points and can easily 
-generate a suitable sawtooth trajectory for the glider from these points. A world is created which the glider will fly through, this 
+This toolbox enables the simulation of a glider through a models "virtual reality". A world is created which the glider will fly through, this
 comprises a suitable model or set of models. When creating the virtual glider the user can define a sensor suite which can comprise of 
 different instrumentation, e,g, CTD or ADCP. All together these components are defined in a mission, that when executed will return a 
-"reality" that contains the interpolated values that the virtual glider observes during its mission. 
+"reality" that contains the interpolated values that the virtual glider observes during its mission. Currently a trajectory from a real glider is used in place of a generated one.
 
-![way_points](img/example_waypoints.png "Waypoints")
-*Example waypoints that could be provided to Mamma mia as a multipoint geoJSON*
+![example_trajectory](img/example_trajectory.png)
+*Example trajectory of a glider, the colour denotes time (the darker the colour the older the track is)*
+
+When processed through Mamma mia, this trajectory results in a reality, containing interpolated data from an model.
+
+![example_reality](img/example_reality.png)
+*Example reality produced by Mamma mia, this has been generated using the trajectory above and a CMEMS global model.*
 
 ## Requirements
-Mamma mia has a number of dependencies, (numpy pyinterp, xarray zarr etc). These can be installed using a conda compatible package manager
+Mamma mia has a number of dependencies, (numpy pyinterp, xarray, zarr, ploty etc). These can be installed using a conda compatible package manager
 e.g. conda, miniconda, mamba, miniforge etc.
 
 ## Installation
