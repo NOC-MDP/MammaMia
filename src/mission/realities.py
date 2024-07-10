@@ -2,10 +2,12 @@ import zarr
 import numpy as np
 from src.mission.auv import AUV
 from src.mission.trajectory import Trajectory
+from dataclasses import dataclass
 
 
+@dataclass
 class Reality(zarr.Group):
-    def __init__(self, auv: AUV,trajectory:Trajectory, store=None, overwrite=False):
+    def __init__(self, auv: AUV, trajectory: Trajectory, store=None, overwrite=False):
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
 
@@ -17,4 +19,3 @@ class Reality(zarr.Group):
             for sensor in group.sensors.values():
                 self.full(name=sensor.name, shape=trajectory.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
                 self.attrs["mapped_name"] = sensor.name
-

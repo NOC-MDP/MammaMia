@@ -8,7 +8,6 @@ from dataclasses import dataclass
 
 @dataclass
 class World(xr.Dataset):
-
     def __init__(self, trajectory: Trajectory, overwrite=False):
         self.interpolator = None
         max_lat = np.max(trajectory.latitudes)

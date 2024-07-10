@@ -2,9 +2,21 @@ import zarr
 import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
+from dataclasses import dataclass
+
+
+@dataclass
 class Trajectory(zarr.Group):
     """
-    pass in a waypoints file or object to build a trajectory
+    Creates a Trajectory object (extended zarr group) from an xarray Dataset.
+
+    Parameters:
+    - glider_traj_path: string representing glider dataset
+    - store: zarr store to store zarr Group (optional) by default a memory store is used
+    - overwrite: bool representing whether to overwrite existing zarr Group
+
+    Returns:
+    - Trajectory object derived from zarr group
     """
 
     def __init__(self, glider_traj_path: str, store=None, overwrite=False):
@@ -22,28 +34,38 @@ class Trajectory(zarr.Group):
         self.datetimes = np.array(ds["TIME"], dtype='datetime64')
 
     def plot_trajectory(self):
-        fig = go.Figure(data=[go.Scatter3d(x=self.longitudes,
-                                           y=self.latitudes,
-                                           z=self.depths,
-                                           mode='markers',
-                                           marker=dict(
-                                                       size=2,
-                                                       color=np.array(self.datetimes).tolist(),
-                                                       colorscale='Viridis',
-                                                       opacity=0.8,
-                                                       colorbar=dict(thickness=40),
-                                                      )
-                                           )])
+        """
+        Creates a plotly figure of the Trajectory object.
+
+        Parameters:
+        None
+
+        Returns:
+        - Plotly figure of the Trajectory object. (This will open in a web browser)
+        """
+        marker = {
+            "size": 2,
+            "color": np.array(self.datetimes).tolist(),
+            "colorscale": "Viridis",
+            "opacity": 0.8,
+            "colorbar": {"thickness": 40}
+        }
+
+        title = {
+            "text": "Glider Trajectory",
+            "font": {"size": 30},
+            "automargin": True,
+            "yref": "paper"
+        }
+
+        scene = {
+            "xaxis_title": "longitude",
+            "yaxis_title": "latitude",
+            "zaxis_title": "depth",
+        }
+
+        fig = go.Figure(
+            data=[go.Scatter3d(x=self.longitudes, y=self.latitudes, z=self.depths, mode='markers', marker=marker)])
         fig.update_scenes(zaxis_autorange="reversed")
-        fig.update_layout(
-            title=dict(text="Glider Trajectory",
-                       font=dict(size=25),
-                       automargin=True,
-                       yref='paper')
-        )
-        fig.update_layout(scene=dict(
-                                    xaxis_title='Longitude',
-                                    yaxis_title='Latitude',
-                                    zaxis_title='Depth'),
-                                    )
+        fig.update_layout(title=title, scene=scene)
         fig.show()
