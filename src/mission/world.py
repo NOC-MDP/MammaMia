@@ -4,21 +4,20 @@ import numpy as np
 import os
 import xarray as xr
 import pyinterp.backends.xarray
-from dataclasses import dataclass,field
+from dataclasses import dataclass
 
 @dataclass
-class World():
-    world: xr.Dataset = field(init=False)
-    interpolator: pyinterp.backends.xarray.Grid4D = field(init=False)
+class World(xr.Dataset):
 
-    def __init__(self, trajectory: Trajectory):
-        max_lat = np.max(trajectory.trajectory["latitudes"])
-        min_lat = np.min(trajectory.trajectory["latitudes"])
-        max_lng = np.max(trajectory.trajectory["longitudes"])
-        min_lng = np.min(trajectory.trajectory["longitudes"])
-        start_time = np.datetime_as_string(trajectory.trajectory["datetimes"][0]-np.timedelta64(1,'D'), unit="s")
-        end_time = np.datetime_as_string(trajectory.trajectory["datetimes"][-1]+np.timedelta64(1,'D'), unit="s")
-        max_depth = np.max(trajectory.trajectory["depths"])
+    def __init__(self, trajectory: Trajectory, overwrite=False):
+        self.interpolator = None
+        max_lat = np.max(trajectory.latitudes)
+        min_lat = np.min(trajectory.latitudes)
+        max_lng = np.max(trajectory.longitudes)
+        min_lng = np.min(trajectory.longitudes)
+        start_time = np.datetime_as_string(trajectory.datetimes[0]-np.timedelta64(1,'D'), unit="s")
+        end_time = np.datetime_as_string(trajectory.datetimes[-1]+np.timedelta64(1,'D'), unit="s")
+        max_depth = np.max(trajectory.depths)
         if not os.path.isdir("copernicus-data/CMEMS_world.zarr"):
             copernicusmarine.subset(
                 dataset_id="cmems_mod_glo_phy-thetao_anfc_0.083deg_PT6H-i",
@@ -36,7 +35,10 @@ class World():
                 file_format="zarr",
                 force_download=True
             )
-        self.world = xr.open_zarr(store="copernicus-data/CMEMS_world.zarr")
+        # Create the ds using the separate method
+        ds = xr.open_zarr(store="copernicus-data/CMEMS_world.zarr")
+        # Initialize the base class with the created group attributes
+        super().__init__(ds)
 
     def build_interpolator(self):
-        self.interpolator = pyinterp.backends.xarray.Grid4D(self.world.thetao)
+        self.interpolator = pyinterp.backends.xarray.Grid4D(self.thetao)

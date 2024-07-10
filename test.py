@@ -1,4 +1,3 @@
-from datetime import datetime
 from src.mission import World, Mission, Trajectory, Slocum, Reality, sensors, AUV
 
 # make empty suite of sensors to use in AUV
@@ -19,26 +18,14 @@ ss2["custom group"] = sensors.SensorGroup(
 # build a defined auv while adding in sensor suite
 auv = Slocum(sensorsuite=Sensors)
 # or make your own!
-auv_custom = AUV(name="my AUV",
-                 dive_rate=0.1,
-                 dive_angle=20,
-                 sensors=ss2,
-                 surface_rate=0.1,
-                 surface_angle=30,
-                 target_depth=150,
-                 min_depth=10.0,
-                 speed=0.5,
-                 time_at_depth=10,
-                 time_step=60,
-                 time_at_surface=10)
+auv_custom = AUV(name="my AUV", sensors=ss2)
 
 # create trajectory object filled with waypoints
 trajectory = Trajectory(glider_traj_path="Eltanin_660_R.nc")
 # generate a Slocum glider path based on waypoints and Slocum config
-trajectory.create_trajectory()
 trajectory.plot_trajectory()
 # create reality to return (based on model/world and sensor suite and trajectory)
-reality = Reality(auv=auv,trajectory=trajectory)
+reality = Reality(auv=auv, trajectory=trajectory)
 
 # define which model/world to use
 world = World(trajectory=trajectory)
@@ -46,12 +33,12 @@ world.build_interpolator()
 
 # put it all together into a flight/mission object
 mission = Mission(id=1,
-                description="flight of the conchords",
-                world=world,
-                auv=auv,
-                trajectory=trajectory,
-                reality=reality
-                )
+                  description="flight of the conchords",
+                  world=world,
+                  auv=auv,
+                  trajectory=trajectory,
+                  reality=reality
+                  )
 # fly the mission to generate the interpolated data
 mission.fly()
 mission.show_reality()
@@ -68,4 +55,3 @@ def test_flight():
 
 def test_reality():
     assert mission.reality.read_only is not True
-
