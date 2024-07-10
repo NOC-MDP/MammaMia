@@ -20,7 +20,7 @@ class Mission:
         flight = dict(longitude=np.array(self.trajectory.trajectory["longitudes"]),
                       latitude=np.array(self.trajectory.trajectory["latitudes"]),
                       depth=np.array(self.trajectory.trajectory["depths"]),
-                      time=np.array(self.trajectory.trajectory["datatimes"],dtype='datetime64'),
+                      time=np.array(self.trajectory.trajectory["datetimes"],dtype='datetime64'),
                       )
         self.reality.temperature = self.world.interpolator.quadrivariate(flight)
 

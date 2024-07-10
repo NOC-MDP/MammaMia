@@ -16,8 +16,8 @@ class World():
         min_lat = np.min(trajectory.trajectory["latitudes"])
         max_lng = np.max(trajectory.trajectory["longitudes"])
         min_lng = np.min(trajectory.trajectory["longitudes"])
-        start_time = np.datetime_as_string(trajectory.trajectory["datatimes"][0]-np.timedelta64(1,'D'), unit="s")
-        end_time = np.datetime_as_string(trajectory.trajectory["datatimes"][-1]+np.timedelta64(1,'D'), unit="s")
+        start_time = np.datetime_as_string(trajectory.trajectory["datetimes"][0]-np.timedelta64(1,'D'), unit="s")
+        end_time = np.datetime_as_string(trajectory.trajectory["datetimes"][-1]+np.timedelta64(1,'D'), unit="s")
         max_depth = np.max(trajectory.trajectory["depths"])
         if not os.path.isdir("copernicus-data/CMEMS_world.zarr"):
             copernicusmarine.subset(
