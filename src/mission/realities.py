@@ -17,3 +17,4 @@ class Reality(zarr.Group):
             for sensor in group.sensors.values():
                 self.full(name=sensor.name, shape=trajectory.trajectory["latitudes"].__len__(), dtype=np.float64, fill_value=np.nan)
                 self.attrs["mapped_name"] = sensor.name
+

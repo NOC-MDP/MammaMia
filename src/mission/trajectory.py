@@ -5,7 +5,7 @@ from math import radians, cos, sin, asin, sqrt
 from datetime import timedelta, datetime
 from src.mission import auv as auv2
 import plotly.graph_objects as go
-
+import xarray as xr
 class Trajectory(zarr.Group):
     """
     pass in a waypoints file or object to build a trajectory
@@ -40,44 +40,61 @@ class Trajectory(zarr.Group):
         Create a trajectory based on the AUV class using the provided waypoints and AUV specification
         :return:
         """
+        ds = xr.open_dataset("Eltanin_660_R.nc")
         if not isinstance(auv, auv2.AUV):
             raise Exception("auv must be an AUV object")
-        start_timeDT = datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%SZ")
-        # TODO clean up this code, e.g. lat_way and lng_way will be accessible via self.
-        lats, lngs, depths, times = self.__interpolate_waypoints(lat_way=self.waypoints["latitudes"],
-                                                                 lng_way=self.waypoints["longitudes"],
-                                                                 start_time=start_timeDT,
-                                                                 speed_ms=auv.speed,
-                                                                 interval_seconds=auv.time_step,
-                                                                 sink_rate=auv.dive_rate,
-                                                                 surface_rate=auv.surface_rate,
-                                                                 target_depth=auv.target_depth,
-                                                                 dive_angle=auv.dive_angle,
-                                                                 surface_angle=auv.surface_angle,
-                                                                 time_surface=auv.time_at_surface,
-                                                                 time_depth=auv.time_at_depth,
-                                                                 min_depth=auv.min_depth
-                                                                 )
-        num_points = lats.__len__()
+        # start_timeDT = datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+        # # TODO clean up this code, e.g. lat_way and lng_way will be accessible via self.
+        # lats, lngs, depths, times = self.__interpolate_waypoints(lat_way=self.waypoints["latitudes"],
+        #                                                          lng_way=self.waypoints["longitudes"],
+        #                                                          start_time=start_timeDT,
+        #                                                          speed_ms=auv.speed,
+        #                                                          interval_seconds=auv.time_step,
+        #                                                          sink_rate=auv.dive_rate,
+        #                                                          surface_rate=auv.surface_rate,
+        #                                                          target_depth=auv.target_depth,
+        #                                                          dive_angle=auv.dive_angle,
+        #                                                          surface_angle=auv.surface_angle,
+        #                                                          time_surface=auv.time_at_surface,
+        #                                                          time_depth=auv.time_at_depth,
+        #                                                          min_depth=auv.min_depth
+        #                                                          )
+        num_points = ds["LATITUDE"].__len__()
         trajectory = self.create_group(name="trajectory")
+
         trajectory.full(name="latitudes", shape=(num_points,), dtype=np.float64, fill_value=np.nan)
         trajectory.full(name="longitudes", shape=(num_points,), dtype=np.float64, fill_value=np.nan)
         trajectory.full(name="depths", shape=(num_points,), dtype=np.float64, fill_value=np.nan)
         trajectory.full(name="datatimes", shape=(num_points,), dtype="M8[ns]", fill_value="1970-01-01T00:00:00")
 
-        for i in range(num_points):
-            trajectory["latitudes"][i] = lats[i]
-            trajectory["longitudes"][i] = lngs[i]
-            trajectory["depths"][i] = depths[i]
-            trajectory["datatimes"][i] = times[i]
+        trajectory["datatimes"] = np.array(ds["TIME"], dtype='datetime64')
+
+
+        trajectory["latitudes"] = np.array(ds["LATITUDE"])
+        trajectory["longitudes"] = np.array(ds["LONGITUDE"])
+        trajectory["depths"] = np.array(ds["PRES"])
 
     def plot_trajectory(self):
 
         x = self.trajectory["longitudes"][:,]
         y = self.trajectory["latitudes"][:,]
         z = self.trajectory["depths"][:,]
-        fig = go.Figure(data=[go.Scatter3d(x=x,y=y,z=z,mode='markers')])
-
+        dt = np.array(self.trajectory["datatimes"][:,]).tolist()
+        fig = go.Figure(data=[go.Scatter3d(x=x,y=y,z=z,mode='markers', marker=dict(
+                                                                                size=2,
+                                                                                color=dt,                # set color to an array/list of desired values
+                                                                                colorscale='Viridis',   # choose a colorscale
+                                                                                opacity=0.8,
+                                                                                colorbar=dict(thickness=40),
+                                                                            ))])
+        fig.update_scenes(zaxis_autorange="reversed")
+        fig.update_layout(
+            title=dict(text="Glider Trajectory", font=dict(size=25), automargin=True, yref='paper')
+        )
+        fig.update_layout(scene=dict(
+            xaxis_title='Longitude',
+            yaxis_title='Latitude',
+            zaxis_title='Depth'),)
         fig.show()
 
 

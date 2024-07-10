@@ -54,6 +54,7 @@ mission = Mission(id=1,
                 )
 # fly the mission to generate the interpolated data
 mission.fly()
+mission.show_reality()
 print("debug point!")
 
 
