@@ -28,10 +28,15 @@ class Trajectory(zarr.Group):
 
         ds = xr.open_dataset(glider_traj_path)
 
-        self.latitudes = np.array(ds["LATITUDE"])
-        self.longitudes = np.array(ds["LONGITUDE"])
-        self.depths = np.array(ds["GLIDER_DEPTH"])
-        self.datetimes = np.array(ds["TIME"], dtype='datetime64')
+        self.latitudes = np.array(ds["m_lat"])
+        self.longitudes = np.array(ds["m_lon"])
+        self.depths = np.array(ds["m_depth"])
+        self.datetimes = np.array(ds["time"], dtype='datetime64')
+
+        for i in range(self.longitudes.__len__()):
+            self.longitudes[i] = self.__convertToDecimal(self.longitudes[i])
+        for i in range(self.latitudes.__len__()):
+            self.latitudes[i] = self.__convertToDecimal(self.latitudes[i])
 
     def plot_trajectory(self):
         """
@@ -69,3 +74,14 @@ class Trajectory(zarr.Group):
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
         fig.show()
+
+    # From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
+    # Lucas Merckelbach
+    def __convertToDecimal(self,x):
+        ''' Converts a latitiude or longitude in NMEA format to decimale degrees'''
+        sign=np.sign(x)
+        xAbs=np.abs(x)
+        degrees=np.floor(xAbs/100.)
+        minutes=xAbs-degrees*100
+        decimalFormat=degrees+minutes/60.
+        return decimalFormat*sign

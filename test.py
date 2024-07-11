@@ -21,7 +21,7 @@ auv = Slocum(sensorsuite=Sensors)
 auv_custom = AUV(name="my AUV", sensors=ss2)
 
 # create trajectory object filled with waypoints
-trajectory = Trajectory(glider_traj_path="Eltanin_660_R.nc")
+trajectory = Trajectory(glider_traj_path="comet-mm1.nc")
 # generate a Slocum glider path based on waypoints and Slocum config
 trajectory.plot_trajectory()
 # create reality to return (based on model/world and sensor suite and trajectory)

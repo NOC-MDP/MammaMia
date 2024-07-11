@@ -19,7 +19,7 @@ class World(xr.Dataset):
         max_depth = np.max(trajectory.depths)
         if not os.path.isdir("copernicus-data/CMEMS_world.zarr"):
             copernicusmarine.subset(
-                dataset_id="cmems_mod_glo_phy-thetao_anfc_0.083deg_PT6H-i",
+                dataset_id="cmems_mod_glo_phy_my_0.083deg_P1D-m",
                 variables=["thetao"],
                 minimum_longitude=min_lng-0.5,
                 maximum_longitude=max_lng+0.5,
