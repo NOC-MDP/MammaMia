@@ -39,5 +39,5 @@ class World(xr.Dataset):
         # Initialize the base class with the created group attributes
         super().__init__(ds)
 
-    def build_interpolator(self):
+    def build(self):
         self.interpolator = pyinterp.backends.xarray.Grid4D(self.thetao)

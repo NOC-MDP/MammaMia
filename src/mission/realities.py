@@ -1,13 +1,25 @@
 import zarr
 import numpy as np
-from src.mission.auv import AUV
+from src.mission.glider import Glider
 from src.mission.trajectory import Trajectory
 from dataclasses import dataclass
 
 
 @dataclass
 class Reality(zarr.Group):
-    def __init__(self, auv: AUV, trajectory: Trajectory, store=None, overwrite=False):
+    """
+    Creates an empty glider reality derived from a zarr group that can be filled with interpolated data from the world object
+
+    Parameters:
+    - glider: Glider class object loaded with sensor suite
+    - trajectory: Trajectory object loaded from glider simulator
+    - store: default None (optional) specify what type of zarr store to use
+    - overwrite default False (optional) specify if you want to overwrite an existing zarr store
+
+    Returns:
+    - Reality zarr group that is initialized to fit the requried trajectory and sensor suite of glider
+    """
+    def __init__(self, glider: Glider, trajectory: Trajectory, store=None, overwrite=False):
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
 
@@ -15,7 +27,7 @@ class Reality(zarr.Group):
         super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
                          synchronizer=group.synchronizer)
 
-        for group in auv.sensors.values():
+        for group in glider.sensors.values():
             for sensor in group.sensors.values():
                 self.full(name=sensor.name, shape=trajectory.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
                 self.attrs["mapped_name"] = sensor.name

@@ -77,11 +77,14 @@ class Trajectory(zarr.Group):
 
     # From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
     # Lucas Merckelbach
-    def __convertToDecimal(self,x):
-        ''' Converts a latitiude or longitude in NMEA format to decimale degrees'''
-        sign=np.sign(x)
-        xAbs=np.abs(x)
-        degrees=np.floor(xAbs/100.)
-        minutes=xAbs-degrees*100
-        decimalFormat=degrees+minutes/60.
-        return decimalFormat*sign
+    @staticmethod
+    def __convertToDecimal(x):
+        """
+        Converts a latitiude or longitude in NMEA format to decimale degrees
+        """
+        sign = np.sign(x)
+        xAbs = np.abs(x)
+        degrees = np.floor(xAbs / 100.)
+        minutes = xAbs - degrees * 100
+        decimalFormat = degrees + minutes / 60.
+        return decimalFormat * sign

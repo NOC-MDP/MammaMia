@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
-from src.mission import auv, realities, trajectory, world
+from src.mission import glider, realities, trajectory, world
 import plotly.graph_objects as go
 
 
@@ -10,7 +10,7 @@ class Mission:
     description: str
     world: world.World
     trajectory: trajectory.Trajectory
-    auv: auv.AUV
+    glider: glider.Glider
     reality: realities.Reality
 
     def fly(self):

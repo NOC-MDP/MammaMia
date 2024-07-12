@@ -38,8 +38,8 @@ $ conda activate mm
 ```
 
 ### Installing the glider simulator
-Currently the glider simulator is not part of mamma mis and is used seperately. So in a seperate folder (or HOME) running
-the following script will install the glider simulator. It is recommended a seperate virtual environment to Mamma mia is
+Currently the glider simulator is not part of mamma mia and is used/operated seperately. In a separate folder (or HOME) running
+the following script will install the glider simulator. It is recommended a separate virtual environment to Mamma mia is
 used to ensure no dependency clashes.
 ```#!/bin/bash
 
@@ -58,6 +58,11 @@ pip install glidersim
 ```
 
 ## Testing
+### Prerequisites
+In order to test Mamma mia, an glider trajectory needs to be created, please read the install and usage sections of the glider
+simulator. The example script in the glidersim repository will produce the required trajectory.
+
+### Running test suite
 Mamma mia uses pytest to test its code, to test for correction installation please run:
 
 ```shell
@@ -76,21 +81,7 @@ Mamma mia has the following concepts:
 - Mission (all the above stored in one object)
 
 ### AUV (virtual glider)
-This is represented in Mamma mia as a class object with fields holding parameters required for glider simulation e.g.
-
-* speed
-* dive rate
-* dive angle
-* surface rate
-* surface angle
-* sensors
-
-It also holds parameters about the dive, e.g.
-
-* time at surface
-* time at depth
-* target depth
-* min depth etc.
+This is represented in Mamma mia as a class object, containing the sensor suite that has been specified. 
 
 ### Sensors
 Sensors are grouped in several ways:
@@ -151,7 +142,7 @@ Generate the output by running the example.py script:
 $ python example.py
 ```
 
-This can then be copied into the MammaMia repository.
+The output "comet-mm1.nc" can then be copied into the MammaMia repository, where it should be recognised by the test.py script.
 
 ## Outstanding development
 Mamma mia is in very early development and has many things outstanding, the list below is non exhaustive but provides 
