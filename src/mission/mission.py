@@ -6,6 +6,20 @@ import plotly.graph_objects as go
 
 @dataclass
 class Mission:
+    """
+    Creates a mission object
+
+    Parameters:
+    - id
+    - description
+    - world
+    - trajectory
+    - glider
+    -reality
+
+    Returns:
+    - Mission object that is ready for flight!
+    """
     id: int
     description: str
     world: world.World

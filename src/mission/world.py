@@ -8,6 +8,15 @@ from dataclasses import dataclass
 
 @dataclass
 class World(xr.Dataset):
+    """
+    Creates a world zarr group containing data for the world that the glider will fly through
+
+    Parameters:
+    - trajectory: Trajectory object containing the glider trajectory
+
+    Returns:
+    - World zarr group filled with data
+    """
     def __init__(self, trajectory: Trajectory, overwrite=False):
         self.interpolator = None
         max_lat = np.max(trajectory.latitudes)
@@ -40,4 +49,13 @@ class World(xr.Dataset):
         super().__init__(ds)
 
     def build(self):
+        """
+        Creates a 4D interpolator that allows a world to be interpolated on to a trajectory
+
+        Parameters:
+        - None
+
+        Returns:
+        - World object with an interpolator
+        """
         self.interpolator = pyinterp.backends.xarray.Grid4D(self.thetao)
