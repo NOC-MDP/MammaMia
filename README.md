@@ -5,10 +5,10 @@ This toolbox enables the simulation of a glider through a models "virtual realit
 will fly through, this comprises a suitable model or set of models. When creating the virtual glider the user can define
 a sensor suite which can comprise of different instrumentation, e,g, CTD or ADCP. All together these components are 
 defined in a mission, that when executed will return a "reality" that contains the interpolated values that the virtual 
-glider observes during its mission. Currently a trajectory from a real glider is used in place of a generated one.
+glider observes during its mission. A trajectory is generated using a glider simulator that simulates a slocum glider.
 
 ![example_trajectory](img/example_trajectory.png)
-*Example trajectory of a glider, the colour denotes time (the darker the colour the older the track is)*
+*Example trajectory of a glider, the colour denotes time (the darker the colour the older the section of the trajectory is)*
 
 When processed through Mamma mia, this trajectory results in a reality, containing interpolated data from an model. 
 The screenshot below shows what this would look like. The temperature the glider experiences over the trajectory is
@@ -35,6 +35,26 @@ before using,
 
 ```shell
 $ conda activate mm
+```
+
+### Installing the glider simulator
+Currently the glider simulator is not part of mamma mis and is used seperately. So in a seperate folder (or HOME) running
+the following script will install the glider simulator. It is recommended a seperate virtual environment to Mamma mia is
+used to ensure no dependency clashes.
+```#!/bin/bash
+
+# get the source of additional packages from github
+git clone https://github.com/NOC-MDP/latlon.git
+git clone https://github.com/NOC-MDP/GliderNetCDF.git
+pip install ./latlon ./GliderNetCDF
+
+pip install -r requirements.txt
+pip install gsw
+
+# Get and install glidersim.
+git clone https://github.com/NOC-MDP/glidersim.git
+pip install glidersim
+
 ```
 
 ## Testing
@@ -117,17 +137,32 @@ interpolated data from the world.
 ### Mission
 This is the parent/main class for Mamma mia in that it holds all the other classes and performs the main functions.
 
+### Using the glider simulator
+The simulator has been modifed so it works with the example script in its README. A new mission profile has been created
+called mm1, this will run a glider simulation that results in the trajectory above. (6 hours no surfacing a single waypoint)
+
+To generate the simulation output, there needs to be a bathymetry file. GEBCO is suitable and compatible with the mm1 
+configuration. However the bathymetry needs to be a subset from the global dataset. Easiest method is to download the subset
+from BODC. Downloading 45-48 N and -6.5 to -8 E should be sufficent.
+
+Generate the output by running the example.py script:
+
+```shell
+$ python example.py
+```
+
+This can then be copied into the MammaMia repository.
 
 ## Outstanding development
 Mamma mia is in very early development and has many things outstanding, the list below is non exhaustive but provides 
-an indication of future developement:
+an indication of future development:
 
-- Only temperature data is availble in the world
-- Trajectories are imported from existing glider datasets (inital attempts to produce pseudo trajectories are lame!)
-- Interpolation has NaN in places (needs investigation as to why)
+- Only temperature data is available in the world
+- Trajectories are generated using a seperate simulator that is fixed to August 2019.
+- Unable to handle new regions, (need to manually delete zarr so a new one one download with updated data inside)
 - visualisation is very basic
 - currently need to build classes and then add to mission class, users should only interact with main class 
-- (custom sensors etc aside)
+(custom sensors etc aside)
 
 
 
