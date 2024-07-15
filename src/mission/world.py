@@ -25,9 +25,9 @@ class World(dict):
         matched = self.__find_worlds(reality,trajectory)
         ds = {}
         for key, value in matched.items():
-            self.__get_worlds(trajectory=trajectory,key=key,value=value)
+            store = self.__get_worlds(trajectory=trajectory,key=key,value=value)
             # Create the ds using the separate method
-            ds[key] = (xr.open_zarr(store=f"copernicus-data/{key}.zarr"))
+            ds[key] = (xr.open_zarr(store=store))
         # Initialize the base class with the created group attributes
         super().__init__(ds)
         self.__build_world(matched)
@@ -87,17 +87,22 @@ class World(dict):
         return matched
 
     def __get_worlds(self,trajectory:Trajectory,key,value):
-        max_lat = np.max(trajectory.latitudes)
-        min_lat = np.min(trajectory.latitudes)
-        max_lng = np.max(trajectory.longitudes)
-        min_lng = np.min(trajectory.longitudes)
-        start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="s")
-        end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="s")
-        max_depth = np.max(trajectory.depths)
-        if not os.path.isdir(f"copernicus-data/{key}.zarr"):
+        vars=[]
+        for k2,v2 in value.items():
+            vars.append(v2)
+        max_lat = np.around(np.max(trajectory.latitudes),2) + 0.5
+        min_lat = np.around(np.min(trajectory.latitudes),2) - 0.5
+        max_lng = np.around(np.max(trajectory.longitudes),2) + 0.5
+        min_lng = np.around(np.min(trajectory.longitudes),2) - 0.5
+        start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="D")
+        end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="D")
+        max_depth = np.around(np.max(trajectory.depths),2) + 100
+        zarr_f = f"{key}_{max_lng}_{min_lng}_{max_lat}_{min_lat}_{max_depth}_{start_time}_{end_time}.zarr"
+        zarr_d = "copernicus-data/"
+        if not os.path.isdir(zarr_d+zarr_f):
             copernicusmarine.subset(
                 dataset_id=key,
-                variables=value,
+                variables=vars,
                 minimum_longitude=min_lng - 0.5,
                 maximum_longitude=max_lng + 0.5,
                 minimum_latitude=min_lat - 0.5,
@@ -106,11 +111,12 @@ class World(dict):
                 end_datetime=str(end_time),
                 minimum_depth=0,
                 maximum_depth=max_depth + 100,
-                output_filename=f"{key}.zarr",
-                output_directory="copernicus-data",
+                output_filename=zarr_f,
+                output_directory=zarr_d,
                 file_format="zarr",
                 force_download=True
             )
+        return zarr_d+zarr_f
 
 
     def __build_world(self,matched):
