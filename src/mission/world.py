@@ -12,47 +12,20 @@ import re
 @dataclass
 class World(dict):
     """
-    Creates a world zarr group containing data for the world that the glider will fly through
+    Creates a dict containing data for the world that the glider will fly through
 
     Parameters:
     - trajectory: Trajectory object containing the glider trajectory
 
     Returns:
-    - World xarray dataset filled with data
+    - dict with xarray datasets filled with data
     """
-
     def __init__(self, trajectory: Trajectory, reality:Reality):
         self.interpolator = {}
-        max_lat = np.max(trajectory.latitudes)
-        min_lat = np.min(trajectory.latitudes)
-        max_lng = np.max(trajectory.longitudes)
-        min_lng = np.min(trajectory.longitudes)
-        start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="s")
-        end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="s")
-        max_depth = np.max(trajectory.depths)
-
         matched = self.__find_worlds(reality,trajectory)
-
         ds = {}
-
         for key, value in matched.items():
-            if not os.path.isdir(f"copernicus-data/{key}.zarr"):
-                copernicusmarine.subset(
-                    dataset_id=key,
-                    variables=value,
-                    minimum_longitude=min_lng - 0.5,
-                    maximum_longitude=max_lng + 0.5,
-                    minimum_latitude=min_lat - 0.5,
-                    maximum_latitude=max_lat + 0.5,
-                    start_datetime=str(start_time),
-                    end_datetime=str(end_time),
-                    minimum_depth=0,
-                    maximum_depth=max_depth + 100,
-                    output_filename=f"{key}.zarr",
-                    output_directory="copernicus-data",
-                    file_format="zarr",
-                    force_download=True
-                )
+            self.__get_worlds(trajectory=trajectory,key=key,value=value)
             # Create the ds using the separate method
             ds[key] = (xr.open_zarr(store=f"copernicus-data/{key}.zarr"))
         # Initialize the base class with the created group attributes
@@ -113,8 +86,32 @@ class World(dict):
 
         return matched
 
-    def __get_world(self):
-        pass
+    def __get_worlds(self,trajectory:Trajectory,key,value):
+        max_lat = np.max(trajectory.latitudes)
+        min_lat = np.min(trajectory.latitudes)
+        max_lng = np.max(trajectory.longitudes)
+        min_lng = np.min(trajectory.longitudes)
+        start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="s")
+        end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="s")
+        max_depth = np.max(trajectory.depths)
+        if not os.path.isdir(f"copernicus-data/{key}.zarr"):
+            copernicusmarine.subset(
+                dataset_id=key,
+                variables=value,
+                minimum_longitude=min_lng - 0.5,
+                maximum_longitude=max_lng + 0.5,
+                minimum_latitude=min_lat - 0.5,
+                maximum_latitude=max_lat + 0.5,
+                start_datetime=str(start_time),
+                end_datetime=str(end_time),
+                minimum_depth=0,
+                maximum_depth=max_depth + 100,
+                output_filename=f"{key}.zarr",
+                output_directory="copernicus-data",
+                file_format="zarr",
+                force_download=True
+            )
+
 
     def __build_world(self,matched):
         """
@@ -126,8 +123,12 @@ class World(dict):
         Returns:
         - World object with an interpolator
         """
+        # for every dataset
         for key in self.keys():
+            # for every variable
             for var in self[key]:
+                # for each item in matched dictionary
                 for k1, v1, in matched[key].items():
+                    # if variable names match (this is to ensure varible names are consistent)
                     if var == v1:
                         self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var])
