@@ -34,8 +34,11 @@ class Mission:
             "depth": np.array(self.trajectory.depths),
             "time": np.array(self.trajectory.datetimes, dtype='datetime64'),
         }
-        self.reality.temperature = self.world.interpolator.quadrivariate(flight)
-
+        for key in self.reality.array_keys():
+            try:
+                self.reality[key] = self.world.interpolator[key].quadrivariate(flight)
+            except KeyError:
+                print(f"no interpolator found for parameter {key}")
     def show_reality(self):
         marker = {
             "size": 2,

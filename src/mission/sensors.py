@@ -70,3 +70,23 @@ class CTD(SensorGroup):
                         "pressure": Sensor(name="pressure",units="Pa"),
                         }
 
+@dataclass
+class BIO(SensorGroup):
+    """
+    creates a CTD sensor group, derived from SensorGroup.
+
+    Parameters:
+    - None
+
+    Returns:
+    - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
+    """
+    name: str = "CTD"
+
+    def __post_init__(self):
+        self.sensors = {
+                        "phosphate": Sensor(name="phosphate",units=""),
+                        "nitrate": Sensor(name="nitrate",units=""),
+                        "silicate": Sensor(name="silicate",units=""),
+                        }
+
