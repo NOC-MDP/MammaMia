@@ -7,6 +7,7 @@ import xarray as xr
 import pyinterp.backends.xarray
 from dataclasses import dataclass
 from src.mission.worlds import Worlds
+import re
 
 @dataclass
 class World(xr.Dataset):
@@ -85,8 +86,19 @@ class World(xr.Dataset):
                                 extent[2] < np.min(trajectory.latitudes) and extent[3] > np.max(trajectory.latitudes):
                                 # check that temporal extent is within trajectory extent
                                 t_extent = world_data["extent"]["temporal"]
-                                start_t = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="s")
-                                end_t = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="s")
+                                # if forecast model then create temporal extent using dataset specification
+                                if world_data["forecast"]:
+                                    # match any ints pattern
+                                    pattern = r'\d+'
+                                    # Use the findall method to get all matches of the pattern
+                                    past = int(re.findall(pattern, t_extent[0])[0])
+                                    future = int(re.findall(pattern, t_extent[1])[0])
+                                    start_t = np.datetime_as_string(np.datetime64("now") - np.timedelta64(int(past)*365, 'D'), unit="s")
+                                    end_t = np.datetime_as_string(np.datetime64("now") + np.timedelta64(int(future), 'D'), unit="s")
+                                else:
+                                    start_t = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="s")
+                                    end_t = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="s")
+                                # check to see if trajectory extent is within dataset
                                 if start_t > t_extent[0] and end_t < t_extent[1]:
                                     # if dataset id exists append to it
                                     if dataset_id in matched:
