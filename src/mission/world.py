@@ -10,7 +10,7 @@ from src.mission.worlds import Worlds
 import re
 
 @dataclass
-class World(xr.Dataset):
+class World(dict):
     """
     Creates a world zarr group containing data for the world that the glider will fly through
 
@@ -33,8 +33,10 @@ class World(xr.Dataset):
 
         matched = self.__find_worlds(reality,trajectory)
 
-        if not os.path.isdir("copernicus-data/CMEMS_world.zarr"):
-            for key, value in matched.items():
+        ds = {}
+
+        for key, value in matched.items():
+            if not os.path.isdir(f"copernicus-data/{key}.zarr"):
                 copernicusmarine.subset(
                     dataset_id=key,
                     variables=value,
@@ -46,16 +48,16 @@ class World(xr.Dataset):
                     end_datetime=str(end_time),
                     minimum_depth=0,
                     maximum_depth=max_depth + 100,
-                    output_filename="CMEMS_world.zarr",
+                    output_filename=f"{key}.zarr",
                     output_directory="copernicus-data",
                     file_format="zarr",
                     force_download=True
                 )
-        # Create the ds using the separate method
-        ds = xr.open_zarr(store="copernicus-data/CMEMS_world.zarr")
+            # Create the ds using the separate method
+            ds[key] = (xr.open_zarr(store=f"copernicus-data/{key}.zarr"))
         # Initialize the base class with the created group attributes
         super().__init__(ds)
-        self.__build_world()
+        self.__build_world(matched)
 
     def __find_worlds(self,reality:Reality,trajectory:Trajectory):
         """
@@ -100,12 +102,12 @@ class World(xr.Dataset):
                                     end_t = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="s")
                                 # check to see if trajectory extent is within dataset
                                 if start_t > t_extent[0] and end_t < t_extent[1]:
-                                    # if dataset id exists append to it
+                                    # if dataset id exists add to dictionary entry
                                     if dataset_id in matched:
-                                        matched[dataset_id].append(dataset_data["variables"][key])
+                                        matched[dataset_id][key] = dataset_data["variables"][key]
                                     # or create the dictionary entry
                                     else:
-                                        matched[dataset_id] = [dataset_data["variables"][key]]
+                                        matched[dataset_id] = {key: dataset_data["variables"][key]}
                 else:
                     raise Exception("Only CMEMS sources currently supported")
 
@@ -114,7 +116,7 @@ class World(xr.Dataset):
     def __get_world(self):
         pass
 
-    def __build_world(self):
+    def __build_world(self,matched):
         """
         Creates a 4D interpolator that allows a world to be interpolated on to a trajectory
 
@@ -125,8 +127,7 @@ class World(xr.Dataset):
         - World object with an interpolator
         """
         for key in self.keys():
-            if key == "so":
-                ikey = "salinity"
-            if key == "thetao":
-                ikey = "temperature"
-            self.interpolator[ikey] = pyinterp.backends.xarray.Grid4D(self[key])
+            for var in self[key]:
+                for k1, v1, in matched[key].items():
+                    if var == v1:
+                        self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var])
