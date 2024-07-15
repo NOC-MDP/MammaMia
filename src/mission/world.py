@@ -87,30 +87,34 @@ class World(dict):
         return matched
 
     def __get_worlds(self,trajectory:Trajectory,key,value):
+        excess_space = 0.5
+        # TODO need ideally dynamically set this using bathy as in deep water 100 might not be enough
+        excess_depth = 100
         vars=[]
+        # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
         for k2,v2 in value.items():
             vars.append(v2)
-        max_lat = np.around(np.max(trajectory.latitudes),2) + 0.5
-        min_lat = np.around(np.min(trajectory.latitudes),2) - 0.5
-        max_lng = np.around(np.max(trajectory.longitudes),2) + 0.5
-        min_lng = np.around(np.min(trajectory.longitudes),2) - 0.5
+        max_lat = np.around(np.max(trajectory.latitudes),2) + excess_space
+        min_lat = np.around(np.min(trajectory.latitudes),2) - excess_space
+        max_lng = np.around(np.max(trajectory.longitudes),2) + excess_space
+        min_lng = np.around(np.min(trajectory.longitudes),2) - excess_space
         start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="D")
         end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="D")
-        max_depth = np.around(np.max(trajectory.depths),2) + 100
+        max_depth = np.around(np.max(trajectory.depths),2) + excess_depth
         zarr_f = f"{key}_{max_lng}_{min_lng}_{max_lat}_{min_lat}_{max_depth}_{start_time}_{end_time}.zarr"
         zarr_d = "copernicus-data/"
         if not os.path.isdir(zarr_d+zarr_f):
             copernicusmarine.subset(
                 dataset_id=key,
                 variables=vars,
-                minimum_longitude=min_lng - 0.5,
-                maximum_longitude=max_lng + 0.5,
-                minimum_latitude=min_lat - 0.5,
-                maximum_latitude=max_lat + 0.5,
+                minimum_longitude=min_lng,
+                maximum_longitude=max_lng,
+                minimum_latitude=min_lat,
+                maximum_latitude=max_lat,
                 start_datetime=str(start_time),
                 end_datetime=str(end_time),
                 minimum_depth=0,
-                maximum_depth=max_depth + 100,
+                maximum_depth=max_depth,
                 output_filename=zarr_f,
                 output_directory=zarr_d,
                 file_format="zarr",
