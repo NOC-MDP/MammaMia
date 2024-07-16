@@ -5,9 +5,10 @@ dependencies:
   - copernicusmarine
   - geojson
   - numpy
+  - plotly
   - pyinterp
   - pytest
   - python=3.11
   - zarr
-  - plotly
-prefix: /home/thopri/miniforge3/envs/mm
+  - gsw
+prefix: /usr/local/Caskroom/miniforge/base/envs/mm
