@@ -41,8 +41,9 @@ class Cats:
     cmems_cat: dict
 
     # TODO add in some kind of update check so that the json file is updated periodically
-    def __init__(self, filtercat: str = "GLOBAL",overwrite=False):
-        self.cmems_cat = copernicusmarine.describe(contains=[filtercat],include_datasets=True,overwrite_metadata_cache=overwrite)
+    def __init__(self, search: str = "GLOBAL", overwrite=False):
+        self.cmems_cat = copernicusmarine.describe(contains=[search],include_datasets=True,
+                                                   overwrite_metadata_cache=overwrite)
 
 
 @dataclass
@@ -60,7 +61,6 @@ class World(dict):
     Returns:
     - dict with xarray datasets filled with data
     """
-
     def __init__(self, trajectory: Trajectory, reality: Reality):
         self.catalog = Cats()
         self.extent = Extent(trajectory=trajectory)
