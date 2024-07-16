@@ -4,3 +4,4 @@ __pycache__
 *.zarr
 .DS_Store
 *.nc
+*.json

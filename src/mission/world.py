@@ -6,8 +6,34 @@ import os
 import xarray as xr
 import pyinterp.backends.xarray
 from dataclasses import dataclass
-from src.mission.worlds import Worlds
-import re
+from src.mission.alias import alias
+import copernicusmarine
+import json
+
+@dataclass
+class Cats:
+    cmems_cat: dict
+
+    def __init__(self,overwrite=False):
+        if overwrite:
+            self.__get_cmems_cat(overwrite=True)
+        else:
+            try:
+                with open("CMEMS_cat.json") as f:
+                    self.cmems_cat = json.load(f)
+            except FileNotFoundError:
+                self.__get_cmems_cat()
+
+    def __get_cmems_cat(self,overwrite=False):
+        if overwrite:
+            catalog = copernicusmarine.describe(contains=["GLOBAL"],
+                                                include_datasets=True,overwrite_metadata_cache=True)
+        else:
+            catalog = copernicusmarine.describe(contains=["GLOBAL"],
+                                                include_datasets=True)
+        self.cmems_cat = catalog
+        with open("CMEMS_cat.json",'w') as f:
+            json.dump(catalog, f)
 
 @dataclass
 class World(dict):
@@ -21,6 +47,7 @@ class World(dict):
     - dict with xarray datasets filled with data
     """
     def __init__(self, trajectory: Trajectory, reality:Reality):
+        self.catalog = Cats()
         self.interpolator = {}
         matched = self.__find_worlds(reality,trajectory)
         ds = {}
@@ -46,49 +73,56 @@ class World(dict):
         matched = {}
         # for every array in the reality group
         for key in reality.array_keys():
-            # check each world
-            for world_id, world_data in Worlds.items():
-                # if CMEMS dataset
-                if world_data["source"] == "CMEMS":
-                    # check each world dataset
-                    for dataset_id, dataset_data in world_data["datasets"].items():
-                        vars = dataset_data["variables"]
-                        # if there is a variable that matches the reality array
-                        if key in vars:
-                            # check extent is within trajectory extents
-                            extent = world_data["extent"]["spatial"]
-                            if extent[0] < np.min(trajectory.longitudes) and extent[1] > np.max(trajectory.longitudes) and \
-                                extent[2] < np.min(trajectory.latitudes) and extent[3] > np.max(trajectory.latitudes):
-                                # check that temporal extent is within trajectory extent
-                                t_extent = world_data["extent"]["temporal"]
-                                # if forecast model then create temporal extent using dataset specification
-                                if world_data["forecast"]:
-                                    # match any ints pattern
-                                    pattern = r'\d+'
-                                    # Use the findall method to get all matches of the pattern
-                                    past = int(re.findall(pattern, t_extent[0])[0])
-                                    future = int(re.findall(pattern, t_extent[1])[0])
-                                    start_t = np.datetime_as_string(np.datetime64("now") - np.timedelta64(int(past)*365, 'D'), unit="s")
-                                    end_t = np.datetime_as_string(np.datetime64("now") + np.timedelta64(int(future), 'D'), unit="s")
-                                else:
-                                    start_t = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="s")
-                                    end_t = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="s")
-                                # check to see if trajectory extent is within dataset
-                                if start_t > t_extent[0] and end_t < t_extent[1]:
-                                    # if dataset id exists add to dictionary entry
-                                    if dataset_id in matched:
-                                        matched[dataset_id][key] = dataset_data["variables"][key]
-                                    # or create the dictionary entry
-                                    else:
-                                        matched[dataset_id] = {key: dataset_data["variables"][key]}
-                else:
-                    raise Exception("Only CMEMS sources currently supported")
+            # check each product in catalog
+            for k1, v1 in self.catalog.cmems_cat.items():
+                for i in range(len(v1)):
+                    # ensure its a numerical model
+                    if v1[i]["sources"][0] != "Numerical models":
+                        print("warning product is not a numerical model")
+                        break
+                    # check each dataset
+                    for j in range(len(v1[i]["datasets"])):
+                        dataset = v1[i]["datasets"][j]
+                        for k in range(len(dataset["versions"][0]["parts"][0]["services"])):
+                            if dataset["versions"][0]["parts"][0]["services"][k]["service_format"] == "zarr" and dataset["versions"][0]["parts"][0]["services"][k]["service_type"]["service_name"] == "arco-geo-series":
+                                break
+                        variables = dataset["versions"][0]["parts"][0]["services"][k]["variables"]
+                        # check each variable
+                        for m in range(len(variables)):
+                            if key not in alias:
+                                print(f"variable {key} not in alias file")
+                            if variables[m]["short_name"] in alias[key]:
+                                # if trajectory spatial extent is within variable data
+                                if variables[m]["bbox"][0] < np.min(trajectory.longitudes) or variables[m]["bbox"][1] > np.min(trajectory.latitudes) \
+                                        or variables[m]["bbox"][2] > np.max(trajectory.longitudes) or variables[m]["bbox"][3] > np.max(trajectory.latitudes):
+                                    # find the time coordinate index
+                                    for n in range(len(variables[m]["coordinates"])):
+                                        if variables[m]["coordinates"][n]["coordinates_id"] == "time":
+                                            break
+                                    try:
+                                        start = variables[m]["coordinates"][n]["values"][0]
+                                        end = variables[m]["coordinates"][n]["values"][-1]
+                                        step = variables[m]["coordinates"][n]["values"][1] - variables[m]["coordinates"][n]["values"][0]
+                                    except TypeError:
+                                        start = variables[m]["coordinates"][n]["minimum_value"]
+                                        end = variables[m]["coordinates"][n]["maximum_value"]
+                                        step = variables[m]["coordinates"][n]["step"]
+                                    start_traj = float((trajectory.datetimes[0] - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+                                    end_traj = float((trajectory.datetimes[-1] - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+                                    # check if trajectory temporal extent is within variable data
+                                    if start_traj > start and end_traj < end:
+                                        # make sure data is at least daily
+                                        if step <= 86400000:
+                                            if dataset["dataset_id"] in matched:
+                                                matched[dataset["dataset_id"]][key] = variables[m]["short_name"]
+                                            else:
+                                                matched[dataset["dataset_id"]] = {key: variables[m]["short_name"]}
 
         return matched
 
     def __get_worlds(self,trajectory:Trajectory,key,value):
         excess_space = 0.5
-        # TODO need ideally dynamically set this using bathy as in deep water 100 might not be enough
+        # TODO need ideally dynamically set this using bathy as in deep water 100 might not be enough?
         excess_depth = 100
         vars=[]
         # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
