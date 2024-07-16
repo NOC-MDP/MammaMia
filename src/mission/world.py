@@ -40,26 +40,9 @@ class Cats:
     """
     cmems_cat: dict
 
-    def __init__(self, overwrite=False):
-        if overwrite:
-            self.__get_cmems_cat(overwrite=True)
-        else:
-            try:
-                with open("CMEMS_cat.json") as f:
-                    self.cmems_cat = json.load(f)
-            except FileNotFoundError:
-                self.__get_cmems_cat()
-
-    def __get_cmems_cat(self, overwrite=False):
-        if overwrite:
-            catalog = copernicusmarine.describe(contains=["GLOBAL"],
-                                                include_datasets=True, overwrite_metadata_cache=True)
-        else:
-            catalog = copernicusmarine.describe(contains=["GLOBAL"],
-                                                include_datasets=True)
-        self.cmems_cat = catalog
-        with open("CMEMS_cat.json", 'w') as f:
-            json.dump(catalog, f)
+    # TODO add in some kind of update check so that the json file is updated periodically
+    def __init__(self, filtercat: str = "GLOBAL",overwrite=False):
+        self.cmems_cat = copernicusmarine.describe(contains=[filtercat],include_datasets=True,overwrite_metadata_cache=overwrite)
 
 
 @dataclass
@@ -67,6 +50,7 @@ class World(dict):
     catalog: Cats
     extent: Extent
     interpolator: dict
+    matched_worlds: dict
     """
     Creates a dict containing data for the world that the glider will fly through
 
@@ -81,15 +65,16 @@ class World(dict):
         self.catalog = Cats()
         self.extent = Extent(trajectory=trajectory)
         self.interpolator = {}
-        matched = self.__find_worlds(reality=reality)
+        self.matched_worlds = {}
+        self.__find_worlds(reality=reality)
         ds = {}
-        for key, value in matched.items():
+        for key, value in self.matched_worlds.items():
             store = self.__get_worlds(key=key, value=value)
             # Create the ds using the separate method
             ds[key] = (xr.open_zarr(store=store))
         # Initialize the base class with the created group attributes
         super().__init__(ds)
-        self.__build_world(matched)
+        self.__build_world()
 
     def __find_worlds(self, reality: Reality):
         """
@@ -101,63 +86,9 @@ class World(dict):
         Returns:
         - Python dict with matched dataset ids and variable names
         """
-        matched = {}
         # for every array in the reality group
         for key in reality.array_keys():
-            # check each product in catalog
-            for k1, v1 in self.catalog.cmems_cat.items():
-                for i in range(len(v1)):
-                    # ensure it is a numerical model
-                    if v1[i]["sources"][0] != "Numerical models":
-                        print("warning product is not a numerical model")
-                        break
-                    # check each dataset
-                    for j in range(len(v1[i]["datasets"])):
-                        dataset = v1[i]["datasets"][j]
-                        k = None
-                        for k in range(len(dataset["versions"][0]["parts"][0]["services"])):
-                            if dataset["versions"][0]["parts"][0]["services"][k]["service_format"] == "zarr" and \
-                                    dataset["versions"][0]["parts"][0]["services"][k]["service_type"][
-                                        "service_name"] == "arco-geo-series":
-                                break
-                        variables = dataset["versions"][0]["parts"][0]["services"][k]["variables"]
-                        # check each variable
-                        for m in range(len(variables)):
-                            if key not in alias:
-                                print(f"variable {key} not in alias file")
-                            if variables[m]["short_name"] in alias[key]:
-                                # if trajectory spatial extent is within variable data
-                                if (variables[m]["bbox"][0] < self.extent.min_lng or
-                                        variables[m]["bbox"][1] > self.extent.min_lat
-                                        or variables[m]["bbox"][2] > self.extent.max_lng or
-                                        variables[m]["bbox"][3] > self.extent.min_lat):
-                                    # find the time coordinate index
-                                    n = None
-                                    for n in range(len(variables[m]["coordinates"])):
-                                        if variables[m]["coordinates"][n]["coordinates_id"] == "time":
-                                            break
-                                    try:
-                                        start = variables[m]["coordinates"][n]["values"][0]
-                                        end = variables[m]["coordinates"][n]["values"][-1]
-                                        step = variables[m]["coordinates"][n]["values"][1] - variables[m]["coordinates"][n]["values"][0]
-                                    except TypeError:
-                                        start = variables[m]["coordinates"][n]["minimum_value"]
-                                        end = variables[m]["coordinates"][n]["maximum_value"]
-                                        step = variables[m]["coordinates"][n]["step"]
-                                    start_traj = float((np.datetime64(self.extent.start_time) - np.datetime64(
-                                        '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
-                                    end_traj = float((np.datetime64(self.extent.end_time) - np.datetime64(
-                                        '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
-                                    # check if trajectory temporal extent is within variable data
-                                    if start_traj > start and end_traj < end:
-                                        # make sure data is at least daily
-                                        if step <= 86400000:
-                                            if dataset["dataset_id"] in matched:
-                                                matched[dataset["dataset_id"]][key] = variables[m]["short_name"]
-                                            else:
-                                                matched[dataset["dataset_id"]] = {key: variables[m]["short_name"]}
-
-        return matched
+            self.__find_cmems_worlds(key=key)
 
     def __get_worlds(self, key, value):
         vars2 = []
@@ -186,7 +117,7 @@ class World(dict):
             )
         return zarr_d + zarr_f
 
-    def __build_world(self, matched):
+    def __build_world(self):
         """
         Creates a 4D interpolator that allows a world to be interpolated on to a trajectory
 
@@ -201,7 +132,67 @@ class World(dict):
             # for every variable
             for var in self[key]:
                 # for each item in matched dictionary
-                for k1, v1, in matched[key].items():
+                for k1, v1, in self.matched_worlds[key].items():
                     # if variable names match (this is to ensure varible names are consistent)
                     if var == v1:
                         self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var])
+
+    def __find_cmems_worlds(self, key: str):
+        """
+        Traverse CMEMS catalog and find products/datasets that match the glider sensors and
+        the trajectory spatial and temporal extent.
+        """
+        # check each product in cmems catalog
+        for k1, v1 in self.catalog.cmems_cat.items():
+            for i in range(len(v1)):
+                # ensure it is a numerical model
+                if v1[i]["sources"][0] != "Numerical models":
+                    print("warning product is not a numerical model")
+                    break
+                # check each dataset
+                for j in range(len(v1[i]["datasets"])):
+                    dataset = v1[i]["datasets"][j]
+                    k = None
+                    for k in range(len(dataset["versions"][0]["parts"][0]["services"])):
+                        if dataset["versions"][0]["parts"][0]["services"][k]["service_format"] == "zarr" and \
+                                dataset["versions"][0]["parts"][0]["services"][k]["service_type"][
+                                    "service_name"] == "arco-geo-series":
+                            break
+                    variables = dataset["versions"][0]["parts"][0]["services"][k]["variables"]
+                    # check each variable
+                    for m in range(len(variables)):
+                        if key not in alias:
+                            print(f"variable {key} not in alias file")
+                        if variables[m]["short_name"] in alias[key]:
+                            # if trajectory spatial extent is within variable data
+                            if (variables[m]["bbox"][0] < self.extent.min_lng or
+                                    variables[m]["bbox"][1] > self.extent.min_lat
+                                    or variables[m]["bbox"][2] > self.extent.max_lng or
+                                    variables[m]["bbox"][3] > self.extent.min_lat):
+                                # find the time coordinate index
+                                n = None
+                                for n in range(len(variables[m]["coordinates"])):
+                                    if variables[m]["coordinates"][n]["coordinates_id"] == "time":
+                                        break
+                                try:
+                                    start = variables[m]["coordinates"][n]["values"][0]
+                                    end = variables[m]["coordinates"][n]["values"][-1]
+                                    step = variables[m]["coordinates"][n]["values"][1] - \
+                                           variables[m]["coordinates"][n]["values"][0]
+                                except TypeError:
+                                    start = variables[m]["coordinates"][n]["minimum_value"]
+                                    end = variables[m]["coordinates"][n]["maximum_value"]
+                                    step = variables[m]["coordinates"][n]["step"]
+                                start_traj = float((np.datetime64(self.extent.start_time) - np.datetime64(
+                                    '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+                                end_traj = float((np.datetime64(self.extent.end_time) - np.datetime64(
+                                    '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+                                # check if trajectory temporal extent is within variable data
+                                if start_traj > start and end_traj < end:
+                                    # make sure data is at least daily
+                                    if step <= 86400000:
+                                        if dataset["dataset_id"] in self.matched_worlds:
+                                            self.matched_worlds[dataset["dataset_id"]][key] = variables[m]["short_name"]
+                                        else:
+                                            self.matched_worlds[dataset["dataset_id"]] = {
+                                                key: variables[m]["short_name"]}
