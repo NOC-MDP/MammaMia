@@ -64,7 +64,6 @@ class World(dict):
     def __init__(self, trajectory: Trajectory, reality: Reality):
         self.catalog = Cats()
         self.extent = Extent(trajectory=trajectory)
-        self.interpolator = {}
         self.matched_worlds = {}
         self.__find_worlds(reality=reality)
         ds = {}
@@ -74,6 +73,7 @@ class World(dict):
             ds[key] = (xr.open_zarr(store=store))
         # Initialize the base class with the created group attributes
         super().__init__(ds)
+        self.interpolator = {}
         self.__build_world()
 
     def __find_worlds(self, reality: Reality):
