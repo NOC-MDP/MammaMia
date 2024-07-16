@@ -1,4 +1,3 @@
-import copernicusmarine
 from src.mission.trajectory import Trajectory
 from src.mission.realities import Reality
 import numpy as np
@@ -10,11 +9,32 @@ from src.mission.alias import alias
 import copernicusmarine
 import json
 
+
+@dataclass
+class Extent:
+    max_lat: float
+    max_lng: float
+    min_lat: float
+    min_lng: float
+    start_time: str
+    end_time: str
+    max_depth: float
+
+    def __init__(self, trajectory: Trajectory, excess_space: int = 0.5, excess_depth: int = 100, ):
+        self.max_lat = np.around(np.max(trajectory.latitudes), 2) + excess_space
+        self.min_lat = np.around(np.min(trajectory.latitudes), 2) - excess_space
+        self.max_lng = np.around(np.max(trajectory.longitudes), 2) + excess_space
+        self.min_lng = np.around(np.min(trajectory.longitudes), 2) - excess_space
+        self.start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="D")
+        self.end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="D")
+        self.max_depth = np.around(np.max(trajectory.depths), 2) + excess_depth
+
+
 @dataclass
 class Cats:
     cmems_cat: dict
 
-    def __init__(self,overwrite=False):
+    def __init__(self, overwrite=False):
         if overwrite:
             self.__get_cmems_cat(overwrite=True)
         else:
@@ -24,16 +44,17 @@ class Cats:
             except FileNotFoundError:
                 self.__get_cmems_cat()
 
-    def __get_cmems_cat(self,overwrite=False):
+    def __get_cmems_cat(self, overwrite=False):
         if overwrite:
             catalog = copernicusmarine.describe(contains=["GLOBAL"],
-                                                include_datasets=True,overwrite_metadata_cache=True)
+                                                include_datasets=True, overwrite_metadata_cache=True)
         else:
             catalog = copernicusmarine.describe(contains=["GLOBAL"],
                                                 include_datasets=True)
         self.cmems_cat = catalog
-        with open("CMEMS_cat.json",'w') as f:
+        with open("CMEMS_cat.json", 'w') as f:
             json.dump(catalog, f)
+
 
 @dataclass
 class World(dict):
@@ -46,20 +67,22 @@ class World(dict):
     Returns:
     - dict with xarray datasets filled with data
     """
-    def __init__(self, trajectory: Trajectory, reality:Reality):
+
+    def __init__(self, trajectory: Trajectory, reality: Reality):
         self.catalog = Cats()
+        self.extent = Extent(trajectory=trajectory)
         self.interpolator = {}
-        matched = self.__find_worlds(reality,trajectory)
+        matched = self.__find_worlds(reality=reality)
         ds = {}
         for key, value in matched.items():
-            store = self.__get_worlds(trajectory=trajectory,key=key,value=value)
+            store = self.__get_worlds(key=key, value=value)
             # Create the ds using the separate method
             ds[key] = (xr.open_zarr(store=store))
         # Initialize the base class with the created group attributes
         super().__init__(ds)
         self.__build_world(matched)
 
-    def __find_worlds(self,reality:Reality,trajectory:Trajectory):
+    def __find_worlds(self, reality: Reality):
         """
         Finds a world that matches the reality and trajectory past to it.
 
@@ -76,15 +99,18 @@ class World(dict):
             # check each product in catalog
             for k1, v1 in self.catalog.cmems_cat.items():
                 for i in range(len(v1)):
-                    # ensure its a numerical model
+                    # ensure it is a numerical model
                     if v1[i]["sources"][0] != "Numerical models":
                         print("warning product is not a numerical model")
                         break
                     # check each dataset
                     for j in range(len(v1[i]["datasets"])):
                         dataset = v1[i]["datasets"][j]
+                        k = None
                         for k in range(len(dataset["versions"][0]["parts"][0]["services"])):
-                            if dataset["versions"][0]["parts"][0]["services"][k]["service_format"] == "zarr" and dataset["versions"][0]["parts"][0]["services"][k]["service_type"]["service_name"] == "arco-geo-series":
+                            if dataset["versions"][0]["parts"][0]["services"][k]["service_format"] == "zarr" and \
+                                    dataset["versions"][0]["parts"][0]["services"][k]["service_type"][
+                                        "service_name"] == "arco-geo-series":
                                 break
                         variables = dataset["versions"][0]["parts"][0]["services"][k]["variables"]
                         # check each variable
@@ -93,9 +119,12 @@ class World(dict):
                                 print(f"variable {key} not in alias file")
                             if variables[m]["short_name"] in alias[key]:
                                 # if trajectory spatial extent is within variable data
-                                if variables[m]["bbox"][0] < np.min(trajectory.longitudes) or variables[m]["bbox"][1] > np.min(trajectory.latitudes) \
-                                        or variables[m]["bbox"][2] > np.max(trajectory.longitudes) or variables[m]["bbox"][3] > np.max(trajectory.latitudes):
+                                if (variables[m]["bbox"][0] < self.extent.min_lng or
+                                        variables[m]["bbox"][1] > self.extent.min_lat
+                                        or variables[m]["bbox"][2] > self.extent.max_lng or
+                                        variables[m]["bbox"][3] > self.extent.min_lat):
                                     # find the time coordinate index
+                                    n = None
                                     for n in range(len(variables[m]["coordinates"])):
                                         if variables[m]["coordinates"][n]["coordinates_id"] == "time":
                                             break
@@ -107,8 +136,10 @@ class World(dict):
                                         start = variables[m]["coordinates"][n]["minimum_value"]
                                         end = variables[m]["coordinates"][n]["maximum_value"]
                                         step = variables[m]["coordinates"][n]["step"]
-                                    start_traj = float((trajectory.datetimes[0] - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
-                                    end_traj = float((trajectory.datetimes[-1] - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+                                    start_traj = float((np.datetime64(self.extent.start_time) - np.datetime64(
+                                        '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+                                    end_traj = float((np.datetime64(self.extent.end_time) - np.datetime64(
+                                        '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
                                     # check if trajectory temporal extent is within variable data
                                     if start_traj > start and end_traj < end:
                                         # make sure data is at least daily
@@ -120,44 +151,34 @@ class World(dict):
 
         return matched
 
-    def __get_worlds(self,trajectory:Trajectory,key,value):
-        excess_space = 0.5
-        # TODO need ideally dynamically set this using bathy as in deep water 100 might not be enough?
-        excess_depth = 100
-        vars=[]
+    def __get_worlds(self, key, value):
+        vars2 = []
         # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
-        for k2,v2 in value.items():
-            vars.append(v2)
-        max_lat = np.around(np.max(trajectory.latitudes),2) + excess_space
-        min_lat = np.around(np.min(trajectory.latitudes),2) - excess_space
-        max_lng = np.around(np.max(trajectory.longitudes),2) + excess_space
-        min_lng = np.around(np.min(trajectory.longitudes),2) - excess_space
-        start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="D")
-        end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="D")
-        max_depth = np.around(np.max(trajectory.depths),2) + excess_depth
-        zarr_f = f"{key}_{max_lng}_{min_lng}_{max_lat}_{min_lat}_{max_depth}_{start_time}_{end_time}.zarr"
+        for k2, v2 in value.items():
+            vars2.append(v2)
+        zarr_f = (f"{key}_{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
+                  f"{self.extent.max_depth}_{self.extent.start_time}_{self.extent.end_time}.zarr")
         zarr_d = "copernicus-data/"
-        if not os.path.isdir(zarr_d+zarr_f):
+        if not os.path.isdir(zarr_d + zarr_f):
             copernicusmarine.subset(
                 dataset_id=key,
-                variables=vars,
-                minimum_longitude=min_lng,
-                maximum_longitude=max_lng,
-                minimum_latitude=min_lat,
-                maximum_latitude=max_lat,
-                start_datetime=str(start_time),
-                end_datetime=str(end_time),
+                variables=vars2,
+                minimum_longitude=self.extent.min_lng,
+                maximum_longitude=self.extent.max_lng,
+                minimum_latitude=self.extent.min_lat,
+                maximum_latitude=self.extent.max_lat,
+                start_datetime=str(self.extent.start_time),
+                end_datetime=str(self.extent.end_time),
                 minimum_depth=0,
-                maximum_depth=max_depth,
+                maximum_depth=self.extent.max_depth,
                 output_filename=zarr_f,
                 output_directory=zarr_d,
                 file_format="zarr",
                 force_download=True
             )
-        return zarr_d+zarr_f
+        return zarr_d + zarr_f
 
-
-    def __build_world(self,matched):
+    def __build_world(self, matched):
         """
         Creates a 4D interpolator that allows a world to be interpolated on to a trajectory
 
