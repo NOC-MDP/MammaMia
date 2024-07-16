@@ -12,6 +12,9 @@ import json
 
 @dataclass
 class Extent:
+    """
+    Extent class
+    """
     max_lat: float
     max_lng: float
     min_lat: float
@@ -32,6 +35,9 @@ class Extent:
 
 @dataclass
 class Cats:
+    """
+    Catalog class
+    """
     cmems_cat: dict
 
     def __init__(self, overwrite=False):
@@ -58,6 +64,9 @@ class Cats:
 
 @dataclass
 class World(dict):
+    catalog: Cats
+    extent: Extent
+    interpolator: dict
     """
     Creates a dict containing data for the world that the glider will fly through
 
@@ -84,10 +93,9 @@ class World(dict):
 
     def __find_worlds(self, reality: Reality):
         """
-        Finds a world that matches the reality and trajectory past to it.
+        Finds a world that matches the reality required.
 
         Parameters:
-        - trajectory: Trajectory object containing the glider trajectory
         - reality: Reality object containing the empty reality the world needs to match
 
         Returns:
