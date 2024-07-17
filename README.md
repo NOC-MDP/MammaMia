@@ -104,8 +104,8 @@ number of SensorGroups on an AUV.
 This is an abstract base class, therefore a child class must be created that inherits from it. The user can create 
 their own group but Mammamia provides some standard groups such as:
 
-* CTD
-* ADCP
+* CTD (temperature, pressure, salinity)
+* BIO (silicate, phosphate, nitrate)
 
 #### Sensor
 Build sensors using this class, they will need to be part of an SensorGroup so they are usually declared as part of 
@@ -145,15 +145,9 @@ $ python example.py
 The output "comet-mm1.nc" can then be copied into the MammaMia repository, where it should be recognised by the test.py script.
 
 ## Outstanding development
-Mamma mia is in very early development and has many things outstanding, the list below is non exhaustive but provides 
-an indication of future development:
+Mamma mia is in very early development and has many things outstanding, please see the issues section of the repository 
+for a non exhaustive list.
 
-- Only temperature data is available in the world
-- Trajectories are generated using a seperate simulator that is fixed to August 2019.
-- Unable to handle new regions, (need to manually delete zarr so a new one one download with updated data inside)
-- visualisation is very basic
-- currently need to build classes and then add to mission class, users should only interact with main class 
-(custom sensors etc aside)
 
 
 

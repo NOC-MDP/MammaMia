@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import numpy as np
 from src.mission import glider, realities, trajectory, world
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 
 @dataclass
