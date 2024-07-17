@@ -7,7 +7,6 @@ import pyinterp.backends.xarray
 from dataclasses import dataclass
 from src.mission.alias import alias
 import copernicusmarine
-import json
 
 
 @dataclass
@@ -42,7 +41,7 @@ class Cats:
 
     # TODO add in some kind of update check so that the json file is updated periodically
     def __init__(self, search: str = "GLOBAL", overwrite=False):
-        self.cmems_cat = copernicusmarine.describe(contains=[search],include_datasets=True,
+        self.cmems_cat = copernicusmarine.describe(contains=[search], include_datasets=True,
                                                    overwrite_metadata_cache=overwrite)
 
 
@@ -61,6 +60,7 @@ class World(dict):
     Returns:
     - dict with xarray datasets filled with data
     """
+
     def __init__(self, trajectory: Trajectory, reality: Reality):
         self.catalog = Cats()
         self.extent = Extent(trajectory=trajectory)
@@ -74,7 +74,7 @@ class World(dict):
         # Initialize the base class with the created group attributes
         super().__init__(ds)
         self.interpolator = {}
-        self.__build_world()
+        self.__build_worlds()
 
     def __find_worlds(self, reality: Reality):
         """
@@ -85,39 +85,32 @@ class World(dict):
 
         Returns:
         - Python dict with matched dataset ids and variable names
+
+        Notes:
+        This is a wrapper function around specific find world functions e.g. CMEMS or Jasmin
         """
         # for every array in the reality group
         for key in reality.array_keys():
             self.__find_cmems_worlds(key=key)
 
     def __get_worlds(self, key, value):
-        vars2 = []
-        # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
-        for k2, v2 in value.items():
-            vars2.append(v2)
-        zarr_f = (f"{key}_{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
-                  f"{self.extent.max_depth}_{self.extent.start_time}_{self.extent.end_time}.zarr")
-        zarr_d = "copernicus-data/"
-        if not os.path.isdir(zarr_d + zarr_f):
-            copernicusmarine.subset(
-                dataset_id=key,
-                variables=vars2,
-                minimum_longitude=self.extent.min_lng,
-                maximum_longitude=self.extent.max_lng,
-                minimum_latitude=self.extent.min_lat,
-                maximum_latitude=self.extent.max_lat,
-                start_datetime=str(self.extent.start_time),
-                end_datetime=str(self.extent.end_time),
-                minimum_depth=0,
-                maximum_depth=self.extent.max_depth,
-                output_filename=zarr_f,
-                output_directory=zarr_d,
-                file_format="zarr",
-                force_download=True
-            )
-        return zarr_d + zarr_f
+        """
+        Gets a matched world from its respective source
 
-    def __build_world(self):
+        Parameters:
+        - key: string that represents the world id
+        - value: dictionary of variables to subset from world
+
+        Returns:
+        - zarr store: string that denotes where the zarr store holding the world has been saved.
+
+        Notes:
+        This is a wrapper function around specific get world functions e.g. CMEMS or Jasmin
+        """
+        zarr_store = self.__get_cmems_worlds(key=key, value=value)
+        return zarr_store
+
+    def __build_worlds(self):
         """
         Creates a 4D interpolator that allows a world to be interpolated on to a trajectory
 
@@ -139,8 +132,14 @@ class World(dict):
 
     def __find_cmems_worlds(self, key: str):
         """
-        Traverse CMEMS catalog and find products/datasets that match the glider sensors and
+        Traverses CMEMS catalog and find products/datasets that match the glider sensors and
         the trajectory spatial and temporal extent.
+
+        Parameters:
+        - key: string that represents the variable to find
+
+        Returns:
+        - matched worlds dictionary containing dataset ids and variable names that reside within it.
         """
         # check each product in cmems catalog
         for k1, v1 in self.catalog.cmems_cat.items():
@@ -174,6 +173,8 @@ class World(dict):
                                 for n in range(len(variables[m]["coordinates"])):
                                     if variables[m]["coordinates"][n]["coordinates_id"] == "time":
                                         break
+                                # get time values either as part of values list or as a specific max and min value
+                                # both are possibilities it seems!
                                 try:
                                     start = variables[m]["coordinates"][n]["values"][0]
                                     end = variables[m]["coordinates"][n]["values"][-1]
@@ -183,6 +184,7 @@ class World(dict):
                                     start = variables[m]["coordinates"][n]["minimum_value"]
                                     end = variables[m]["coordinates"][n]["maximum_value"]
                                     step = variables[m]["coordinates"][n]["step"]
+                                # convert trajectory datetimes into timestamps to be able to compare with CMEMS catalog
                                 start_traj = float((np.datetime64(self.extent.start_time) - np.datetime64(
                                     '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
                                 end_traj = float((np.datetime64(self.extent.end_time) - np.datetime64(
@@ -196,3 +198,43 @@ class World(dict):
                                         else:
                                             self.matched_worlds[dataset["dataset_id"]] = {
                                                 key: variables[m]["short_name"]}
+
+    def __get_cmems_worlds(self, key, value):
+        """
+        Checks for the presence of, or downloads if not present the required subset of CMEMS catalog
+
+        Parameters
+        - key: string that represents the cmems dataset id
+        - value: dictionary that contains the variable names to download
+
+        Returns:
+        string that represents the zarr store location of the downloaded data
+
+        """
+        vars2 = []
+        # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
+        for k2, v2 in value.items():
+            vars2.append(v2)
+        zarr_f = (f"{key}_{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
+                  f"{self.extent.max_depth}_{self.extent.start_time}_{self.extent.end_time}.zarr")
+        zarr_d = "copernicus-data/"
+        if not os.path.isdir(zarr_d + zarr_f):
+            copernicusmarine.subset(
+                dataset_id=key,
+                variables=vars2,
+                minimum_longitude=self.extent.min_lng,
+                maximum_longitude=self.extent.max_lng,
+                minimum_latitude=self.extent.min_lat,
+                maximum_latitude=self.extent.max_lat,
+                start_datetime=str(self.extent.start_time),
+                end_datetime=str(self.extent.end_time),
+                minimum_depth=0,
+                maximum_depth=self.extent.max_depth,
+                output_filename=zarr_f,
+                output_directory=zarr_d,
+                file_format="zarr",
+                force_download=True
+            )
+        return zarr_d + zarr_f
+
+
