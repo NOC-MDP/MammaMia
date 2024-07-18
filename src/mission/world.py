@@ -126,7 +126,7 @@ class World(dict):
             for var in self[key]:
                 # for each item in matched dictionary
                 for k1, v1, in self.matched_worlds[key].items():
-                    # if variable names match (this is to ensure varible names are consistent)
+                    # if variable names match (this is to ensure variable names are consistent)
                     if var == v1:
                         self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var])
 

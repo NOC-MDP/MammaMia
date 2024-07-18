@@ -1,0 +1,12 @@
+sources:
+  "eORCA12_201908":
+    description: Grid T for August 2019
+    driver: zarr
+    args:
+      urlpath: 's3://mamma-mia/eORCA12_201908'
+      consolidated: False
+      storage_options:
+        anon: True
+        use_ssl: True
+        client_kwargs:
+          endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
