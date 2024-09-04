@@ -1,5 +1,8 @@
+plugins:
+  source:
+    - module: intake_xarray
 sources:
-  "eORCA12_201908":
+  eORCA12_201908:
     description: Grid T for August 2019
     driver: zarr
     args:

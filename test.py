@@ -34,6 +34,8 @@ mission.show_reality()
 print("debug point!")
 
 
+
+
 def test_glider():
     assert mission.glider.name == "Slocum"
 
