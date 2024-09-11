@@ -23,7 +23,7 @@ cropped_data = data.sel(y=slice(2500,3000), x=slice(3250,3750),deptht=slice(5,20
 #
 print(cropped_data)
 temp = cropped_data.thetao
-temp = temp.sel(deptht=0,method='nearest')
+temp = temp.sel(deptht=5,method='nearest')
 temp.plot()
 print(temp)
 print("the end")
