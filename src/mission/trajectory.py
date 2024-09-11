@@ -27,11 +27,10 @@ class Trajectory(zarr.Group):
                          synchronizer=group.synchronizer)
 
         ds = xr.open_dataset(glider_traj_path)
-
-        self.latitudes = np.array(ds["m_lat"])
-        self.longitudes = np.array(ds["m_lon"])
-        self.depths = np.array(ds["m_depth"])
-        self.datetimes = np.array(ds["time"], dtype='datetime64')
+        self.array(name="latitudes",data=np.array(ds["m_lat"]))
+        self.array(name="longitudes",data=np.array(ds["m_lon"]))
+        self.array(name="depths",data=np.array(ds["m_depth"]))
+        self.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
 
         for i in range(self.longitudes.__len__()):
             self.longitudes[i] = self.__convertToDecimal(self.longitudes[i])
