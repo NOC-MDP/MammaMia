@@ -1,27 +1,27 @@
-from src.mission import World, Mission, Trajectory, Slocum, Reality, sensors
+from mamma_mia import World, Mission, Trajectory, Slocum, Reality, sensors
 import zarr
 
 # make empty suite of sensors to use in AUV
 Sensors = sensors.SensorSuite()
 
-# add required sensors for mission
+# add required sensors for mamma_mia
 # as a defined group
 Sensors["CTD1"] = sensors.CTD()
 Sensors["BIO1"] = sensors.BIO()
 
 glider = Slocum(sensorsuite=Sensors)
-store = zarr.DirectoryStore('slocum-trajectory.zarr')
-trajectory = Trajectory(glider_traj_path="comet-mm1.nc",store=store)
+#store = zarr.DirectoryStore('slocum-trajectory.zarr')
+trajectory = Trajectory(glider_traj_path="comet-mm1.nc")#,store=store)
 # generate a Slocum glider path based on waypoints and Slocum config
 #trajectory.plot_trajectory()
 # create reality to return (based on model/world and sensor suite and trajectory)
-store2 = zarr.DirectoryStore('mamma-mia.zarr')
-reality = Reality(glider=glider, trajectory=trajectory,store=store2)
+#store2 = zarr.DirectoryStore('mamma-mia.zarr')
+reality = Reality(glider=glider, trajectory=trajectory)#,store=store2)
 
 # define which model/world to use
 world = World(trajectory=trajectory,reality=reality)
 
-# put it all together into a flight/mission object
+# put it all together into a flight/mamma_mia object
 mission = Mission(id=1,
                   description="flight of the conchords",
                   world=world,
@@ -29,7 +29,7 @@ mission = Mission(id=1,
                   trajectory=trajectory,
                   reality=reality
                   )
-# fly the mission to generate the interpolated data
+# fly the mamma_mia to generate the interpolated data
 mission.fly()
 # visualise the results
 mission.show_reality()

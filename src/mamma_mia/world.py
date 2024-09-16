@@ -1,11 +1,11 @@
-from src.mission.trajectory import Trajectory
-from src.mission.realities import Reality
+from src.mamma_mia.trajectory import Trajectory
+from src.mamma_mia.realities import Reality
 import numpy as np
 import os
 import xarray as xr
 import pyinterp.backends.xarray
 from dataclasses import dataclass
-from src.mission.alias import alias
+from src.mamma_mia.alias import alias
 import copernicusmarine
 
 

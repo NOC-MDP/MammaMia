@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 import numpy as np
-from src.mission import glider, realities, trajectory, world
+from src.mamma_mia import glider, realities, trajectory, world
 import plotly.graph_objects as go
 
 
 @dataclass
 class Mission:
     """
-    Creates a mission object
+    Creates a mamma_mia object
 
     Parameters:
     - id

@@ -13,7 +13,7 @@ from shapely.geometry import Polygon, mapping
 #s3 = s3fs.S3FileSystem(endpoint_url="https://noc-msm-o.s3-ext.jc.rl.ac.uk",anon=True)
 #s3_store = s3fs.S3Map('s3://mamma-mia/eORCA12_201908',s3=s3)
 
-cat = intake.open_catalog('src/mission/catalog.yml')
+cat = intake.open_catalog('src/mamma_mia/catalog.yml')
 data = cat.eORCA12_201908.to_dask()
 print(data)
 
@@ -29,7 +29,7 @@ print(temp)
 print("the end")
 
 plt.show()
-# catalog = Catalog(id='mamma-mia-catalog',
+# # catalog = Catalog(id='mamma-mia-catalog',
 #                          description='This catalog is a basic demonstration catalog Using the Jasmin Object Store.')
 #
 # bbox = [-180, -90, 180, 90]
