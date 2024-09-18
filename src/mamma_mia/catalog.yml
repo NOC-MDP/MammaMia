@@ -28,6 +28,6 @@ sources:
           model: "NEMO"
           dimensions: ["time", "depth", "latitude", "longitude"]
           keywords: ["ocean", "temperature", "3D", "model", "NEMO"]
-          aliases: ["temp", "sea_temp"]
+          aliases: ["temp", "sea_temp","temperature"]
           time_coverage_start: "2019-01-01T00:00:00Z"
           time_coverage_end: "2019-12-31T23:59:59Z"

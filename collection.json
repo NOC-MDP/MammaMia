@@ -31,14 +31,14 @@
   ],
   "providers": [
     {
-      "name": "Your Organization",
+      "name": "National Oceanography Centre",
       "roles": ["producer", "processor"],
-      "url": "https://your-org.com"
+      "url": "https://noc.ac.uk"
     }
   ],
   "assets": {
     "thumbnail": {
-      "href": "https://your-s3-bucket/thumbnail.png",
+      "href": "myplot.png",
       "title": "Model Thumbnail",
       "type": "image/png"
     }

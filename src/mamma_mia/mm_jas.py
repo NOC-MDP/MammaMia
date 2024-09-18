@@ -13,24 +13,32 @@ from shapely.geometry import Polygon, mapping
 #s3 = s3fs.S3FileSystem(endpoint_url="https://noc-msm-o.s3-ext.jc.rl.ac.uk",anon=True)
 #s3_store = s3fs.S3Map('s3://mamma-mia/eORCA12_201908',s3=s3)
 
-cat = intake.open_catalog('src/mamma_mia/catalog.yml')
+cat = intake.open_catalog('catalog.yml')
+datetime2 = datetime(2019,8,16,0,0,0)
 #cat.gui.show()
 search = cat.search("temperature")
-data = search[0].to_dask()
-print(data)
+for entry_name, entry in cat.items():
+    metadata = entry.describe()['metadata']
+    # filter based on metadata
+    if ("temperature" in metadata["aliases"] and
+            datetime.strptime(metadata["time_coverage_start"], "%Y-%m-%dT%H:%M:%SZ") < datetime2 < datetime.strptime(
+                metadata["time_coverage_end"], "%Y-%m-%dT%H:%M:%SZ")):
+        data = entry.to_dask()
 
-# cropped_data = data.sel(y=slice(2500,3000), x=slice(3250,3750),deptht=slice(5,200),time_counter="2019-07-16")
+        print(data)
+
+cropped_data = data.sel(y=slice(2500,3000), x=slice(3250,3750),deptht=slice(5,200),time_counter="2019-07-16")
+
+#data = xr.open_zarr(s3_store)
 #
-# #data = xr.open_zarr(s3_store)
-# #
-# print(cropped_data)
-# temp = cropped_data.thetao
-# temp = temp.sel(deptht=5,method='nearest')
-# temp.plot()
-# print(temp)
-# print("the end")
-#
-# plt.show()
+print(cropped_data)
+temp = cropped_data.thetao
+temp = temp.sel(deptht=5,method='nearest')
+temp.plot()
+print(temp)
+print("the end")
+
+plt.show()
 # # # catalog = Catalog(id='mamma-mia-catalog',
 #                          description='This catalog is a basic demonstration catalog Using the Jasmin Object Store.')
 #
