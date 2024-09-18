@@ -1,26 +1,33 @@
+metadata:
+  version: 1.0
+  description: "This is an example catalog for MSM model data"
+  catalogs:
+    eORCA12:
+      description: "ORCA grid 12th degree model"
+      keywords: ["NEMO", "thetao"]
+      aliases:
+        temp: thetao
 plugins:
   source:
     - module: intake_xarray
 sources:
-  eORCA12_201908:
-    description: Grid T for August 2019
-    driver: zarr
-    args:
-      urlpath: 's3://mamma-mia/eORCA12_201908'
-      consolidated: False
-      storage_options:
-        anon: True
-        use_ssl: True
-        client_kwargs:
-          endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
-  eORCA12_2019_gridT:
+  thetao:
     description: Grid T for 2019
     driver: zarr
     args:
-      urlpath: 's3://mamma-mia/eORCA12_2019_gridT'
+      urlpath: 's3://mamma-mia/eORCA12_2019T/thetao.zarr'
       consolidated: False
       storage_options:
         anon: True
         use_ssl: True
         client_kwargs:
           endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
+    metadata:
+          units: "Celsius"
+          variable: "temperature"
+          model: "NEMO"
+          dimensions: ["time", "depth", "latitude", "longitude"]
+          keywords: ["ocean", "temperature", "3D", "model", "NEMO"]
+          aliases: ["temp", "sea_temp"]
+          time_coverage_start: "2019-01-01T00:00:00Z"
+          time_coverage_end: "2019-12-31T23:59:59Z"

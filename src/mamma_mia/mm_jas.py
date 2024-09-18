@@ -14,22 +14,24 @@ from shapely.geometry import Polygon, mapping
 #s3_store = s3fs.S3Map('s3://mamma-mia/eORCA12_201908',s3=s3)
 
 cat = intake.open_catalog('src/mamma_mia/catalog.yml')
-data = cat.eORCA12_201908.to_dask()
+#cat.gui.show()
+search = cat.search("temperature")
+data = search[0].to_dask()
 print(data)
 
-cropped_data = data.sel(y=slice(2500,3000), x=slice(3250,3750),deptht=slice(5,200))
-
-#data = xr.open_zarr(s3_store)
+# cropped_data = data.sel(y=slice(2500,3000), x=slice(3250,3750),deptht=slice(5,200),time_counter="2019-07-16")
 #
-print(cropped_data)
-temp = cropped_data.thetao
-temp = temp.sel(deptht=5,method='nearest')
-temp.plot()
-print(temp)
-print("the end")
-
-plt.show()
-# # catalog = Catalog(id='mamma-mia-catalog',
+# #data = xr.open_zarr(s3_store)
+# #
+# print(cropped_data)
+# temp = cropped_data.thetao
+# temp = temp.sel(deptht=5,method='nearest')
+# temp.plot()
+# print(temp)
+# print("the end")
+#
+# plt.show()
+# # # catalog = Catalog(id='mamma-mia-catalog',
 #                          description='This catalog is a basic demonstration catalog Using the Jasmin Object Store.')
 #
 # bbox = [-180, -90, 180, 90]
