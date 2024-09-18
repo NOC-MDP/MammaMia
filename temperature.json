@@ -1,0 +1,30 @@
+{
+  "stac_version": "1.0.0",
+  "type": "Feature",
+  "id": "temperature-2019",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [[-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]]
+    ]
+  },
+  "properties": {
+    "start_datetime": "2019-01-01T00:00:00Z",
+    "end_datetime": "2019-12-31T23:59:59Z",
+    "model:variable": "temperature",
+    "model:depth_levels": "75"
+  },
+  "assets": {
+    "data": {
+      "href": "https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/eORCA12_2019T/thetao.zarr",
+      "title": "Temperature model output",
+      "type": "application/x-netcdf"
+    },
+    "metadata": {
+      "href": "https://your-s3-bucket/nemo/2023-01-01/temperature-metadata.json",
+      "title": "Temperature metadata",
+      "type": "application/json"
+    }
+  },
+  "collection": "nemo-model-collection"
+}

@@ -1,0 +1,46 @@
+{
+  "stac_version": "1.0.0",
+  "type": "Collection",
+  "id": "nemo-model-collection",
+  "description": "Collection of 3D NEMO model outputs for various variables and times.",
+  "extent": {
+    "spatial": {
+      "bbox": [[-180, -90, 180, 90]]
+    },
+    "temporal": {
+      "interval": [["2019-01-01T00:00:00Z", "2019-12-31T23:59:59Z"]]
+    }
+  },
+  "license": "proprietary",
+  "links": [
+    {
+      "rel": "self",
+      "href": "collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "temperature.json",
+      "type": "application/json"
+    }
+  ],
+  "providers": [
+    {
+      "name": "Your Organization",
+      "roles": ["producer", "processor"],
+      "url": "https://your-org.com"
+    }
+  ],
+  "assets": {
+    "thumbnail": {
+      "href": "https://your-s3-bucket/thumbnail.png",
+      "title": "Model Thumbnail",
+      "type": "image/png"
+    }
+  }
+}
