@@ -1,18 +1,9 @@
-metadata:
-  version: 1.0
-  description: "This is an example catalog for MSM model data"
-  catalogs:
-    eORCA12:
-      description: "ORCA grid 12th degree model"
-      keywords: ["NEMO", "thetao"]
-      aliases:
-        temp: thetao
 plugins:
   source:
     - module: intake_xarray
 sources:
-  thetao:
-    description: Grid T for 2019
+  temperature:
+    description: temperature data
     driver: zarr
     args:
       urlpath: 's3://mamma-mia/eORCA12_2019T/thetao.zarr'
@@ -23,11 +14,15 @@ sources:
         client_kwargs:
           endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
     metadata:
+          title: "Global Temperature"
           units: "Celsius"
           variable: "temperature"
-          model: "NEMO"
-          dimensions: ["time", "depth", "latitude", "longitude"]
+          model: "eORCA12 NEMO"
+          spatial_extent: [-180, -90, 180, 90]
+          temporal_extent: ["2019-01-01T00:00:00Z", "2019-12-31T23:59:59Z"]
+          depth_levels: 75
+          resolution: "1/12th degree"
+          grid: "tri polar grid"
+          dimensions: ["time_counter", "depth", "x", "y"]
           keywords: ["ocean", "temperature", "3D", "model", "NEMO"]
-          aliases: ["temp", "sea_temp","temperature"]
-          time_coverage_start: "2019-01-01T00:00:00Z"
-          time_coverage_end: "2019-12-31T23:59:59Z"
+          aliases: ["temp", "sea_temp","temperature","thetao"]
