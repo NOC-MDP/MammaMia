@@ -29,8 +29,8 @@ class Extent:
         self.min_lat = np.around(np.min(trajectory.latitudes), 2) - excess_space
         self.max_lng = np.around(np.max(trajectory.longitudes), 2) + excess_space
         self.min_lng = np.around(np.min(trajectory.longitudes), 2) - excess_space
-        self.start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(14, 'D'), unit="D")
-        self.end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(14, 'D'), unit="D")
+        self.start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(30, 'D'), unit="D")
+        self.end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D")
         self.max_depth = np.around(np.max(trajectory.depths), 2) + excess_depth
 
 
