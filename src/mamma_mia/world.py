@@ -1,12 +1,14 @@
-from src.mamma_mia.trajectory import Trajectory
-from src.mamma_mia.realities import Reality
+from mamma_mia.trajectory import Trajectory
+from mamma_mia.realities import Reality
 import numpy as np
 import os
 import xarray as xr
 import pyinterp.backends.xarray
 from dataclasses import dataclass
-from src.mamma_mia.alias import alias
+from mamma_mia.alias import alias
 import copernicusmarine
+import intake
+from datetime import datetime
 
 
 @dataclass
@@ -38,12 +40,20 @@ class Cats:
     Catalog class
     """
     cmems_cat: dict
+    msm_cat: intake.Catalog
 
     # TODO add in some kind of update check so that the json file is updated periodically
-    def __init__(self, search: str = "GLOBAL", overwrite=False):
+    def __init__(self, search: str = "GLOBAL", overwrite=False,cat_path:str=None):
         self.cmems_cat = copernicusmarine.describe(contains=[search], include_datasets=True,
                                                    overwrite_metadata_cache=overwrite)
-
+        if cat_path is None:
+            print("no MSM catalog path provided, can only use CMEMS data")
+            self.msm_cat = None
+        else:
+            try:
+                self.msm_cat = intake.open_catalog(cat_path)
+            except FileNotFoundError:
+                raise Exception("Catalog path {} does not exist".format(cat_path))
 
 @dataclass
 class World(dict):
@@ -62,7 +72,8 @@ class World(dict):
     """
 
     def __init__(self, trajectory: Trajectory, reality: Reality):
-        self.catalog = Cats()
+        # TODO fix the hardcoded cat path so that it checks a path on obj store
+        self.catalog = Cats(cat_path="/Users/thopri/MammaMia/src/mamma_mia/catalog.yml")
         self.extent = Extent(trajectory=trajectory)
         self.matched_worlds = {}
         self.__find_worlds(reality=reality)
@@ -92,6 +103,8 @@ class World(dict):
         # for every array in the reality group
         for key in reality.array_keys():
             self.__find_cmems_worlds(key=key)
+            if self.catalog.msm_cat is not None:
+                self.__find_msm_worlds(key=key)
 
     def __get_worlds(self, key, value):
         """
@@ -107,7 +120,11 @@ class World(dict):
         Notes:
         This is a wrapper function around specific get world functions e.g. CMEMS or Jasmin
         """
-        zarr_store = self.__get_cmems_worlds(key=key, value=value)
+        split_key = key.split("_")
+        if split_key[0] == "cmems":
+            zarr_store = self.__get_cmems_worlds(key=key, value=value)
+        else:
+            zarr_store = self.__get_msm_worlds(key=key, value=value)
         return zarr_store
 
     def __build_worlds(self):
@@ -128,7 +145,51 @@ class World(dict):
                 for k1, v1, in self.matched_worlds[key].items():
                     # if variable names match (this is to ensure variable names are consistent)
                     if var == v1:
-                        self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var])
+                        split_key = key.split("_")
+                        if split_key[0] != "cmems":
+                            # rename time and depth dimensions to be consistent
+                            ds = self[key][var].rename({"deptht": "depth","time_counter": "time"})
+                            # Set lat and lon as coordinates replacing x and y
+                            ds = ds.assign_coords(latitude=self[key][var]['nav_lat'] , longitude=self[key][var]['nav_lon'] )
+
+                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds,geodetic=True)
+                        else:
+                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var],geodetic=True)
+
+    def __find_msm_worlds(self, key:str):
+        """
+
+        Args:
+            key: string that represents the variable to find
+
+        Returns:
+            matched worlds dictionary containing dataset ids and variable names
+
+        """
+        for k1,v1 in self.catalog.msm_cat.items():
+            metadata = v1.describe()['metadata']
+            aliases = metadata.get('aliases', [])
+            spatial_extent = metadata.get('spatial_extent', [])
+            temporal_extent = metadata.get('temporal_extent', [])
+            start_traj = float((np.datetime64(self.extent.start_time) - np.datetime64(
+                '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+            end_traj = float((np.datetime64(self.extent.end_time) - np.datetime64(
+                '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+            if temporal_extent:
+                start_datetime = datetime.fromisoformat(temporal_extent[0].replace("Z", "+00:00")).timestamp()*1000
+                end_datetime = datetime.fromisoformat(temporal_extent[1].replace("Z", "+00:00")).timestamp()*1000
+
+                # Check if the item is within the desired date range and spatial bounds
+                if (spatial_extent and
+                        self.extent.min_lat >= spatial_extent[0] and self.extent.max_lat <= spatial_extent[2] and
+                        self.extent.min_lng >= spatial_extent[1] and self.extent.max_lng <= spatial_extent[3] and
+                        start_traj >= start_datetime and end_traj <= end_datetime and
+                        key in aliases):
+                    if metadata["dataset_id"] in self.matched_worlds:
+                        self.matched_worlds[metadata["dataset_id"]][key] = metadata["variable"]
+                    else:
+                        self.matched_worlds[metadata["dataset_id"]] = {key: metadata["variable"]}
+
 
     def __find_cmems_worlds(self, key: str):
         """
@@ -199,6 +260,33 @@ class World(dict):
                                             self.matched_worlds[dataset["dataset_id"]] = {
                                                 key: variables[m]["short_name"]}
 
+    def __get_msm_worlds(self,key: str,value):
+        """
+
+        Args:
+            key: string the represents the source name
+            value: object that contains the intake entry of the matched dataset
+
+        Returns:
+            lazy loaded xarray dataset
+        """
+        key_split = key.split("_")
+        if key_split[0] == "cmems":
+            return
+        vars2 = []
+        for k2,v2 in value.items():
+            vars2.append(v2)
+        zarr_f = (f"{key}_{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
+                  f"{self.extent.max_depth}_{self.extent.start_time}_{self.extent.end_time}.zarr")
+        zarr_d = "msm-data/"
+        # TODO fix the hardcoded select statement
+        if not os.path.isdir(zarr_d + zarr_f):
+            data = self.catalog.msm_cat[str(key)].to_dask()
+            print(data)
+            subset = data.sel(y=slice(2500,3000), x=slice(3250,3750),deptht=slice(5,200),time_counter=slice("2019-07-16","2019-08-16"))
+            subset.to_zarr(store=zarr_d + zarr_f,safe_chunks=False)
+        return zarr_d + zarr_f
+
     def __get_cmems_worlds(self, key, value):
         """
         Checks for the presence of, or downloads if not present the required subset of CMEMS catalog
@@ -211,6 +299,9 @@ class World(dict):
         string that represents the zarr store location of the downloaded data
 
         """
+        key_split = key.split("_")
+        if key_split[0] != "cmems":
+            return
         vars2 = []
         # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
         for k2, v2 in value.items():

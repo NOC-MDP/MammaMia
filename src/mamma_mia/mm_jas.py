@@ -3,13 +3,14 @@ from datetime import datetime,timezone
 import matplotlib.pyplot as plt
 
 # Load the catalog
-catalog = intake.open_catalog('catalog.yml')
+catalog = intake.open_catalog('/Users/thopri/MammaMia/src/mamma_mia/catalog.yml')
 
 # Define your search criteria
 search_bbox = [-50, -30, 50, 30]  # A region with longitude/latitude bounds
 search_start_time = datetime(2019, 1, 1,tzinfo=timezone.utc)
 search_end_time = datetime(2019, 1, 30,tzinfo=timezone.utc)
 search_terms = ["temperature","salinity"]
+
 for term in search_terms:
     # Search through the catalog based on spatial and temporal extent
     search_results = []
@@ -47,6 +48,7 @@ for term in search_terms:
 
 
     cropped_data = data.sel(y=slice(2500,3000), x=slice(3250,3750),deptht=slice(5,200),time_counter="2019-01-16")
+    cropped_data.to_zarr("msm_data.zarr",)
     print(cropped_data)
     var_data = cropped_data[var]
     var_subset = var_data.sel(deptht=5,method='nearest')
