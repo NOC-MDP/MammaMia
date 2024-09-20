@@ -2,7 +2,7 @@ plugins:
   source:
     - module: intake_xarray
 sources:
-  eORCA12_temperature:
+  msm_eORCA12_temperature:
     description: temperature data
     driver: zarr
     args:
@@ -15,7 +15,7 @@ sources:
           endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
     metadata:
           title: "Global Temperature"
-          dataset_id: "eORCA12_temperature"
+          dataset_id: "msm_eORCA12_temperature"
           units: "Celsius"
           variable: "thetao"
           model: "eORCA12 NEMO"
@@ -27,7 +27,7 @@ sources:
           dimensions: ["time_counter", "depth", "x", "y"]
           keywords: ["ocean", "temperature", "3D", "model", "NEMO"]
           aliases: ["temp", "sea_temp","temperature","thetao"]
-  eORCA12_salinity:
+  msm_ORCA12_salinity:
     description: salinity data
     driver: zarr
     args:
@@ -40,7 +40,7 @@ sources:
           endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
     metadata:
           title: "Global Salinity"
-          dataset_id: "eORCA12_salinity"
+          dataset_id: "msm_eORCA12_salinity"
           units: "PSU"
           variable: "so"
           model: "eORCA12 NEMO"

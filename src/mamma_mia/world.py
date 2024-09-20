@@ -123,8 +123,10 @@ class World(dict):
         split_key = key.split("_")
         if split_key[0] == "cmems":
             zarr_store = self.__get_cmems_worlds(key=key, value=value)
-        else:
+        elif split_key[0] == "msm":
             zarr_store = self.__get_msm_worlds(key=key, value=value)
+        else:
+            raise Exception("unknown model source")
         return zarr_store
 
     def __build_worlds(self):
@@ -146,15 +148,17 @@ class World(dict):
                     # if variable names match (this is to ensure variable names are consistent)
                     if var == v1:
                         split_key = key.split("_")
-                        if split_key[0] != "cmems":
+                        if split_key[0] == "msm":
                             # rename time and depth dimensions to be consistent
                             ds = self[key][var].rename({"deptht": "depth","time_counter": "time"})
                             # Set lat and lon as coordinates replacing x and y
                             ds = ds.assign_coords(latitude=self[key][var]['nav_lat'] , longitude=self[key][var]['nav_lon'] )
 
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds,geodetic=True)
-                        else:
+                        elif split_key[0] == "cmems":
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var],geodetic=True)
+                        else:
+                            raise Exception("unknown model source")
 
     def __find_msm_worlds(self, key:str):
         """
@@ -270,9 +274,6 @@ class World(dict):
         Returns:
             lazy loaded xarray dataset
         """
-        key_split = key.split("_")
-        if key_split[0] == "cmems":
-            return
         vars2 = []
         for k2,v2 in value.items():
             vars2.append(v2)
@@ -299,9 +300,7 @@ class World(dict):
         string that represents the zarr store location of the downloaded data
 
         """
-        key_split = key.split("_")
-        if key_split[0] != "cmems":
-            return
+
         vars2 = []
         # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
         for k2, v2 in value.items():
