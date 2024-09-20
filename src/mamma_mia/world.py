@@ -9,7 +9,7 @@ from mamma_mia.alias import alias
 import copernicusmarine
 import intake
 from datetime import datetime
-
+import xesmf as xe
 
 @dataclass
 class Extent:
@@ -151,10 +151,27 @@ class World(dict):
                         if split_key[0] == "msm":
                             # rename time and depth dimensions to be consistent
                             ds = self[key][var].rename({"deptht": "depth","time_counter": "time"})
-                            # Set lat and lon as coordinates replacing x and y
-                            ds = ds.assign_coords(latitude=self[key][var]['nav_lat'] , longitude=self[key][var]['nav_lon'] )
-
-                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds,geodetic=True)
+                            lat = ds['nav_lat']
+                            lon = ds['nav_lon']
+                            # Define a regular grid with 1D lat/lon arrays
+                            target_lat = np.linspace(lat.min(), lat.max(),20)
+                            target_lon = np.linspace(lon.min(), lon.max(),14)
+                            # Create a target grid dataset
+                            target_grid = xr.Dataset({
+                                'latitude': (['latitude'], target_lat),
+                                'longitude': (['longitude'], target_lon)
+                            })
+                            # Create a regridder object to go from curvilinear to regular grid
+                            regridder = xe.Regridder(ds, target_grid, method='bilinear')
+                            # Regrid the entire dataset
+                            ds_regridded = regridder(ds)
+                            # Add units to latitude and longitude coordinates
+                            ds_regridded['latitude'].attrs['units'] = 'degrees_north'
+                            ds_regridded['longitude'].attrs['units'] = 'degrees_east'
+                            # Convert all float32 variables in the dataset to float64
+                            ds_regridded = ds_regridded.astype('float64')
+                            ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
+                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded)
                         elif split_key[0] == "cmems":
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var],geodetic=True)
                         else:
