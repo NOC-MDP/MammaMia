@@ -29,8 +29,8 @@ class Extent:
         self.min_lat = np.around(np.min(trajectory.latitudes), 2) - excess_space
         self.max_lng = np.around(np.max(trajectory.longitudes), 2) + excess_space
         self.min_lng = np.around(np.min(trajectory.longitudes), 2) - excess_space
-        self.start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(1, 'D'), unit="D")
-        self.end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(1, 'D'), unit="D")
+        self.start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(14, 'D'), unit="D")
+        self.end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(14, 'D'), unit="D")
         self.max_depth = np.around(np.max(trajectory.depths), 2) + excess_depth
 
 
@@ -280,11 +280,25 @@ class World(dict):
         zarr_f = (f"{key}_{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
                   f"{self.extent.max_depth}_{self.extent.start_time}_{self.extent.end_time}.zarr")
         zarr_d = "msm-data/"
-        # TODO fix the hardcoded select statement
         if not os.path.isdir(zarr_d + zarr_f):
             data = self.catalog.msm_cat[str(key)].to_dask()
-            print(data)
-            subset = data.sel(y=slice(2500,3000), x=slice(3250,3750),deptht=slice(5,200),time_counter=slice("2019-07-16","2019-08-16"))
+            # Assuming ds is your dataset, and lat/lon are 2D arrays with dimensions (y, x)
+            lat = data['nav_lat']  # 2D latitude array (y, x)
+            lon = data['nav_lon']  # 2D longitude array (y, x)
+            # Step 1: Flatten lat/lon arrays and get the x, y indices
+            lat_flat = lat.values.flatten()
+            lon_flat = lon.values.flatten()
+            # Step 2: Calculate the squared Euclidean distance for each point on the grid
+            distance = np.sqrt((lat_flat - self.extent.max_lat) ** 2 + (lon_flat - self.extent.max_lng) ** 2)
+            distance2 = np.sqrt((lat_flat - self.extent.min_lat) ** 2 + (lon_flat - self.extent.min_lng) ** 2)
+            # Step 3: Find the index of the minimum distance
+            min_index = np.argmin(distance)
+            min_index2 = np.argmin(distance2)
+            # Step 4: Convert the flattened index back to 2D indices
+            y_size, x_size = lat.shape  # Get the shape of the 2D grid
+            y_index_max, x_index_max = np.unravel_index(min_index, (y_size, x_size))
+            y_index_min, x_index_min = np.unravel_index(min_index2, (y_size, x_size))
+            subset = data.sel(y=slice(y_index_min,y_index_max), x=slice(x_index_min,x_index_max),deptht=slice(0,self.extent.max_depth),time_counter=slice(self.extent.start_time,self.extent.end_time))
             subset.to_zarr(store=zarr_d + zarr_f,safe_chunks=False)
         return zarr_d + zarr_f
 

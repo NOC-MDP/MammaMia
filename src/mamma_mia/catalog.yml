@@ -27,7 +27,7 @@ sources:
           dimensions: ["time_counter", "depth", "x", "y"]
           keywords: ["ocean", "temperature", "3D", "model", "NEMO"]
           aliases: ["temp", "sea_temp","temperature","thetao"]
-  msm_ORCA12_salinity:
+  msm_eORCA12_salinity:
     description: salinity data
     driver: zarr
     args:
