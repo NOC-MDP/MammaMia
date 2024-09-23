@@ -73,7 +73,7 @@ class World(dict):
 
     def __init__(self, trajectory: Trajectory, reality: Reality):
         # TODO fix the hardcoded cat path so that it checks a path on obj store
-        self.catalog = Cats(cat_path="/Users/thopri/MammaMia/src/mamma_mia/catalog.yml")
+        self.catalog = Cats(cat_path="https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml")
         self.extent = Extent(trajectory=trajectory)
         self.matched_worlds = {}
         self.__find_worlds(reality=reality)
@@ -206,10 +206,10 @@ class World(dict):
                         self.extent.min_lng >= spatial_extent[1] and self.extent.max_lng <= spatial_extent[3] and
                         start_traj >= start_datetime and end_traj <= end_datetime and
                         key in aliases):
-                    if metadata["dataset_id"] in self.matched_worlds:
-                        self.matched_worlds[metadata["dataset_id"]][key] = metadata["variable"]
+                    if k1 in self.matched_worlds:
+                        self.matched_worlds[k1][key] = metadata["variable"]
                     else:
-                        self.matched_worlds[metadata["dataset_id"]] = {key: metadata["variable"]}
+                        self.matched_worlds[k1] = {key: metadata["variable"]}
 
 
     def __find_cmems_worlds(self, key: str):

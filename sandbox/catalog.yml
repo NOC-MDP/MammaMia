@@ -10,6 +10,7 @@ sources:
         - 's3://mamma-mia/eORCA12/2019/thetao.zarr'
         - 's3://mamma-mia/eORCA12/2020/thetao.zarr'
       concat_dim: time_counter
+      combine: nested
       consolidated: False
       storage_options:
         anon: True
@@ -18,7 +19,6 @@ sources:
           endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
     metadata:
           title: "Global Temperature"
-          dataset_id: "msm_eORCA12_temperature"
           units: "Celsius"
           variable: "thetao"
           model: "eORCA12 NEMO"
@@ -39,6 +39,7 @@ sources:
         - 's3://mamma-mia/eORCA12/2019/so.zarr'
         - 's3://mamma-mia/eORCA12/2020/so.zarr'
       concat_dim: time_counter
+      combine: nested
       consolidated: False
       storage_options:
         anon: True
@@ -47,7 +48,6 @@ sources:
           endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
     metadata:
           title: "Global Salinity"
-          dataset_id: "msm_eORCA12_salinity"
           units: "PSU"
           variable: "so"
           model: "eORCA12 NEMO"
