@@ -43,14 +43,16 @@ class Cats:
     """
     cmems_cat: dict
     msm_cat: intake.Catalog
+    priorities: dict
 
     # TODO add in some kind of update check so that the json file is updated periodically
     # TODO allow some kind of priority setting for each catalog
     # TODO need some kind of refresh option that will delete caches of downloaded data. (user enabled and probably if data is older than x?)
-    def __init__(self, cat_path:str, search: str = "GLOBAL",overwrite=False):
+    def __init__(self, cat_path:str, search: str = "GLOBAL",overwrite=False,msm_priority:int=1,cmems_priority:int=2):
         self.cmems_cat = copernicusmarine.describe(contains=[search], include_datasets=True,
                                                    overwrite_metadata_cache=overwrite)
         self.msm_cat = intake.open_catalog(cat_path)
+        self.priorities = {"msm":msm_priority,"cmems":cmems_priority}
 
 
 @dataclass
@@ -81,7 +83,7 @@ class World(dict):
             ds[key] = (xr.open_zarr(store=store))
         # Initialize the base class with the created group attributes
         super().__init__(ds)
-        self.interpolator = {}
+        self.interpolator = {"priorities": {}}
         self.__build_worlds()
 
     def __find_worlds(self, reality: Reality):
@@ -145,6 +147,12 @@ class World(dict):
                     if var == v1:
                         split_key = key.split("_")
                         if split_key[0] == "msm":
+                            if var in self.interpolator["priorities"]:
+                                print(f"variable {var} already exists, checking priority of data source")
+                                if self.interpolator["priorities"][var] < self.catalog.priorities["msm"]:
+                                    print("data source is of a lower priority, skipping world build")
+                                    continue
+                                print("data source is of a higher priority, updating world build")
                             # rename time and depth dimensions to be consistent
                             ds = self[key][var].rename({"deptht": "depth","time_counter": "time"})
                             lat = ds['nav_lat']
@@ -168,8 +176,13 @@ class World(dict):
                             ds_regridded = ds_regridded.astype('float64')
                             ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded,geodetic=True)
+                            self.interpolator["priorities"][var] = self.catalog.priorities["msm"]
                         elif split_key[0] == "cmems":
+                            if var in self.interpolator["priorities"]:
+                                if self.interpolator["priorities"][var] < self.catalog.priorities["cmems"]:
+                                    continue
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var],geodetic=True)
+                            self.interpolator["priorities"][var] = self.catalog.priorities["cmems"]
                         else:
                             raise Exception("unknown model source")
                         print(f"written key: {key} for var: {var} into interpolator: {k1}")
