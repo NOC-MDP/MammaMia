@@ -43,19 +43,14 @@ class Cats:
     """
     cmems_cat: dict
     msm_cat: intake.Catalog
-    priority: list
 
     # TODO add in some kind of update check so that the json file is updated periodically
-    def __init__(self, cat_path:str, search: str = "GLOBAL",overwrite=False,cmems_priority:int = 1, msm_priority:int = 2):
+    # TODO allow some kind of priority setting for each catalog
+    # TODO need some kind of refresh option that will delete caches of downloaded data. (user enabled and probably if data is older than x?)
+    def __init__(self, cat_path:str, search: str = "GLOBAL",overwrite=False):
         self.cmems_cat = copernicusmarine.describe(contains=[search], include_datasets=True,
                                                    overwrite_metadata_cache=overwrite)
         self.msm_cat = intake.open_catalog(cat_path)
-        if cmems_priority > msm_priority:
-            self.priority = ["cmems", "msm"]
-        elif cmems_priority < msm_priority:
-            self.priority = ["msm", "cmems"]
-        else:
-            raise Exception("error in setting catalog prority")
 
 
 @dataclass
@@ -109,11 +104,8 @@ class World(dict):
             elif source == "msm":
                 self.__find_msm_worlds(key=key)
             elif source == "all":
-                for p in self.catalog.priority:
-                    if p == "cmems":
-                        self.__find_cmems_worlds(key=key)
-                    if p == "msm":
-                        self.__find_msm_worlds(key=key)
+                self.__find_cmems_worlds(key=key)
+                self.__find_msm_worlds(key=key)
             else:
                 raise Exception("unknown source specification")
     def __get_worlds(self, key, value):
@@ -186,7 +178,7 @@ class World(dict):
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var],geodetic=True)
                         else:
                             raise Exception("unknown model source")
-
+                        print(f"written key: {key} for var: {var} into interpolator: {k1}")
     def __find_msm_worlds(self, key:str):
         """
 
@@ -299,7 +291,7 @@ class World(dict):
             value: object that contains the intake entry of the matched dataset
 
         Returns:
-            lazy loaded xarray dataset
+            string that represents the zarr store location of the downloaded data
         """
         vars2 = []
         for k2,v2 in value.items():
