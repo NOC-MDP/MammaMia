@@ -5,7 +5,8 @@ import os
 import xarray as xr
 import pyinterp.backends.xarray
 from dataclasses import dataclass
-from mamma_mia.alias import alias
+# TODO figure out a unified approach to aliases
+from mamma_mia.cmems_alias import alias
 import copernicusmarine
 import intake
 from datetime import datetime
@@ -29,6 +30,7 @@ class Extent:
         self.min_lat = np.around(np.min(trajectory.latitudes), 2) - excess_space
         self.max_lng = np.around(np.max(trajectory.longitudes), 2) + excess_space
         self.min_lng = np.around(np.min(trajectory.longitudes), 2) - excess_space
+        # TODO dynamcially set the start and end times based on the model temporal resoltution e.g. monthly or daily as interpolation needs at least two time steps
         self.start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(30, 'D'), unit="D")
         self.end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D")
         self.max_depth = np.around(np.max(trajectory.depths), 2) + excess_depth
@@ -41,19 +43,20 @@ class Cats:
     """
     cmems_cat: dict
     msm_cat: intake.Catalog
+    priority: list
 
     # TODO add in some kind of update check so that the json file is updated periodically
-    def __init__(self, search: str = "GLOBAL", overwrite=False,cat_path:str=None):
+    def __init__(self, cat_path:str, search: str = "GLOBAL",overwrite=False,cmems_priority:int = 1, msm_priority:int = 2):
         self.cmems_cat = copernicusmarine.describe(contains=[search], include_datasets=True,
                                                    overwrite_metadata_cache=overwrite)
-        if cat_path is None:
-            print("no MSM catalog path provided, can only use CMEMS data")
-            self.msm_cat = None
+        self.msm_cat = intake.open_catalog(cat_path)
+        if cmems_priority > msm_priority:
+            self.priority = ["cmems", "msm"]
+        elif cmems_priority < msm_priority:
+            self.priority = ["msm", "cmems"]
         else:
-            try:
-                self.msm_cat = intake.open_catalog(cat_path)
-            except FileNotFoundError:
-                raise Exception("Catalog path {} does not exist".format(cat_path))
+            raise Exception("error in setting catalog prority")
+
 
 @dataclass
 class World(dict):
@@ -71,9 +74,8 @@ class World(dict):
     - dict with xarray datasets filled with data
     """
 
-    def __init__(self, trajectory: Trajectory, reality: Reality):
-        # TODO fix the hardcoded cat path so that it checks a path on obj store
-        self.catalog = Cats(cat_path="https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml")
+    def __init__(self, trajectory: Trajectory, reality: Reality,cat_path:str="https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml" ):
+        self.catalog = Cats(cat_path=cat_path)
         self.extent = Extent(trajectory=trajectory)
         self.matched_worlds = {}
         self.__find_worlds(reality=reality)
@@ -87,7 +89,7 @@ class World(dict):
         self.interpolator = {}
         self.__build_worlds()
 
-    def __find_worlds(self, reality: Reality):
+    def __find_worlds(self, reality: Reality, source:str="all"):
         """
         Finds a world that matches the reality required.
 
@@ -102,10 +104,18 @@ class World(dict):
         """
         # for every array in the reality group
         for key in reality.array_keys():
-            self.__find_cmems_worlds(key=key)
-            if self.catalog.msm_cat is not None:
+            if source == "cmems":
+                self.__find_cmems_worlds(key=key)
+            elif source == "msm":
                 self.__find_msm_worlds(key=key)
-
+            elif source == "all":
+                for p in self.catalog.priority:
+                    if p == "cmems":
+                        self.__find_cmems_worlds(key=key)
+                    if p == "msm":
+                        self.__find_msm_worlds(key=key)
+            else:
+                raise Exception("unknown source specification")
     def __get_worlds(self, key, value):
         """
         Gets a matched world from its respective source
@@ -171,7 +181,7 @@ class World(dict):
                             # Convert all float32 variables in the dataset to float64
                             ds_regridded = ds_regridded.astype('float64')
                             ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
-                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded)
+                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded,geodetic=True)
                         elif split_key[0] == "cmems":
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var],geodetic=True)
                         else:
