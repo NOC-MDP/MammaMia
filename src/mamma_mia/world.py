@@ -294,6 +294,7 @@ class World(dict):
         vars2 = []
         for k2,v2 in value.items():
             vars2.append(v2)
+        # TODO add in a min depth parameter? or always assume its the surface?
         zarr_f = (f"{key}_{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
                   f"{self.extent.max_depth}_{self.extent.start_time}_{self.extent.end_time}.zarr")
         zarr_d = "msm-data/"

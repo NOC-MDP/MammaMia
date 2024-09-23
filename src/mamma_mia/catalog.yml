@@ -6,7 +6,10 @@ sources:
     description: temperature data
     driver: zarr
     args:
-      urlpath: 's3://mamma-mia/eORCA12/2019/thetao.zarr'
+      urlpath:
+        - 's3://mamma-mia/eORCA12/2019/thetao.zarr'
+        - 's3://mamma-mia/eORCA12/2020/thetao.zarr'
+      concat_dim: time_counter
       consolidated: False
       storage_options:
         anon: True
@@ -20,9 +23,10 @@ sources:
           variable: "thetao"
           model: "eORCA12 NEMO"
           spatial_extent: [-180, -90, 180, 90]
-          temporal_extent: ["2019-01-01T00:00:00Z", "2019-12-31T23:59:59Z"]
+          temporal_extent: ["2019-01-01T00:00:00Z", "2020-12-31T23:59:59Z"]
           depth_levels: 75
-          resolution: "1/12th degree"
+          spatial_resolution: "1/12th degree"
+          temporal_resolution: "monthly"
           grid: "tri polar grid"
           dimensions: ["time_counter", "depth", "x", "y"]
           keywords: ["ocean", "temperature", "3D", "model", "NEMO"]
@@ -31,7 +35,10 @@ sources:
     description: salinity data
     driver: zarr
     args:
-      urlpath: 's3://mamma-mia/eORCA12/2019/so.zarr'
+      urlpath:
+        - 's3://mamma-mia/eORCA12/2019/so.zarr'
+        - 's3://mamma-mia/eORCA12/2020/so.zarr'
+      concat_dim: time_counter
       consolidated: False
       storage_options:
         anon: True
@@ -45,9 +52,10 @@ sources:
           variable: "so"
           model: "eORCA12 NEMO"
           spatial_extent: [-180, -90, 180, 90]
-          temporal_extent: ["2019-01-01T00:00:00Z", "2019-12-31T23:59:59Z"]
+          temporal_extent: ["2019-01-01T00:00:00Z", "2020-12-31T23:59:59Z"]
           depth_levels: 75
-          resolution: "1/12th degree"
+          spatial_resolution: "1/12th degree"
+          temporal_resolution: "monthly"
           grid: "tri polar grid"
           dimensions: ["time_counter", "depth", "x", "y"]
           keywords: ["ocean", "salinity", "3D", "model", "NEMO"]
