@@ -33,9 +33,6 @@ mission = Mission(id=1,
 mission.fly()
 # visualise the results
 mission.show_reality()
-print("debug point!")
-
-
 
 
 def test_glider():

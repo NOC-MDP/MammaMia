@@ -84,7 +84,7 @@ class World(dict):
         self.interpolator = {}
         self.__build_worlds()
 
-    def __find_worlds(self, reality: Reality, source:str="all"):
+    def __find_worlds(self, reality: Reality):
         """
         Finds a world that matches the reality required.
 
@@ -99,15 +99,9 @@ class World(dict):
         """
         # for every array in the reality group
         for key in reality.array_keys():
-            if source == "cmems":
-                self.__find_cmems_worlds(key=key)
-            elif source == "msm":
-                self.__find_msm_worlds(key=key)
-            elif source == "all":
                 self.__find_cmems_worlds(key=key)
                 self.__find_msm_worlds(key=key)
-            else:
-                raise Exception("unknown source specification")
+
     def __get_worlds(self, key, value):
         """
         Gets a matched world from its respective source
@@ -128,7 +122,7 @@ class World(dict):
         elif split_key[0] == "msm":
             zarr_store = self.__get_msm_worlds(key=key, value=value)
         else:
-            raise Exception("unknown model source")
+            raise Exception("unknown model source key")
         return zarr_store
 
     def __build_worlds(self):
