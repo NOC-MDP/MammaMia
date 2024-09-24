@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from abc import ABC
 
 
@@ -40,6 +40,35 @@ class Sensor(ABC):
     name: str
     units: str
 
+@dataclass
+class TemperatureSensor(Sensor):
+    name: str = "temperature"
+    units: str = "degrees C"
+
+@dataclass
+class SalinitySensor(Sensor):
+    name: str = "salinity"
+    units: str = "PSU"
+
+@dataclass
+class PressureSensor(Sensor):
+    name: str = "pressure"
+    units: str = "Pa"
+
+@dataclass
+class PhosphateSensor(Sensor):
+    name: str = "phosphate"
+    units: str = ""
+
+@dataclass
+class NitrateSensor(Sensor):
+    name: str = "nitrate"
+    units: str = ""
+
+@dataclass
+class SilicateSensor(Sensor):
+    name: str = "silicate"
+    units: str = ""
 
 @dataclass
 class SensorGroup(ABC):
@@ -47,7 +76,7 @@ class SensorGroup(ABC):
     Abstract base class for all sensor groups.
     """
     name: str
-    sensors: dict[str, Sensor] = field(default_factory=dict)
+    sensors: dict[str, Sensor]
 
 
 @dataclass
@@ -61,13 +90,13 @@ class CTD(SensorGroup):
     Returns:
     - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
     """
-    name: str = "CTD"
-
-    def __post_init__(self):
+    def __init__(self):
+        self.name = "CTD"
+        # noinspection PyTypeChecker
         self.sensors = {
-                        "temperature": Sensor(name="temperature",units="degreesC"),
-                        "conductivity": Sensor(name="salinity",units="PSU"),
-                        "pressure": Sensor(name="pressure",units="Pa"),
+                        "temperature": TemperatureSensor,
+                        "conductivity": SalinitySensor,
+                        "pressure": PressureSensor,
                         }
 
 @dataclass
@@ -81,12 +110,12 @@ class BIO(SensorGroup):
     Returns:
     - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
     """
-    name: str = "CTD"
-
-    def __post_init__(self):
+    def __init__(self):
+        self.name = "BIO"
+        # noinspection PyTypeChecker
         self.sensors = {
-                        "phosphate": Sensor(name="phosphate",units=""),
-                        "nitrate": Sensor(name="nitrate",units=""),
-                        "silicate": Sensor(name="silicate",units=""),
+                        "phosphate": PhosphateSensor,
+                        "nitrate": NitrateSensor,
+                        "silicate": SilicateSensor,
                         }
 

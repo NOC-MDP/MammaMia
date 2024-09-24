@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
-from mamma_mia import glider, realities, trajectory, world
+from mamma_mia import realities, trajectory, world, auv
 import plotly.graph_objects as go
 from loguru import logger
 
@@ -25,7 +25,7 @@ class Mission:
     description: str
     world: world.World
     trajectory: trajectory.Trajectory
-    glider: glider.Glider
+    auv: auv.AUV
     reality: realities.Reality
 
     def fly(self):
@@ -66,3 +66,5 @@ class Mission:
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
         fig.show()
+
+

@@ -1,5 +1,6 @@
-from mamma_mia import World, Mission, Trajectory, Slocum, Reality, sensors
+from mamma_mia import World, Mission, Trajectory, Slocum, Reality, sensors, Campaign
 import zarr
+
 
 # make empty suite of sensors to use in AUV
 Sensors = sensors.SensorSuite()
@@ -9,14 +10,14 @@ Sensors = sensors.SensorSuite()
 Sensors["CTD1"] = sensors.CTD()
 Sensors["BIO1"] = sensors.BIO()
 
-glider = Slocum(sensorsuite=Sensors)
+slocum = Slocum(sensorsuite=Sensors)
 #store = zarr.DirectoryStore('slocum-trajectory.zarr')
 trajectory = Trajectory(glider_traj_path="comet-mm1.nc")#,store=store)
 # generate a Slocum glider path based on waypoints and Slocum config
 #trajectory.plot_trajectory()
 # create reality to return (based on model/world and sensor suite and trajectory)
 #store2 = zarr.DirectoryStore('mamma-mia.zarr')
-reality = Reality(glider=glider, trajectory=trajectory)#,store=store2)
+reality = Reality(auv=slocum, trajectory=trajectory)#,store=store2)
 
 # define which model/world to use
 world = World(trajectory=trajectory,reality=reality)
@@ -25,18 +26,23 @@ world = World(trajectory=trajectory,reality=reality)
 mission = Mission(id=1,
                   description="flight of the conchords",
                   world=world,
-                  glider=glider,
+                  auv=slocum,
                   trajectory=trajectory,
                   reality=reality
                   )
+
+campaign = Campaign(name="example campaign",
+                    description="single slocum glider flight in the North Sea",
+                    missions= {"mission_1": mission}
+                    )
 # fly the mamma_mia to generate the interpolated data
-mission.fly()
+campaign.missions["mission_1"].fly()
 # visualise the results
-mission.show_reality()
+campaign.missions["mission_1"].show_reality()
 
 
 def test_glider():
-    assert mission.glider.name == "Slocum"
+    assert mission.auv.name == "Slocum"
 
 
 def test_flight():

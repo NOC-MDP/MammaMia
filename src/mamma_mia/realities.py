@@ -1,6 +1,6 @@
 import zarr
 import numpy as np
-from mamma_mia.glider import Glider
+from mamma_mia.auv import AUV
 from mamma_mia.trajectory import Trajectory
 from dataclasses import dataclass
 
@@ -19,7 +19,7 @@ class Reality(zarr.Group):
     Returns:
     - Reality zarr group that is initialized to fit the requried trajectory and sensor suite of glider
     """
-    def __init__(self, glider: Glider, trajectory: Trajectory, store=None, overwrite=False):
+    def __init__(self, auv: AUV, trajectory: Trajectory, store=None, overwrite=False):
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
 
@@ -27,7 +27,7 @@ class Reality(zarr.Group):
         super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
                          synchronizer=group.synchronizer)
 
-        for group in glider.sensors.values():
+        for group in auv.sensors.values():
             for sensor in group.sensors.values():
                 self.full(name=sensor.name, shape=trajectory.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
                 self.attrs["mapped_name"] = sensor.name
