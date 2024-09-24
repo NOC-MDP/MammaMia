@@ -147,12 +147,8 @@ class World(dict):
                     if var == v1:
                         split_key = key.split("_")
                         if split_key[0] == "msm":
-                            if var in self.interpolator["priorities"]:
-                                print(f"variable {var} already exists, checking priority of data source")
-                                if self.interpolator["priorities"][var] < self.catalog.priorities["msm"]:
-                                    print("data source is of a lower priority, skipping world build")
-                                    continue
-                                print("data source is of a higher priority, updating world build")
+                            if self.__check_priorities(key=k1):
+                                continue
                             # rename time and depth dimensions to be consistent
                             ds = self[key][var].rename({"deptht": "depth","time_counter": "time"})
                             lat = ds['nav_lat']
@@ -176,16 +172,16 @@ class World(dict):
                             ds_regridded = ds_regridded.astype('float64')
                             ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded,geodetic=True)
-                            self.interpolator["priorities"][var] = self.catalog.priorities["msm"]
+                            self.interpolator["priorities"][k1] = self.catalog.priorities["msm"]
                         elif split_key[0] == "cmems":
-                            if var in self.interpolator["priorities"]:
-                                if self.interpolator["priorities"][var] < self.catalog.priorities["cmems"]:
-                                    continue
+                            if self.__check_priorities(key=k1):
+                                continue
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var],geodetic=True)
-                            self.interpolator["priorities"][var] = self.catalog.priorities["cmems"]
+                            self.interpolator["priorities"][k1] = self.catalog.priorities["cmems"]
                         else:
                             raise Exception("unknown model source")
                         print(f"written key: {key} for var: {var} into interpolator: {k1}")
+
     def __find_msm_worlds(self, key:str):
         """
 
@@ -368,4 +364,12 @@ class World(dict):
             )
         return zarr_d + zarr_f
 
+    def __check_priorities(self,key:str) -> bool:
+        if key in self.interpolator["priorities"]:
+            print(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
+            if self.interpolator["priorities"][key] < self.catalog.priorities["cmems"]:
+                print("data source is of a lower priority, skipping world build")
+                return True
+            print("data source is of a higher priority, updating world build")
+        return False
 
