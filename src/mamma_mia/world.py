@@ -11,6 +11,7 @@ import copernicusmarine
 import intake
 from datetime import datetime
 import xesmf as xe
+from loguru import logger
 
 @dataclass
 class Extent:
@@ -46,9 +47,8 @@ class Cats:
     priorities: dict
 
     # TODO add in some kind of update check so that the json file is updated periodically
-    # TODO allow some kind of priority setting for each catalog
     # TODO need some kind of refresh option that will delete caches of downloaded data. (user enabled and probably if data is older than x?)
-    def __init__(self, cat_path:str, search: str = "GLOBAL",overwrite=False,msm_priority:int=1,cmems_priority:int=2):
+    def __init__(self, cat_path:str, search: str = "GLOBAL",overwrite=False,msm_priority:int=2,cmems_priority:int=1):
         self.cmems_cat = copernicusmarine.describe(contains=[search], include_datasets=True,
                                                    overwrite_metadata_cache=overwrite)
         self.msm_cat = intake.open_catalog(cat_path)
@@ -124,7 +124,8 @@ class World(dict):
         elif split_key[0] == "msm":
             zarr_store = self.__get_msm_worlds(key=key, value=value)
         else:
-            raise Exception("unknown model source key")
+            logger.error("unknown model source key")
+            raise Exception
         return zarr_store
 
     def __build_worlds(self):
@@ -147,7 +148,7 @@ class World(dict):
                     if var == v1:
                         split_key = key.split("_")
                         if split_key[0] == "msm":
-                            if self.__check_priorities(key=k1):
+                            if self.__check_priorities(key=k1,source="msm"):
                                 continue
                             # rename time and depth dimensions to be consistent
                             ds = self[key][var].rename({"deptht": "depth","time_counter": "time"})
@@ -172,15 +173,17 @@ class World(dict):
                             ds_regridded = ds_regridded.astype('float64')
                             ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded,geodetic=True)
+                            # create or update priorities of interpolator datasetsc
                             self.interpolator["priorities"][k1] = self.catalog.priorities["msm"]
                         elif split_key[0] == "cmems":
-                            if self.__check_priorities(key=k1):
+                            if self.__check_priorities(key=k1,source="cmems"):
                                 continue
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self[key][var],geodetic=True)
                             self.interpolator["priorities"][k1] = self.catalog.priorities["cmems"]
                         else:
-                            raise Exception("unknown model source")
-                        print(f"written key: {key} for var: {var} into interpolator: {k1}")
+                            logger.error("unknown model source key")
+                            raise Exception
+                        logger.info(f"written dataset: {key} for variable: {var} into interpolator: {k1}")
 
     def __find_msm_worlds(self, key:str):
         """
@@ -233,7 +236,7 @@ class World(dict):
             for i in range(len(v1)):
                 # ensure it is a numerical model
                 if v1[i]["sources"][0] != "Numerical models":
-                    print("warning product is not a numerical model")
+                    logger.warning(f"{v1[i]['sources'][0]} is not a numerical model")
                     break
                 # check each dataset
                 for j in range(len(v1[i]["datasets"])):
@@ -364,12 +367,15 @@ class World(dict):
             )
         return zarr_d + zarr_f
 
-    def __check_priorities(self,key:str) -> bool:
+    def __check_priorities(self,key:str,source:str) -> bool:
+        if source not in ["msm", "cmems"]:
+            logger.error(f"unknown source: {source}")
+            raise Exception
         if key in self.interpolator["priorities"]:
-            print(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
-            if self.interpolator["priorities"][key] < self.catalog.priorities["cmems"]:
-                print("data source is of a lower priority, skipping world build")
+            logger.warning(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
+            if self.interpolator["priorities"][key] > self.catalog.priorities[source]:
+                logger.info("data source is of a lower priority, skipping world build")
                 return True
-            print("data source is of a higher priority, updating world build")
+            logger.info("data source is of a higher priority, updating world build")
         return False
 

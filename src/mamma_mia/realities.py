@@ -1,7 +1,7 @@
 import zarr
 import numpy as np
-from src.mamma_mia.glider import Glider
-from src.mamma_mia.trajectory import Trajectory
+from mamma_mia.glider import Glider
+from mamma_mia.trajectory import Trajectory
 from dataclasses import dataclass
 
 

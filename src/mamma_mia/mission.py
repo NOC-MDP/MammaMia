@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 import numpy as np
-from src.mamma_mia import glider, realities, trajectory, world
+from mamma_mia import glider, realities, trajectory, world
 import plotly.graph_objects as go
+from loguru import logger
 
 
 @dataclass
@@ -38,7 +39,7 @@ class Mission:
             try:
                 self.reality[key] = self.world.interpolator[key].quadrivariate(flight)
             except KeyError:
-                print(f"no interpolator found for parameter {key}")
+                logger.warning(f"no interpolator found for parameter {key}")
     def show_reality(self):
         marker = {
             "size": 2,

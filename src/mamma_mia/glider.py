@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.mamma_mia import sensors
+from mamma_mia import sensors
 from abc import ABC
 
 
