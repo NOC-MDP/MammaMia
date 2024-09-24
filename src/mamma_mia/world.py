@@ -75,6 +75,7 @@ class World(dict):
         self.catalog = Cats(cat_path=cat_path)
         self.extent = Extent(trajectory=trajectory)
         self.matched_worlds = {}
+        # TODO need to ensure any existing datasets that has been downloaded previously contain the required variables as a different sensorsuite could have been used
         self.__find_worlds(reality=reality)
         ds = {}
         for key, value in self.matched_worlds.items():

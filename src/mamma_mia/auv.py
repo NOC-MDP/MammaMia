@@ -9,6 +9,7 @@ class AUV(ABC):
     Base class for glider objects
     """
     name: str
+    id: str
     sensors: sensors.SensorSuite
 
 
@@ -23,7 +24,8 @@ class Slocum(AUV):
     Returns:
     - Glider object that can be used to fly through a world class
     """
-    def __init__(self, sensorsuite: sensors.SensorSuite):
+    def __init__(self, sensorsuite: sensors.SensorSuite,id:str):
+        self.id = id
         self.name = "Slocum"
         self.sensors = sensorsuite
 
@@ -39,6 +41,7 @@ class ALR1500(AUV):
     Returns:
     - ALR1500 object that can be used to fly through a world class
     """
-    def __init__(self, sensorsuite: sensors.SensorSuite):
+    def __init__(self, sensorsuite: sensors.SensorSuite, id:str):
+        self.id = id
         self.name = "ALR1500"
         self.sensors = sensorsuite

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
+from distlib.util import parse_marker
+
 from mamma_mia import realities, trajectory, world, auv
 import plotly.graph_objects as go
 from loguru import logger
@@ -40,16 +42,16 @@ class Mission:
                 self.reality[key] = self.world.interpolator[key].quadrivariate(flight)
             except KeyError:
                 logger.warning(f"no interpolator found for parameter {key}")
-    def show_reality(self):
+    def show_reality(self, parameter:str,colourscale:str="Jet"):
         marker = {
             "size": 2,
-            "color": self.reality.temperature,
-            "colorscale": "Jet",
+            "color": self.reality[parameter],
+            "colorscale": colourscale,
             "opacity": 0.8,
             "colorbar": {"thickness": 40}
         }
         title = {
-            "text": "Glider Reality: Temperature",
+            "text": f"Glider Reality: {parameter}",
             "font": {"size": 30},
             "automargin": True,
             "yref": "paper"

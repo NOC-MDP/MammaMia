@@ -37,7 +37,7 @@ class Trajectory(zarr.Group):
         for i in range(self.latitudes.__len__()):
             self.latitudes[i] = self.__convertToDecimal(self.latitudes[i])
 
-    def plot_trajectory(self):
+    def plot_trajectory(self,colourscale:str='Viridis',):
         """
         Creates a plotly figure of the Trajectory object.
 
@@ -50,7 +50,7 @@ class Trajectory(zarr.Group):
         marker = {
             "size": 2,
             "color": np.array(self.datetimes).tolist(),
-            "colorscale": "Viridis",
+            "colorscale": colourscale,
             "opacity": 0.8,
             "colorbar": {"thickness": 40}
         }

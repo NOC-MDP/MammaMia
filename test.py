@@ -10,11 +10,11 @@ Sensors = sensors.SensorSuite()
 Sensors["CTD1"] = sensors.CTD()
 Sensors["BIO1"] = sensors.BIO()
 
-slocum = Slocum(sensorsuite=Sensors)
+slocum = Slocum(sensorsuite=Sensors, id="Slocum_1")
 #store = zarr.DirectoryStore('slocum-trajectory.zarr')
 trajectory = Trajectory(glider_traj_path="comet-mm1.nc")#,store=store)
 # generate a Slocum glider path based on waypoints and Slocum config
-#trajectory.plot_trajectory()
+trajectory.plot_trajectory()
 # create reality to return (based on model/world and sensor suite and trajectory)
 #store2 = zarr.DirectoryStore('mamma-mia.zarr')
 reality = Reality(auv=slocum, trajectory=trajectory)#,store=store2)
@@ -38,8 +38,10 @@ campaign = Campaign(name="example campaign",
 # fly the mamma_mia to generate the interpolated data
 campaign.missions["mission_1"].fly()
 # visualise the results
-campaign.missions["mission_1"].show_reality()
-
+# colourmap options is here https://plotly.com/python/builtin-colorscales/
+campaign.missions["mission_1"].show_reality(parameter="temperature")
+campaign.missions["mission_1"].show_reality(parameter="salinity",colourscale="haline")
+campaign.missions["mission_1"].show_reality(parameter="phosphate",colourscale="algae")
 
 def test_glider():
     assert mission.auv.name == "Slocum"
