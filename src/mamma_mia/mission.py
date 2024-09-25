@@ -1,8 +1,10 @@
-from dataclasses import dataclass
+import uuid
+from dataclasses import dataclass,field
 import numpy as np
-from mamma_mia import realities, trajectory, world, auv
 import plotly.graph_objects as go
 from loguru import logger
+import mamma_mia as mm
+
 
 
 @dataclass
@@ -21,12 +23,31 @@ class Mission:
     Returns:
     - Mission object that is ready for flight!
     """
-    id: int
+    name: str
     description: str
-    world: world.World
-    trajectory: trajectory.Trajectory
-    auv: auv.AUV
-    reality: realities.Reality
+    id: uuid.UUID = uuid.uuid4()
+    world: mm.World = field(init=False)
+    trajectory: mm.Trajectory = field(init=False)
+    auv: mm.AUV = field(init=False)
+    reality: mm.Reality = field(init=False)
+
+    def add_trajectory(self, in_trajectory: mm.Trajectory) -> ():
+        self.trajectory = in_trajectory
+
+    def add_world(self, in_world: mm.World) -> ():
+        self.world = in_world
+
+    def add_auv(self, in_auv: mm.AUV) -> ():
+        self.auv = in_auv
+
+    def add_reality(self, in_reality: mm.Reality) -> ():
+        self.reality = in_reality
+
+    def create_mission(self,auv:mm.AUV,traj_path:str) -> ():
+        self.add_auv(in_auv=auv)
+        self.add_trajectory(in_trajectory= mm.Trajectory(glider_traj_path=traj_path))
+        self.add_reality(in_reality=mm.Reality(auv=self.auv, trajectory=self.trajectory))
+        self.add_world(in_world=mm.World(trajectory=self.trajectory,reality=self.reality))
 
     def fly(self):
         flight = {

@@ -8,7 +8,7 @@ class AUV(ABC):
     """
     Base class for glider objects
     """
-    name: str
+    type: str
     id: str
     sensors: sensors.SensorSuite
 
@@ -26,7 +26,7 @@ class Slocum(AUV):
     """
     def __init__(self, sensorsuite: sensors.SensorSuite,id:str):
         self.id = id
-        self.name = "Slocum"
+        self.type = "Slocum"
         self.sensors = sensorsuite
 
 
@@ -43,5 +43,5 @@ class ALR1500(AUV):
     """
     def __init__(self, sensorsuite: sensors.SensorSuite, id:str):
         self.id = id
-        self.name = "ALR1500"
+        self.type = "ALR1500"
         self.sensors = sensorsuite

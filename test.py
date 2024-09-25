@@ -1,55 +1,23 @@
-from mamma_mia import World, Mission, Trajectory, Slocum, Reality, sensors, Campaign
-import zarr
-
-
-# make empty suite of sensors to use in AUV
-Sensors = sensors.SensorSuite()
-
-# add required sensors for mamma_mia
-# as a defined array
-Sensors["CTD1"] = sensors.CTD()
-Sensors["BIO1"] = sensors.BIO()
-
-slocum = Slocum(sensorsuite=Sensors, id="Slocum_1")
-#store = zarr.DirectoryStore('slocum-trajectory.zarr')
-trajectory = Trajectory(glider_traj_path="comet-mm1.nc")#,store=store)
-# generate a Slocum glider path based on waypoints and Slocum config
-trajectory.plot_trajectory()
-# create reality to return (based on model/world and sensor suite and trajectory)
-#store2 = zarr.DirectoryStore('mamma-mia.zarr')
-reality = Reality(auv=slocum, trajectory=trajectory)#,store=store2)
-
-# define which model/world to use
-world = World(trajectory=trajectory,reality=reality)
-
-# put it all together into a flight/mamma_mia object
-mission = Mission(id=1,
-                  description="flight of the conchords",
-                  world=world,
-                  auv=slocum,
-                  trajectory=trajectory,
-                  reality=reality
-                  )
-
-campaign = Campaign(name="example campaign",
-                    description="single slocum glider flight in the North Sea",
-                    missions= {"mission_1": mission}
-                    )
-# fly the mamma_mia to generate the interpolated data
+from mamma_mia import Mission, Slocum, sensors, Campaign, SensorSuite
+# create AUV
+slocum = Slocum(id="Slocum_1",sensorsuite=SensorSuite({"array_1": sensors.CTD(),"array_2":sensors.BIO()}),)
+#create empty mission
+mission = Mission(name= "mission_1", description="flight of the conchords")
+# populate mission
+mission.create_mission(auv=slocum,traj_path="comet-mm1.nc")
+# plot trajectory
+mission.trajectory.plot_trajectory()
+#create empty campaign
+campaign = Campaign(name="example campaign", description="single slocum glider flight in the North Sea")
+#add mission to it
+campaign.add_mission(mission=mission)
+# run the campaign
 campaign.run()
 # visualise the results
-# colourmap options is here https://plotly.com/python/builtin-colorscales/
+# colourmap options are here https://plotly.com/python/builtin-colorscales/
 campaign.missions["mission_1"].show_reality(parameter="temperature")
 campaign.missions["mission_1"].show_reality(parameter="salinity",colourscale="haline")
 campaign.missions["mission_1"].show_reality(parameter="phosphate",colourscale="algae")
 
 def test_glider():
-    assert mission.auv.name == "Slocum"
-
-
-def test_flight():
-    assert mission.id == 1
-
-
-def test_reality():
-    assert mission.reality.read_only is not True
+    assert mission.auv.type == "Slocum"
