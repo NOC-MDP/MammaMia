@@ -32,21 +32,12 @@ class SensorSuite(dict):
             self[key] = value
 
 @dataclass
-class Channel:
-    type: str
-    priority: int = 1
-
-@dataclass
 class Sensor:
     """
     class for all sensor types.
     """
     type: str
     units: str
-    channels: dict[str, Channel] = field(default_factory=dict)
-
-    def __post_init__(self):
-        self.channels = {"channel_1": Channel("first")}
 
 
 @dataclass
@@ -110,10 +101,8 @@ class ADCP(SensorArray):
     # TODO need to figure out how to handle multiple channels
     def __init__(self):
         self.name = "ADCP"
-        self.sensors = {"sensor_1": Sensor(type="ADCP",
-                                           units="ms-1",
-                                           channels= {"channel_1": Channel("u component"),
-                                                      "channel_2": Channel("v component"),
-                                                      "channel_3": Channel("w component"),
-                                                      },
-                                           )}
+        self.sensors = {
+                        "sensor_1": Sensor(type="u_component",units="ms-1"),
+                        "sensor_2": Sensor(type="v_component",units="ms-1"),
+                        "sensor_3": Sensor(type="w_component",units="ms-1"),
+                        }
