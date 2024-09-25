@@ -19,10 +19,10 @@ class Slocum(AUV):
     Creates a Slocum glider object
 
     Parameters:
-    - sensorsuite: SensorSuite object that comprises of one or more SensorGroups e.g. CTD, ADCP etc
+    - sensorsuite: SensorSuite object that comprises one or more SensorGroups e.g. CTD, ADCP etc
 
     Returns:
-    - Glider object that can be used to fly through a world class
+    - Glider object that can be used to fly through a world-class
     """
     def __init__(self, sensorsuite: sensors.SensorSuite,id:str):
         self.id = id

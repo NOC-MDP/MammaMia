@@ -6,7 +6,7 @@ import zarr
 Sensors = sensors.SensorSuite()
 
 # add required sensors for mamma_mia
-# as a defined group
+# as a defined array
 Sensors["CTD1"] = sensors.CTD()
 Sensors["BIO1"] = sensors.BIO()
 
@@ -36,7 +36,7 @@ campaign = Campaign(name="example campaign",
                     missions= {"mission_1": mission}
                     )
 # fly the mamma_mia to generate the interpolated data
-campaign.missions["mission_1"].fly()
+campaign.run()
 # visualise the results
 # colourmap options is here https://plotly.com/python/builtin-colorscales/
 campaign.missions["mission_1"].show_reality(parameter="temperature")

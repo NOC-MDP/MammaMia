@@ -43,6 +43,7 @@ class Mission:
             except KeyError:
                 logger.warning(f"no interpolator found for parameter {key}")
     def show_reality(self, parameter:str,colourscale:str="Jet"):
+
         marker = {
             "size": 2,
             "color": self.reality[parameter],
@@ -63,8 +64,11 @@ class Mission:
             "zaxis_title": "depth",
         }
         fig = go.Figure(data=[
-            go.Scatter3d(x=self.trajectory.longitudes, y=self.trajectory.latitudes, z=self.trajectory.depths,
-                         mode='markers', marker=marker)])
+            go.Scatter3d(x=self.trajectory.longitudes, y=self.trajectory.latitudes, z=self.trajectory.depths,mode='markers', marker=marker),
+            # TODO implement bathy surface plot
+            #go.Surface()
+        ])
+
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
         fig.show()

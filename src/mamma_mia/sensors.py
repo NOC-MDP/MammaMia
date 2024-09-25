@@ -1,10 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass,field
 from abc import ABC
 
 
 class SensorSuite(dict):
     """
-    Creates a sensorsuite object (extended python dict). This will only accept values that are SensorGroup instances
+    Creates a sensorsuite object (extended python dict). This will only accept values that are SensorArray instances
 
     Parameters:
     - None
@@ -23,55 +23,34 @@ class SensorSuite(dict):
         Returns:
         - Updated sensorsuite dictionary
         """
-        if not isinstance(value, SensorGroup):
-            raise TypeError(f"Value must be an instance of SensorGroup, not {type(value).__name__}")
+        if not isinstance(value, SensorArray):
+            raise TypeError(f"Value must be an instance of SensorArray, not {type(value).__name__}")
         super().__setitem__(key, value)
 
     def update(self, *args, **kwargs):
         for key, value in dict(*args, **kwargs).items():
             self[key] = value
 
+@dataclass
+class Channel:
+    type: str
+    priority: int = 1
 
 @dataclass
-class Sensor(ABC):
+class Sensor:
     """
-    Abstract base class for all sensor types.
+    class for all sensor types.
     """
-    name: str
+    type: str
     units: str
+    channels: dict[str, Channel] = field(default_factory=dict)
+
+    def __post_init__(self):
+        self.channels = {"channel_1": Channel("first")}
+
 
 @dataclass
-class TemperatureSensor(Sensor):
-    name: str = "temperature"
-    units: str = "degrees C"
-
-@dataclass
-class SalinitySensor(Sensor):
-    name: str = "salinity"
-    units: str = "PSU"
-
-@dataclass
-class PressureSensor(Sensor):
-    name: str = "pressure"
-    units: str = "Pa"
-
-@dataclass
-class PhosphateSensor(Sensor):
-    name: str = "phosphate"
-    units: str = ""
-
-@dataclass
-class NitrateSensor(Sensor):
-    name: str = "nitrate"
-    units: str = ""
-
-@dataclass
-class SilicateSensor(Sensor):
-    name: str = "silicate"
-    units: str = ""
-
-@dataclass
-class SensorGroup(ABC):
+class SensorArray(ABC):
     """
     Abstract base class for all sensor groups.
     """
@@ -80,7 +59,7 @@ class SensorGroup(ABC):
 
 
 @dataclass
-class CTD(SensorGroup):
+class CTD(SensorArray):
     """
     creates a CTD sensor group, derived from SensorGroup.
 
@@ -92,15 +71,14 @@ class CTD(SensorGroup):
     """
     def __init__(self):
         self.name = "CTD"
-        # noinspection PyTypeChecker
         self.sensors = {
-                        "temperature": TemperatureSensor,
-                        "conductivity": SalinitySensor,
-                        "pressure": PressureSensor,
+                        "sensor_1": Sensor(type="temperature",units="degreesC"),
+                        "sensor_2": Sensor(type="salinity",units="PSU"),
+                        "sensor_3": Sensor(type="pressure",units="bar"),
                         }
 
 @dataclass
-class BIO(SensorGroup):
+class BIO(SensorArray):
     """
     creates a CTD sensor group, derived from SensorGroup.
 
@@ -112,10 +90,30 @@ class BIO(SensorGroup):
     """
     def __init__(self):
         self.name = "BIO"
-        # noinspection PyTypeChecker
         self.sensors = {
-                        "phosphate": PhosphateSensor,
-                        "nitrate": NitrateSensor,
-                        "silicate": SilicateSensor,
+                        "sensor_1": Sensor(type="phosphate",units="mmol kg-3"),
+                        "sensor_2": Sensor(type="nitrate",units="mmol kg-3"),
+                        "sensor_3": Sensor(type="silicate",units="mmol kg-3"),
                         }
 
+@dataclass
+class ADCP(SensorArray):
+    """
+    creates a CTD sensor group, derived from SensorGroup.
+
+    Parameters:
+    - None
+
+    Returns:
+    - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
+    """
+    # TODO need to figure out how to handle multiple channels
+    def __init__(self):
+        self.name = "ADCP"
+        self.sensors = {"sensor_1": Sensor(type="ADCP",
+                                           units="ms-1",
+                                           channels= {"channel_1": Channel("u component"),
+                                                      "channel_2": Channel("v component"),
+                                                      "channel_3": Channel("w component"),
+                                                      },
+                                           )}
