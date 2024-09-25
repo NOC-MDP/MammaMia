@@ -43,7 +43,7 @@ class Mission:
     def add_reality(self, in_reality: mm.Reality) -> ():
         self.reality = in_reality
 
-    def create_mission(self,auv:mm.AUV,traj_path:str) -> ():
+    def populate_mission(self,auv:mm.AUV,traj_path:str) -> ():
         self.add_auv(in_auv=auv)
         self.add_trajectory(in_trajectory= mm.Trajectory(glider_traj_path=traj_path))
         self.add_reality(in_reality=mm.Reality(auv=self.auv, trajectory=self.trajectory))

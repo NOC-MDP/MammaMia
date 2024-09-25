@@ -1,10 +1,11 @@
-from mamma_mia import Mission, Slocum, sensors, Campaign, SensorSuite
+from mamma_mia import Mission, Slocum, sensors, Campaign
 # create AUV
-slocum = Slocum(id="Slocum_1",sensorsuite=SensorSuite({"array_1": sensors.CTD(),"array_2":sensors.BIO()}),)
+glider = Slocum(set_id="Slocum_1")
+glider.add_sensor_arrays(sensor_array_list=[sensors.CTD(),sensors.BIO()])
 #create empty mission
 mission = Mission(name= "mission_1", description="flight of the conchords")
 # populate mission
-mission.create_mission(auv=slocum,traj_path="comet-mm1.nc")
+mission.populate_mission(auv=glider,traj_path="comet-mm1.nc")
 # plot trajectory
 mission.trajectory.plot_trajectory()
 #create empty campaign

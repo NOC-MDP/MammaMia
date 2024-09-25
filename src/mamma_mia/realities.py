@@ -27,7 +27,7 @@ class Reality(zarr.Group):
         super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
                          synchronizer=group.synchronizer)
 
-        for group in auv.sensors.values():
+        for group in auv.sensor_suite.values():
             for sensor in group.sensors.values():
                 self.full(name=sensor.type, shape=trajectory.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
                 self.attrs["mapped_name"] = sensor.type
