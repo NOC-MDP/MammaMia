@@ -184,7 +184,7 @@ class World(dict):
                         else:
                             logger.error("unknown model source key")
                             raise Exception
-                        logger.info(f"written dataset: {key} for variable: {var} into interpolator: {k1}")
+                        logger.info(f"built {var} from source {split_key[0]} into interpolator: {k1}")
 
     def __find_msm_worlds(self, key:str):
         """
@@ -375,8 +375,8 @@ class World(dict):
         if key in self.interpolator["priorities"]:
             logger.warning(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
             if self.interpolator["priorities"][key] > self.catalog.priorities[source]:
-                logger.info("data source is of a lower priority, skipping world build")
+                logger.info(f"data source {source} is a lower priority, skipping world build")
                 return True
-            logger.info("data source is of a higher priority, updating world build")
+            logger.info(f"data source {source} is a higher priority, updating world build")
         return False
 

@@ -1,4 +1,6 @@
 from mamma_mia import Mission, Slocum, sensors, Campaign
+from loguru import logger
+logger.info("starting Mamma Mia test run")
 # create AUV
 glider = Slocum(set_id="Slocum_1")
 glider.add_sensor_arrays(sensor_array_list=[sensors.CTD(),sensors.BIO()])
@@ -19,6 +21,7 @@ campaign.run()
 campaign.missions["mission_1"].show_reality(parameter="temperature")
 campaign.missions["mission_1"].show_reality(parameter="salinity",colourscale="haline")
 campaign.missions["mission_1"].show_reality(parameter="phosphate",colourscale="algae")
+logger.success("Mamma Mia test complete")
 
 def test_glider():
     assert mission.auv.type == "Slocum"

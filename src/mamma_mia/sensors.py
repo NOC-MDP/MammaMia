@@ -98,7 +98,6 @@ class ADCP(SensorArray):
     Returns:
     - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
     """
-    # TODO need to figure out how to handle multiple channels
     def __init__(self):
         self.name = "ADCP"
         self.sensors = {

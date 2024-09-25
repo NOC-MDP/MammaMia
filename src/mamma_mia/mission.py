@@ -3,7 +3,10 @@ from dataclasses import dataclass,field
 import numpy as np
 import plotly.graph_objects as go
 from loguru import logger
-import mamma_mia as mm
+from mamma_mia.world import World
+from mamma_mia.trajectory import Trajectory
+from mamma_mia.auv import AUV
+from mamma_mia.realities import Reality
 
 
 
@@ -26,30 +29,42 @@ class Mission:
     name: str
     description: str
     id: uuid.UUID = uuid.uuid4()
-    world: mm.World = field(init=False)
-    trajectory: mm.Trajectory = field(init=False)
-    auv: mm.AUV = field(init=False)
-    reality: mm.Reality = field(init=False)
+    world: World = field(init=False)
+    trajectory: Trajectory = field(init=False)
+    auv: AUV = field(init=False)
+    reality: Reality = field(init=False)
 
-    def add_trajectory(self, in_trajectory: mm.Trajectory) -> ():
+    def __post_init__(self):
+        logger.success(f"successfully created mission named: {self.name}")
+
+    def add_trajectory(self, in_trajectory: Trajectory) -> ():
         self.trajectory = in_trajectory
 
-    def add_world(self, in_world: mm.World) -> ():
+    def add_world(self, in_world: World) -> ():
         self.world = in_world
 
-    def add_auv(self, in_auv: mm.AUV) -> ():
+    def add_auv(self, in_auv: AUV) -> ():
         self.auv = in_auv
 
-    def add_reality(self, in_reality: mm.Reality) -> ():
+    def add_reality(self, in_reality: Reality) -> ():
         self.reality = in_reality
 
-    def populate_mission(self,auv:mm.AUV,traj_path:str) -> ():
+    def populate_mission(self,auv:AUV,traj_path:str) -> ():
+        logger.info(f"adding auv with id {auv.id}")
         self.add_auv(in_auv=auv)
-        self.add_trajectory(in_trajectory= mm.Trajectory(glider_traj_path=traj_path))
-        self.add_reality(in_reality=mm.Reality(auv=self.auv, trajectory=self.trajectory))
-        self.add_world(in_world=mm.World(trajectory=self.trajectory,reality=self.reality))
+        logger.success(f"added {self.auv.id} successfully to {self.name}")
+        logger.info(f"adding trajectory located at: {traj_path}")
+        self.add_trajectory(in_trajectory= Trajectory(glider_traj_path=traj_path))
+        logger.success(f"added trajectory successfully to {self.name}")
+        logger.info(f"adding reality based on trajectory")
+        self.add_reality(in_reality=Reality(auv=self.auv, trajectory=self.trajectory))
+        logger.success(f"added reality successfully to {self.name}")
+        logger.info(f"building world for {self.name}")
+        self.add_world(in_world=World(trajectory=self.trajectory,reality=self.reality))
+        logger.success(f"world built successfully for {self.name}")
 
     def fly(self):
+        logger.info(f"flying {self.name} using {self.auv.id}")
         flight = {
             "longitude": np.array(self.trajectory.longitudes),
             "latitude": np.array(self.trajectory.latitudes),
@@ -58,11 +73,15 @@ class Mission:
         }
         for key in self.reality.array_keys():
             try:
+                logger.info(f"flying through {key} world and creating reality")
                 self.reality[key] = self.world.interpolator[key].quadrivariate(flight)
             except KeyError:
                 logger.warning(f"no interpolator found for parameter {key}")
-    def show_reality(self, parameter:str,colourscale:str="Jet"):
 
+        logger.success(f"{self.name} flown successfully")
+
+    def show_reality(self, parameter:str,colourscale:str="Jet"):
+        logger.info(f"showing reality for parameter {parameter}")
         marker = {
             "size": 2,
             "color": self.reality[parameter],
@@ -91,5 +110,6 @@ class Mission:
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
         fig.show()
+        logger.success(f"successfully plotted reality for parameter {parameter}")
 
 
