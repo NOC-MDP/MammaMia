@@ -135,8 +135,8 @@ class Mission:
         world_exp.attrs["catalog_priorities"] = dict(self.world.catalog.priorities)
         world_exp.attrs["interpolator_priorities"] = dict(self.world.interpolator["priorities"])
 
-        # for key, value in self.world.items():
-        #     world_exp[key] = value.to_zarr()
+        for key, value in self.world.items():
+            world_exp[key] = value.to_zarr().ds
 
 
         logger.success(f"successfully exported {self.name}")
