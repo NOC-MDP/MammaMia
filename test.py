@@ -21,6 +21,9 @@ campaign.run()
 campaign.missions["mission_1"].show_reality(parameter="temperature")
 campaign.missions["mission_1"].show_reality(parameter="salinity",colourscale="haline")
 campaign.missions["mission_1"].show_reality(parameter="phosphate",colourscale="algae")
+
+campaign.missions["mission_1"].export()
+
 logger.success("Mamma Mia test complete")
 
 def test_glider():

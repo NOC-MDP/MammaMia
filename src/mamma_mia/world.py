@@ -1,4 +1,4 @@
-from xarray.testing.strategies import variables
+from typing import Dict
 
 from mamma_mia.trajectory import Trajectory
 from mamma_mia.realities import Reality
@@ -28,7 +28,7 @@ class Extent:
     end_time: str
     max_depth: float
 
-    def __init__(self, trajectory: Trajectory, excess_space: int = 0.5, excess_depth: int = 100, ):
+    def __init__(self, trajectory: Trajectory, excess_space: int = 0.5, excess_depth: int = 100):
         self.max_lat = np.around(np.max(trajectory.latitudes), 2) + excess_space
         self.min_lat = np.around(np.min(trajectory.latitudes), 2) - excess_space
         self.max_lng = np.around(np.max(trajectory.longitudes), 2) + excess_space
@@ -37,6 +37,15 @@ class Extent:
         self.start_time = np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(30, 'D'), unit="D")
         self.end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D")
         self.max_depth = np.around(np.max(trajectory.depths), 2) + excess_depth
+
+    def to_dict(self) -> dict:
+        return {"max_lat": self.max_lat,
+                "min_lat": self.min_lat,
+                "max_lng": self.max_lng,
+                "min_lng": self.min_lng,
+                "start_time": self.start_time,
+                "end_time": self.end_time,
+                "max_depth": self.max_depth}
 
 
 @dataclass

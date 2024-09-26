@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-from abc import ABC
-
 
 class SensorSuite(dict):
     """
@@ -41,7 +39,7 @@ class Sensor:
 
 
 @dataclass
-class SensorArray(ABC):
+class SensorArray:
     """
     Abstract base class for all sensor groups.
     """
@@ -61,12 +59,12 @@ class CTD(SensorArray):
     - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
     """
     def __init__(self):
-        self.name = "CTD"
-        self.sensors = {
+        super().__init__(name="CTD",sensors= {
                         "sensor_1": Sensor(type="temperature",units="degreesC"),
                         "sensor_2": Sensor(type="salinity",units="PSU"),
                         "sensor_3": Sensor(type="pressure",units="bar"),
-                        }
+                        })
+
 
 @dataclass
 class BIO(SensorArray):
@@ -80,12 +78,11 @@ class BIO(SensorArray):
     - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
     """
     def __init__(self):
-        self.name = "BIO"
-        self.sensors = {
+        super().__init__(name="BIO",sensors= {
                         "sensor_1": Sensor(type="phosphate",units="mmol kg-3"),
                         "sensor_2": Sensor(type="nitrate",units="mmol kg-3"),
                         "sensor_3": Sensor(type="silicate",units="mmol kg-3"),
-                        }
+                        })
 
 @dataclass
 class ADCP(SensorArray):
@@ -99,9 +96,8 @@ class ADCP(SensorArray):
     - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
     """
     def __init__(self):
-        self.name = "ADCP"
-        self.sensors = {
+        super().__init__(name="ADCP",sensors = {
                         "sensor_1": Sensor(type="u_component",units="ms-1"),
                         "sensor_2": Sensor(type="v_component",units="ms-1"),
                         "sensor_3": Sensor(type="w_component",units="ms-1"),
-                        }
+                        })

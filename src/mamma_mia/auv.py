@@ -4,7 +4,7 @@ from abc import ABC
 from loguru import logger
 
 @dataclass
-class AUV(ABC):
+class AUV(dict):
     """
     Base class for glider objects
     """
@@ -19,7 +19,7 @@ class AUV(ABC):
         i = 1
         for sensor_array in sensor_array_list:
             logger.info(f"adding sensor array {sensor_array.name} to {self.id}")
-            self.sensor_suite["sensor_"+str(i)] = sensor_array
+            self.sensor_suite["sensor_array_"+str(i)] = sensor_array
             i = i + 1
         logger.success(f"{i-1} sensor arrays added to {self.id} successfully")
 

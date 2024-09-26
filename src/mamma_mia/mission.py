@@ -1,5 +1,6 @@
 import uuid
 from dataclasses import dataclass,field
+import numcodecs.pickles
 import numpy as np
 import plotly.graph_objects as go
 from loguru import logger
@@ -7,7 +8,8 @@ from mamma_mia.world import World
 from mamma_mia.trajectory import Trajectory
 from mamma_mia.auv import AUV
 from mamma_mia.realities import Reality
-
+import zarr
+import xarray as xr
 
 
 @dataclass
@@ -113,4 +115,28 @@ class Mission:
         logger.success(f"successfully plotted reality for parameter {parameter}")
 
     def export(self):
-        raise NotImplementedError
+        logger.info(f"exporting mission {self.name} to {self.name}.zarr")
+        export = zarr.open_group(f"{self.name}.zarr",mode='w')
+        export.attrs["name"] = self.name
+        export.attrs["description"] = self.description
+        export.attrs["id"] = str(self.id)
+
+        auv_exp = export.create_group("auv")
+        auv_exp.attrs["id"] = self.auv.id
+        auv_exp.attrs["type"] = self.auv.type
+        auv_exp.attrs["sensor_suite"] = str(self.auv.sensor_suite)
+
+        export["trajectory"] = self.trajectory
+        export["reality"] = self.reality
+
+        world_exp = export.create_group("world")
+        world_exp.attrs["matched_worlds"] = self.world.matched_worlds
+        world_exp.attrs["extent"] = self.world.extent.to_dict()
+        world_exp.attrs["catalog_priorities"] = dict(self.world.catalog.priorities)
+        world_exp.attrs["interpolator_priorities"] = dict(self.world.interpolator["priorities"])
+
+        # for key, value in self.world.items():
+        #     world_exp[key] = value.to_zarr()
+
+
+        logger.success(f"successfully exported {self.name}")
