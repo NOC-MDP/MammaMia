@@ -1,0 +1,35 @@
+plugins:
+  source:
+    - module: intake_xarray
+sources:
+  msm_eORCA12:
+    description: eORCA12 model
+    driver: zarr
+    args:
+        urlpath:
+          - 's3://mamma-mia/eORCA12/2019.zarr'
+          - 's3://mamma-mia/eORCA12/2020.zarr'
+        concat_dim: time_counter
+        combine: nested
+        consolidated: False
+        storage_options:
+          anon: True
+          use_ssl: True
+          client_kwargs:
+            endpoint_url: 'https://noc-msm-o.s3-ext.jc.rl.ac.uk'
+    metadata:
+          title: "Global eORC12 model"
+          units: ["Celsius","PSU"]
+          model: "eORCA12 NEMO"
+          spatial_extent: [-180, -90, 180, 90]
+          temporal_extent: ["2019-01-01T00:00:00Z", "2020-12-31T23:59:59Z"]
+          depth_levels: 75
+          spatial_resolution: "1/12th degree"
+          temporal_resolution: "monthly"
+          grid: "tri polar grid"
+          dimensions: ["time_counter", "depth", "x", "y"]
+          keywords: ["ocean", "3D", "model", "NEMO"]
+          aliases: {
+                    "thetao":["temp", "sea_temp","temperature","thetao"],
+                    "so": ["salinity","so","conductivity"]
+                    }

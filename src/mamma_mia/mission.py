@@ -112,4 +112,5 @@ class Mission:
         fig.show()
         logger.success(f"successfully plotted reality for parameter {parameter}")
 
-
+    def export(self):
+        raise NotImplementedError

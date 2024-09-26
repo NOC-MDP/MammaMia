@@ -1,3 +1,5 @@
+from xarray.testing.strategies import variables
+
 from mamma_mia.trajectory import Trajectory
 from mamma_mia.realities import Reality
 import numpy as np
@@ -72,8 +74,12 @@ class World(dict):
     """
 
     def __init__(self, trajectory: Trajectory, reality: Reality,cat_path:str="https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml" ):
+        logger.info("reading catalogs")
         self.catalog = Cats(cat_path=cat_path)
+        logger.success("catalogs loaded successfully")
+        logger.info("building extent")
         self.extent = Extent(trajectory=trajectory)
+        logger.success("extent built")
         self.matched_worlds = {}
         # TODO need to ensure any existing datasets that has been downloaded previously contain the required variables as a different sensorsuite could have been used
         self.__find_worlds(reality=reality)
@@ -82,6 +88,7 @@ class World(dict):
             store = self.__get_worlds(key=key, value=value)
             # Create the ds using the separate method
             ds[key] = (xr.open_zarr(store=store))
+        logger.success("world get completed successfully")
         # Initialize the base class with the created group attributes
         super().__init__(ds)
         self.interpolator = {"priorities": {}}
@@ -102,8 +109,11 @@ class World(dict):
         """
         # for every array in the reality group
         for key in reality.array_keys():
-                self.__find_cmems_worlds(key=key)
-                self.__find_msm_worlds(key=key)
+            logger.info(f"searching worlds for key {key}")
+            self.__find_cmems_worlds(key=key)
+            self.__find_msm_worlds(key=key)
+        logger.success("world search completed successfully")
+
 
     def __get_worlds(self, key, value):
         """
@@ -141,8 +151,10 @@ class World(dict):
         """
         # for every dataset
         for key in self.keys():
+            logger.info(f"building worlds for dataset {key}")
             # for every variable
             for var in self[key]:
+                logger.info(f"building world for variable {var}")
                 # for each item in matched dictionary
                 for k1, v1, in self.matched_worlds[key].items():
                     # if variable names match (this is to ensure variable names are consistent)
@@ -185,6 +197,7 @@ class World(dict):
                             logger.error("unknown model source key")
                             raise Exception
                         logger.info(f"built {var} from source {split_key[0]} into interpolator: {k1}")
+        logger.success("world build completed successfully")
 
     def __find_msm_worlds(self, key:str):
         """
@@ -197,8 +210,14 @@ class World(dict):
 
         """
         for k1,v1 in self.catalog.msm_cat.items():
+            var_key = None
+            logger.info(f"searching {k1}")
             metadata = v1.describe()['metadata']
             aliases = metadata.get('aliases', [])
+            # check if the key is in one of the variables alias dictionaries
+            for k2,v2 in aliases.items():
+                if key in v2:
+                    var_key = k2
             spatial_extent = metadata.get('spatial_extent', [])
             temporal_extent = metadata.get('temporal_extent', [])
             start_traj = float((np.datetime64(self.extent.start_time) - np.datetime64(
@@ -208,17 +227,18 @@ class World(dict):
             if temporal_extent:
                 start_datetime = datetime.fromisoformat(temporal_extent[0].replace("Z", "+00:00")).timestamp()*1000
                 end_datetime = datetime.fromisoformat(temporal_extent[1].replace("Z", "+00:00")).timestamp()*1000
-
                 # Check if the item is within the desired date range and spatial bounds
                 if (spatial_extent and
                         self.extent.min_lat >= spatial_extent[0] and self.extent.max_lat <= spatial_extent[2] and
                         self.extent.min_lng >= spatial_extent[1] and self.extent.max_lng <= spatial_extent[3] and
-                        start_traj >= start_datetime and end_traj <= end_datetime and
-                        key in aliases):
+                        start_traj >= start_datetime and end_traj <= end_datetime and var_key is not None):
+                    logger.success(f"found a match in {k1} for {key}")
                     if k1 in self.matched_worlds:
-                        self.matched_worlds[k1][key] = metadata["variable"]
+                        logger.info(f"updating {k1} with key {key}")
+                        self.matched_worlds[k1][key] = var_key
                     else:
-                        self.matched_worlds[k1] = {key: metadata["variable"]}
+                        logger.info(f"creating new matched world {k1} for key {key}")
+                        self.matched_worlds[k1] = {key: var_key}
 
 
     def __find_cmems_worlds(self, key: str):
@@ -232,8 +252,8 @@ class World(dict):
         Returns:
         - matched worlds dictionary containing dataset ids and variable names that reside within it.
         """
-        # check each product in cmems catalog
         for k1, v1 in self.catalog.cmems_cat.items():
+            logger.info(f"searching cmems {k1}")
             for i in range(len(v1)):
                 # ensure it is a numerical model
                 if v1[i]["sources"][0] != "Numerical models":
@@ -284,9 +304,12 @@ class World(dict):
                                 if start_traj > start and end_traj < end:
                                     # make sure data is at least daily
                                     if step <= 86400000:
+                                        logger.success(f"found a match in {dataset['dataset_id']} for {key}")
                                         if dataset["dataset_id"] in self.matched_worlds:
+                                            logger.info(f"updating {dataset['dataset_id']} with key {key}")
                                             self.matched_worlds[dataset["dataset_id"]][key] = variables[m]["short_name"]
                                         else:
+                                            logger.info(f"creating new matched world {dataset['dataset_id']} for key {key}")
                                             self.matched_worlds[dataset["dataset_id"]] = {
                                                 key: variables[m]["short_name"]}
 
@@ -300,14 +323,18 @@ class World(dict):
         Returns:
             string that represents the zarr store location of the downloaded data
         """
+        var_str = ""
         vars2 = []
         for k2,v2 in value.items():
             vars2.append(v2)
+            var_str = var_str+str(v2)+"_"
         # TODO add in a min depth parameter? or always assume its the surface?
-        zarr_f = (f"{key}_{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
+        zarr_f = (f"{key}_{var_str}{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
                   f"{self.extent.max_depth}_{self.extent.start_time}_{self.extent.end_time}.zarr")
         zarr_d = "msm-data/"
+        logger.info(f"getting msm world {zarr_f}")
         if not os.path.isdir(zarr_d + zarr_f):
+            logger.info(f"{zarr_f} has not been cached, downloading now")
             data = self.catalog.msm_cat[str(key)].to_dask()
             # Assuming ds is your dataset, and lat/lon are 2D arrays with dimensions (y, x)
             lat = data['nav_lat']  # 2D latitude array (y, x)
@@ -325,8 +352,9 @@ class World(dict):
             y_size, x_size = lat.shape  # Get the shape of the 2D grid
             y_index_max, x_index_max = np.unravel_index(min_index, (y_size, x_size))
             y_index_min, x_index_min = np.unravel_index(min_index2, (y_size, x_size))
-            subset = data.sel(y=slice(y_index_min,y_index_max), x=slice(x_index_min,x_index_max),deptht=slice(0,self.extent.max_depth),time_counter=slice(self.extent.start_time,self.extent.end_time))
+            subset = data[vars2].sel(y=slice(y_index_min,y_index_max), x=slice(x_index_min,x_index_max),deptht=slice(0,self.extent.max_depth),time_counter=slice(self.extent.start_time,self.extent.end_time))
             subset.to_zarr(store=zarr_d + zarr_f,safe_chunks=False)
+            logger.success(f"{zarr_f} has been cached")
         return zarr_d + zarr_f
 
     def __get_cmems_worlds(self, key, value):
@@ -349,7 +377,9 @@ class World(dict):
         zarr_f = (f"{key}_{self.extent.max_lng}_{self.extent.min_lng}_{self.extent.max_lat}_{self.extent.min_lat}_"
                   f"{self.extent.max_depth}_{self.extent.start_time}_{self.extent.end_time}.zarr")
         zarr_d = "copernicus-data/"
+        logger.info(f"getting cmems world {zarr_f}")
         if not os.path.isdir(zarr_d + zarr_f):
+            logger.info(f"{zarr_f} has not been cached, downloading now")
             copernicusmarine.subset(
                 dataset_id=key,
                 variables=vars2,
@@ -366,6 +396,7 @@ class World(dict):
                 file_format="zarr",
                 force_download=True
             )
+            logger.success(f"{zarr_f} has been cached")
         return zarr_d + zarr_f
 
     def __check_priorities(self,key:str,source:str) -> bool:
