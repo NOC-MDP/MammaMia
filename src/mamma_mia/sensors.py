@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass,asdict
 
 class SensorSuite(dict):
     """
@@ -29,6 +29,10 @@ class SensorSuite(dict):
         for key, value in dict(*args, **kwargs).items():
             self[key] = value
 
+    def to_dict(self):
+        return {k: v.to_dict() for k, v in self.items()}
+
+
 @dataclass
 class Sensor:
     """
@@ -38,6 +42,7 @@ class Sensor:
     units: str
 
 
+
 @dataclass
 class SensorArray:
     """
@@ -45,6 +50,9 @@ class SensorArray:
     """
     name: str
     sensors: dict[str, Sensor]
+
+    def to_dict(self):
+        return {k: str(v) for k, v in asdict(self).items()}
 
 
 @dataclass

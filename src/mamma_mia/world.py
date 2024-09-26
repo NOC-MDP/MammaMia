@@ -6,7 +6,7 @@ import numpy as np
 import os
 import xarray as xr
 import pyinterp.backends.xarray
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 # TODO figure out a unified approach to aliases
 from mamma_mia.cmems_alias import alias
 import copernicusmarine
@@ -38,15 +38,8 @@ class Extent:
         self.end_time = np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D")
         self.max_depth = np.around(np.max(trajectory.depths), 2) + excess_depth
 
-    def to_dict(self) -> dict:
-        return {"max_lat": self.max_lat,
-                "min_lat": self.min_lat,
-                "max_lng": self.max_lng,
-                "min_lng": self.min_lng,
-                "start_time": self.start_time,
-                "end_time": self.end_time,
-                "max_depth": self.max_depth}
-
+    def to_dict(self):
+        return {k: str(v) for k, v in asdict(self).items()}
 
 @dataclass
 class Cats:

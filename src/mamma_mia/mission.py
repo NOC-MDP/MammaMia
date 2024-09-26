@@ -124,16 +124,15 @@ class Mission:
         auv_exp = export.create_group("auv")
         auv_exp.attrs["id"] = self.auv.id
         auv_exp.attrs["type"] = self.auv.type
-        auv_exp.attrs["sensor_suite"] = str(self.auv.sensor_suite)
-
+        auv_exp.attrs["sensor_suite"] = self.auv.sensor_suite.to_dict()
         export["trajectory"] = self.trajectory
         export["reality"] = self.reality
 
         world_exp = export.create_group("world")
         world_exp.attrs["matched_worlds"] = self.world.matched_worlds
         world_exp.attrs["extent"] = self.world.extent.to_dict()
-        world_exp.attrs["catalog_priorities"] = dict(self.world.catalog.priorities)
-        world_exp.attrs["interpolator_priorities"] = dict(self.world.interpolator["priorities"])
+        world_exp.attrs["catalog_priorities"] = self.world.catalog.priorities
+        world_exp.attrs["interpolator_priorities"] = self.world.interpolator["priorities"]
 
         for key, value in self.world.items():
             world_exp[key] = value.to_zarr().ds

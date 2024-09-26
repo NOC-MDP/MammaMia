@@ -1,10 +1,9 @@
 from dataclasses import dataclass,field,InitVar
 from mamma_mia.sensors import SensorSuite,CTD,BIO,ADCP
-from abc import ABC
 from loguru import logger
 
 @dataclass
-class AUV(dict):
+class AUV:
     """
     Base class for glider objects
     """
