@@ -61,7 +61,8 @@ class Interpolators:
                             if self.__check_priorities(key=k1, source="msm",worlds=worlds):
                                 continue
                             # rename time and depth dimensions to be consistent
-                            ds = worlds[key][var].rename({"deptht": "depth", "time_counter": "time"})
+                            ds = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
+                            ds.rename({"deptht": "depth", "time_counter": "time"})
                             lat = ds['nav_lat']
                             lon = ds['nav_lon']
                             # Define a regular grid with 1D lat/lon arrays
@@ -89,8 +90,8 @@ class Interpolators:
                         elif split_key[0] == "cmems":
                             if self.__check_priorities(key=k1, source="cmems",worlds=worlds):
                                 continue
-                            world = xr.DataArray(worlds[key][var])
-                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(world,geodetic=True)
+                            world = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
+                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(world[var],geodetic=True)
                             worlds.attrs["interpolator_priorities"][k1] = worlds.attrs["catalog_priorities"]["cmems"]
                         else:
                             logger.error("unknown model source key")
@@ -187,11 +188,14 @@ class Mission(zarr.Group):
         worlds.attrs["catalog_priorities"] = {"msm":msm_priority,"cmems":cmems_priority}
         worlds.attrs["interpolator_priorities"] = {}
         worlds.attrs["matched_worlds"] = {}
+        worlds.attrs["zarr_stores"] = {}
 
     def build_mission(self,cat:Cats) -> ():
         self.__find_worlds(cat=cat)
+        zarr_stores = {}
         for key, value in self.world.attrs["matched_worlds"].items():
-            self.__get_worlds(key=key, value=value,cat=cat)
+            self.__get_worlds(key=key, value=value,cat=cat, zarr_stores=zarr_stores)
+        self.world.attrs.update({"zarr_stores": zarr_stores})
 
     def fly(self,interpol:Interpolators):
         logger.info(f"flying {self.name} using {self.auv.attrs['id']}")
@@ -328,7 +332,7 @@ class Mission(zarr.Group):
         logger.success("world search completed successfully")
 
 
-    def __get_worlds(self, key, value,cat:Cats):
+    def __get_worlds(self, key, value,cat:Cats,zarr_stores:dict):
         """
         Gets a matched world from its respective source
 
@@ -343,10 +347,13 @@ class Mission(zarr.Group):
         This is a wrapper function around specific get world functions e.g. CMEMS or Jasmin
         """
         split_key = key.split("_")
+
         if split_key[0] == "cmems":
             zarr_store = self.__get_cmems_worlds(key=key, value=value)
+            zarr_stores[key] = zarr_store
         elif split_key[0] == "msm":
             zarr_store = self.__get_msm_worlds(key=key, value=value,catalog=cat)
+            zarr_stores[key] = zarr_store
         else:
             logger.error("unknown model source key")
             raise Exception
