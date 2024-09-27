@@ -42,7 +42,6 @@ class Sensor:
     units: str
 
 
-
 @dataclass
 class SensorArray:
     """

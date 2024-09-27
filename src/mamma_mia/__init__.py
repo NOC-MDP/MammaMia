@@ -5,3 +5,4 @@ from mamma_mia.realities import Reality
 from mamma_mia.campaign import Campaign
 from mamma_mia.mission import Mission
 from mamma_mia.sensors import SensorSuite
+from mamma_mia.mission import Cats

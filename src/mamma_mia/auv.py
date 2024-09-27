@@ -17,7 +17,7 @@ class AUV:
     def add_sensor_arrays(self, sensor_array_list: list[CTD | BIO | ADCP ]):
         i = 1
         for sensor_array in sensor_array_list:
-            logger.info(f"adding sensor array {sensor_array.name} to {self.id}")
+            logger.info(f"adding sensor array {type(sensor_array).__name__} to {self.id}")
             self.sensor_suite["sensor_array_"+str(i)] = sensor_array
             i = i + 1
         logger.success(f"{i-1} sensor arrays added to {self.id} successfully")

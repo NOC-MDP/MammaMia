@@ -96,7 +96,7 @@ class World(dict):
         self.interpolator = {"priorities": {}}
         self.__build_worlds()
 
-    def __find_worlds(self, reality: Reality):
+    def find_worlds(self, reality: Reality):
         """
         Finds a world that matches the reality required.
 

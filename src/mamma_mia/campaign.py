@@ -2,6 +2,7 @@ from mamma_mia.mission import Mission
 from dataclasses import dataclass,field
 import uuid
 from loguru import logger
+import zarr
 
 @dataclass
 class Campaign:
