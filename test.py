@@ -2,6 +2,9 @@ import zarr
 
 from mamma_mia import Mission, Slocum, sensors, Campaign,Cats
 from loguru import logger
+
+from mamma_mia.mission import Interpolators
+
 logger.info("starting Mamma Mia test run")
 # create AUV
 glider = Slocum(set_id="Slocum_1")
@@ -13,9 +16,11 @@ mission = Mission(name= "mission_1",
                   trajectory_path="comet-mm1.nc",
                   )
 catalog = Cats()
-interpolators = mission.build_mission(cat=catalog)
-mission.fly(interpol=interpolators)
-mission.show_reality(parameter="temperature")
+mission.build_mission(cat=catalog)
+interpolator = Interpolators()
+interpolator.build(worlds=mission["world"])
+
+
 # # populate mission
 # mission.populate_mission(auv=glider,traj_path="comet-mm1.nc")
 # # plot trajectory

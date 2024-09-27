@@ -34,7 +34,82 @@ class Cats:
 
 @dataclass
 class Interpolators:
-    interpolator: dict
+    interpolator: dict = field(default_factory=dict)
+
+    def build(self,worlds:zarr.Group):
+        """
+        Creates a 4D interpolator that allows a world to be interpolated on to a trajectory
+
+        Parameters:
+        - None
+
+        Returns:
+        - World object with an interpolator
+        """
+        # for every dataset
+        for key in worlds.keys():
+            logger.info(f"building worlds for dataset {key}")
+            # for every variable
+            for var in worlds[key]:
+                logger.info(f"building world for variable {var}")
+                # for each item in matched dictionary
+                for k1, v1, in worlds.attrs["matched_worlds"][key].items():
+                    # if variable names match (this is to ensure variable names are consistent)
+                    if var == v1:
+                        split_key = key.split("_")
+                        if split_key[0] == "msm":
+                            if self.__check_priorities(key=k1, source="msm",worlds=worlds):
+                                continue
+                            # rename time and depth dimensions to be consistent
+                            ds = worlds[key][var].rename({"deptht": "depth", "time_counter": "time"})
+                            lat = ds['nav_lat']
+                            lon = ds['nav_lon']
+                            # Define a regular grid with 1D lat/lon arrays
+                            target_lat = np.linspace(lat.min(), lat.max(), 20)
+                            target_lon = np.linspace(lon.min(), lon.max(), 14)
+                            # Create a target grid dataset
+                            target_grid = xr.Dataset({
+                                'latitude': (['latitude'], target_lat),
+                                'longitude': (['longitude'], target_lon)
+                            })
+                            # Create a regridder object to go from curvilinear to regular grid
+                            regridder = xe.Regridder(ds, target_grid, method='bilinear')
+                            # Regrid the entire dataset
+                            ds_regridded = regridder(ds)
+                            # Add units to latitude and longitude coordinates
+                            ds_regridded['latitude'].attrs['units'] = 'degrees_north'
+                            ds_regridded['longitude'].attrs['units'] = 'degrees_east'
+                            # Convert all float32 variables in the dataset to float64
+                            ds_regridded = ds_regridded.astype('float64')
+                            ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
+                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded, geodetic=True)
+                            # create or update priorities of interpolator datasetsc
+                            worlds.attrs["interpolator_priorities"][k1] = \
+                            worlds.attrs["catalog_priorities"]["msm"]
+                        elif split_key[0] == "cmems":
+                            if self.__check_priorities(key=k1, source="cmems",worlds=worlds):
+                                continue
+                            world = xr.DataArray(worlds[key][var])
+                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(world,geodetic=True)
+                            worlds.attrs["interpolator_priorities"][k1] = worlds.attrs["catalog_priorities"]["cmems"]
+                        else:
+                            logger.error("unknown model source key")
+                            raise Exception
+                        logger.info(f"built {var} from source {split_key[0]} into interpolator: {k1}")
+        logger.success("interpolators built successfully")
+
+    @staticmethod
+    def __check_priorities(key:str, source:str, worlds:zarr.Group) -> bool:
+        if source not in ["msm", "cmems"]:
+            logger.error(f"unknown source: {source}")
+            raise Exception
+        if key in worlds.attrs["interpolator_priorities"]:
+            logger.warning(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
+            if worlds.attrs["interpolator_priorities"][key] > worlds.attrs["catalog_priorities"][source]:
+                logger.info(f"data source {source} is a lower priority, skipping world build")
+                return True
+            logger.info(f"data source {source} is a higher priority, updating world build")
+        return False
 
 @dataclass
 class Mission(zarr.Group):
@@ -113,11 +188,10 @@ class Mission(zarr.Group):
         worlds.attrs["interpolator_priorities"] = {}
         worlds.attrs["matched_worlds"] = {}
 
-    def build_mission(self,cat:Cats) -> Interpolators:
+    def build_mission(self,cat:Cats) -> ():
         self.__find_worlds(cat=cat)
         for key, value in self.world.attrs["matched_worlds"].items():
             self.__get_worlds(key=key, value=value,cat=cat)
-        return self.__build_worlds()
 
     def fly(self,interpol:Interpolators):
         logger.info(f"flying {self.name} using {self.auv.attrs['id']}")
@@ -276,79 +350,11 @@ class Mission(zarr.Group):
         else:
             logger.error("unknown model source key")
             raise Exception
-        for k1, v1 in value.items():
-            logger.info(f"creating group {key}/{v1}")
-            try:
-                dest_group = self.create_group(f"{key}/{v1}")
-            except zarr.errors.ContainsGroupError:
-                logger.warning("path already contains a group, skipping create")
-                dest_group = self[f"{key}/{v1}"]
-
-            self.copy_zarr_group(source_group=zarr.open_group(store=zarr_store, mode='r'),dest_group=dest_group)
+        dest_group = self.create_group(f"world/{key}")
+        zarr_source = zarr.open(zarr_store, mode='r')
+        zarr.copy_all(source=zarr_source, dest=dest_group)
 
         return zarr_store
-
-    def __build_worlds(self) -> Interpolators:
-        """
-        Creates a 4D interpolator that allows a world to be interpolated on to a trajectory
-
-        Parameters:
-        - None
-
-        Returns:
-        - World object with an interpolator
-        """
-        # for every dataset
-        interpol = Interpolators(interpolator={})
-        for key in self.world.keys():
-            logger.info(f"building worlds for dataset {key}")
-            # for every variable
-            for var in self.world[key]:
-                logger.info(f"building world for variable {var}")
-                # for each item in matched dictionary
-                for k1, v1, in self.world.attrs["matched_worlds"][key].items():
-                    # if variable names match (this is to ensure variable names are consistent)
-                    if var == v1:
-                        split_key = key.split("_")
-                        if split_key[0] == "msm":
-                            if self.__check_priorities(key=k1,source="msm"):
-                                continue
-                            # rename time and depth dimensions to be consistent
-                            ds = self.world[key][var].rename({"deptht": "depth","time_counter": "time"})
-                            lat = ds['nav_lat']
-                            lon = ds['nav_lon']
-                            # Define a regular grid with 1D lat/lon arrays
-                            target_lat = np.linspace(lat.min(), lat.max(),20)
-                            target_lon = np.linspace(lon.min(), lon.max(),14)
-                            # Create a target grid dataset
-                            target_grid = xr.Dataset({
-                                'latitude': (['latitude'], target_lat),
-                                'longitude': (['longitude'], target_lon)
-                            })
-                            # Create a regridder object to go from curvilinear to regular grid
-                            regridder = xe.Regridder(ds, target_grid, method='bilinear')
-                            # Regrid the entire dataset
-                            ds_regridded = regridder(ds)
-                            # Add units to latitude and longitude coordinates
-                            ds_regridded['latitude'].attrs['units'] = 'degrees_north'
-                            ds_regridded['longitude'].attrs['units'] = 'degrees_east'
-                            # Convert all float32 variables in the dataset to float64
-                            ds_regridded = ds_regridded.astype('float64')
-                            ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
-                            interpol.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded,geodetic=True)
-                            # create or update priorities of interpolator datasetsc
-                            self.world.attrs["interpolator_priorities"][k1] = self.world.attrs["catalog_priorities"]["msm"]
-                        elif split_key[0] == "cmems":
-                            if self.__check_priorities(key=k1,source="cmems"):
-                                continue
-                            interpol.interpolator[k1] = pyinterp.backends.xarray.Grid4D(self.world[key][var],geodetic=True)
-                            self.world.attrs["interpolator_priorities"][k1] = self.world.attrs["catalog_priorities"]["cmems"]
-                        else:
-                            logger.error("unknown model source key")
-                            raise Exception
-                        logger.info(f"built {var} from source {split_key[0]} into interpolator: {k1}")
-        logger.success("world build completed successfully")
-        return interpol
 
     def __find_msm_worlds(self,key:str,cat:Cats,matched_worlds:dict) -> dict:
         """
@@ -575,27 +581,3 @@ class Mission(zarr.Group):
             )
             logger.success(f"{zarr_f} has been cached")
         return zarr_d + zarr_f
-
-    def __check_priorities(self,key:str,source:str) -> bool:
-        if source not in ["msm", "cmems"]:
-            logger.error(f"unknown source: {source}")
-            raise Exception
-        if key in self.world.attrs["interpolator_priorities"]:
-            logger.warning(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
-            if self.world.attrs["interpolator_priorities"][key] > self.world.attrs["catalog_priorities"][source]:
-                logger.info(f"data source {source} is a lower priority, skipping world build")
-                return True
-            logger.info(f"data source {source} is a higher priority, updating world build")
-        return False
-
-    def copy_zarr_group(self,source_group, dest_group):
-        # Copy datasets
-        for name, dataset in source_group.items():
-            if isinstance(dataset, zarr.Group):
-                # If it's a group, recursively copy
-                sub_group = dest_group.create_group(name)
-                self.copy_zarr_group(dataset, sub_group)
-            else:
-                # Otherwise, it's a dataset, so copy its data
-                # TODO dataset attributes clash for some reason so have removed from copy
-                dest_group.create_dataset(name, data=dataset[:])#, **dataset.attrs)
