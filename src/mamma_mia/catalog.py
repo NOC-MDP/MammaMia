@@ -2,7 +2,7 @@ from dataclasses import dataclass,field,InitVar
 import intake
 import copernicusmarine
 
-# TODO remove the need for this
+# TODO find a better way to do this, MSM sources use meta data in intake catalog.
 cmems_alias = {
     "nitrate": ["no3"],
     "phosphate": ["po4"],

@@ -54,7 +54,7 @@ class Mission(zarr.Group):
         auv_exp.attrs["id"] = auv.id
         auv_exp.attrs["type"] = auv.type.name
         auv_exp.attrs["uuid"] = str(auv.uuid)
-        auv_exp.attrs["sensor_suite"] = auv.sensor_suite.to_dict()
+        auv_exp.attrs["sensor_suite"] = str(auv.sensor_suite)
 
         ds = xr.open_dataset(trajectory_path)
         traj = self.create_group("trajectory")
@@ -70,7 +70,7 @@ class Mission(zarr.Group):
 
         real_grp = self.create_group("reality")
         for group in auv.sensor_suite.values():
-            for sensor in group.sensors.values():
+            for sensor in group['sensors'].values():
                 real_grp.full(name=sensor.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
                 real_grp.attrs["mapped_name"] = sensor.type
 
@@ -80,6 +80,7 @@ class Mission(zarr.Group):
                     "min_lat": np.around(np.min(traj.latitudes), 2) - excess_space,
                     "max_lng": np.around(np.max(traj.longitudes), 2) + excess_space,
                     "min_lng": np.around(np.min(traj.longitudes), 2) - excess_space,
+            # TODO dynamically set the =/- delta on start and end time based on time step of model (need at least two time steps)
                     "start_time": np.datetime_as_string(traj.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
                     "end_time" : np.datetime_as_string(traj.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
                     "max_depth": np.around(np.max(traj.depths), 2) + excess_depth
@@ -113,12 +114,12 @@ class Mission(zarr.Group):
 
         logger.success(f"{self.attrs['name']} flown successfully")
 
-    def show_reality(self, parameter:str,colourscale:str="Jet"):
+    def show_reality(self, parameter:str,colour_scale:str="Jet"):
         logger.info(f"showing reality for parameter {parameter}")
         marker = {
             "size": 2,
             "color": self.reality[parameter],
-            "colorscale": colourscale,
+            "colorscale": colour_scale,
             "opacity": 0.8,
             "colorbar": {"thickness": 40}
         }
@@ -149,16 +150,7 @@ class Mission(zarr.Group):
         fig.show()
         logger.success(f"successfully plotted reality for parameter {parameter}")
 
-    def export(self, store:zarr.DirectoryStore=None) -> ():
-        if store is None:
-            export_store = zarr.DirectoryStore(f"{self.attrs['name']}.zarr")
-        else:
-            export_store = store
-        logger.info(f"exporting mission {self.attrs['name']} to {export_store}")
-        zarr.copy_store(self.store, export_store)
-        logger.success(f"successfully exported {self.attrs['name']}")
-
-    def plot_trajectory(self,colourscale:str='Viridis',):
+    def plot_trajectory(self,colour_scale:str='Viridis',):
         """
         Creates a plotly figure of the Trajectory object.
 
@@ -171,7 +163,7 @@ class Mission(zarr.Group):
         marker = {
             "size": 2,
             "color": np.array(self.trajectory.datetimes).tolist(),
-            "colorscale": colourscale,
+            "colorscale": colour_scale,
             "opacity": 0.8,
             "colorbar": {"thickness": 40}
         }
@@ -194,6 +186,15 @@ class Mission(zarr.Group):
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
         fig.show()
+
+    def export(self, store: zarr.DirectoryStore = None) -> ():
+        if store is None:
+            export_store = zarr.DirectoryStore(f"{self.attrs['name']}.zarr")
+        else:
+            export_store = store
+        logger.info(f"exporting mission {self.attrs['name']} to {export_store}")
+        zarr.copy_store(self.store, export_store)
+        logger.success(f"successfully exported {self.attrs['name']}")
 
     # From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
     # Lucas Merckelbach
