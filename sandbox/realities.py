@@ -1,7 +1,7 @@
 import zarr
 import numpy as np
 from mamma_mia.auv import AUV
-from mamma_mia.trajectory import Trajectory
+from sandbox.trajectory import Trajectory
 from dataclasses import dataclass
 
 

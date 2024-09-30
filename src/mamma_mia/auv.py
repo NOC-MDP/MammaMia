@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass,field,InitVar
 from mamma_mia.sensors import SensorSuite,CTD,BIO,ADCP
 from loguru import logger
@@ -10,9 +11,11 @@ class AUV:
     type: str = field(init=False)
     id: str = field(init=False)
     sensor_suite: SensorSuite = field(init=False)
+    uuid: str = field(init=False)
 
     def __post_init__(self):
         self.sensor_suite = SensorSuite()
+        self.uuid = str(uuid.uuid4())
 
     def add_sensor_arrays(self, sensor_array_list: list[CTD | BIO | ADCP ]):
         i = 1
@@ -40,6 +43,7 @@ class Slocum(AUV):
         self.sensor_suite = SensorSuite()
         self.id = set_id
         self.type = "Slocum"
+        self.uuid = str(uuid.uuid4())
         logger.success(f"Slocum with id {set_id} created successfully")
 
 
@@ -61,4 +65,5 @@ class ALR1500(AUV):
         self.sensor_suite = SensorSuite()
         self.id = set_id
         self.type = "ALR1500"
+        self.uuid = str(uuid.uuid4())
         logger.success(f"ALR1500 with id {set_id} created successfully")

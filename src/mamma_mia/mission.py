@@ -47,6 +47,7 @@ class Interpolators:
         - World object with an interpolator
         """
         # for every dataset
+        interpolator_priorities = worlds.attrs["interpolator_priorities"]
         for key in worlds.keys():
             logger.info(f"building worlds for dataset {key}")
             # for every variable
@@ -85,18 +86,19 @@ class Interpolators:
                             ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded[var], geodetic=True)
                             # create or update priorities of interpolator datasetsc
-                            worlds.attrs["interpolator_priorities"][k1] = \
-                            worlds.attrs["catalog_priorities"]["msm"]
+                            interpolator_priorities[k1] = worlds.attrs["catalog_priorities"]["msm"]
                         elif split_key[0] == "cmems":
                             if self.__check_priorities(key=k1, source="cmems",worlds=worlds):
                                 continue
                             world = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(world[var],geodetic=True)
-                            worlds.attrs["interpolator_priorities"][k1] = worlds.attrs["catalog_priorities"]["cmems"]
+                            interpolator_priorities[k1] = worlds.attrs["catalog_priorities"]["cmems"]
                         else:
                             logger.error("unknown model source key")
                             raise Exception
+
                         logger.info(f"built {var} from source {split_key[0]} into interpolator: {k1}")
+        worlds.attrs.update({"interpolator_priorities": interpolator_priorities})
         logger.success("interpolators built successfully")
 
     @staticmethod
@@ -154,6 +156,7 @@ class Mission(zarr.Group):
         auv_exp = self.create_group("auv")
         auv_exp.attrs["id"] = auv.id
         auv_exp.attrs["type"] = auv.type
+        auv_exp.attrs["uuid"] = auv.uuid
         auv_exp.attrs["sensor_suite"] = auv.sensor_suite.to_dict()
 
         ds = xr.open_dataset(trajectory_path)
@@ -198,7 +201,7 @@ class Mission(zarr.Group):
         self.world.attrs.update({"zarr_stores": zarr_stores})
 
     def fly(self,interpol:Interpolators):
-        logger.info(f"flying {self.name} using {self.auv.attrs['id']}")
+        logger.info(f"flying {self.attrs['name']} using {self.auv.attrs['id']}")
         flight = {
             "longitude": np.array(self.trajectory["longitudes"]),
             "latitude": np.array(self.trajectory["latitudes"]),
@@ -250,12 +253,13 @@ class Mission(zarr.Group):
         fig.show()
         logger.success(f"successfully plotted reality for parameter {parameter}")
 
-    def export(self) -> ():
-        logger.info(f"exporting mission {self.attrs['name']} to {self.attrs['name']}.zarr")
-
-        export_store = zarr.DirectoryStore(f"{self.attrs['name']}.zarr")
+    def export(self, store:zarr.DirectoryStore=None) -> ():
+        if store is None:
+            export_store = zarr.DirectoryStore(f"{self.attrs['name']}.zarr")
+        else:
+            export_store = store
+        logger.info(f"exporting mission {self.attrs['name']} to {export_store}")
         zarr.copy_store(self.store, export_store)
-
         logger.success(f"successfully exported {self.attrs['name']}")
 
     def plot_trajectory(self,colourscale:str='Viridis',):
@@ -357,9 +361,8 @@ class Mission(zarr.Group):
         else:
             logger.error("unknown model source key")
             raise Exception
-        dest_group = self.create_group(f"world/{key}")
         zarr_source = zarr.open(zarr_store, mode='r')
-        zarr.copy_all(source=zarr_source, dest=dest_group)
+        zarr.copy_all(source=zarr_source, dest=self.world[key])
 
         return zarr_store
 
@@ -421,7 +424,7 @@ class Mission(zarr.Group):
             for i in range(len(v1)):
                 # ensure it is a numerical model
                 if v1[i]["sources"][0] != "Numerical models":
-                    logger.warning(f"{v1[i]['sources'][0]} is not a numerical model")
+                    #logger.warning(f"{v1[i]['sources'][0]} is not a numerical model")
                     continue
                 # check each dataset
                 for j in range(len(v1[i]["datasets"])):
@@ -489,7 +492,7 @@ class Mission(zarr.Group):
         """
         var_str = ""
         vars2 = []
-        msm = self.create_group(key)
+        msm = self.world.create_group(key)
         msm.attrs["spatial_extent"] = {"max_lng": self.world.attrs["extent"]["max_lng"],
                                          "min_lng": self.world.attrs["extent"]["min_lng"],
                                          "max_lat": self.world.attrs["extent"]["max_lat"],
@@ -553,7 +556,7 @@ class Mission(zarr.Group):
         # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
         for k2, v2 in value.items():
             vars2.append(v2)
-        cmems = self.create_group(key)
+        cmems = self.world.create_group(key)
         cmems.attrs["spatial_extent"] = {"max_lng": self.world.attrs["extent"]["max_lng"],
                                          "min_lng": self.world.attrs["extent"]["min_lng"],
                                          "max_lat": self.world.attrs["extent"]["max_lat"],

@@ -1,7 +1,5 @@
-from typing import Dict
-
-from mamma_mia.trajectory import Trajectory
-from mamma_mia.realities import Reality
+from sandbox.trajectory import Trajectory
+from sandbox.realities import Reality
 import numpy as np
 import os
 import xarray as xr
