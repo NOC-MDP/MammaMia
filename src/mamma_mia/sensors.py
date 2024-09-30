@@ -1,6 +1,6 @@
-from dataclasses import dataclass
-from collections import namedtuple
+from dataclasses import dataclass,field
 import uuid
+
 
 @dataclass(frozen=True)
 class Sensor:
@@ -10,19 +10,22 @@ class Sensor:
     type: str
     units: str
 
-CTD = { "sensors":
-            {   "sensor1": Sensor(type="temperature",units="degreesC"),
-                "sensor2": Sensor(type="salinity",units="PSU"),
-                "sensor3": Sensor(type="pressure",units="bar"),
-            },
-        "uuid": uuid.uuid4()
-}
+@dataclass(frozen=True)
+class CTD:
+    name: str = "CTD"
+    uuid: uuid = field(default_factory=uuid.uuid4)
+    sensor1: Sensor =  Sensor(type="temperature",units="degreesC")
+    sensor2: Sensor = Sensor(type="salinity",units="PSU")
+    sensor3: Sensor = Sensor(type="pressure",units="bar")
 
-BIO = { "sensors":
-            {   "sensor1": Sensor(type="silicate",units="mmol kg-3"),
-                "sensor2": Sensor(type="nitrate",units="mmmol kg-3"),
-                "sensor3": Sensor(type="phosphate",units="mmol kg-3"),
-            },
-        "uuid": uuid.uuid4()
-}
+
+@dataclass(frozen=True)
+class BIO:
+    name: str = "BIO"
+    uuid: uuid = field(default_factory=uuid.uuid4)
+    sensor1: Sensor = Sensor(type="nitrate",units="mmol kg-3")
+    sensor2: Sensor = Sensor(type="silicate",units="mmol kg-3")
+    sensor3: Sensor = Sensor(type="phosphate",units="mmol kg-3")
+
+
 

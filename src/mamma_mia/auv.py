@@ -26,7 +26,7 @@ class AUV:
     def __post_init__(self):
         logger.success(f"{self.type.name} with id {self.id} created successfully")
 
-    def add_sensor_arrays(self, sensor_array_list: list[CTD ]):
+    def add_sensor_arrays(self, sensor_array_list: list[CTD | BIO ]):
         # TODO add sensor array checks here
         i = 1
         for sensor_array in sensor_array_list:

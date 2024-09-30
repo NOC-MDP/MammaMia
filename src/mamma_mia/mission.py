@@ -2,7 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
 from mamma_mia.auv import AUV
-from dataclasses import dataclass
+from dataclasses import dataclass,fields
 import uuid
 from loguru import logger
 import zarr
@@ -69,11 +69,17 @@ class Mission(zarr.Group):
             traj.latitudes[i] = self.__convertToDecimal(traj.latitudes[i])
 
         real_grp = self.create_group("reality")
+        sensor_suite = {}
         for group in auv.sensor_suite.values():
-            for sensor in group['sensors'].values():
-                real_grp.full(name=sensor.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
-                real_grp.attrs["mapped_name"] = sensor.type
-
+            sensor_suite[group.name] = {}
+            for sensor in fields(group):
+                # filter out fields that aren't sensors
+                if sensor.name == 'uuid' or sensor.name == 'name':
+                    continue
+                sensor_suite[group.name][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
+                real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
+                real_grp.attrs["mapped_name"] = sensor.default.type
+        self.auv.attrs.update({"sensor_suite": sensor_suite})
         worlds = self.create_group("world")
         extent = {
                     "max_lat": np.around(np.max(traj.latitudes),2) + excess_space,
