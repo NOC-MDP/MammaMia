@@ -62,7 +62,7 @@ class Interpolators:
                                 continue
                             # rename time and depth dimensions to be consistent
                             ds = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
-                            ds.rename({"deptht": "depth", "time_counter": "time"})
+                            ds = ds.rename({"deptht": "depth", "time_counter": "time"})
                             lat = ds['nav_lat']
                             lon = ds['nav_lon']
                             # Define a regular grid with 1D lat/lon arrays
@@ -83,7 +83,7 @@ class Interpolators:
                             # Convert all float32 variables in the dataset to float64
                             ds_regridded = ds_regridded.astype('float64')
                             ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
-                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded, geodetic=True)
+                            self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded[var], geodetic=True)
                             # create or update priorities of interpolator datasetsc
                             worlds.attrs["interpolator_priorities"][k1] = \
                             worlds.attrs["catalog_priorities"]["msm"]
@@ -182,7 +182,7 @@ class Mission(zarr.Group):
                     "min_lng": np.around(np.min(traj.longitudes), 2) - excess_space,
                     "start_time": np.datetime_as_string(traj.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
                     "end_time" : np.datetime_as_string(traj.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
-                    "max_depth": np.around(np.max(traj.latitudes), 2) + excess_depth
+                    "max_depth": np.around(np.max(traj.depths), 2) + excess_depth
         }
         worlds.attrs["extent"] = extent
         worlds.attrs["catalog_priorities"] = {"msm":msm_priority,"cmems":cmems_priority}
@@ -212,7 +212,7 @@ class Mission(zarr.Group):
             except KeyError:
                 logger.warning(f"no interpolator found for parameter {key}")
 
-        logger.success(f"{self.name} flown successfully")
+        logger.success(f"{self.attrs['name']} flown successfully")
 
     def show_reality(self, parameter:str,colourscale:str="Jet"):
         logger.info(f"showing reality for parameter {parameter}")
@@ -251,12 +251,12 @@ class Mission(zarr.Group):
         logger.success(f"successfully plotted reality for parameter {parameter}")
 
     def export(self) -> ():
-        logger.info(f"exporting mission {self.name} to {self.name}.zarr")
+        logger.info(f"exporting mission {self.attrs['name']} to {self.attrs['name']}.zarr")
 
-        export_store = zarr.DirectoryStore(f"{self.name}.zarr")
+        export_store = zarr.DirectoryStore(f"{self.attrs['name']}.zarr")
         zarr.copy_store(self.store, export_store)
 
-        logger.success(f"successfully exported {self.name}")
+        logger.success(f"successfully exported {self.attrs['name']}")
 
     def plot_trajectory(self,colourscale:str='Viridis',):
         """
@@ -290,7 +290,7 @@ class Mission(zarr.Group):
         }
 
         fig = go.Figure(
-            data=[go.Scatter3d(x=self.longitudes, y=self.latitudes, z=self.depths, mode='markers', marker=marker)])
+            data=[go.Scatter3d(x=self.trajectory["longitudes"], y=self.trajectory["latitudes"], z=self.trajectory["depths"], mode='markers', marker=marker)])
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
         fig.show()

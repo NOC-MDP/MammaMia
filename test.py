@@ -19,7 +19,11 @@ catalog = Cats()
 mission.build_mission(cat=catalog)
 interpolator = Interpolators()
 interpolator.build(worlds=mission["world"])
-
+mission.fly(interpol=interpolator)
+mission.show_reality(parameter="temperature")
+mission.show_reality(parameter="salinity",colourscale="haline")
+mission.show_reality(parameter="phosphate",colourscale="algae")
+mission.export()
 
 # # populate mission
 # mission.populate_mission(auv=glider,traj_path="comet-mm1.nc")
