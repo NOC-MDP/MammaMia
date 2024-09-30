@@ -1,4 +1,6 @@
-from mamma_mia.mission import Mission,Interpolators,Cats
+from mamma_mia.catalog import Cats
+from mamma_mia.mission import Mission
+from mamma_mia.interpolator import Interpolators
 from mamma_mia.auv import AUV
 from dataclasses import dataclass,field
 import uuid

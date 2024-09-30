@@ -1,21 +1,145 @@
-import uuid
-from dataclasses import dataclass,field,InitVar
-from mamma_mia.sensors import SensorSuite,CTD,BIO,ADCP
+from dataclasses import dataclass,field,asdict
 from loguru import logger
+import uuid
+
+class SensorSuite(dict):
+    """
+    Creates a sensorsuite object (extended python dict). This will only accept values that are SensorArray instances
+
+    Parameters:
+    - None
+
+    Returns:
+    - empty sensorsuite dictionary
+    """
+    def __setitem__(self, key, value):
+        """
+        Inserts a sensorgroup object into the sensorsuite
+
+        Parameters:
+        - key: string to use to identifiy sensor group e.g. "CTD1"
+        - value: sensorgroup instance
+
+        Returns:
+        - Updated sensorsuite dictionary
+        """
+        if not isinstance(value, SensorArray):
+            raise TypeError(f"Value must be an instance of SensorArray, not {type(value).__name__}")
+        super().__setitem__(key, value)
+
+    def update(self, *args, **kwargs):
+        for key, value in dict(*args, **kwargs).items():
+            self[key] = value
+
+    def to_dict(self):
+        return {k: v.to_dict() for k, v in self.items()}
+
+
+@dataclass
+class Sensor:
+    """
+    class for all sensor types.
+    """
+    type: str
+    units: str
+
+
+@dataclass
+class SensorArray:
+    """
+    Abstract base class for all sensor groups.
+    """
+    name: str
+    uuid: str
+    sensors: dict[str, Sensor]
+
+    def to_dict(self):
+        return {k: str(v) for k, v in asdict(self).items()}
+
+
+@dataclass
+class CTD(SensorArray):
+    """
+    creates a CTD sensor group, derived from SensorGroup.
+
+    Parameters:
+    - None
+
+    Returns:
+    - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
+    """
+    def __init__(self):
+        super().__init__(name="CTD",
+                         sensors= {
+                            "sensor_1": Sensor(type="temperature",units="degreesC"),
+                            "sensor_2": Sensor(type="salinity",units="PSU"),
+                            "sensor_3": Sensor(type="pressure",units="bar"),
+                        },
+                        uuid=str(uuid.uuid4()))
+
+
+@dataclass
+class BIO(SensorArray):
+    """
+    creates a CTD sensor group, derived from SensorGroup.
+
+    Parameters:
+    - None
+
+    Returns:
+    - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
+    """
+    def __init__(self):
+        super().__init__(name="BIO",
+                         sensors= {
+                            "sensor_1": Sensor(type="phosphate",units="mmol kg-3"),
+                            "sensor_2": Sensor(type="nitrate",units="mmol kg-3"),
+                            "sensor_3": Sensor(type="silicate",units="mmol kg-3"),
+                        },
+                         uuid=str(uuid.uuid4()))
+
+@dataclass
+class ADCP(SensorArray):
+    """
+    creates a CTD sensor group, derived from SensorGroup.
+
+    Parameters:
+    - None
+
+    Returns:
+    - CTD sensor group (loaded with temperature, conductivity and pressure sensors)
+    """
+    def __init__(self):
+        super().__init__(name="ADCP",
+                         sensors = {
+                            "sensor_1": Sensor(type="u_component",units="ms-1"),
+                            "sensor_2": Sensor(type="v_component",units="ms-1"),
+                            "sensor_3": Sensor(type="w_component",units="ms-1"),
+                         },
+                        uuid=str(uuid.uuid4()))
+
+# classes with different AUV parameters derived from type
+@dataclass(frozen=True)
+class Slocum:
+    name: str = "Slocum"
+
+@dataclass(frozen=True)
+class ALR1500:
+    name: str = "ALR1500"
 
 @dataclass
 class AUV:
     """
     Base class for glider objects
+
     """
-    type: str = field(init=False)
-    id: str = field(init=False)
-    sensor_suite: SensorSuite = field(init=False)
-    uuid: str = field(init=False)
+    type: Slocum | ALR1500
+    id: str
+    sensor_suite: SensorSuite = field(default_factory=SensorSuite)
+    uuid: uuid = uuid.uuid4()
 
     def __post_init__(self):
-        self.sensor_suite = SensorSuite()
-        self.uuid = str(uuid.uuid4())
+        logger.success(f"{self.type.name} with id {self.id} created successfully")
 
     def add_sensor_arrays(self, sensor_array_list: list[CTD | BIO | ADCP ]):
         i = 1
@@ -24,46 +148,3 @@ class AUV:
             self.sensor_suite["sensor_array_"+str(i)] = sensor_array
             i = i + 1
         logger.success(f"{i-1} sensor arrays added to {self.id} successfully")
-
-@dataclass
-class Slocum(AUV):
-    """
-    Creates a Slocum glider object
-
-    Parameters:
-    - sensorsuite: SensorSuite object that comprises one or more SensorGroups e.g. CTD, ADCP etc
-
-    Returns:
-    - Glider object that can be used to fly through a world-class
-    """
-    set_id: InitVar[str]
-
-    def __post_init__(self, set_id):
-        logger.info(f"creating auv of type Slocum with id {set_id}")
-        self.sensor_suite = SensorSuite()
-        self.id = set_id
-        self.type = "Slocum"
-        self.uuid = str(uuid.uuid4())
-        logger.success(f"Slocum with id {set_id} created successfully")
-
-
-@dataclass
-class ALR1500(AUV):
-    """
-    Creates a ALR1500 object
-
-    Parameters:
-    - sensorsuite: SensorSuite object that comprises one or more SensorGroups e.g. CTD, ADCP etc
-
-    Returns:
-    - ALR1500 object that can be used to fly through a world-class
-    """
-    set_id: InitVar[str]
-
-    def __post_init__(self, set_id):
-        logger.info(f"creating auv of type ALR1500 with ID: {set_id}")
-        self.sensor_suite = SensorSuite()
-        self.id = set_id
-        self.type = "ALR1500"
-        self.uuid = str(uuid.uuid4())
-        logger.success(f"ALR1500 with id {set_id} created successfully")
