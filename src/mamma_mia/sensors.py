@@ -49,7 +49,7 @@ class SensorArray:
     Abstract base class for all sensor groups.
     """
     name: str
-    id: str
+    uuid: str
     sensors: dict[str, Sensor]
 
     def to_dict(self):
@@ -74,7 +74,7 @@ class CTD(SensorArray):
                             "sensor_2": Sensor(type="salinity",units="PSU"),
                             "sensor_3": Sensor(type="pressure",units="bar"),
                         },
-                        id=str(uuid.uuid4()))
+                        uuid=str(uuid.uuid4()))
 
 
 @dataclass
@@ -95,7 +95,7 @@ class BIO(SensorArray):
                             "sensor_2": Sensor(type="nitrate",units="mmol kg-3"),
                             "sensor_3": Sensor(type="silicate",units="mmol kg-3"),
                         },
-                         id=str(uuid.uuid4()))
+                         uuid=str(uuid.uuid4()))
 
 @dataclass
 class ADCP(SensorArray):
@@ -115,4 +115,4 @@ class ADCP(SensorArray):
                             "sensor_2": Sensor(type="v_component",units="ms-1"),
                             "sensor_3": Sensor(type="w_component",units="ms-1"),
                          },
-                        id=str(uuid.uuid4()))
+                        uuid=str(uuid.uuid4()))

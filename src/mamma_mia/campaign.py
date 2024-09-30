@@ -12,7 +12,7 @@ class Campaign:
     catalog: Cats = field(init=False, default_factory=Cats)
     missions: dict[str, Mission] = field(init=False, default_factory=dict)
     interpolators: dict[str, Interpolators] = field(init=False,default_factory=dict)
-    id: uuid.UUID = uuid.uuid4()
+    uuid: uuid = uuid.uuid4()
 
     def __post_init__(self):
         self.catalog = Cats()
@@ -52,7 +52,7 @@ class Campaign:
         camp = zarr.group(store=store,overwrite=overwrite)
         camp.attrs['name'] = self.name
         camp.attrs['description'] = self.description
-        camp.attrs['id'] = str(self.id)
+        camp.attrs['uuid'] = str(self.uuid)
         logger.success(f"zarr group {self.name} successfully created")
         for mission in self.missions.values():
             logger.info(f"creating zarr group for mission {mission.attrs['name']}")

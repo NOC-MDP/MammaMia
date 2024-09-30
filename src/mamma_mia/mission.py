@@ -150,7 +150,7 @@ class Mission(zarr.Group):
                          synchronizer=group.synchronizer)
 
         self.attrs["name"] = name
-        self.attrs["id"] = str(uuid.uuid4())
+        self.attrs["uuid"] = str(uuid.uuid4())
         self.attrs["description"] = description
 
         auv_exp = self.create_group("auv")
