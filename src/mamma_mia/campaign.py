@@ -1,12 +1,15 @@
 from mamma_mia.catalog import Cats
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.auv import AUV
+from mamma_mia.auv import AUV,Slocum,ALR1500
+from mamma_mia.sensors import CTD,BIO
 from dataclasses import dataclass,field
 import uuid
 from loguru import logger
 import zarr
 from os import sep
+import sys
+
 
 @dataclass
 class Campaign:
@@ -25,18 +28,57 @@ class Campaign:
     name: str
     description: str
     catalog: Cats = field(init=False, default_factory=Cats)
+    auvs: dict[str,AUV] = field(default_factory=dict)
     missions: dict[str, Mission] = field(init=False, default_factory=dict)
     interpolators: dict[str, Interpolators] = field(init=False,default_factory=dict)
     uuid: uuid = uuid.uuid4()
+    verbose: bool = False
 
     def __post_init__(self):
+        # reset logger
+        logger.remove()        # set logger based on requested verbosity
+        if self.verbose:
+            logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
+        else:
+            logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="WARNING")
         self.catalog = Cats()
         logger.success(f"Campaign {self.name} created")
+
+    def add_auv(self,id:str,type:str,sensor_arrays:list):
+        """
+        Add an auv to the campaign AUV dictionary
+        Args:
+            id: auv reference id, it is used as a key in the campaign dictionary
+            type: auv type
+            sensor_arrays: sensor arrays to attach to auv
+
+        Returns:
+            auv object stored in the campaign auv dictionary under its id key
+
+        """
+        if id in self.auvs:
+            raise Exception("Auv already exists")
+        if type == "slocum":
+            type = Slocum()
+        elif type == "alr1500":
+            type = ALR1500()
+        else:
+            raise Exception("unknown auv type")
+        self.auvs[id] = AUV(type=type,id=id)
+        array = []
+        for sensor in sensor_arrays:
+            if sensor == "CTD":
+                array.append(CTD())
+            elif sensor == "BIO":
+                array.append(BIO())
+            else:
+                raise Exception("unknown sensor type")
+        self.auvs[id].add_sensor_arrays(sensor_arrays=array)
 
     def add_mission(self,
                     name:str,
                     description:str,
-                    auv:AUV,
+                    auv:str,
                     trajectory_path:str,
                     store=None,
                     overwrite=False,
@@ -64,9 +106,11 @@ class Campaign:
             is also initialized and stored in the interpolated dictionary coded with the mission key. (each mission has its own
             set of interpolators).
         """
+        if name in self.missions:
+            raise Exception("mission already exists")
         mission = Mission(name=name,
                           description=description,
-                          auv=auv,
+                          auv=self.auvs[auv],
                           trajectory_path=trajectory_path,
                           store=store,
                           overwrite=overwrite,
@@ -130,7 +174,7 @@ class Campaign:
             export_path = f"{self.name}.zarr"
         else:
             logger.info(f"exporting zarr store at {export_path}{sep}{self.name}.zarr")
-        store = zarr.DirectoryStore(f"{export_path}{sep}{self.name}.zarr")
+        store = zarr.DirectoryStore(f"{export_path}")
         logger.info(f"creating zarr group {self.name} in store")
         camp = zarr.group(store=store,overwrite=overwrite)
         camp.attrs['name'] = self.name
@@ -144,3 +188,13 @@ class Campaign:
             zarr.copy_all(source=mission,dest=camp[mission.attrs['name']])
             logger.success(f"successfully exported {mission.attrs['name']}")
         logger.success(f"successfully exported {self.name}")
+
+    @staticmethod
+    def list_auv_types():
+        logger.info(f"listing available auvs")
+        return "Slocum Glider: 'slocum' Auto Sub Long Range 1500m: 'alr1500'"
+
+    @staticmethod
+    def list_sensor_arrays():
+        logger.info(f"listing available sensor arrays")
+        return "CTD: temperature, pressure, salinity BIO: phosphate, silicate, nitrate"

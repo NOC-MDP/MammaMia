@@ -1,27 +1,24 @@
-from mamma_mia import AUV,Campaign,CTD,BIO,Slocum
+from mamma_mia import Campaign
 from loguru import logger
-import sys
-
-# reset logger
-logger.remove()
-quiet = False
-# set logger based on requested verbosity
-if quiet:
-    logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}', level="WARNING")
-else:
-    logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}', level="INFO")
 
 logger.info("starting Mamma Mia test run")
-# create AUV
-glider = AUV(id="Slocum_1",type=Slocum())
-# define sensors
-glider.add_sensor_arrays(sensor_arrays=[CTD(),BIO()])
 # create campaign
-campaign = Campaign(name="campaign_1",description="single slocum glider deployment in North sea 2019")
+campaign = Campaign(name="campaign_1",
+                    description="single slocum glider deployment in North sea 2019",
+                    verbose=True
+                    )
+# print available auv's and sensor arrays
+logger.info(campaign.list_auv_types())
+logger.info(campaign.list_sensor_arrays())
+# add AUV
+campaign.add_auv(id="Slocum_1",
+                 type="slocum",
+                 sensor_arrays=["CTD","BIO"],
+                 )
 # add missions
 campaign.add_mission(name="mission_1",
                      description="slocum glider Slocum_1 in the North Sea 2019",
-                     auv=glider,
+                     auv="Slocum_1",
                      trajectory_path="comet-mm1.nc")
 # build missions (search datasets, download datasets, build interpolators etc)
 campaign.build_missions()
