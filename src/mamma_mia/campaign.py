@@ -47,7 +47,10 @@ class Campaign:
         self.catalog = Cats()
         logger.success(f"Campaign {self.name} created")
 
-    def add_auv(self,id:str,type:str,sensor_arrays:list):
+    def add_auv(self,
+                id:str,
+                type:Slocum | ALR1500,
+                sensor_arrays:list[CTD | BIO | ADCP]):
         """
         Add an auv to the campaign AUV dictionary
         Args:
@@ -62,26 +65,8 @@ class Campaign:
         if id in self.auvs:
             logger.error(f"Auv {id} already exists in {self.name}")
             raise AUVExists
-        if type == "slocum":
-            type = Slocum()
-        elif type == "alr1500":
-            type = ALR1500()
-        else:
-            logger.error(f"unknown auv type {type}")
-            raise UnknownAUV
         self.auvs[id] = AUV(type=type,id=id)
-        array = []
-        for sensor in sensor_arrays:
-            if sensor == "CTD":
-                array.append(CTD())
-            elif sensor == "BIO":
-                array.append(BIO())
-            elif sensor == "ADCP":
-                array.append(ADCP())
-            else:
-                logger.error(f"unknown sensor type {sensor}")
-                raise UnknownSensor
-        self.auvs[id].add_sensor_arrays(sensor_arrays=array)
+        self.auvs[id].add_sensor_arrays(sensor_arrays=sensor_arrays)
 
     def add_mission(self,
                     name:str,
@@ -197,24 +182,3 @@ class Campaign:
             zarr.copy_all(source=mission,dest=camp[mission.attrs['name']])
             logger.success(f"successfully exported {mission.attrs['name']}")
         logger.success(f"successfully exported {self.name}")
-
-    # TODO dynamically build this from the auv and sensor py files
-
-    @staticmethod
-    def list_auv_types() -> str :
-        logger.info(f"listing available auvs")
-        auvs = {
-            "Slocum_Glider": asdict(Slocum()),
-            "ALR1500": asdict(ALR1500()),
-        }
-        return json.dumps(auvs)
-
-    @staticmethod
-    def list_sensor_arrays()-> str:
-        logger.info(f"listing available sensor arrays")
-        arrays = {
-            "CTD": asdict(CTD()),
-            "BIO": asdict(BIO()),
-            "ADCP": asdict(ADCP()),
-        }
-        return json.dumps(arrays)

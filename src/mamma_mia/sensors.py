@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+import uuid
 
 @dataclass(frozen=True)
 class Sensor:
@@ -18,6 +18,7 @@ class CTD:
         CTD sensor array class with auto generated uuid.
     """
     array: str = "CTD"
+    uuid: uuid = uuid.uuid4()
     sensor1: Sensor =  Sensor(type="temperature",units="degreesC")
     sensor2: Sensor = Sensor(type="salinity",units="PSU")
     sensor3: Sensor = Sensor(type="pressure",units="bar")
@@ -32,6 +33,7 @@ class BIO:
         BIO sensor array class with auto generated uuid.
     """
     array: str = "BIO"
+    uuid: uuid = uuid.uuid4()
     sensor1: Sensor = Sensor(type="nitrate",units="mmol kg-3")
     sensor2: Sensor = Sensor(type="silicate",units="mmol kg-3")
     sensor3: Sensor = Sensor(type="phosphate",units="mmol kg-3")
@@ -46,6 +48,7 @@ class ADCP:
         BIO sensor array class with auto generated uuid.
     """
     array: str = "ADCP"
+    uuid: uuid = uuid.uuid4()
     sensor1: Sensor = Sensor(type="ucomponent",units="ms-1")
     sensor2: Sensor = Sensor(type="vcomponent",units="ms-1")
     sensor3: Sensor = Sensor(type="wcomponent",units="ms-1")

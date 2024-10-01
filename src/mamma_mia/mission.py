@@ -82,6 +82,9 @@ class Mission(zarr.Group):
         for group in auv.sensor_arrays.values():
             sensor_arrays[group.array] = {}
             for sensor in fields(group):
+                # filter out uuid field
+                if "uuid" in sensor.name:
+                    sensor_arrays[group.array][sensor.name] = {"uuid": str(sensor.default)}
                 # if field starts with sensor then it's a sensor!
                 if "sensor" in sensor.name:
                     # map sensor class to a JSON serializable object (a dict basically)
