@@ -1,7 +1,6 @@
 from mamma_mia import Campaign,Slocum,CTD,BIO
-from loguru import logger
 
-logger.info("starting Mamma Mia test run")
+print("<=========> starting Mamma Mia test run <===========>")
 # create campaign
 campaign = Campaign(name="campaign_1",
                     description="single slocum glider deployment in North sea 2019",
@@ -12,7 +11,7 @@ campaign.add_auv(id="Slocum_1",
                  type=Slocum(),
                  sensor_arrays=[CTD(),BIO()],
                  )
-# add missions
+# add mission
 campaign.add_mission(name="mission_1",
                      description="slocum glider Slocum_1 in the North Sea 2019",
                      auv="Slocum_1",
@@ -30,7 +29,7 @@ campaign.missions["mission_1"].show_reality(parameter="phosphate",colour_scale="
 # export the campaign
 campaign.export()
 
-logger.success("Mamma Mia test complete")
+print(">===========< Mamma Mia test complete >==========<")
 
 def test_glider():
     assert campaign.missions["mission_1"].auv.type == "Slocum"
