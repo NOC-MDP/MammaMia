@@ -62,12 +62,13 @@ class Campaign:
             auv object stored in the campaign auv dictionary under its id key
 
         """
+        logger.info(f"adding auv {id} to campaign {self.name}")
         if id in self.auvs:
             logger.error(f"Auv {id} already exists in {self.name}")
             raise AUVExists
         self.auvs[id] = AUV(type=type,id=id)
         self.auvs[id].add_sensor_arrays(sensor_arrays=sensor_arrays)
-
+        logger.success(f"Auv {id} added to {self.name}")
     def add_mission(self,
                     name:str,
                     description:str,
@@ -115,6 +116,7 @@ class Campaign:
                           )
         interpolator = Interpolators()
         logger.info(f"adding {mission.attrs['name']} to {self.name}")
+        logger.info(f"adding {auv} to {mission.attrs['name']}")
         self.missions[mission.attrs['name']] = mission
         self.interpolators[mission.attrs['name']] = interpolator
         logger.success(f"successfully added {mission.attrs['name']} to {self.name}")
