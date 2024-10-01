@@ -9,14 +9,16 @@ class Slocum:
     """
     Slocum immutable type class
     """
-    name: str = "Slocum"
+    type: str = "slocum"
+    description: str = "glider"
 
 @dataclass(frozen=True)
 class ALR1500:
     """
     ALR1500 immutable type class
     """
-    name: str = "ALR1500"
+    type: str = "alr1500"
+    description: str = "autosub long range 1500m"
 
 @dataclass
 class AUV:
@@ -36,7 +38,7 @@ class AUV:
     uuid: uuid = uuid.uuid4()
 
     def __post_init__(self):
-        logger.success(f"{self.type.name} with id {self.id} created successfully")
+        logger.success(f"{self.type.type} with id {self.id} created successfully")
 
     def add_sensor_arrays(self, sensor_arrays: list[CTD | BIO ]):
         """

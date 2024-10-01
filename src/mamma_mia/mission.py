@@ -59,7 +59,7 @@ class Mission(zarr.Group):
 
         auv_exp = self.create_group("auv")
         auv_exp.attrs["id"] = auv.id
-        auv_exp.attrs["type"] = auv.type.name
+        auv_exp.attrs["type"] = auv.type.type
         auv_exp.attrs["uuid"] = str(auv.uuid)
         auv_exp.attrs["sensor_arrays"] = str(auv.sensor_arrays)
 
@@ -80,16 +80,12 @@ class Mission(zarr.Group):
         # TODO be able to handle more than one of the same array type e.g. CTD will overwrite any existing CTD arrays
         sensor_arrays = {}
         for group in auv.sensor_arrays.values():
-            sensor_arrays[group.type] = {}
+            sensor_arrays[group.array] = {}
             for sensor in fields(group):
-                # filter out uuid field
-                if sensor.name == 'uuid':
-                    sensor_arrays[group.type][sensor.name] = {"uuid": str(sensor.type)}
-                    continue
                 # if field starts with sensor then it's a sensor!
                 if "sensor" in sensor.name:
                     # map sensor class to a JSON serializable object (a dict basically)
-                    sensor_arrays[group.type][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
+                    sensor_arrays[group.array][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
                     real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
                     real_grp.attrs["mapped_name"] = sensor.default.type
         # update sensor array attribute in zarr group

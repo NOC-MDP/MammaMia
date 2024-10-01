@@ -1,9 +1,12 @@
+import json
+
 from mamma_mia.catalog import Cats
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.auv import AUV,Slocum,ALR1500
 from mamma_mia.sensors import CTD,BIO,ADCP
-from dataclasses import dataclass,field
+from mamma_mia.exceptions import AUVExists,UnknownAUV,UnknownSensor,MissionExists
+from dataclasses import dataclass,field,asdict
 import uuid
 from loguru import logger
 import zarr
@@ -57,13 +60,15 @@ class Campaign:
 
         """
         if id in self.auvs:
-            raise Exception("Auv already exists")
+            logger.error(f"Auv {id} already exists in {self.name}")
+            raise AUVExists
         if type == "slocum":
             type = Slocum()
         elif type == "alr1500":
             type = ALR1500()
         else:
-            raise Exception("unknown auv type")
+            logger.error(f"unknown auv type {type}")
+            raise UnknownAUV
         self.auvs[id] = AUV(type=type,id=id)
         array = []
         for sensor in sensor_arrays:
@@ -71,10 +76,11 @@ class Campaign:
                 array.append(CTD())
             elif sensor == "BIO":
                 array.append(BIO())
-            elif sensor == "BIO":
+            elif sensor == "ADCP":
                 array.append(ADCP())
             else:
-                raise Exception("unknown sensor type")
+                logger.error(f"unknown sensor type {sensor}")
+                raise UnknownSensor
         self.auvs[id].add_sensor_arrays(sensor_arrays=array)
 
     def add_mission(self,
@@ -109,7 +115,8 @@ class Campaign:
             set of interpolators).
         """
         if name in self.missions:
-            raise Exception("mission already exists")
+            logger.error(f"mission {name} already exists")
+            raise MissionExists
         mission = Mission(name=name,
                           description=description,
                           auv=self.auvs[auv],
@@ -191,12 +198,23 @@ class Campaign:
             logger.success(f"successfully exported {mission.attrs['name']}")
         logger.success(f"successfully exported {self.name}")
 
-    @staticmethod
-    def list_auv_types():
-        logger.info(f"listing available auvs")
-        return "Slocum Glider: 'slocum' Auto Sub Long Range 1500m: 'alr1500'"
+    # TODO dynamically build this from the auv and sensor py files
 
     @staticmethod
-    def list_sensor_arrays():
+    def list_auv_types() -> str :
+        logger.info(f"listing available auvs")
+        auvs = {
+            "Slocum_Glider": asdict(Slocum()),
+            "ALR1500": asdict(ALR1500()),
+        }
+        return json.dumps(auvs)
+
+    @staticmethod
+    def list_sensor_arrays()-> str:
         logger.info(f"listing available sensor arrays")
-        return "CTD: temperature, pressure, salinity BIO: phosphate, silicate, nitrate ADCP: ucomponent, vcomponent, wcomponent"
+        arrays = {
+            "CTD": asdict(CTD()),
+            "BIO": asdict(BIO()),
+            "ADCP": asdict(ADCP()),
+        }
+        return json.dumps(arrays)

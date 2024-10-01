@@ -6,6 +6,8 @@ import pyinterp
 import pyinterp.backends.xarray
 from loguru import logger
 import xesmf as xe
+from mamma_mia.exceptions import UnknownSourceKey
+
 
 @dataclass
 class Interpolators:
@@ -72,8 +74,8 @@ class Interpolators:
                             self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(world[var],geodetic=True)
                             interpolator_priorities[k1] = worlds.attrs["catalog_priorities"]["cmems"]
                         else:
-                            logger.error("unknown model source key")
-                            raise Exception
+                            logger.error(f"unknown model source key {split_key[0]}")
+                            raise UnknownSourceKey
 
                         logger.info(f"built {var} from source {split_key[0]} into interpolator: {k1}")
         worlds.attrs.update({"interpolator_priorities": interpolator_priorities})
@@ -93,8 +95,8 @@ class Interpolators:
                   interpolator, if of a lower priority then do not replace
         """
         if source not in ["msm", "cmems"]:
-            logger.error(f"unknown source: {source}")
-            raise Exception
+            logger.error(f"unknown model source: {source}")
+            raise UnknownSourceKey
         if key in worlds.attrs["interpolator_priorities"]:
             logger.info(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
             if worlds.attrs["interpolator_priorities"][key] > worlds.attrs["catalog_priorities"][source]:

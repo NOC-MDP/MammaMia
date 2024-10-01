@@ -4,6 +4,7 @@ from loguru import logger
 import os
 import copernicusmarine
 import zarr
+from mamma_mia.exceptions import UnknownSourceKey
 
 
 def get_worlds(cat: Cats, world:zarr.Group) -> dict:
@@ -31,7 +32,7 @@ def get_worlds(cat: Cats, world:zarr.Group) -> dict:
             zarr_stores[key] = zarr_store
         else:
             logger.error("unknown model source key")
-            raise Exception
+            raise UnknownSourceKey
         zarr_source = zarr.open(zarr_store, mode='r')
         zarr.copy_all(source=zarr_source, dest=world[key])
 
