@@ -3,20 +3,32 @@ from mamma_mia.sensors import CTD,BIO
 import uuid
 from loguru import logger
 
-# classes with different AUV parameters derived from type
+
 @dataclass(frozen=True)
 class Slocum:
+    """
+    Slocum immutable type class
+    """
     name: str = "Slocum"
 
 @dataclass(frozen=True)
 class ALR1500:
+    """
+    ALR1500 immutable type class
+    """
     name: str = "ALR1500"
 
 @dataclass
 class AUV:
     """
-    Base class for glider objects
+    Class to represent an autonomous underwater vehicle.
 
+    Args:
+        type: AUV type class
+        id: AUV identification string e.g. ALR4
+
+    Returns:
+        populated AUV object with the relevant auv type class, identification string and system generated uuid.
     """
     type: Slocum | ALR1500
     id: str
@@ -26,10 +38,19 @@ class AUV:
     def __post_init__(self):
         logger.success(f"{self.type.name} with id {self.id} created successfully")
 
-    def add_sensor_arrays(self, sensor_array_list: list[CTD | BIO ]):
+    def add_sensor_arrays(self, sensor_arrays: list[CTD | BIO ]):
+        """
+        Add sensor arrays to an auv object.
+        Args:
+            sensor_arrays: list of sensor arrays to add, e.g. CTD()
+
+        Returns:
+            void: sensor arrays are added to the auv object the method is run from
+
+        """
         # TODO add sensor array checks here
         i = 1
-        for sensor_array in sensor_array_list:
+        for sensor_array in sensor_arrays:
             logger.info(f"adding sensor array {type(sensor_array).__name__} to {self.id}")
             self.sensor_arrays["sensor_array_"+str(i)] = sensor_array
             i = i + 1

@@ -8,17 +8,16 @@ import zarr
 
 def get_worlds(cat: Cats, world:zarr.Group) -> dict:
     """
-    Gets a matched world from its respective source
-
-    Parameters:
-    - key: string that represents the world id
-    - value: dictionary of variables to subset from world
+    function that will get the worlds/model data as specified in the matched worlds attribute in the provided world zarr group.
+    Args:
+        cat: initialised Cats object that contains all the source data available to download
+        world: worlds zarr group that contains an updated matched worlds attribute to allow model data to be downloaded
 
     Returns:
-    - zarr store: string that denotes where the zarr store holding the world has been saved.
+        dict: dictionary containing the locations of the downloaded model data zarr stores. The world zarr group is also
+              returned populated with model data that matches the required spatial and temporal extents and is also
+              valid for the specified sensors of the auv.
 
-    Notes:
-    This is a wrapper function around specific get world functions e.g. CMEMS or Jasmin
     """
     zarr_stores = {}
     for key, value in world.attrs["matched_worlds"].items():
@@ -40,13 +39,16 @@ def get_worlds(cat: Cats, world:zarr.Group) -> dict:
 
 def __get_msm_worlds(key: str, value, catalog: Cats,world:zarr.Group) -> str:
     """
-
+    Function that downloads the msm source model data that matches the required spatial and temporal extents and sensor
+    specification of the auv.
     Args:
-        key: string the represents the source name
+        key: model source
         value: object that contains the intake entry of the matched dataset
+        world: zarr group that contains the world attributes and will store the downloaded model data
 
     Returns:
-        string that represents the zarr store location of the downloaded data
+        string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
+        the downloaded model data.
     """
     var_str = ""
     vars2 = []
@@ -100,19 +102,20 @@ def __get_msm_worlds(key: str, value, catalog: Cats,world:zarr.Group) -> str:
     return zarr_d + zarr_f
 
 
-def __get_cmems_worlds(key, value,world:zarr.Group) -> str:
+def __get_cmems_worlds(key: str, value,world:zarr.Group) -> str:
     """
-    Checks for the presence of, or downloads if not present the required subset of CMEMS catalog
-
-    Parameters
-    - key: string that represents the cmems dataset id
-    - value: dictionary that contains the variable names to download
+    function that downloads model data from CMEMS, data must match the temporal and spatial extents of the auv, and also
+    have the required variables to match the sensor arrays of the auv.
+    Args:
+        key: model source
+        value: object that contains the intake entry of the matched dataset
+        world: zarr group that contains the world attributes and will store the downloaded model data
 
     Returns:
-    string that represents the zarr store location of the downloaded data
+        string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
+        the downloaded model data.
 
     """
-
     vars2 = []
     # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
     for k2, v2 in value.items():

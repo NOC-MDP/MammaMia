@@ -14,18 +14,25 @@ from mamma_mia.get_worlds import get_worlds
 @dataclass
 class Mission(zarr.Group):
     """
-    Creates a mamma_mia object
+    Mission object, this contains all the components to be able to fly an AUV mission (generate interpolated data)
 
-    Parameters:
-    - id
-    - description
-    - world
-    - trajectory
-    - glider
-    -reality
+    Args:
+        name: name of the mission
+        description: description of the mission
+        auv: AUV object created from AUV class
+        trajectory_path: path of the AUV trajectory netcdf file
+    Optional:
+        store: set zarr store here, by default it will store in memory
+        overwrite: overwrite existing zarr store if present
+        excess_space: amount of area to exceed trajectory by when downloading subset in decimal degrees
+        excess_depth: amount of depth to exceed trajectory by when downloading subset in metres
+        msm_priority: priority value of msm source data (higher has more priority)
+        cmems_priority: priority value of cmems source data (higher has more priority)
 
     Returns:
-    - Mission object that is ready for flight!
+        Mission object: consisting of a zarr group containing initialised attributes and arrays of trajectory data
+        and initialised arrays ready for reality data
+
     """
     def __init__(self,
                  name:str,
@@ -70,18 +77,19 @@ class Mission(zarr.Group):
 
         real_grp = self.create_group("reality")
         # construct sensor array dictionary to save as attribute and empty reality arrays for each sensor
+        # TODO be able to handle more than one of the same array type e.g. CTD will overwrite any existing CTD arrays
         sensor_arrays = {}
         for group in auv.sensor_arrays.values():
-            sensor_arrays[group.name] = {}
+            sensor_arrays[group.type] = {}
             for sensor in fields(group):
                 # filter out uuid field
                 if sensor.name == 'uuid':
-                    sensor_arrays[group.name][sensor.name] = {"uuid": str(sensor.type)}
+                    sensor_arrays[group.type][sensor.name] = {"uuid": str(sensor.type)}
                     continue
                 # if field starts with sensor then it's a sensor!
                 if "sensor" in sensor.name:
                     # map sensor class to a JSON serializable object (a dict basically)
-                    sensor_arrays[group.name][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
+                    sensor_arrays[group.type][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
                     real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
                     real_grp.attrs["mapped_name"] = sensor.default.type
         # update sensor array attribute in zarr group
@@ -104,12 +112,31 @@ class Mission(zarr.Group):
         worlds.attrs["zarr_stores"] = {}
 
     def build_mission(self,cat:Cats) -> ():
+        """
+        build missions, this searches for relevant data, downloads and updates attributes as needed
+        Args:
+            cat: Initialised Cats object, this contains catalogs for all source data
+
+        Returns:
+            void: Mission object is now populated with world data ready to build interpolators for. Matched worlds
+                  and zarr store attributes are updated with the new values (what worlds match sensors and trajectory etc)
+
+        """
         matched_worlds = find_worlds(cat=cat,reality=self.reality,extent=self.world.attrs["extent"])
         self.world.attrs.update({"matched_worlds": matched_worlds})
         zarr_stores = get_worlds(cat=cat, world=self.world)
         self.world.attrs.update({"zarr_stores": zarr_stores})
 
-    def fly(self,interpol:Interpolators):
+    def fly(self,interpolator:Interpolators):
+        """
+
+        Args:
+            interpolator: Interpolator object with intepolators to fly through
+
+        Returns:
+            void: mission object with filled reality arrays of interpolated data, i.e. AUV has flown its
+                  mission through the world.
+        """
         logger.info(f"flying {self.attrs['name']} using {self.auv.attrs['id']}")
         flight = {
             "longitude": np.array(self.trajectory["longitudes"]),
@@ -120,13 +147,24 @@ class Mission(zarr.Group):
         for key in self.reality.array_keys():
             try:
                 logger.info(f"flying through {key} world and creating reality")
-                self.reality[key] = interpol.interpolator[key].quadrivariate(flight)
+                self.reality[key] = interpolator.interpolator[key].quadrivariate(flight)
             except KeyError:
                 logger.warning(f"no interpolator found for parameter {key}")
 
         logger.success(f"{self.attrs['name']} flown successfully")
 
     def show_reality(self, parameter:str,colour_scale:str="Jet"):
+        """
+        Created an interactive plot of the auv trajectory with the given parameters data mapped onto it using the
+        specified colour map.
+        Args:
+            parameter: parameter or sensor to visualise
+            colour_scale: (optional) colour scale to use when plotting data onto trajectory
+
+        Returns:
+            interactive plotly figure that opens in a web browser.
+
+        """
         logger.info(f"showing reality for parameter {parameter}")
         marker = {
             "size": 2,
@@ -164,13 +202,14 @@ class Mission(zarr.Group):
 
     def plot_trajectory(self,colour_scale:str='Viridis',):
         """
-        Creates a plotly figure of the Trajectory object.
+        Created an interactive plot of the auv trajectory, with the datetime of the trajectory colour mapped onto it.
 
-        Parameters:
-        None
+        Args:
+            colour_scale: (optional) colour scale to use when plotting datetime onto trajectory
 
         Returns:
-        - Plotly figure of the Trajectory object. (This will open in a web browser)
+            interactive plotly figure that opens in a web browser.
+
         """
         marker = {
             "size": 2,
@@ -200,6 +239,14 @@ class Mission(zarr.Group):
         fig.show()
 
     def export(self, store: zarr.DirectoryStore = None) -> ():
+        """
+        Exports mission to a zarr directory store
+        Args:
+            store: path to save mission zarr group too.
+
+        Returns:
+            void: zarr group is saved to directory store
+        """
         if store is None:
             export_store = zarr.DirectoryStore(f"{self.attrs['name']}.zarr")
         else:

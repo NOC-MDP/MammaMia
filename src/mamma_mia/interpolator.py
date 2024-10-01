@@ -11,15 +11,16 @@ import xesmf as xe
 class Interpolators:
     interpolator: dict = field(default_factory=dict)
 
-    def build(self,worlds:zarr.Group):
+    def build(self,worlds:zarr.Group) -> ():
         """
-        Creates a 4D interpolator that allows a world to be interpolated on to a trajectory
+        Creates a 4D interpolator for each sensor that allows a world to be interpolated on to a trajectory
 
-        Parameters:
-        - None
+        Args:
+            worlds (zarr.Group): a zarr group containing all the world data that has been downloaded
 
         Returns:
-        - World object with an interpolator
+            void: Interpolator object has been populated with interpolators for each variable in the world group
+
         """
         # for every dataset
         interpolator_priorities = worlds.attrs["interpolator_priorities"]
@@ -80,11 +81,22 @@ class Interpolators:
 
     @staticmethod
     def __check_priorities(key:str, source:str, worlds:zarr.Group) -> bool:
+        """
+        Function to check the priority of data that will be interpolated, if an existing interpolator is already present
+        Args:
+            key: sensor/data type
+            source: world data source e.g. cmems or msm
+            worlds: zarr group containing all the world data that has been downloaded
+
+        Returns:
+            bool: determines priority of data to be interpolated, if data is a higher priority then replace
+                  interpolator, if of a lower priority then do not replace
+        """
         if source not in ["msm", "cmems"]:
             logger.error(f"unknown source: {source}")
             raise Exception
         if key in worlds.attrs["interpolator_priorities"]:
-            logger.warning(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
+            logger.info(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
             if worlds.attrs["interpolator_priorities"][key] > worlds.attrs["catalog_priorities"][source]:
                 logger.info(f"data source {source} is a lower priority, skipping world build")
                 return True

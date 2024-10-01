@@ -2,20 +2,18 @@ from mamma_mia.catalog import Cats,cmems_alias
 from loguru import logger
 from datetime import datetime
 import numpy as np
+import zarr
 
-
-def find_worlds(cat: Cats,reality,extent:dict) -> dict:
+def find_worlds(cat: Cats,reality:zarr.Group,extent:dict) -> dict:
     """
-    Finds a world that matches the reality required.
-
-    Parameters:
-    - reality: Reality object containing the empty reality the world needs to match
+    Function to search the catalog and return a dictionary of matched worlds/datasets for all catalog sources
+    Args:
+        cat: Cats object that contains the catalogs
+        reality: reality zarr group containing initialised reality arrays
+        extent: dictionary containing spatial and temporal extents
 
     Returns:
-    - Python dict with matched dataset ids and variable names
-
-    Notes:
-    This is a wrapper function around specific find world functions e.g. CMEMS or Jasmin
+        dict: dictionary of matched worlds that can be used as a reference to download data subsets/worlds
     """
     # for every array in the reality group
     matched_worlds = {}
@@ -29,9 +27,12 @@ def find_worlds(cat: Cats,reality,extent:dict) -> dict:
 
 def __find_msm_worlds(key :str ,cat :Cats ,matched_worlds :dict,extent:dict) -> dict:
     """
-
+    function to find models/worlds within the msm source catalog for a given auv extent and sensor specification
     Args:
         key: string that represents the variable to find
+        cat: Cats object that contains the catalogs
+        matched_worlds: dictionary of matched worlds that is updated with matched models that are found for each key
+        extent: dictionary containing spatial and temporal extents of the auv
 
     Returns:
         matched worlds dictionary containing dataset ids and variable names
@@ -74,11 +75,13 @@ def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :dict,extent:dict) -
     Traverses CMEMS catalog and find products/datasets that match the glider sensors and
     the trajectory spatial and temporal extent.
 
-    Parameters:
-    - key: string that represents the variable to find
+    Args:
+        key: string that represents the variable to find
+        cat: Cats object that contains the catalogs
+        matched_worlds: dictionary of matched worlds that is updated with matched models that are found for each key
 
     Returns:
-    - matched worlds dictionary containing dataset ids and variable names that reside within it.
+        matched worlds dictionary containing dataset ids and variable names that reside within it.
     """
     for k1, v1 in cat.cmems_cat.items():
         logger.info(f"searching cmems {k1}")

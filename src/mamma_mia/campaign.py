@@ -10,6 +10,18 @@ from os import sep
 
 @dataclass
 class Campaign:
+    """
+    Campaign object, this contains all the missions that auv's are being deployed to undertake. It is the main object
+    to interact with Mamma mia.
+
+    Args:
+        name: name of the campaign
+        description: description of the campaign
+
+    Returns:
+        Campaign object with initialised catalog and system generated uuid
+
+    """
     name: str
     description: str
     catalog: Cats = field(init=False, default_factory=Cats)
@@ -33,6 +45,25 @@ class Campaign:
                     msm_priority: int = 2,
                     cmems_priority: int = 1,
                     ) -> ():
+        """
+        Function that adds an auv mission to the campaign.
+        Args:
+            name: name of the mission
+            description: description of the mission
+            auv: AUV object that has been created with an specified sensor array
+            trajectory_path: path to auv trajectory netcdf
+            store: specify zarr store (Directory etc) default is memory store
+            overwrite: overwrite an existing mission store, default is false
+            excess_space: amount of excess space to add to model/world download in decimal degrees, default is 0.5
+            excess_depth: amount of excess depth to add to model/world download in metres, default is 100
+            msm_priority: priority value for msm world sources (higher values have greater priority)
+            cmems_priority: priority value for cmems world sources (higher values have greater priority)
+
+        Returns:
+            Campaign object with initialised mission object contained within the missions dictionary. An interpolators object
+            is also initialized and stored in the interpolated dictionary coded with the mission key. (each mission has its own
+            set of interpolators).
+        """
         mission = Mission(name=name,
                           description=description,
                           auv=auv,
@@ -51,6 +82,13 @@ class Campaign:
         logger.success(f"successfully added {mission.attrs['name']} to {self.name}")
 
     def build_missions(self) -> ():
+        """
+        Function that builds the missions contained within the missions dictionary.
+
+        Returns:
+            void: mission objects with searched and downloaded worlds and built interpolators ready for flight/deployments
+
+        """
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
             logger.info(f"building {mission.attrs['name']}")
@@ -62,6 +100,13 @@ class Campaign:
             logger.success(f"successfully built interpolator for {key}")
 
     def run(self) -> ():
+        """
+        Function that runs the missions contained within the missions dictionary.
+        Returns:
+            void: populated reality data arrays in each mission within the missions dictionary. This emulates each auv
+                  mission deployment.
+
+        """
         logger.info(f"running {self.name}")
         for mission in self.missions.values():
             logger.info(f"flying {mission.attrs['name']}")
@@ -69,6 +114,16 @@ class Campaign:
         logger.success(f"{self.name} finished successfully")
 
     def export(self,overwrite=True,export_path=None) -> ():
+        """
+        Function that exports the campaign object as an zarr group
+        Args:
+            overwrite: overwrite any existing campaign store
+            export_path: override default location of campaign store export.
+
+        Returns:
+            void: Campaign object is exported to zarr store. NOTE: interpolators and catalogs cannot be exported.
+
+        """
         logger.info(f"exporting {self.name}")
         if export_path is None:
             logger.info(f"creating zarr store at {self.name}.zarr")
