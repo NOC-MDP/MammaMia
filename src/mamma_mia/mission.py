@@ -54,7 +54,7 @@ class Mission(zarr.Group):
         auv_exp.attrs["id"] = auv.id
         auv_exp.attrs["type"] = auv.type.name
         auv_exp.attrs["uuid"] = str(auv.uuid)
-        auv_exp.attrs["sensor_suite"] = str(auv.sensor_suite)
+        auv_exp.attrs["sensor_arrays"] = str(auv.sensor_arrays)
 
         ds = xr.open_dataset(trajectory_path)
         traj = self.create_group("trajectory")
@@ -64,29 +64,35 @@ class Mission(zarr.Group):
         traj.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
 
         for i in range(traj.longitudes.__len__()):
-            traj.longitudes[i] = self.__convertToDecimal(traj.longitudes[i])
+            traj.longitudes[i] = self.__convert_to_decimal(traj.longitudes[i])
         for i in range(traj.latitudes.__len__()):
-            traj.latitudes[i] = self.__convertToDecimal(traj.latitudes[i])
+            traj.latitudes[i] = self.__convert_to_decimal(traj.latitudes[i])
 
         real_grp = self.create_group("reality")
-        sensor_suite = {}
-        for group in auv.sensor_suite.values():
-            sensor_suite[group.name] = {}
+        # construct sensor array dictionary to save as attribute and empty reality arrays for each sensor
+        sensor_arrays = {}
+        for group in auv.sensor_arrays.values():
+            sensor_arrays[group.name] = {}
             for sensor in fields(group):
-                # filter out fields that aren't sensors
-                if sensor.name == 'uuid' or sensor.name == 'name':
+                # filter out uuid field
+                if sensor.name == 'uuid':
+                    sensor_arrays[group.name][sensor.name] = {"uuid": str(sensor.type)}
                     continue
-                sensor_suite[group.name][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
-                real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
-                real_grp.attrs["mapped_name"] = sensor.default.type
-        self.auv.attrs.update({"sensor_suite": sensor_suite})
+                # if field starts with sensor then it's a sensor!
+                if "sensor" in sensor.name:
+                    # map sensor class to a JSON serializable object (a dict basically)
+                    sensor_arrays[group.name][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
+                    real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
+                    real_grp.attrs["mapped_name"] = sensor.default.type
+        # update sensor array attribute in zarr group
+        self.auv.attrs.update({"sensor_arrays": sensor_arrays})
         worlds = self.create_group("world")
         extent = {
                     "max_lat": np.around(np.max(traj.latitudes),2) + excess_space,
                     "min_lat": np.around(np.min(traj.latitudes), 2) - excess_space,
                     "max_lng": np.around(np.max(traj.longitudes), 2) + excess_space,
                     "min_lng": np.around(np.min(traj.longitudes), 2) - excess_space,
-            # TODO dynamically set the =/- delta on start and end time based on time step of model (need at least two time steps)
+            # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
                     "start_time": np.datetime_as_string(traj.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
                     "end_time" : np.datetime_as_string(traj.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
                     "max_depth": np.around(np.max(traj.depths), 2) + excess_depth
@@ -205,16 +211,16 @@ class Mission(zarr.Group):
     # From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
     # Lucas Merckelbach
     @staticmethod
-    def __convertToDecimal(x):
+    def __convert_to_decimal(x):
         """
         Converts a latitiude or longitude in NMEA format to decimale degrees
         """
         sign = np.sign(x)
-        xAbs = np.abs(x)
-        degrees = np.floor(xAbs / 100.)
-        minutes = xAbs - degrees * 100
-        decimalFormat = degrees + minutes / 60.
-        return decimalFormat * sign
+        x_abs = np.abs(x)
+        degrees = np.floor(x_abs / 100.)
+        minutes = x_abs - degrees * 100
+        decimal_format = degrees + minutes / 60.
+        return decimal_format * sign
 
 
 

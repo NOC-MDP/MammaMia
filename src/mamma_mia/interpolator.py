@@ -34,6 +34,7 @@ class Interpolators:
                     if var == v1:
                         split_key = key.split("_")
                         if split_key[0] == "msm":
+                            # if priority of any existing matching variable is lower then continue
                             if self.__check_priorities(key=k1, source="msm",worlds=worlds):
                                 continue
                             # rename time and depth dimensions to be consistent
@@ -63,6 +64,7 @@ class Interpolators:
                             # create or update priorities of interpolator datasetsc
                             interpolator_priorities[k1] = worlds.attrs["catalog_priorities"]["msm"]
                         elif split_key[0] == "cmems":
+                            # if priority of any existing matching variable is higher continue
                             if self.__check_priorities(key=k1, source="cmems",worlds=worlds):
                                 continue
                             world = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])

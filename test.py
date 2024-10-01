@@ -4,9 +4,9 @@ from loguru import logger
 logger.info("starting Mamma Mia test run")
 # create AUV
 
-glider = AUV(id="Slocum_1",type=Slocum)
+glider = AUV(id="Slocum_1",type=Slocum())
 # define sensors
-glider.add_sensor_arrays(sensor_array_list=[CTD,BIO])
+glider.add_sensor_arrays(sensor_array_list=[CTD(),BIO()])
 # create campaign
 campaign = Campaign(name="campaign_1",description="single slocum glider deployment in North sea 2019")
 # add missions

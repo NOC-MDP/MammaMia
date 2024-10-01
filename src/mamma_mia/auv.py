@@ -20,7 +20,7 @@ class AUV:
     """
     type: Slocum | ALR1500
     id: str
-    sensor_suite: dict = field(default_factory=dict)
+    sensor_arrays: dict = field(default_factory=dict)
     uuid: uuid = uuid.uuid4()
 
     def __post_init__(self):
@@ -31,6 +31,6 @@ class AUV:
         i = 1
         for sensor_array in sensor_array_list:
             logger.info(f"adding sensor array {type(sensor_array).__name__} to {self.id}")
-            self.sensor_suite["sensor_array_"+str(i)] = sensor_array
+            self.sensor_arrays["sensor_array_"+str(i)] = sensor_array
             i = i + 1
         logger.success(f"{i-1} sensor arrays added to {self.id} successfully")

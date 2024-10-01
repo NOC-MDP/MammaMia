@@ -6,6 +6,7 @@ from dataclasses import dataclass,field
 import uuid
 from loguru import logger
 import zarr
+from os import sep
 
 @dataclass
 class Campaign:
@@ -20,15 +21,36 @@ class Campaign:
         self.catalog = Cats()
         logger.success(f"Campaign {self.name} created")
 
-    def add_mission(self,name:str,description:str,auv:AUV,trajectory_path:str) -> ():
-        mission = Mission(name=name,description=description,auv=auv,trajectory_path=trajectory_path)
+    def add_mission(self,
+                    name:str,
+                    description:str,
+                    auv:AUV,
+                    trajectory_path:str,
+                    store=None,
+                    overwrite=False,
+                    excess_space: int = 0.5,
+                    excess_depth: int = 100,
+                    msm_priority: int = 2,
+                    cmems_priority: int = 1,
+                    ) -> ():
+        mission = Mission(name=name,
+                          description=description,
+                          auv=auv,
+                          trajectory_path=trajectory_path,
+                          store=store,
+                          overwrite=overwrite,
+                          excess_space=excess_space,
+                          excess_depth=excess_depth,
+                          msm_priority=msm_priority,
+                          cmems_priority=cmems_priority
+                          )
         interpolator = Interpolators()
         logger.info(f"adding {mission.attrs['name']} to {self.name}")
         self.missions[mission.attrs['name']] = mission
         self.interpolators[mission.attrs['name']] = interpolator
         logger.success(f"successfully added {mission.attrs['name']} to {self.name}")
 
-    def build_missions(self):
+    def build_missions(self) -> ():
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
             logger.info(f"building {mission.attrs['name']}")
@@ -39,17 +61,21 @@ class Campaign:
             interpol.build(worlds=self.missions[key]["world"])
             logger.success(f"successfully built interpolator for {key}")
 
-    def run(self):
+    def run(self) -> ():
         logger.info(f"running {self.name}")
         for mission in self.missions.values():
             logger.info(f"flying {mission.attrs['name']}")
             mission.fly(self.interpolators[mission.attrs['name']])
         logger.success(f"{self.name} finished successfully")
 
-    def export(self,overwrite=True):
+    def export(self,overwrite=True,export_path=None) -> ():
         logger.info(f"exporting {self.name}")
-        logger.info(f"creating zarr store at {self.name}.zarr")
-        store = zarr.DirectoryStore(f"{self.name}.zarr")
+        if export_path is None:
+            logger.info(f"creating zarr store at {self.name}.zarr")
+            export_path = f"{self.name}.zarr"
+        else:
+            logger.info(f"exporting zarr store at {export_path}{sep}{self.name}.zarr")
+        store = zarr.DirectoryStore(f"{export_path}{sep}{self.name}.zarr")
         logger.info(f"creating zarr group {self.name} in store")
         camp = zarr.group(store=store,overwrite=overwrite)
         camp.attrs['name'] = self.name

@@ -1,4 +1,4 @@
-from dataclasses import dataclass,field
+from dataclasses import dataclass
 import uuid
 
 
@@ -13,7 +13,7 @@ class Sensor:
 @dataclass(frozen=True)
 class CTD:
     name: str = "CTD"
-    uuid: uuid = field(default_factory=uuid.uuid4)
+    uuid: uuid = uuid.uuid4()
     sensor1: Sensor =  Sensor(type="temperature",units="degreesC")
     sensor2: Sensor = Sensor(type="salinity",units="PSU")
     sensor3: Sensor = Sensor(type="pressure",units="bar")
@@ -22,7 +22,7 @@ class CTD:
 @dataclass(frozen=True)
 class BIO:
     name: str = "BIO"
-    uuid: uuid = field(default_factory=uuid.uuid4)
+    uuid: uuid = uuid.uuid4()
     sensor1: Sensor = Sensor(type="nitrate",units="mmol kg-3")
     sensor2: Sensor = Sensor(type="silicate",units="mmol kg-3")
     sensor3: Sensor = Sensor(type="phosphate",units="mmol kg-3")
