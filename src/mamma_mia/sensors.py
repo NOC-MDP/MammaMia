@@ -40,4 +40,16 @@ class BIO:
     sensor3: Sensor = Sensor(type="phosphate",units="mmol kg-3")
 
 
+@dataclass(frozen=True)
+class ADCP:
+    """
+    Immutable sensor array that represents a biological sensor array, i.e. it contains nitrate, silicate and phosphate sensors
 
+    Returns:
+        BIO sensor array class with auto generated uuid.
+    """
+    type: str = "ADCP"
+    uuid: uuid = uuid.uuid4()
+    sensor1: Sensor = Sensor(type="ucomponent",units="ms-1")
+    sensor2: Sensor = Sensor(type="vcomponent",units="ms-1")
+    sensor3: Sensor = Sensor(type="wcomponent",units="ms-1")

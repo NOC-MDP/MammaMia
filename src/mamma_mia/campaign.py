@@ -2,7 +2,7 @@ from mamma_mia.catalog import Cats
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.auv import AUV,Slocum,ALR1500
-from mamma_mia.sensors import CTD,BIO
+from mamma_mia.sensors import CTD,BIO,ADCP
 from dataclasses import dataclass,field
 import uuid
 from loguru import logger
@@ -71,6 +71,8 @@ class Campaign:
                 array.append(CTD())
             elif sensor == "BIO":
                 array.append(BIO())
+            elif sensor == "BIO":
+                array.append(ADCP())
             else:
                 raise Exception("unknown sensor type")
         self.auvs[id].add_sensor_arrays(sensor_arrays=array)
@@ -197,4 +199,4 @@ class Campaign:
     @staticmethod
     def list_sensor_arrays():
         logger.info(f"listing available sensor arrays")
-        return "CTD: temperature, pressure, salinity BIO: phosphate, silicate, nitrate"
+        return "CTD: temperature, pressure, salinity BIO: phosphate, silicate, nitrate ADCP: ucomponent, vcomponent, wcomponent"
