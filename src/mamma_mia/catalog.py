@@ -11,8 +11,9 @@ cmems_alias = {
     "temperature": ["thetao"],
     "salinity": ["so"],
     "pressure": ["pres"],
-    "ucomponent": ["uo"],
-    "vcomponent": ["vo"],
+    "u_component": ["uo"],
+    "v_component": ["vo"],
+    "w_component": ["wo"]
 }
 
 

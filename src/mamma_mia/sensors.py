@@ -49,6 +49,6 @@ class ADCP:
     """
     array: str = "ADCP"
     uuid: uuid = uuid.uuid4()
-    sensor1: Sensor = Sensor(type="ucomponent",units="ms-1")
-    sensor2: Sensor = Sensor(type="vcomponent",units="ms-1")
-    sensor3: Sensor = Sensor(type="wcomponent",units="ms-1")
+    sensor1: Sensor = Sensor(type="u_component",units="ms-1")
+    sensor2: Sensor = Sensor(type="v_component",units="ms-1")
+    sensor3: Sensor = Sensor(type="w_component",units="ms-1")
