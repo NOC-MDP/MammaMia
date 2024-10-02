@@ -104,6 +104,8 @@ class VelocityWorld(zarr.Group):
             if "sensor" in sensor.name:
                 # map sensor class to a JSON serializable object (a dict basically)
                 sensor_arrays["ADCP"][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
+                # TODO look into why this is needed as it is only used for its keys should be able to use the sensor array above
+                # TODO but find worlds is dependant on the reality group and it shouldn't be.
                 real_grp.full(name=sensor.default.type, shape=1, dtype=np.float64, fill_value=np.nan)
                 real_grp.attrs["mapped_name"] = sensor.default.type
 
@@ -141,5 +143,5 @@ class VelocityReality:
         self.interpolators = Interpolators()
         self.interpolators.build(worlds=self.velocity_world["world"])
 
-    def vector(self, point: Point) -> Vector:
+    def teleport(self, point: Point) -> Vector:
         return self.velocity_world.get_vector(point=point, interpolator=self.interpolators)

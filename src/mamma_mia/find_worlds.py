@@ -17,6 +17,7 @@ def find_worlds(cat: Cats,reality:zarr.Group,extent:dict) -> dict:
     """
     # for every array in the reality group
     matched_worlds = {}
+    # TODO see if a different approach can be used rather than using the reality keys e.g. use AUV sensor array attribute
     for key in reality.array_keys():
         logger.info(f"searching worlds for key {key}")
         matched_worlds = __find_cmems_worlds(key=key, cat=cat, matched_worlds=matched_worlds,extent=extent)

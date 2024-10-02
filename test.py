@@ -1,4 +1,3 @@
-import numpy as np
 # from mamma_mia import Campaign, Slocum, CTD, BIO
 from mamma_mia import Extent,Point,VelocityReality
 
@@ -45,7 +44,7 @@ point = Point(latitude=57.1,
 
 )
 VR = VelocityReality(extent=extent)
-V = VR.vector(point=point)
+V = VR.teleport(point=point)
 print(V)
 print(">===========< Mamma Mia test complete >==========<")
 
