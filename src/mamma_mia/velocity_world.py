@@ -17,15 +17,26 @@ class Extent:
     max_lng: float
     min_lng: float
     max_depth: float
-    start_time: np.datetime64
-    end_time: np.datetime64
+    start_datetime: np.datetime64 = field(init=False)
+    end_datetime: np.datetime64 = field(init=False)
+    start_dt: InitVar[str]
+    end_dt: InitVar[str]
+
+    def __post_init__(self, start_dt:str, end_dt:str):
+        object.__setattr__(self, 'start_datetime', np.datetime64(start_dt))
+        object.__setattr__(self, 'end_datetime', np.datetime64(end_dt))
+
 
 @dataclass(frozen=True)
 class Point:
     latitude: float
     longitude: float
     depth: float
-    datetime: np.datetime64
+    datetime: np.datetime64 = field(init=False)
+    dt: InitVar[str]
+
+    def __post_init__(self, dt:str):
+        object.__setattr__(self, 'datetime', np.datetime64(dt))
 
 @dataclass(frozen=True)
 class Vector:
@@ -70,8 +81,8 @@ class VelocityWorld(zarr.Group):
             "max_lng": extent.max_lng + excess_space,
             "min_lng": extent.min_lng - excess_space,
             # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
-            "start_time": np.datetime_as_string(extent.start_time - np.timedelta64(30, 'D'), unit="D"),
-            "end_time": np.datetime_as_string(extent.end_time + np.timedelta64(30, 'D'), unit="D"),
+            "start_time": np.datetime_as_string(extent.start_datetime - np.timedelta64(30, 'D'), unit="D"),
+            "end_time": np.datetime_as_string(extent.end_datetime + np.timedelta64(30, 'D'), unit="D"),
             "max_depth": extent.max_depth + excess_depth
         }
         worlds.attrs["extent"] = extent_excess
