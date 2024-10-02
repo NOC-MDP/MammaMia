@@ -1,6 +1,6 @@
 import numpy as np
 # from mamma_mia import Campaign, Slocum, CTD, BIO
-from mamma_mia import Extent,Point,Velocity
+from mamma_mia import Extent,Point,VelocityReality
 
 print("<=========> starting Mamma Mia test run <===========>")
 # # create campaign
@@ -44,9 +44,9 @@ point = Point(latitude=57.1,
               dt="2019-01-03T00:00:00",
 
 )
-velo = Velocity(extent=extent)
-vect = velo.vector(point=point)
-print(vect)
+VR = VelocityReality(extent=extent)
+V = VR.vector(point=point)
+print(V)
 print(">===========< Mamma Mia test complete >==========<")
 
 # def test_glider():

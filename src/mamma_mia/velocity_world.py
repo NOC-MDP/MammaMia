@@ -131,7 +131,7 @@ class VelocityWorld(zarr.Group):
         return vector
 
 @dataclass
-class Velocity:
+class VelocityReality:
     extent: InitVar[Extent]
     velocity_world: VelocityWorld = field(init=False)
     interpolators: Interpolators = field(init=False)
