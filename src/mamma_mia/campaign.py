@@ -177,14 +177,13 @@ class Campaign:
         camp.attrs['description'] = self.description
         camp.attrs['uuid'] = str(self.uuid)
         logger.success(f"zarr group {self.name} successfully created")
-        for mission in self.missions.values():
-            logger.info(f"creating zarr group for mission {mission.attrs['name']}")
-            camp.create_group(mission.attrs['name'])
-            logger.info(f"exporting {mission.attrs['name']}")
-            zarr.copy_all(source=mission,dest=camp[mission.attrs['name']])
-
-
+        dim_map = None
+        for key1, mission in self.missions.items():
             # TODO need to dynamically build this rather than hardcoding it.
+            # TODO do this by using mission[key].keys()
+            print(list[mission.reality.keys()])
+            print(list[mission.trajectory.keys()])
+            print(list[mission.world.keys()])
             dim_map = {
                 f"{mission.attrs['name']}/reality/nitrate": ['time'],
                 f"{mission.attrs['name']}/reality/phosphate": ['time'],
@@ -204,6 +203,13 @@ class Campaign:
                 f"{mission.attrs['name']}/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
                 f"{mission.attrs['name']}/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
             }
+        for mission in self.missions.values():
+            logger.info(f"creating zarr group for mission {mission.attrs['name']}")
+            camp.create_group(mission.attrs['name'])
+            logger.info(f"exporting {mission.attrs['name']}")
+            zarr.copy_all(source=mission,dest=camp[mission.attrs['name']])
+            if dim_map is None:
+                raise Exception("dimension mapping attribute has not been generated")
             self.add_array_dimensions(group=camp,dim_map=dim_map)
             logger.success(f"successfully exported {mission.attrs['name']}")
         logger.info(f"consolidating metadata for {export_path}")
