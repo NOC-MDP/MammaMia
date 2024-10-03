@@ -66,7 +66,7 @@ simulator. The example script in the glidersim repository will produce the requi
 Mamma mia uses pytest to test its code, to test for correction installation please run:
 
 ```shell
-$ pytest test.py
+$ pytest campaign_test.py
 ```
 This will execute the test suite and display the results. All tests should pass.(WIP!)
 

@@ -127,9 +127,27 @@ class VelocityWorld(zarr.Group):
             except KeyError:
                 logger.warning(f"no interpolator for {key}")
 
-        vector = Vector(u_velocity=self.reality["u_component"][0],
-                        v_velocity=self.reality["v_component"][0],
-                        w_velocity=self.reality["w_component"][0],)
+        if np.isnan(self.reality["u_component"][0]):
+            logger.warning("U component velocity is NaN, assuming zero velocity for this component")
+            u_velocity = 0.0
+        else:
+            u_velocity = self.reality["u_component"][0]
+
+        if np.isnan(self.reality["v_component"][0]):
+            logger.warning("V component velocity is NaN, assuming zero velocity for this component")
+            v_velocity = 0.0
+        else:
+            v_velocity = self.reality["v_component"][0]
+
+        if np.isnan(self.reality["w_component"][0]):
+            logger.warning("W component velocity is NaN, assuming zero velocity for this component")
+            w_velocity = 0.0
+        else:
+            w_velocity = self.reality["w_component"][0]
+
+        vector = Vector(u_velocity=u_velocity,
+                        v_velocity=v_velocity,
+                        w_velocity=w_velocity,)
         return vector
 
 @dataclass
