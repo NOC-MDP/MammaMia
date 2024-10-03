@@ -7,8 +7,8 @@ sources:
     driver: zarr
     args:
         urlpath:
-          - 's3://mamma-mia/eORCA12/2019.zarr'
-          - 's3://mamma-mia/eORCA12/2020.zarr'
+          - 's3://mamma-mia/eORCA12_c/2019.zarr'
+          - 's3://mamma-mia/eORCA12_c/2020.zarr'
         concat_dim: time_counter
         combine: nested
         consolidated: False

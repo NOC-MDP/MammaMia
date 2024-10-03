@@ -183,4 +183,53 @@ class Campaign:
             logger.info(f"exporting {mission.attrs['name']}")
             zarr.copy_all(source=mission,dest=camp[mission.attrs['name']])
             logger.success(f"successfully exported {mission.attrs['name']}")
+
+        dim_map = {
+            "mission_1/reality/nitrate": ['time'],
+            "mission_1/reality/phosphate": ['time'],
+            "mission_1/reality/pressure": ['time'],
+            "mission_1/reality/salinity": ['time'],
+            "mission_1/reality/silicate": ['time'],
+            "mission_1/reality/temperature": ['time'],
+            "mission_1/trajectory/datetimes": ['time'],
+            "mission_1/trajectory/depths": ['time'],
+            "mission_1/trajectory/latitudes": ['time'],
+            "mission_1/trajectory/longitudes": ['time'],
+            "mission_1/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/no3": ['time', 'depth','latitude','longitude'],
+            "mission_1/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/po4": ['time', 'depth', 'latitude', 'longitude'],
+            "mission_1/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/si": ['time', 'depth', 'latitude', 'longitude'],
+            "mission_1/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/so": ['time', 'depth', 'latitude', 'longitude'],
+            "mission_1/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/thetao": ['time', 'depth', 'latitude', 'longitude'],
+            "mission_1/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
+            "mission_1/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
+        }
+        self.add_array_dimensions(group=camp,dim_map=dim_map)
+
+        logger.info(f"consolidating metadata for {export_path}")
+        zarr.consolidate_metadata(export_path)
         logger.success(f"successfully exported {self.name}")
+
+
+    def add_array_dimensions(self,group, dim_map, path=""):
+        """
+        Recursively add _ARRAY_DIMENSIONS attribute to all arrays in a Zarr group, including nested groups.
+
+        Parameters:
+        group (zarr.Group): The root Zarr group to start with.
+        dim_map (dict): A dictionary mapping array paths to their corresponding dimension names.
+        path (str): The current path in the group hierarchy (used to track nested groups).
+        """
+        for name, item in group.items():
+            # Construct the full path by appending the current item name
+            full_path = f"{path}/{name}" if path else name
+
+            # If the item is a group, recurse into it
+            if isinstance(item, zarr.Group):
+                self.add_array_dimensions(item, dim_map, full_path)
+            # If the item is an array, add the _ARRAY_DIMENSIONS attribute
+            elif isinstance(item, zarr.Array):
+                if full_path in dim_map:
+                    item.attrs["_ARRAY_DIMENSIONS"] = dim_map[full_path]
+                    print(f"Added _ARRAY_DIMENSIONS to {full_path}: {dim_map[full_path]}")
+                else:
+                    print(f"No dimension information found for {full_path}")
