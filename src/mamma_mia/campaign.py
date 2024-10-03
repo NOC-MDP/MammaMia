@@ -182,29 +182,30 @@ class Campaign:
             camp.create_group(mission.attrs['name'])
             logger.info(f"exporting {mission.attrs['name']}")
             zarr.copy_all(source=mission,dest=camp[mission.attrs['name']])
+
+
+            # TODO need to dynamically build this rather than hardcoding it.
+            dim_map = {
+                f"{mission.attrs['name']}/reality/nitrate": ['time'],
+                f"{mission.attrs['name']}/reality/phosphate": ['time'],
+                f"{mission.attrs['name']}/reality/pressure": ['time'],
+                f"{mission.attrs['name']}/reality/salinity": ['time'],
+                f"{mission.attrs['name']}/reality/silicate": ['time'],
+                f"{mission.attrs['name']}/reality/temperature": ['time'],
+                f"{mission.attrs['name']}/trajectory/datetimes": ['time'],
+                f"{mission.attrs['name']}/trajectory/depths": ['time'],
+                f"{mission.attrs['name']}/trajectory/latitudes": ['time'],
+                f"{mission.attrs['name']}/trajectory/longitudes": ['time'],
+                f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/no3": ['time', 'depth','latitude','longitude'],
+                f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/po4": ['time', 'depth', 'latitude', 'longitude'],
+                f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/si": ['time', 'depth', 'latitude', 'longitude'],
+                f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/so": ['time', 'depth', 'latitude', 'longitude'],
+                f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/thetao": ['time', 'depth', 'latitude', 'longitude'],
+                f"{mission.attrs['name']}/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
+                f"{mission.attrs['name']}/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
+            }
+            self.add_array_dimensions(group=camp,dim_map=dim_map)
             logger.success(f"successfully exported {mission.attrs['name']}")
-
-        dim_map = {
-            "mission_1/reality/nitrate": ['time'],
-            "mission_1/reality/phosphate": ['time'],
-            "mission_1/reality/pressure": ['time'],
-            "mission_1/reality/salinity": ['time'],
-            "mission_1/reality/silicate": ['time'],
-            "mission_1/reality/temperature": ['time'],
-            "mission_1/trajectory/datetimes": ['time'],
-            "mission_1/trajectory/depths": ['time'],
-            "mission_1/trajectory/latitudes": ['time'],
-            "mission_1/trajectory/longitudes": ['time'],
-            "mission_1/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/no3": ['time', 'depth','latitude','longitude'],
-            "mission_1/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/po4": ['time', 'depth', 'latitude', 'longitude'],
-            "mission_1/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/si": ['time', 'depth', 'latitude', 'longitude'],
-            "mission_1/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/so": ['time', 'depth', 'latitude', 'longitude'],
-            "mission_1/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/thetao": ['time', 'depth', 'latitude', 'longitude'],
-            "mission_1/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
-            "mission_1/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
-        }
-        self.add_array_dimensions(group=camp,dim_map=dim_map)
-
         logger.info(f"consolidating metadata for {export_path}")
         zarr.consolidate_metadata(export_path)
         logger.success(f"successfully exported {self.name}")
@@ -230,6 +231,6 @@ class Campaign:
             elif isinstance(item, zarr.Array):
                 if full_path in dim_map:
                     item.attrs["_ARRAY_DIMENSIONS"] = dim_map[full_path]
-                    print(f"Added _ARRAY_DIMENSIONS to {full_path}: {dim_map[full_path]}")
+                    logger.info(f"Added _ARRAY_DIMENSIONS to {full_path}: {dim_map[full_path]}")
                 else:
-                    print(f"No dimension information found for {full_path}")
+                    logger.warning(f"No dimension information found for {full_path}")
