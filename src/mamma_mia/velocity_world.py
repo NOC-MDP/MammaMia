@@ -12,6 +12,19 @@ from mamma_mia.interpolator import Interpolators
 
 @dataclass(frozen=True)
 class Extent:
+    """
+    Immutable extent object, used to subset a model data source and download only what is needed for velocity interpolation
+
+    Args:
+        max_lat: maximum latitude required
+        min_lat: minimum latitude required
+        max_lng: maximum longitude required
+        min_lng: minimum longitude required
+        max_depth: maximum depth required
+        start_dt: start datetime in format "2023-01-01T00:00:00Z"
+        end_dt: end datetime in format "2023-01-01T00:00:00Z"
+
+    """
     max_lat: float
     min_lat: float
     max_lng: float
@@ -29,6 +42,9 @@ class Extent:
 
 @dataclass(frozen=True)
 class Point:
+    """
+    Immutable point object
+    """
     latitude: float
     longitude: float
     depth: float
@@ -40,13 +56,28 @@ class Point:
 
 @dataclass(frozen=True)
 class Vector:
+    """
+    Immutable vector object, contains U, V and W components of velocity at a single point
+    """
     u_velocity: float
     v_velocity: float
     w_velocity: float
 
 @dataclass
 class VelocityWorld(zarr.Group):
+    """
+    An velocity world zarr group, based on a mamma mia world class that contains a subset of velocity data ready for interpolation onto points
 
+    Args:
+        extent: Extent object
+        store: Zarr store to store object in, default: memory store
+        overwrite: if store exists overwrite, default: False
+        excess_space: increase in spatial extent of subset over extent provided, default 0.5 degrees
+        excess_depth: increase in depth of subset over extent provided, default 100 meters
+        msm_priority: priority value of MSM sources (higher has more priority) default = 2
+        cmems_priority: priority value of CMEMS sources (higher has more priority) default = 1
+
+    """
     def __init__(self,
                  extent: Extent,
                  store=None,
@@ -115,6 +146,17 @@ class VelocityWorld(zarr.Group):
         self.world.attrs.update({"zarr_stores": zarr_stores})
 
     def get_vector(self,point:Point,interpolator:Interpolators) -> Vector:
+        """
+        Interpolates a point object using the interpolators and returns a vector object containing the interpolated data
+
+        Args:
+            point: Point object
+            interpolator: Interpolators object
+
+        Returns:
+            Vector object containing the interpolated velocity components
+
+        """
         location = {
             "longitude": np.array([point.longitude],dtype=np.float64),
             "latitude": np.array([point.latitude],dtype=np.float64),
@@ -152,6 +194,14 @@ class VelocityWorld(zarr.Group):
 
 @dataclass
 class VelocityReality:
+    """
+    Velocity reality object, this contains the world, the interpolators and the extent required to generate interpolated
+    velocity components
+
+    Args:
+        extent: Extent object
+
+    """
     extent: InitVar[Extent]
     velocity_world: VelocityWorld = field(init=False)
     interpolators: Interpolators = field(init=False)
@@ -162,4 +212,14 @@ class VelocityReality:
         self.interpolators.build(worlds=self.velocity_world["world"])
 
     def teleport(self, point: Point) -> Vector:
+        """
+        Teleports (interpolates) the point object using the generated interpolators and returns a vector object
+        containing the interpolated velocity components
+
+        Args:
+            point: Point object
+
+        Returns:
+            Vector: Vector object
+        """
         return self.velocity_world.get_vector(point=point, interpolator=self.interpolators)
