@@ -34,7 +34,7 @@ class Cats:
     cmems_cat: dict = field(init=False)
     msm_cat: intake.Catalog = field(init=False)
     search : InitVar[str] = "Global"
-    cat_path: InitVar[str] = 'catalog.yml' #"https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml"
+    cat_path: InitVar[str] = "https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml"
     overwrite: bool = False
     # TODO need some kind of refresh option that will delete caches of downloaded data. (user enabled and probably if data is older than x?)
     def __post_init__(self, search,cat_path ):
