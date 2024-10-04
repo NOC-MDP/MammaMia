@@ -3,7 +3,7 @@ from datetime import datetime,timezone
 import matplotlib.pyplot as plt
 
 # Load the catalog
-catalog = intake.open_catalog('/sandbox/catalog.yml')
+catalog = intake.open_catalog('catalog.yml')
 
 # Define your search criteria
 search_bbox = [-50, -30, 50, 30]  # A region with longitude/latitude bounds

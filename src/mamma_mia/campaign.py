@@ -13,7 +13,6 @@ import zarr
 from os import sep
 import sys
 
-
 @dataclass
 class Campaign:
     """
@@ -178,84 +177,15 @@ class Campaign:
         camp.attrs['uuid'] = str(self.uuid)
         logger.success(f"zarr group {self.name} successfully created")
 
-        # TODO need to figure out how to dynamically set the dimensions in the mapping attribute as these could change
-        # Also ideally need to do the other variables in the world datasets e.g. time, depth etc but these are 1D so need
-        # handling in some way
-        dim_map = {}
         for key1, mission in self.missions.items():
-            for k2,v2 in mission.reality.items():
-                dim_map[f"{mission.attrs['name']}/reality/{k2}"] = ['time']
-            for k3,v3 in mission.trajectory.items():
-                dim_map[f"{mission.attrs['name']}/trajectory/{k3}"] = ['time']
-            for k4,v4 in mission.world.items():
-                split_key = k4.split('_')
-                for k5,v5 in v4.items():
-                    if split_key[0] == "cmems":
-                        if [k5] in cmems_alias.values():
-                            dim_map[f"{mission.attrs['name']}/world/{k4}/{k5}"] = ['time','depth','latitude','longitude']
-                    elif split_key[0] == "msm":
-                        msm_metadata = self.catalog.msm_cat[k4].describe()['metadata']
-                        msm_alias = msm_metadata.get('aliases', [])
-                        if k5 in msm_alias.keys():
-                            dim_map[f"{mission.attrs['name']}/world/{k4}/{k5}"] = ['time_counter','deptht','latitude','longitude']
-                    else:
-                        logger.error(f"unknown model source key {k5}")
-                        raise UnknownSourceKey
-
-            # example dim map that needs to generated
-            # dim_map = {
-            #     f"{mission.attrs['name']}/reality/nitrate": ['time'],
-            #     f"{mission.attrs['name']}/reality/phosphate": ['time'],
-            #     f"{mission.attrs['name']}/reality/pressure": ['time'],
-            #     f"{mission.attrs['name']}/reality/salinity": ['time'],
-            #     f"{mission.attrs['name']}/reality/silicate": ['time'],
-            #     f"{mission.attrs['name']}/reality/temperature": ['time'],
-            #     f"{mission.attrs['name']}/trajectory/datetimes": ['time'],
-            #     f"{mission.attrs['name']}/trajectory/depths": ['time'],
-            #     f"{mission.attrs['name']}/trajectory/latitudes": ['time'],
-            #     f"{mission.attrs['name']}/trajectory/longitudes": ['time'],
-            #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/no3": ['time', 'depth','latitude','longitude'],
-            #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/po4": ['time', 'depth', 'latitude', 'longitude'],
-            #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/si": ['time', 'depth', 'latitude', 'longitude'],
-            #     f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/so": ['time', 'depth', 'latitude', 'longitude'],
-            #     f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/thetao": ['time', 'depth', 'latitude', 'longitude'],
-            #     f"{mission.attrs['name']}/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
-            #     f"{mission.attrs['name']}/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
-            # }
-        for mission in self.missions.values():
+            mission.create_dim_map(cmems_alias=cmems_alias,msm_cat=self.catalog.msm_cat)
             logger.info(f"creating zarr group for mission {mission.attrs['name']}")
             camp.create_group(mission.attrs['name'])
             logger.info(f"exporting {mission.attrs['name']}")
             zarr.copy_all(source=mission,dest=camp[mission.attrs['name']])
-            if dim_map is None:
-                raise Exception("dimension mapping attribute has not been generated")
-            self.add_array_dimensions(group=camp,dim_map=dim_map)
+            mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
             logger.success(f"successfully exported {mission.attrs['name']}")
         logger.info(f"consolidating metadata for {export_path}")
         zarr.consolidate_metadata(export_path)
         logger.success(f"successfully exported {self.name}")
 
-
-    def add_array_dimensions(self,group, dim_map, path=""):
-        """
-        Recursively add _ARRAY_DIMENSIONS attribute to all arrays in a Zarr group, including nested groups.
-
-        Parameters:
-        group (zarr.Group): The root Zarr group to start with.
-        dim_map (dict): A dictionary mapping array paths to their corresponding dimension names.
-        path (str): The current path in the group hierarchy (used to track nested groups).
-        """
-        for name, item in group.items():
-            # Construct the full path by appending the current item name
-            full_path = f"{path}/{name}" if path else name
-
-            # If the item is a group, recurse into it
-            if isinstance(item, zarr.Group):
-                self.add_array_dimensions(item, dim_map, full_path)
-            # If the item is an array, add the _ARRAY_DIMENSIONS attribute
-            elif isinstance(item, zarr.Array):
-                if full_path in dim_map:
-                    item.attrs["_ARRAY_DIMENSIONS"] = dim_map[full_path]
-                    logger.info(f"Added _ARRAY_DIMENSIONS to {full_path}: {dim_map[full_path]}")
-                else:
-                    logger.warning(f"No dimension information found for {full_path}")

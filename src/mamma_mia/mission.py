@@ -10,6 +10,7 @@ from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.find_worlds import find_worlds
 from mamma_mia.get_worlds import get_worlds
+from mamma_mia.exceptions import UnknownSourceKey
 
 @dataclass
 class Mission(zarr.Group):
@@ -109,6 +110,7 @@ class Mission(zarr.Group):
         worlds.attrs["interpolator_priorities"] = {}
         worlds.attrs["matched_worlds"] = {}
         worlds.attrs["zarr_stores"] = {}
+        worlds.attrs["dim_map"] = {}
 
     def build_mission(self,cat:Cats) -> ():
         """
@@ -237,7 +239,7 @@ class Mission(zarr.Group):
         fig.update_layout(title=title, scene=scene)
         fig.show()
 
-    def export(self, store: zarr.DirectoryStore = None) -> ():
+    def export(self, cmems_alias, msm_cat, store: zarr.DirectoryStore = None) -> ():
         """
         Exports mission to a zarr directory store
         Args:
@@ -252,6 +254,9 @@ class Mission(zarr.Group):
             export_store = store
         logger.info(f"exporting mission {self.attrs['name']} to {export_store}")
         zarr.copy_store(self.store, export_store)
+        self.create_dim_map(cmems_alias=cmems_alias,msm_cat=msm_cat)
+        self.add_array_dimensions(group=self,dim_map=self.world.attrs['dim_map'])
+        zarr.consolidate_metadata(export_store)
         logger.success(f"successfully exported {self.attrs['name']}")
 
     # From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
@@ -268,7 +273,74 @@ class Mission(zarr.Group):
         decimal_format = degrees + minutes / 60.
         return decimal_format * sign
 
+    def create_dim_map(self,cmems_alias,msm_cat):
+        # example dim map that needs to generated
+        # dim_map = {
+        #     f"{mission.attrs['name']}/reality/nitrate": ['time'],
+        #     f"{mission.attrs['name']}/reality/phosphate": ['time'],
+        #     f"{mission.attrs['name']}/reality/pressure": ['time'],
+        #     f"{mission.attrs['name']}/reality/salinity": ['time'],
+        #     f"{mission.attrs['name']}/reality/silicate": ['time'],
+        #     f"{mission.attrs['name']}/reality/temperature": ['time'],
+        #     f"{mission.attrs['name']}/trajectory/datetimes": ['time'],
+        #     f"{mission.attrs['name']}/trajectory/depths": ['time'],
+        #     f"{mission.attrs['name']}/trajectory/latitudes": ['time'],
+        #     f"{mission.attrs['name']}/trajectory/longitudes": ['time'],
+        #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/no3": ['time', 'depth','latitude','longitude'],
+        #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/po4": ['time', 'depth', 'latitude', 'longitude'],
+        #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/si": ['time', 'depth', 'latitude', 'longitude'],
+        #     f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/so": ['time', 'depth', 'latitude', 'longitude'],
+        #     f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/thetao": ['time', 'depth', 'latitude', 'longitude'],
+        #     f"{mission.attrs['name']}/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
+        #     f"{mission.attrs['name']}/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
+        # }
+        # TODO need to figure out how to dynamically set the dimensions in the mapping attribute as these could change
+        # TODO Also ideally need to do the other variables in the world datasets e.g. time, depth etc
+        dim_map = {}
+        for k2, v2 in self.reality.items():
+            dim_map[f"{self.attrs['name']}/reality/{k2}"] = ['time']
+        for k3, v3 in self.trajectory.items():
+            dim_map[f"{self.attrs['name']}/trajectory/{k3}"] = ['time']
+        for k4, v4 in self.world.items():
+            split_key = k4.split('_')
+            for k5, v5 in v4.items():
+                if split_key[0] == "cmems":
+                    if [k5] in cmems_alias.values():
+                        dim_map[f"{self.attrs['name']}/world/{k4}/{k5}"] = ['time', 'depth', 'latitude', 'longitude']
+                elif split_key[0] == "msm":
+                    msm_metadata = msm_cat[k4].describe()['metadata']
+                    msm_alias = msm_metadata.get('aliases', [])
+                    if k5 in msm_alias.keys():
+                        dim_map[f"{self.attrs['name']}/world/{k4}/{k5}"] = ['time_counter', 'deptht', 'latitude','longitude']
+                else:
+                    logger.error(f"unknown model source key {k5}")
+                    raise UnknownSourceKey
+        self.world.attrs.update({"dim_map": dim_map})
 
+
+    def add_array_dimensions(self,group, dim_map, path=""):
+        """
+        Recursively add _ARRAY_DIMENSIONS attribute to all arrays in a Zarr group, including nested groups.
+
+        Parameters:
+        group (zarr.Group): The root Zarr group to start with.
+        dim_map (dict): A dictionary mapping array paths to their corresponding dimension names.
+        path (str): The current path in the group hierarchy (used to track nested groups).
+        """
+        for name, item in group.items():
+            # Construct the full path by appending the current item name
+            full_path = f"{path}/{name}" if path else name
+
+            # If the item is a group, recurse into it
+            if isinstance(item, zarr.Group):
+                self.add_array_dimensions(item, dim_map, full_path)
+            # If the item is an array, add the _ARRAY_DIMENSIONS attribute
+            elif isinstance(item, zarr.Array):
+                if full_path in dim_map:
+                    item.attrs["_ARRAY_DIMENSIONS"] = dim_map[full_path]
+                    logger.info(f"Added _ARRAY_DIMENSIONS to {full_path}: {dim_map[full_path]}")
+                else:
+                    logger.warning(f"No dimension information found for {full_path}")
 
 
 
