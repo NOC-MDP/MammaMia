@@ -1,11 +1,11 @@
 import json
 
-from mamma_mia.catalog import Cats
+from mamma_mia.catalog import Cats, cmems_alias
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.auv import AUV,Slocum,ALR1500
 from mamma_mia.sensors import CTD,BIO,ADCP
-from mamma_mia.exceptions import AUVExists,UnknownAUV,UnknownSensor,MissionExists
+from mamma_mia.exceptions import AUVExists, UnknownAUV, UnknownSensor, MissionExists, UnknownSourceKey
 from dataclasses import dataclass,field,asdict
 import uuid
 from loguru import logger
@@ -177,32 +177,51 @@ class Campaign:
         camp.attrs['description'] = self.description
         camp.attrs['uuid'] = str(self.uuid)
         logger.success(f"zarr group {self.name} successfully created")
-        dim_map = None
+
+        # TODO need to figure out how to dynamically set the dimensions in the mapping attribute as these could change
+        # Also ideally need to do the other variables in the world datasets e.g. time, depth etc but these are 1D so need
+        # handling in some way
+        dim_map = {}
         for key1, mission in self.missions.items():
-            # TODO need to dynamically build this rather than hardcoding it.
-            # TODO do this by using mission[key].keys()
-            print(list[mission.reality.keys()])
-            print(list[mission.trajectory.keys()])
-            print(list[mission.world.keys()])
-            dim_map = {
-                f"{mission.attrs['name']}/reality/nitrate": ['time'],
-                f"{mission.attrs['name']}/reality/phosphate": ['time'],
-                f"{mission.attrs['name']}/reality/pressure": ['time'],
-                f"{mission.attrs['name']}/reality/salinity": ['time'],
-                f"{mission.attrs['name']}/reality/silicate": ['time'],
-                f"{mission.attrs['name']}/reality/temperature": ['time'],
-                f"{mission.attrs['name']}/trajectory/datetimes": ['time'],
-                f"{mission.attrs['name']}/trajectory/depths": ['time'],
-                f"{mission.attrs['name']}/trajectory/latitudes": ['time'],
-                f"{mission.attrs['name']}/trajectory/longitudes": ['time'],
-                f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/no3": ['time', 'depth','latitude','longitude'],
-                f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/po4": ['time', 'depth', 'latitude', 'longitude'],
-                f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/si": ['time', 'depth', 'latitude', 'longitude'],
-                f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/so": ['time', 'depth', 'latitude', 'longitude'],
-                f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/thetao": ['time', 'depth', 'latitude', 'longitude'],
-                f"{mission.attrs['name']}/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
-                f"{mission.attrs['name']}/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
-            }
+            for k2,v2 in mission.reality.items():
+                dim_map[f"{mission.attrs['name']}/reality/{k2}"] = ['time']
+            for k3,v3 in mission.trajectory.items():
+                dim_map[f"{mission.attrs['name']}/trajectory/{k3}"] = ['time']
+            for k4,v4 in mission.world.items():
+                split_key = k4.split('_')
+                for k5,v5 in v4.items():
+                    if split_key[0] == "cmems":
+                        if [k5] in cmems_alias.values():
+                            dim_map[f"{mission.attrs['name']}/world/{k4}/{k5}"] = ['time','depth','latitude','longitude']
+                    elif split_key[0] == "msm":
+                        msm_metadata = self.catalog.msm_cat[k4].describe()['metadata']
+                        msm_alias = msm_metadata.get('aliases', [])
+                        if k5 in msm_alias.keys():
+                            dim_map[f"{mission.attrs['name']}/world/{k4}/{k5}"] = ['time_counter','deptht','latitude','longitude']
+                    else:
+                        logger.error(f"unknown model source key {k5}")
+                        raise UnknownSourceKey
+
+            # example dim map that needs to generated
+            # dim_map = {
+            #     f"{mission.attrs['name']}/reality/nitrate": ['time'],
+            #     f"{mission.attrs['name']}/reality/phosphate": ['time'],
+            #     f"{mission.attrs['name']}/reality/pressure": ['time'],
+            #     f"{mission.attrs['name']}/reality/salinity": ['time'],
+            #     f"{mission.attrs['name']}/reality/silicate": ['time'],
+            #     f"{mission.attrs['name']}/reality/temperature": ['time'],
+            #     f"{mission.attrs['name']}/trajectory/datetimes": ['time'],
+            #     f"{mission.attrs['name']}/trajectory/depths": ['time'],
+            #     f"{mission.attrs['name']}/trajectory/latitudes": ['time'],
+            #     f"{mission.attrs['name']}/trajectory/longitudes": ['time'],
+            #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/no3": ['time', 'depth','latitude','longitude'],
+            #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/po4": ['time', 'depth', 'latitude', 'longitude'],
+            #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/si": ['time', 'depth', 'latitude', 'longitude'],
+            #     f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/so": ['time', 'depth', 'latitude', 'longitude'],
+            #     f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/thetao": ['time', 'depth', 'latitude', 'longitude'],
+            #     f"{mission.attrs['name']}/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
+            #     f"{mission.attrs['name']}/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
+            # }
         for mission in self.missions.values():
             logger.info(f"creating zarr group for mission {mission.attrs['name']}")
             camp.create_group(mission.attrs['name'])
