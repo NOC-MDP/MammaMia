@@ -7,13 +7,13 @@ extent = Extent(max_lat=58.0,
                 min_lng=6.0,
                 max_lng=7.0,
                 max_depth=200,
-                start_dt="2019-01-01T00:00:00",
-                end_dt="2019-01-07T00:00:00"
+                start_dt="2023-01-01T00:00:00",
+                end_dt="2023-01-07T00:00:00"
                 )
 point = Point(latitude=57.1,
               longitude=6.4,
               depth=12.0,
-              dt="2019-01-03T00:00:00",
+              dt="2023-01-03T00:00:00",
 
 )
 VR = VelocityReality(extent=extent)

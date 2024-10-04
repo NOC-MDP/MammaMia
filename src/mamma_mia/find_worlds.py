@@ -137,6 +137,12 @@ def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :dict,extent:dict) -
                                 # make sure data is at least daily
                                 if step <= 86400000:
                                     logger.success(f"found a match in {dataset['dataset_id']} for {key}")
+                                    # TODO add support for multiple model types e.g. daily instantaneous, hourly mean etc
+                                    mod_type = dataset['dataset_id'].split("_")[-1]
+                                    if mod_type != "P1D-m":
+                                        logger.warning("Only Daily means are currently supported in CMEMS sources")
+                                        logger.info(f"{dataset['dataset_id']} will not be added as a matched world")
+                                        continue
                                     if dataset["dataset_id"] in matched_worlds:
                                         logger.info(f"updating {dataset['dataset_id']} with key {key}")
                                         matched_worlds[dataset["dataset_id"]][key] = variables[m]["short_name"]
