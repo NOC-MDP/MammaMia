@@ -273,7 +273,17 @@ class Mission(zarr.Group):
         decimal_format = degrees + minutes / 60.
         return decimal_format * sign
 
-    def create_dim_map(self,cmems_alias,msm_cat):
+    def create_dim_map(self,cmems_alias,msm_cat) -> ():
+        """
+        Creates a dimension mapping dictionary and updates the relevant attribute in the world group. This attribute is
+        required to enable Xarray to read the zarr groups of the campaign object.
+        Args:
+            cmems_alias: dictionary of cmems aliases
+            msm_cat: msm intake catalog
+
+        Returns:
+            void: updates the dim_map attribute of the world zarr group
+        """
         # example dim map that needs to generated
         # dim_map = {
         #     f"{mission.attrs['name']}/reality/nitrate": ['time'],
@@ -318,14 +328,17 @@ class Mission(zarr.Group):
         self.world.attrs.update({"dim_map": dim_map})
 
 
-    def add_array_dimensions(self,group, dim_map, path=""):
+    def add_array_dimensions(self,group, dim_map, path="") -> ():
         """
         Recursively add _ARRAY_DIMENSIONS attribute to all arrays in a Zarr group, including nested groups.
 
-        Parameters:
-        group (zarr.Group): The root Zarr group to start with.
-        dim_map (dict): A dictionary mapping array paths to their corresponding dimension names.
-        path (str): The current path in the group hierarchy (used to track nested groups).
+        Args:
+            group (zarr.Group): The root Zarr group to start with.
+            dim_map (dict): A dictionary mapping array paths to their corresponding dimension names.
+            path (str): The current path in the group hierarchy (used to track nested groups).
+
+        Returns:
+            void: updates the _ARRAY_DIMENSIONS attribute of the world zarr group required by xarray
         """
         for name, item in group.items():
             # Construct the full path by appending the current item name
