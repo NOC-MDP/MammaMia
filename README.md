@@ -74,6 +74,11 @@ $ pytest campaign_test.py
 This will execute the test suite and display the results. All tests should pass.(WIP!)
 
 ## Usage
+Mamma mia is a library that can be implemented in a number of different ways. It is anticipated that users will primarily interact with 
+the campaign object adding missions and AUV's to it before running and visualising the output. There is an example campaign implementation
+demostrated in test_campaign.py
+
+## Architecture
 Mamma mia has the following concepts:
 
 - AUV (virtual glider)
