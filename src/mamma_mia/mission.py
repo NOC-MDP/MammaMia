@@ -154,28 +154,42 @@ class Mission(zarr.Group):
 
         logger.success(f"{self.attrs['name']} flown successfully")
 
-    def show_reality(self, parameter:str,colour_scale:str="Jet"):
+    def show_reality(self):
         """
-        Created an interactive plot of the auv trajectory with the given parameters data mapped onto it using the
+        Creates an interactive plot of the AUV trajectory with the given parameters data mapped onto it using the
         specified colour map.
-        Args:
-            parameter: parameter or sensor to visualise
-            colour_scale: (optional) colour scale to use when plotting data onto trajectory
 
         Returns:
-            interactive plotly figure that opens in a web browser.
-
+            Interactive plotly figure that opens in a web browser.
         """
-        logger.info(f"showing reality for parameter {parameter}")
+        # Example parameters for the dropdown
+        # Example parameters and their expected value ranges (cmin and cmax)
+        parameters = {
+            "temperature": {"cmin": 10, "cmax": 26},
+            "salinity": {"cmin": 34, "cmax": 36},
+            "phosphate": {"cmin": 0, "cmax": 1},
+            "silicate": {"cmin": 0, "cmax": 6}
+        }
+
+        # List of available color scales for the user to choose from
+        colour_scales = ["Jet","Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
+
+        # Initial setup: first parameter and color scale
+        initial_parameter = "temperature"
+        initial_colour_scale = "Jet"
+
         marker = {
             "size": 2,
-            "color": self.reality[parameter],
-            "colorscale": colour_scale,
+            "color": np.array(self.reality[initial_parameter]),  # Ensuring it's serializable
+            "colorscale": initial_colour_scale,
+            "cmin": parameters[initial_parameter]["cmin"],  # Set the minimum value for the color scale
+            "cmax": parameters[initial_parameter]["cmax"],  # Set the maximum value for the color scale
             "opacity": 0.8,
             "colorbar": {"thickness": 40}
         }
+
         title = {
-            "text": f"Glider Reality: {parameter}",
+            "text": f"Glider Reality: {initial_parameter}",
             "font": {"size": 30},
             "automargin": True,
             "yref": "paper"
@@ -186,20 +200,76 @@ class Mission(zarr.Group):
             "yaxis_title": "latitude",
             "zaxis_title": "depth",
         }
+
+        # Create the initial figure
         fig = go.Figure(data=[
-            go.Scatter3d(x=self.trajectory["longitudes"],
-                         y=self.trajectory["latitudes"],
-                         z=self.trajectory["depths"],
-                         mode='markers',
-                         marker=marker),
-            # TODO implement bathy surface plot
-            #go.Surface()
+            go.Scatter3d(
+                x=self.trajectory["longitudes"],
+                y=self.trajectory["latitudes"],
+                z=self.trajectory["depths"],
+                mode='markers',
+                marker=marker
+            )
         ])
 
+        # Update the scene and layout
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
+
+        # Define the dropdown for parameter selection
+        parameter_dropdown = [
+            {
+                "args": [
+                    {"marker.color": [np.array(self.reality[parameter])],  # Update the color for the new parameter
+                     "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
+                     "marker.cmax": parameters[parameter]["cmax"],  # Set cmax for the new parameter
+                     "marker.colorscale": initial_colour_scale},  # Keep the initial color scale (can be updated below)
+                    {"title.text": f"Glider Reality: {parameter}"}  # Update the title to reflect the new parameter
+                ],
+                "label": parameter,
+                "method": "update"
+            }
+            for parameter in parameters
+        ]
+
+        # Define the dropdown for color scale selection
+        color_scale_dropdown = [
+            {
+                "args": [
+                    {"marker.colorscale": colour_scale}  # Update the color scale for the current parameter
+                ],
+                "label": colour_scale,
+                "method": "restyle"
+            }
+            for colour_scale in colour_scales
+        ]
+
+        # Add both dropdowns to the layout
+        fig.update_layout(
+            updatemenus=[
+                {
+                    "buttons": parameter_dropdown,
+                    "direction": "down",
+                    "showactive": True,
+                    "x": 0.17,  # Adjust position for the parameter dropdown
+                    "xanchor": "left",
+                    "y": 1.15,
+                    "yanchor": "top"
+                },
+                {
+                    "buttons": color_scale_dropdown,
+                    "direction": "down",
+                    "showactive": True,
+                    "x": 0.45,  # Adjust position for the color scale dropdown
+                    "xanchor": "left",
+                    "y": 1.15,
+                    "yanchor": "top"
+                }
+            ]
+        )
+
         fig.show()
-        logger.success(f"successfully plotted reality for parameter {parameter}")
+        logger.success(f"successfully plotted reality")
 
     def plot_trajectory(self,colour_scale:str='Viridis',):
         """

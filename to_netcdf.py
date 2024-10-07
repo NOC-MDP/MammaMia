@@ -1,6 +1,6 @@
 """
 Script to convert the zarr groups into netCDF files, note, the groups cannot be nested so converting campaign directly is
-not supported. E.g. trajectory, reality, of a specific mission can be convertd in this way. As can the different world nested groups.
+not supported. E.g. trajectory, reality, of a specific mission can be convertd in this way. As can the different world nested groups
 """
 
 import xarray as xr

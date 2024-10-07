@@ -23,10 +23,10 @@ campaign.build_missions()
 campaign.run()
 # # visualise the results
 # # colourmap options are here https://plotly.com/python/builtin-colorscales/
-campaign.missions["mission_1"].plot_trajectory()
-campaign.missions["mission_1"].show_reality(parameter="temperature")
-campaign.missions["mission_1"].show_reality(parameter="salinity",colour_scale="haline")
-campaign.missions["mission_1"].show_reality(parameter="phosphate",colour_scale="algae")
+# campaign.missions["mission_1"].plot_trajectory()
+campaign.missions["mission_1"].show_reality()
+# campaign.missions["mission_1"].show_reality(parameter="salinity",colour_scale="haline")
+# campaign.missions["mission_1"].show_reality(parameter="phosphate",colour_scale="algae")
 # export the campaign
 campaign.export()
 
