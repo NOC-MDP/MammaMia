@@ -136,7 +136,7 @@ This is the parent/main class for Mamma mia in that it holds all the other class
 This is the class a MM user is expected to interact with, it holds all the missions, interpolators and auv's required for a 
 dpeloyment or campaign.
 
-### Using the glider simulator
+## Using the glider simulator
 The simulator has been modifed so it works with the example script in its README. A new mission profile has been created
 called mm1, this will run a glider simulation that results in the trajectory above. (6 hours no surfacing a single waypoint)
 
@@ -152,11 +152,7 @@ $ python example.py
 
 The output "comet-mm1.nc" can then be copied into the MammaMia repository, where it should be recognised by the test.py script.
 
-### Using Mamma Mia
-There is a test_campaign.py script in the repository, this shows how an campaign can be created, have an auv added with a set of sensor
-arrays, then a mission. Before finally running the campaign and visualising the results.
-
-### Velocity Reality
+## Velocity Reality
 Mamma Mia also has the abilty to return interpolated velocity data at requested points, this is to provide environment data for the
 glider simulator as part of the trajectory creation. See test_vr.py for an example implementation.
 
