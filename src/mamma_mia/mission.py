@@ -164,6 +164,7 @@ class Mission(zarr.Group):
         """
         # Example parameters for the dropdown
         # Example parameters and their expected value ranges (cmin and cmax)
+        # TODO dynamically bulid this from AUV sensor array
         parameters = {
             "temperature": {"cmin": 10, "cmax": 26},
             "salinity": {"cmin": 34, "cmax": 36},
@@ -260,7 +261,7 @@ class Mission(zarr.Group):
                     "buttons": color_scale_dropdown,
                     "direction": "down",
                     "showactive": True,
-                    "x": 0.45,  # Adjust position for the color scale dropdown
+                    "x": 0.25,  # Adjust position for the color scale dropdown
                     "xanchor": "left",
                     "y": 1.15,
                     "yanchor": "top"
