@@ -166,7 +166,7 @@ class Mission(zarr.Group):
         # Example parameters and their expected value ranges (cmin and cmax)
         # TODO dynamically bulid this from AUV sensor array
         parameters = {
-            "temperature": {"cmin": 10, "cmax": 26},
+            "temperature": {"cmin": 10, "cmax": 25},
             "salinity": {"cmin": 34, "cmax": 36},
             "phosphate": {"cmin": 0, "cmax": 1},
             "silicate": {"cmin": 0, "cmax": 6}
@@ -216,7 +216,8 @@ class Mission(zarr.Group):
         # Update the scene and layout
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
-
+        # TODO fix the interaction between colour scales and parameters colour scale is not maintained when changing parameter
+        # TODO it will always deafult to Jet colourscale
         # Define the dropdown for parameter selection
         parameter_dropdown = [
             {
