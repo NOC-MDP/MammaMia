@@ -245,6 +245,14 @@ class Mission(zarr.Group):
             }
             for colour_scale in colour_scales
         ]
+        # Create text boxes for user to input cmin and cmax
+        fig.update_layout(
+            annotations=[
+                # Add labels for dropdowns
+                dict(text="Sensor:", x=0.05, y=1.2, showarrow=False, xref="paper", yref="paper", font=dict(size=14)),
+                dict(text="Color Scale:", x=0.05, y=1.15, showarrow=False, xref="paper", yref="paper",font=dict(size=14))
+            ]
+        )
 
         # Add both dropdowns to the layout
         fig.update_layout(
@@ -253,23 +261,22 @@ class Mission(zarr.Group):
                     "buttons": parameter_dropdown,
                     "direction": "down",
                     "showactive": True,
-                    "x": 0.17,  # Adjust position for the parameter dropdown
+                    "x": 0.10,  # Adjust position for the parameter dropdown
                     "xanchor": "left",
-                    "y": 1.15,
+                    "y": 1.20,
                     "yanchor": "top"
                 },
                 {
                     "buttons": color_scale_dropdown,
                     "direction": "down",
                     "showactive": True,
-                    "x": 0.25,  # Adjust position for the color scale dropdown
+                    "x": 0.10,  # Adjust position for the color scale dropdown
                     "xanchor": "left",
                     "y": 1.15,
                     "yanchor": "top"
                 }
             ]
         )
-
         fig.show()
         logger.success(f"successfully plotted reality")
 
