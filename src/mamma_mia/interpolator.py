@@ -8,6 +8,8 @@ import pyinterp
 import pyinterp.backends.xarray
 from loguru import logger
 import xesmf as xe
+import blosc
+
 from mamma_mia.exceptions import UnknownSourceKey
 
 
@@ -90,10 +92,12 @@ class Interpolators:
     def import_interp(self,key:str,source: str):
         if not os.path.isdir("interpolators"):
             return False
-        import_loc = f"interpolators/{source}_{key}.pkl"
+        import_loc = f"interpolators/{source}_{key}.dat"
         if os.path.exists(import_loc):
-            with open(import_loc, 'rb') as f:  # open a text file
-                self.interpolator[key] = pickle.load(f)
+            with open(import_loc, 'rb') as f:
+                compressed_pickle = f.read()
+            depressed_pickle = blosc.decompress(compressed_pickle)
+            self.interpolator[key] = pickle.loads(depressed_pickle)
             logger.info(f"imported interpolator for {key} from source {source}")
             return True
         else:
@@ -103,8 +107,10 @@ class Interpolators:
     def export_interp(self,key:str,source:str):
         if not os.path.isdir("interpolators"):
             os.mkdir("interpolators")
-        with open(f"interpolators/{source}_{key}.pkl", 'wb') as f:  # open a text file
-            pickle.dump(self.interpolator[key], f)
+        pickled_data = pickle.dumps(self.interpolator[key])
+        compressed_pickle = blosc.compress(pickled_data)
+        with open(f"interpolators/{source}_{key}.dat", 'wb') as f:
+            f.write(compressed_pickle)
         logger.info(f"exported interpolator {key} for source {source}")
 
     @staticmethod
