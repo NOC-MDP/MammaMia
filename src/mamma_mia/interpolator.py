@@ -35,14 +35,18 @@ class Interpolators:
             logger.info(f"building worlds for dataset {key}")
             # for every variable
             for var in worlds[key]:
-                logger.info(f"building world for variable {var}")
                 # for each item in matched dictionary
                 for k1, v1, in worlds.attrs["matched_worlds"][key].items():
                         # if variable names match (this is to ensure variable names are consistent)
                     if var == v1:
+                        logger.info(f"building world for variable {var}")
                         split_key = key.split("_")
                         if self.cache:
+                            logger.info(f"getting world for variable {var} for source {split_key[0]} from cache")
                             imported = self.import_interp(key=k1,source=split_key[0],mission=mission)
+                            if self.__check_priorities(key=k1, source=split_key[0], worlds=worlds):
+                                continue
+                            interpolator_priorities[k1] = worlds.attrs["catalog_priorities"][split_key[0]]
                         else:
                             imported = False
                         if not imported:
@@ -96,9 +100,9 @@ class Interpolators:
         logger.success("interpolators built successfully")
 
     def import_interp(self,key:str,source: str,mission:str):
-        if not os.path.isdir(f"interpolators/{mission}"):
+        if not os.path.isdir(f"interpolator_cache/{mission}"):
             return False
-        import_loc = f"interpolators/{mission}/{source}_{key}.dat"
+        import_loc = f"interpolator_cache/{mission}/{source}_{key}.dat"
         if os.path.exists(import_loc):
             with open(import_loc, 'rb') as f:
                 compressed_pickle = f.read()
@@ -111,11 +115,12 @@ class Interpolators:
             return False
 
     def export_interp(self,key:str,source:str,mission:str):
-        if not os.path.isdir(f"interpolators/{mission}"):
-            os.mkdir(f"interpolators/{mission}")
+        if not os.path.isdir(f"interpolator_cache/{mission}"):
+            os.mkdir(f"interpolator_cache")
+            os.mkdir(f"interpolator_cache/{mission}")
         pickled_data = pickle.dumps(self.interpolator[key])
         compressed_pickle = blosc.compress(pickled_data)
-        with open(f"interpolators/{mission}/{source}_{key}.dat", 'wb') as f:
+        with open(f"interpolator_cache/{mission}/{source}_{key}.dat", 'wb') as f:
             f.write(compressed_pickle)
         logger.info(f"exported interpolator {key} for source {source} for {mission}")
 
