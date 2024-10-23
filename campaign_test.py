@@ -1,6 +1,5 @@
 from mamma_mia import Campaign, Slocum, CTD, BIO
 
-
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
 campaign = Campaign(name="campaign_1",
@@ -17,6 +16,8 @@ campaign.add_mission(name="mission_1",
                      description="slocum glider Slocum_1 in the North Sea 2019",
                      auv="Slocum_1",
                      trajectory_path="comet-mm1.nc")
+# Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
+campaign.enable_interpolator_cache()
 # build missions (search datasets, download datasets, build interpolators etc)
 campaign.build_missions()
 # run/fly missions
@@ -25,8 +26,6 @@ campaign.run()
 # # colourmap options are here https://plotly.com/python/builtin-colorscales/
 # campaign.missions["mission_1"].plot_trajectory()
 campaign.missions["mission_1"].show_reality()
-# campaign.missions["mission_1"].show_reality(parameter="salinity",colour_scale="haline")
-# campaign.missions["mission_1"].show_reality(parameter="phosphate",colour_scale="algae")
 # export the campaign
 campaign.export()
 
