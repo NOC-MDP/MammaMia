@@ -16,8 +16,9 @@ from mamma_mia.exceptions import UnknownSourceKey
 @dataclass
 class Interpolators:
     interpolator: dict = field(default_factory=dict)
+    cache: bool = False
 
-    def build(self,worlds:zarr.Group) -> ():
+    def build(self,worlds:zarr.Group,mission:str) -> ():
         """
         Creates a 4D interpolator for each sensor that allows a world to be interpolated on to a trajectory
 
@@ -40,7 +41,10 @@ class Interpolators:
                         # if variable names match (this is to ensure variable names are consistent)
                     if var == v1:
                         split_key = key.split("_")
-                        imported = self.import_interp(k1,split_key[0])
+                        if self.cache:
+                            imported = self.import_interp(key=k1,source=split_key[0],mission=mission)
+                        else:
+                            imported = False
                         if not imported:
                             if split_key[0] == "msm":
                                 # if priority of any existing matching variable is lower then continue
@@ -70,7 +74,8 @@ class Interpolators:
                                 ds_regridded = ds_regridded.astype('float64')
                                 ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
                                 self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(ds_regridded[var], geodetic=True)
-                                self.export_interp(key=k1,source="msm")
+                                if self.cache:
+                                    self.export_interp(key=k1,source="msm",mission=mission)
                                 # create or update priorities of interpolator datasetsc
                                 interpolator_priorities[k1] = worlds.attrs["catalog_priorities"]["msm"]
                             elif split_key[0] == "cmems":
@@ -79,7 +84,8 @@ class Interpolators:
                                     continue
                                 world = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
                                 self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(world[var],geodetic=True)
-                                self.export_interp(key=k1,source="cmems")
+                                if self.cache:
+                                    self.export_interp(key=k1,source="cmems",mission=mission)
                                 interpolator_priorities[k1] = worlds.attrs["catalog_priorities"]["cmems"]
                             else:
                                 logger.error(f"unknown model source key {split_key[0]}")
@@ -89,29 +95,29 @@ class Interpolators:
         worlds.attrs.update({"interpolator_priorities": interpolator_priorities})
         logger.success("interpolators built successfully")
 
-    def import_interp(self,key:str,source: str):
-        if not os.path.isdir("interpolators"):
+    def import_interp(self,key:str,source: str,mission:str):
+        if not os.path.isdir(f"interpolators/{mission}"):
             return False
-        import_loc = f"interpolators/{source}_{key}.dat"
+        import_loc = f"interpolators/{mission}/{source}_{key}.dat"
         if os.path.exists(import_loc):
             with open(import_loc, 'rb') as f:
                 compressed_pickle = f.read()
             depressed_pickle = blosc.decompress(compressed_pickle)
             self.interpolator[key] = pickle.loads(depressed_pickle)
-            logger.info(f"imported interpolator for {key} from source {source}")
+            logger.info(f"imported interpolator for {key} from source {source} for {mission}")
             return True
         else:
-            logger.info(f"interpolator {key} not found for source {source}")
+            logger.info(f"interpolator {key} not found for source {source} for {mission}")
             return False
 
-    def export_interp(self,key:str,source:str):
-        if not os.path.isdir("interpolators"):
-            os.mkdir("interpolators")
+    def export_interp(self,key:str,source:str,mission:str):
+        if not os.path.isdir(f"interpolators/{mission}"):
+            os.mkdir(f"interpolators/{mission}")
         pickled_data = pickle.dumps(self.interpolator[key])
         compressed_pickle = blosc.compress(pickled_data)
-        with open(f"interpolators/{source}_{key}.dat", 'wb') as f:
+        with open(f"interpolators/{mission}/{source}_{key}.dat", 'wb') as f:
             f.write(compressed_pickle)
-        logger.info(f"exported interpolator {key} for source {source}")
+        logger.info(f"exported interpolator {key} for source {source} for {mission}")
 
     @staticmethod
     def __check_priorities(key:str, source:str, worlds:zarr.Group) -> bool:

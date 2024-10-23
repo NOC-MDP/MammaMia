@@ -167,22 +167,28 @@ class VelocityWorld(zarr.Group):
             try:
                 self.reality[key] = interpolator.interpolator[key].quadrivariate(location)
             except KeyError:
-                logger.warning(f"no interpolator for {key}")
+                # TODO need to dynamically set up a list of components that should be there rather than assuming as sometimes W is not available
+                if key != "w_component":
+                    logger.warning(f"no interpolator for {key}")
 
         if np.isnan(self.reality["u_component"][0]):
-            logger.warning("U component velocity is NaN, assuming zero velocity for this component")
+            if point.depth >= 0.5:
+                logger.warning(f"U component velocity is NaN and depth {point.depth} is non zero assuming zero velocity for this component")
             u_velocity = 0.0
         else:
             u_velocity = self.reality["u_component"][0]
 
         if np.isnan(self.reality["v_component"][0]):
-            logger.warning("V component velocity is NaN, assuming zero velocity for this component")
+            if point.depth >= 0.5:
+                logger.warning(f"V component velocity is NaN, and depth {point.depth} is non zero assuming zero velocity for this component")
             v_velocity = 0.0
         else:
             v_velocity = self.reality["v_component"][0]
 
         if np.isnan(self.reality["w_component"][0]):
-            logger.warning("W component velocity is NaN, assuming zero velocity for this component")
+            if point.depth >= 0.5:
+                pass
+                # logger.warning(f"W component velocity is NaN, and depth {point.depth} is non zero assuming zero velocity for this component")
             w_velocity = 0.0
         else:
             w_velocity = self.reality["w_component"][0]
