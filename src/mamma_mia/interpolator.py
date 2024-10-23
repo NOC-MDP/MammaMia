@@ -41,19 +41,17 @@ class Interpolators:
                     if var == v1:
                         logger.info(f"building world for variable {var}")
                         split_key = key.split("_")
+                        # check priorities of dataset to see if it should update the interpolated world or not
+                        if self.__check_priorities(key=k1, source=split_key[0], worlds=worlds):
+                            continue
                         if self.cache:
                             logger.info(f"getting world for variable {var} for source {split_key[0]} from cache")
                             imported = self.import_interp(key=k1,source=split_key[0],mission=mission)
-                            if self.__check_priorities(key=k1, source=split_key[0], worlds=worlds):
-                                continue
                             interpolator_priorities[k1] = worlds.attrs["catalog_priorities"][split_key[0]]
                         else:
                             imported = False
                         if not imported:
                             if split_key[0] == "msm":
-                                # if priority of any existing matching variable is lower then continue
-                                if self.__check_priorities(key=k1, source="msm",worlds=worlds):
-                                    continue
                                 # rename time and depth dimensions to be consistent
                                 ds = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
                                 ds = ds.rename({"deptht": "depth", "time_counter": "time"})
@@ -83,9 +81,6 @@ class Interpolators:
                                 # create or update priorities of interpolator datasetsc
                                 interpolator_priorities[k1] = worlds.attrs["catalog_priorities"]["msm"]
                             elif split_key[0] == "cmems":
-                                # if priority of any existing matching variable is higher continue
-                                if self.__check_priorities(key=k1, source="cmems",worlds=worlds):
-                                    continue
                                 world = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
                                 self.interpolator[k1] = pyinterp.backends.xarray.Grid4D(world[var],geodetic=True)
                                 if self.cache:
