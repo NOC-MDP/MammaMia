@@ -134,9 +134,9 @@ class Campaign:
             mission.build_mission(cat=self.catalog)
             logger.success(f"successfully built {mission.attrs['name']}")
         for key, interpol in self.interpolators.items():
-            logger.info(f"building interpolator for mission {key}")
+            logger.info(f"building interpolators for {key}")
             interpol.build(worlds=self.missions[key]["world"],mission=key)
-            logger.success(f"successfully built interpolator for {key}")
+            logger.success(f"successfully built interpolators for {key}")
 
     def enable_interpolator_cache(self):
         for key, interpol in self.interpolators.items():
