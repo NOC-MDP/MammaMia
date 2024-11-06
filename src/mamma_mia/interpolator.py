@@ -58,15 +58,15 @@ class Interpolators:
                                 lat = ds['nav_lat']
                                 lon = ds['nav_lon']
                                 # Define a regular grid with 1D lat/lon arrays
-                                target_lat = np.linspace(lat.min(), lat.max(), 20)
-                                target_lon = np.linspace(lon.min(), lon.max(), 14)
+                                target_lat = np.linspace(lat.min(), lat.max(), 96)
+                                target_lon = np.linspace(lon.min(), lon.max(), 67)
                                 # Create a target grid dataset
                                 target_grid = xr.Dataset({
                                     'latitude': (['latitude'], target_lat),
                                     'longitude': (['longitude'], target_lon)
                                 })
                                 # Create a regridder object to go from curvilinear to regular grid
-                                regridder = xe.Regridder(ds, target_grid, method='bilinear')
+                                regridder = xe.Regridder(ds, target_grid, method='bilinear',ignore_degenerate=True)
                                 # Regrid the entire dataset
                                 ds_regridded = regridder(ds)
                                 # Add units to latitude and longitude coordinates
