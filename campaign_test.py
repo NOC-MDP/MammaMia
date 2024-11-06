@@ -17,7 +17,7 @@ campaign.add_mission(name="mission_1",
                      auv="Slocum_1",
                      trajectory_path="comet-mm1.nc")
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
-campaign.enable_interpolator_cache()
+#campaign.enable_interpolator_cache()
 # build missions (search datasets, download datasets, build interpolators etc)
 campaign.build_missions()
 # run/fly missions

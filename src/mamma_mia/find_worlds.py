@@ -104,7 +104,8 @@ def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :dict,extent:dict) -
                 # check each variable
                 for m in range(len(variables)):
                     if key not in cmems_alias:
-                        print(f"variable {key} not in alias file")
+                        #logger.warning(f"variable {key} not in alias file")
+                        continue
                     if variables[m]["short_name"] in cmems_alias[key]:
                         # if trajectory spatial extent is within variable data
                         if (variables[m]["bbox"][0] < extent["min_lng"] or

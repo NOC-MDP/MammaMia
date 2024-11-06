@@ -77,6 +77,10 @@ class Mission(zarr.Group):
             traj.latitudes[i] = self.__convert_to_decimal(traj.latitudes[i])
 
         real_grp = self.create_group("reality")
+        real_grp.array(name="latitudes",data=np.array(ds["m_lat"]))
+        real_grp.array(name="longitudes",data=np.array(ds["m_lon"]))
+        real_grp.array(name="depths",data=np.array(ds["m_depth"]))
+        real_grp.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
         # construct sensor array dictionary to save as attribute and empty reality arrays for each sensor
         # TODO be able to handle more than one of the same array type e.g. CTD will overwrite any existing CTD arrays
         sensor_arrays = {}
