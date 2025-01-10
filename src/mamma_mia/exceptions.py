@@ -12,3 +12,6 @@ class MissionExists(Exception):
 
 class UnknownSourceKey(Exception):
     pass
+
+class ValidationFailure(Exception):
+    pass
