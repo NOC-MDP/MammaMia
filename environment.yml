@@ -1,4 +1,4 @@
-name: mm
+name: mm2
 channels:
   - conda-forge
 dependencies:
@@ -14,4 +14,3 @@ dependencies:
   - copernicusmarine
   - xesmf
   - s3fs
-prefix: /home/thopri/miniforge3/envs/mm

@@ -10,3 +10,8 @@ __pycache__
 *.pkl
 build
 *.dat
+*.png
+*.csv
+*.las
+*.laz
+3dtiles

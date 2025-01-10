@@ -69,6 +69,10 @@ class Mission(zarr.Group):
         traj.array(name="latitudes",data=np.array(ds["m_lat"]))
         traj.array(name="longitudes",data=np.array(ds["m_lon"]))
         traj.array(name="depths",data=np.array(ds["m_depth"]))
+        traj.array(name="pitch", data=np.array(ds["m_pitch"]))
+        # TODO figure out if yaw and roll are in the glider simulator data
+        #traj.array(name="yaw", data=np.array(ds["m_heading"]))
+        #traj.array(name="roll", data=np.array(ds["m_fin"]))
         traj.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
 
         for i in range(traj.longitudes.__len__()):
@@ -79,8 +83,13 @@ class Mission(zarr.Group):
         real_grp = self.create_group("reality")
         real_grp.array(name="latitudes",data=np.array(ds["m_lat"]))
         real_grp.array(name="longitudes",data=np.array(ds["m_lon"]))
+        for i in range(real_grp.longitudes.__len__()):
+            real_grp.longitudes[i] = self.__convert_to_decimal(real_grp.longitudes[i])
+        for i in range(real_grp.latitudes.__len__()):
+            real_grp.latitudes[i] = self.__convert_to_decimal(real_grp.latitudes[i])
         real_grp.array(name="depths",data=np.array(ds["m_depth"]))
         real_grp.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
+        real_grp.array(name="pitch", data=np.array(ds["m_pitch"]))
         # construct sensor array dictionary to save as attribute and empty reality arrays for each sensor
         # TODO be able to handle more than one of the same array type e.g. CTD will overwrite any existing CTD arrays
         sensor_arrays = {}
