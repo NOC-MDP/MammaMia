@@ -39,6 +39,16 @@ before using,
 ```shell
 $ conda activate mm
 ```
+Then you can install Mamma Mia itself, note the command below must be run in the top level of the Mamma Mia repository.
+```shell
+$ pip install .
+```
+
+#### Additional installation notes
+Currently need to install blosc using pip, the conda install of blosc doesn't seem to be recognised by MammaMia
+```shell
+$ pip install blosc
+```
 
 ### Installing the glider simulator
 Currently the glider simulator is not part of mamma mia and is used/operated seperately. In a separate folder (or HOME) running
