@@ -1,0 +1,57 @@
+{
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 5824,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 5824,
+      "type": "VEC3"
+    }
+  ],
+  "asset": {
+    "generator": "pygltflib@v1.16.2",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 69888,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 69888,
+      "byteLength": 139776,
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "data.bin",
+      "byteLength": 209664
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "COLOR_0": 1
+          },
+          "mode": 4
+        }
+      ]
+    }
+  ]
+}

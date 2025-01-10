@@ -1,0 +1,14 @@
+<PAMDataset>
+  <Subdataset name="temperature">
+    <PAMDataset>
+      <PAMRasterBand band="1">
+        <Metadata>
+          <MDI key="STATISTICS_MAXIMUM">10.822707176208</MDI>
+          <MDI key="STATISTICS_MEAN">5.9428237222592</MDI>
+          <MDI key="STATISTICS_MINIMUM">0.97285044193268</MDI>
+          <MDI key="STATISTICS_STDDEV">1.8386513158707</MDI>
+        </Metadata>
+      </PAMRasterBand>
+    </PAMDataset>
+  </Subdataset>
+</PAMDataset>

@@ -12,8 +12,10 @@ import pyproj
 from netCDF4 import Dataset
 from scipy.interpolate import griddata
 
+from to_netcdf import convert_to_decimal
+
 # Open the Zarr dataset
-ds = xr.open_zarr("campaign_1.zarr/mission_1/world/cmems_mod_glo_phy_my_0.083deg_P1D-m")
+ds = xr.open_zarr("campaign_1.zarr/mission_1/reality")
 
 # Function to fix or remove incompatible fill values
 def fix_fill_values(ds):
@@ -43,8 +45,6 @@ def fix_fill_values(ds):
 # Apply the fix to the dataset
 ds_fixed = fix_fill_values(ds)
 
-#ds_fixed.to_netcdf("world1.nc")
-
 def convert_to_decimal(x):
     """
     Converts a latitiude or longitude in NMEA format to decimale degrees
@@ -56,15 +56,98 @@ def convert_to_decimal(x):
     decimal_format = degrees + minutes / 60.
     return decimal_format * sign
 
-lat = ds_fixed["latitude"]
-lon = ds_fixed["longitude"]
-depth = ds_fixed["depth"]
-X,Y,Z = np.meshgrid(lon.values,lat.values,depth.values)
+def temperature_to_rgb(temp):
+    """Map temperature data to RGB values using a colormap."""
+    # Normalize the temperature values between 0 and 1
+    norm_temp = (temp - np.nanmin(temp)) / (np.nanmax(temp) - np.nanmin(temp))
 
+    # Use matplotlib colormap (e.g., 'viridis')
+    colormap = plt.get_cmap('jet')
+    rgba_colors = colormap(norm_temp)
 
-transformer_to_4978 = pyproj.Transformer.from_crs("EPSG:4326","EPSG:4978", always_xy=True)
-X_m, Y_m = transformer_to_4978.transform(X,Y)
-temp = ds_fixed["thetao"][0,:,:,:]
+    # Convert RGBA to 8-bit RGB (0-255)
+    rgb_colors = (rgba_colors[:, :3] * 255).astype(np.uint16)
+    return rgb_colors[:, 0], rgb_colors[:, 1], rgb_colors[:, 2]
+
+lat = ds_fixed["latitudes"].values
+lon = ds_fixed["longitudes"].values
+depth = ds_fixed["depths"].values
+pitch = ds_fixed["pitch"].values
+temp = ds_fixed["temperature"].values
+sal = ds_fixed["salinity"].values
+max_temp = 0
+max_sal = 0
+min_temp = 999
+min_sal = 999
+for i in range(temp.__len__()):
+    if temp[i] > max_temp:
+        max_temp = temp[i]
+    if temp[i] < min_temp:
+        min_temp = temp[i]
+    if sal[i] > max_sal:
+        max_sal = sal[i]
+    if sal[i] < min_sal:
+        min_sal = sal[i]
+
+temp[0] = max_temp
+sal[0] = max_sal
+temp_r,temp_gr,temp_bl = temperature_to_rgb(temp)
+sal_r,sal_g,sal_b = temperature_to_rgb(sal)
+
+import csv
+file_name = "auv_track.csv"
+with open(file_name, 'w', newline='') as csvfile:
+    csvwriter = csv.writer(csvfile)
+
+    # Write the header
+    csvwriter.writerow(['Row', 'Latitude', 'Longitude', 'Depth','Pitch','Roll','Yaw','Temperature','Red','Green','Blue','Alpha','Salinity','Red2','Green2','Blue2','Alpha2'])
+
+    # Generate rows following the pattern
+    for i in range(ds_fixed["datetimes"].__len__()):
+        row_id = f"AUV1-TS{i+1}"
+
+        x = lon[i]
+        y = lat[i]
+        if np.isnan(depth[i]):
+            z = 0
+        else:
+            z = depth[i]
+        if np.isnan(pitch[i]):
+            p = 0
+        else:
+            p = np.rad2deg(pitch[i])
+
+        yaw = 0
+        roll = 0
+        if i == 0:
+            t = max_temp
+        elif i == 1:
+            t = min_temp
+        elif np.isnan(temp[i]):
+            t = min_temp
+        else:
+            t = temp[i]
+        if i == 0:
+            s = max_sal
+        elif i == 1:
+            s = min_sal
+        elif np.isnan(sal[i]):
+            s = min_sal
+        else:
+            s = sal[i]
+        re1 = temp_r[i]
+        gr1 = temp_gr[i]
+        bl1 = temp_bl[i]
+        re2 = sal_r[i]
+        gr2 = sal_g[i]
+        bl2 = sal_b[i]
+        alp = 1.0
+        csvwriter.writerow([row_id, y,x,z,p,roll,yaw,t,re1,gr1,bl1,alp,s,re2,gr2,bl2,alp])
+
+# X,Y,Z = np.meshgrid(lon.values,lat.values,depth.values)
+# project = pyproj.Transformer.from_crs("EPSG:4326","EPSG:3857", always_xy=True)
+# X_m, Y_m = project.transform(X, Y)
+# temp = ds_fixed["thetao"][0,:,:,:]
 
 # # # # # Sample data
 # num_particles = ds_fixed["datetimes"].shape[0]  # Number of particles
@@ -83,92 +166,79 @@ temp = ds_fixed["thetao"][0,:,:,:]
 # # X_m, Y_m = project.transform(X, Y)
 # temp = ds_fixed["temperature"]
 
-def temperature_to_rgb(temp):
-    """Map temperature data to RGB values using a colormap."""
-    # Normalize the temperature values between 0 and 1
-    norm_temp = (temp - np.nanmin(temp)) / (np.nanmax(temp) - np.nanmin(temp))
 
-    # Use matplotlib colormap (e.g., 'viridis')
-    colormap = plt.get_cmap('jet')
-    rgba_colors = colormap(norm_temp)
-
-    # Convert RGBA to 8-bit RGB (0-255)
-    rgb_colors = (rgba_colors[:, :3] * 255).astype(np.uint16)
-    return rgb_colors[:, 0], rgb_colors[:, 1], rgb_colors[:, 2]
-
-header = laspy.LasHeader(point_format=3,version="1.4")
-las = laspy.LasData(header)
-crs = pyproj.CRS.from_epsg(4978)
-las.header.add_crs(crs)
-
-x = X_m.flatten()
-y = Y_m.flatten()
-# x = X.flatten()
-# y = Y.flatten()
-z = Z.flatten()
-temp = temp.values.flatten()
-red, green, blue = temperature_to_rgb(temp)
-
-
-# # Step 1: Calculate temperature gradient with respect to depth
-# sorted_indices = np.argsort(z)
-# sorted_z = z[sorted_indices]
-# sorted_temps = temp[sorted_indices]
 #
-# # Calculate the gradient along the depth axis
-# depth_diff = np.diff(sorted_z)
-# temp_diff = np.diff(sorted_temps)
-# gradient = np.abs(temp_diff / depth_diff)
-# gradient = np.append(gradient, 0)
+# header = laspy.LasHeader(point_format=3,version="1.4")
+# las = laspy.LasData(header)
+# crs = pyproj.CRS.from_epsg(3857)
+# las.header.add_crs(crs)
 #
-# # Normalize the gradient to use as intensity (0-65535)
-# intensity = (gradient / gradient.max() * 65535).astype(np.uint16)
-# intensity_unsorted = intensity[np.argsort(sorted_indices)]
-
-num_interp_points_x = lat.__len__() * 50  # Increase for denser interpolation
-num_interp_points_y = lon.__len__() * 50
-num_interp_points_z = depth.__len__()
-# Generate new points for interpolation between lat/lon coordinates
-xi = np.linspace(x.min(), x.max(), num_interp_points_x)
-yi = np.linspace(y.min(), y.max(), num_interp_points_y)
-zi = np.linspace(z.min(), z.max(), num_interp_points_z)
-xi, yi, zi = np.meshgrid(xi, yi, zi)
-
-# Flatten the grid arrays
-interp_coords = np.vstack([xi.ravel(), yi.ravel(), zi.ravel()]).T
-
-# Interpolate temperatures onto the new grid
-interpolated_temps = griddata(
-    (x, y, z), temp, interp_coords, method='linear', fill_value=np.nan
-)
-
-# # Interpolate intensity values onto the new grid
-# interpolated_intensity = griddata(
-#     (x, y, z), intensity_unsorted, interp_coords, method='linear', fill_value=0
+# x = X_m.flatten()
+# y = Y_m.flatten()
+# z = Z.flatten()
+# temp = temp.values.flatten()
+# #red, green, blue = temperature_to_rgb(temp)
+#
+#
+# # # Step 1: Calculate temperature gradient with respect to depth
+# # sorted_indices = np.argsort(z)
+# # sorted_z = z[sorted_indices]
+# # sorted_temps = temp[sorted_indices]
+# #
+# # # Calculate the gradient along the depth axis
+# # depth_diff = np.diff(sorted_z)
+# # temp_diff = np.diff(sorted_temps)
+# # gradient = np.abs(temp_diff / depth_diff)
+# # gradient = np.append(gradient, 0)
+# #
+# # # Normalize the gradient to use as intensity (0-65535)
+# # intensity = (gradient / gradient.max() * 65535).astype(np.uint16)
+# # intensity_unsorted = intensity[np.argsort(sorted_indices)]
+#
+# num_interp_points_x = lat.__len__() * 50  # Increase for denser interpolation
+# num_interp_points_y = lon.__len__() * 50
+# num_interp_points_z = depth.__len__()
+# # Generate new points for interpolation between lat/lon coordinates
+# xi = np.linspace(x.min(), x.max(), num_interp_points_x)
+# yi = np.linspace(y.min(), y.max(), num_interp_points_y)
+# zi = np.linspace(z.min(), z.max(), num_interp_points_z)
+# xi, yi, zi = np.meshgrid(xi, yi, zi)
+#
+# # Flatten the grid arrays
+# interp_coords = np.vstack([xi.ravel(), yi.ravel(), zi.ravel()]).T
+#
+# # Interpolate temperatures onto the new grid
+# interpolated_temps = griddata(
+#     (x, y, z), temp, interp_coords, method='linear', fill_value=np.nan
 # )
-
-# Filter out NaN values after interpolation
-valid_mask = ~np.isnan(interpolated_temps)
-interp_coords = interp_coords[valid_mask]
-interpolated_temps = interpolated_temps[valid_mask]
-#interpolated_intensity = interpolated_intensity[valid_mask]
-
-# Step 3: Create a new LAS file with the interpolated data
-las.x = interp_coords[:, 0].astype(np.int32)
-las.y = interp_coords[:, 1].astype(np.int32)
-las.z = interp_coords[:, 2].astype(np.int32)
-
-red, green, blue = temperature_to_rgb(interpolated_temps)
-# Map the interpolated temperatures to RGB (you can adjust this mapping)
-las.red = red
-las.green = green
-las.blue = blue
-
-# Set the interpolated intensity values
-#las.intensity = interpolated_intensity.astype(np.uint16)
-
-# Save the new LAS file with interpolated points
-las.write(f"mworld_1_interp2_4978.las")
+#
+# # # Interpolate intensity values onto the new grid
+# # interpolated_intensity = griddata(
+# #     (x, y, z), intensity_unsorted, interp_coords, method='linear', fill_value=0
+# # )
+#
+# # Filter out NaN values after interpolation
+# valid_mask = ~np.isnan(interpolated_temps)
+# interp_coords = interp_coords[valid_mask]
+# interpolated_temps = interpolated_temps[valid_mask]
+# #interpolated_intensity = interpolated_intensity[valid_mask]
+#
+# # Step 3: Create a new LAS file with the interpolated data
+# las.x = interp_coords[:, 0].astype(np.int32)
+# las.y = interp_coords[:, 1].astype(np.int32)
+# las.z = interp_coords[:, 2].astype(np.int32)
+#
+# red, green, blue = temperature_to_rgb(interpolated_temps)
+# # Map the interpolated temperatures to RGB (you can adjust this mapping)
+# las.red = red
+# las.green = green
+# las.blue = blue
+#
+# # Set the interpolated intensity values
+# #las.intensity = interpolated_intensity.astype(np.uint16)
+#
+# # Save the new LAS file with interpolated points
+# las.write("mworld_1_interp.las")
 
 # las.x = lon[11:]
 # las.y = lat[11:]

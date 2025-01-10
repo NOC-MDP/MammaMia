@@ -1,0 +1,131 @@
+<class 'netCDF4._netCDF4.Dataset'>
+root group (NETCDF4 data model, file format HDF5):
+    Conventions: CF-1.4
+    bulletin_date: 2021-07-07 00:00:00
+    bulletin_type: operational
+    comment: CMEMS product
+    copernicusmarine_version: 1.3.3
+    domain_name: GL12
+    easting: longitude
+    field_date: 2021-06-30 00:00:00
+    field_julian_date: 26113.0
+    field_type: mean
+    forecast_range: 
+    forecast_type: 
+    history: 2023/06/01 16:20:05 MERCATOR OCEAN Netcdf creation
+    institution: MERCATOR OCEAN
+    julian_day_unit: days since 1950-01-01 00:00:00
+    latitude_max: 90.0
+    latitude_min: -80.0
+    longitude_max: 179.9166717529297
+    longitude_min: -180.0
+    northing: latitude
+    references: http://www.mercator-ocean.fr
+    source: MERCATOR GLORYS12V1
+    title: daily mean fields from Global Ocean Physics Analysis and Forecast updated Daily
+    z_max: 5727.9169921875
+    z_min: 0.49402499198913574
+    dimensions(sizes): depth(28), latitude(13), longitude(15), time(62)
+    variables(dimensions): float32 depth(depth), float32 latitude(latitude), float32 longitude(longitude), int16 so(time, depth, latitude, longitude), int16 thetao(time, depth, latitude, longitude), float32 time(time)
+    groups: 
+VARIABLES_______________________________________________________________________
+<class 'netCDF4._netCDF4.Variable'>
+float32 depth(depth)
+    _FillValue: nan
+    axis: Z
+    long_name: Depth
+    positive: down
+    standard_name: depth
+    unit_long: Meters
+    units: m
+    valid_max: 266.0403137207031
+    valid_min: 0.49402499198913574
+unlimited dimensions: 
+current shape = (28,)
+filling on
+    depth max: 266.0403
+    depth min: 0.494025
+______________________________________
+<class 'netCDF4._netCDF4.Variable'>
+float32 latitude(latitude)
+    _FillValue: nan
+    axis: Y
+    long_name: Latitude
+    standard_name: latitude
+    step: 0.08333587646484375
+    unit_long: Degrees North
+    units: degrees_north
+    valid_max: 47.0
+    valid_min: 46.0
+unlimited dimensions: 
+current shape = (13,)
+filling on
+    latitude max: 47.0
+    latitude min: 46.0
+______________________________________
+<class 'netCDF4._netCDF4.Variable'>
+float32 longitude(longitude)
+    _FillValue: nan
+    axis: X
+    long_name: Longitude
+    standard_name: longitude
+    step: 0.0833282470703125
+    unit_long: Degrees East
+    units: degrees_east
+    valid_max: -6.5
+    valid_min: -7.666666507720947
+unlimited dimensions: 
+current shape = (15,)
+filling on
+    longitude max: -6.5
+    longitude min: -7.6666665
+______________________________________
+<class 'netCDF4._netCDF4.Variable'>
+int16 so(time, depth, latitude, longitude)
+    _FillValue: -32767
+    cell_methods: area: mean
+    long_name: Salinity
+    standard_name: sea_water_salinity
+    unit_long: Practical Salinity Unit
+    units: 1e-3
+    valid_max: 28249
+    valid_min: 1
+    add_offset: -0.0015259254723787308
+    scale_factor: 0.0015259254723787308
+unlimited dimensions: 
+current shape = (62, 28, 13, 15)
+filling on
+    so max: 35.73870048858225
+    so min: 35.399945033714175
+______________________________________
+<class 'netCDF4._netCDF4.Variable'>
+int16 thetao(time, depth, latitude, longitude)
+    _FillValue: -32767
+    cell_methods: area: mean
+    long_name: Temperature
+    standard_name: sea_water_potential_temperature
+    unit_long: Degrees Celsius
+    units: degrees_C
+    valid_max: 21306
+    valid_min: -32766
+    add_offset: 21.0
+    scale_factor: 0.0007324442267417908
+unlimited dimensions: 
+current shape = (62, 28, 13, 15)
+filling on
+    thetao max: 20.220679342746735
+    thetao min: 11.235053569078445
+______________________________________
+<class 'netCDF4._netCDF4.Variable'>
+float32 time(time)
+    _FillValue: nan
+    valid_max: 611160
+    valid_min: 609696
+    units: hours since 1950-01-01
+    calendar: gregorian
+unlimited dimensions: 
+current shape = (62,)
+filling on
+    time max: 611160.0
+    time min: 609696.0
+______________________________________
