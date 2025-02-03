@@ -1,4 +1,4 @@
-from mamma_mia import Extent,Point,VelocityReality
+from mamma_mia import Extent,Point,VelocityReality,DensityReality
 
 print("<=========> starting Mamma Mia Velocity Reality test run <===========>")
 
@@ -17,6 +17,9 @@ point = Point(latitude=57.1,
 
 )
 VR = VelocityReality(extent=extent)
+DR = DensityReality(extent=extent)
 V = VR.teleport(point=point)
+D = DR.teleport(point=point)
 print(V)
+print(D)
 print(">===========< Mamma Mia Velocity Reality test complete >==========<")
