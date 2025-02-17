@@ -15,3 +15,6 @@ class UnknownSourceKey(Exception):
 
 class ValidationFailure(Exception):
     pass
+
+class NullDataException(Exception):
+    pass

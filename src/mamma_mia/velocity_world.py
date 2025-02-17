@@ -8,7 +8,7 @@ from mamma_mia.find_worlds import find_worlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.sensors import ADCP, CTD
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.exceptions import ValidationFailure
+from mamma_mia.exceptions import ValidationFailure, NullDataException
 
 
 @dataclass(frozen=True)
@@ -196,14 +196,14 @@ class VelocityWorld(zarr.Group):
         if np.isnan(self.reality["u_component"][0]):
             if point.depth >= 0.5:
                 logger.warning(f"U component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
-            u_velocity = 0.0
+            raise NullDataException
         else:
             u_velocity = self.reality["u_component"][0]
 
         if np.isnan(self.reality["v_component"][0]):
             if point.depth >= 0.5:
                 logger.warning(f"V component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
-            v_velocity = 0.0
+            raise NullDataException
         else:
             v_velocity = self.reality["v_component"][0]
 
@@ -211,7 +211,7 @@ class VelocityWorld(zarr.Group):
             if point.depth >= 0.5:
                 pass
                 # logger.warning(f"W component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
-            w_velocity = 0.0
+            raise NullDataException
         else:
             w_velocity = self.reality["w_component"][0]
 
@@ -333,14 +333,14 @@ class DensityWorld(zarr.Group):
         if np.isnan(self.reality["temperature"][0]):
             if point.depth >= 0.5:
                 logger.warning(f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}, assuming 14 degrees temperature")
-            temperature = 14
+            raise NullDataException
         else:
             temperature = self.reality["temperature"][0]
 
         if np.isnan(self.reality["salinity"][0]):
             if point.depth >= 0.5:
                 logger.warning(f"salinity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming 35 PSU")
-            salinity = 35
+            raise NullDataException
         else:
             salinity = self.reality["salinity"][0]
 
