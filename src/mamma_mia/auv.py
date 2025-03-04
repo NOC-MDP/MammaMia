@@ -3,7 +3,6 @@ from mamma_mia.sensors import CTD,BIO
 import uuid
 from loguru import logger
 
-
 @dataclass(frozen=True)
 class Slocum:
     """

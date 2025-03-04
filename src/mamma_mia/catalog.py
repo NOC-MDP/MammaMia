@@ -3,14 +3,14 @@ import intake
 import copernicusmarine
 
 # TODO find a better way to do this, MSM sources use meta data in intake catalog.
-# Aliases used to map CMEMS variable names to Mamma Mia sensor names
+# Aliases used to map CMEMS variable names to Mamma Mia parameter names
 cmems_alias = {
     "nitrate": ["no3"],
     "phosphate": ["po4"],
     "silicate": ["si"],
-    "temperature": ["thetao"],
-    "salinity": ["so"],
-    "pressure": ["pres"],
+    "TEMP": ["thetao"],
+    "CNDC": ["so"],
+    "PRES": ["pres"],
     "u_component": ["uo"],
     "v_component": ["vo"],
     "w_component": ["wo"]

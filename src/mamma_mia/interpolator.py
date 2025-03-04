@@ -97,7 +97,7 @@ class Interpolators:
     def import_interp(self,key:str,source: str,mission:str):
         if not os.path.isdir(f"interpolator_cache/{mission}"):
             return False
-        import_loc = f"interpolator_cache/{mission}/{source}_{key}.dat"
+        import_loc = f"interpolator_cache/{mission}/{source}_{key}.lerp"
         if os.path.exists(import_loc):
             with open(import_loc, 'rb') as f:
                 compressed_pickle = f.read()
@@ -115,7 +115,7 @@ class Interpolators:
             os.mkdir(f"interpolator_cache/{mission}")
         pickled_data = pickle.dumps(self.interpolator[key])
         compressed_pickle = blosc.compress(pickled_data)
-        with open(f"interpolator_cache/{mission}/{source}_{key}.dat", 'wb') as f:
+        with open(f"interpolator_cache/{mission}/{source}_{key}.lerp", 'wb') as f:
             f.write(compressed_pickle)
         logger.info(f"exported interpolator {key} for source {source} for {mission}")
 
