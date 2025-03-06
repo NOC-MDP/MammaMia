@@ -1,5 +1,4 @@
 from dataclasses import dataclass,field
-from mamma_mia.sensors import CTD,BIO
 import uuid
 from loguru import logger
 
@@ -39,7 +38,7 @@ class AUV:
     def __post_init__(self):
         logger.success(f"{self.type.type} with id {self.id} created successfully")
 
-    def add_sensor_arrays(self, sensor_arrays: list[CTD | BIO ]):
+    def add_sensor_arrays(self, sensor_arrays):
         """
         Add sensor arrays to an auv object.
         Args:

@@ -3,9 +3,9 @@ import json
 from mamma_mia.catalog import Cats, cmems_alias
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
+from mamma_mia import platforms
 from mamma_mia.auv import AUV,Slocum,ALR1500
-from mamma_mia.sensors import CTD,BIO,ADCP
-from mamma_mia.exceptions import AUVExists, UnknownAUV, UnknownSensor, MissionExists, UnknownSourceKey
+from mamma_mia.exceptions import AUVExists, UnknownAUV, UnknownSensor, MissionExists, UnknownSourceKey, PlatformExists
 from dataclasses import dataclass,field,asdict
 import uuid
 from loguru import logger
@@ -30,6 +30,7 @@ class Campaign:
     name: str
     description: str
     catalog: Cats = field(init=False, default_factory=Cats)
+    platforms: dict = field(default_factory=dict)
     auvs: dict[str,AUV] = field(default_factory=dict)
     missions: dict[str, Mission] = field(init=False, default_factory=dict)
     interpolators: dict[str, Interpolators] = field(init=False,default_factory=dict)
@@ -48,8 +49,7 @@ class Campaign:
 
     def add_auv(self,
                 id:str,
-                type:Slocum | ALR1500,
-                sensor_arrays:list[CTD | BIO | ADCP]):
+                type:Slocum | ALR1500):
         """
         Add an auv to the campaign AUV dictionary
         Args:
@@ -66,8 +66,26 @@ class Campaign:
             logger.error(f"Auv {id} already exists in {self.name}")
             raise AUVExists
         self.auvs[id] = AUV(type=type,id=id)
-        self.auvs[id].add_sensor_arrays(sensor_arrays=sensor_arrays)
         logger.success(f"Auv {id} added to {self.name}")
+
+    def add_platform(self,id: str):
+            """
+            Add an platform to the campaign platform dictionary
+            Args:
+                id: reference id, it is used as a key in the campaign dictionary
+                type: platform type
+
+            Returns:
+                platform object stored in the campaign auv dictionary under its id key
+
+            """
+            logger.info(f"adding platform {id} to campaign {self.name}")
+            if id in self.platforms:
+                logger.error(f"Platform {id} already exists in {self.name}")
+                raise PlatformExists
+            self.platforms[id] = platforms[id]
+            logger.success(f"Platform {id} added to {self.name}")
+
     def add_mission(self,
                     name:str,
                     description:str,
