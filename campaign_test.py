@@ -1,14 +1,22 @@
-#from mamma_mia import Campaign, Slocum, CTD, BIO
+#from mamma_mia import Campaign#, Slocum, CTD, BIO
 from pprint import pp
-from mamma_mia import platforms
+
 from mamma_mia import sensors
-print(platforms.availble())
-auv1 = platforms.ALR4
-sensor = sensors.SBE_52MP_CTD_0221
-print(f"AUV is called {auv1.platform_name}")
-print(f"Add sensor {sensor.sensor_name}")
-auv1.add_sensor(key="Radiometer",sensor=sensor)
-pp(auv1,depth=1)
+from mamma_mia import platforms
+from mamma_mia import parameters
+
+
+pp(sensors)
+pp(platforms,depth=1)
+pp(parameters)
+
+auv1 = platforms.alr["ALR_4"]
+# auv2 = platforms2.glider["Churchill"]
+sensor = sensors.sensors["SBE 52-MP CTD 0221"]
+# print(f"AUV is called {auv1.platform_name}")
+# print(f"Add sensor {sensor.sensor_name}")
+auv1.register_sensor(sensor=sensor)
+pp(auv1,depth=2)
 
 # print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # # create campaign
@@ -17,10 +25,8 @@ pp(auv1,depth=1)
 #                     verbose=True
 #                     )
 # # add AUV
-# campaign.add_auv(id="Slocum_1",
-#                  type=Slocum(),
-#                  sensor_arrays=[CTD(),BIO()],
-#                  )
+# campaign.add_platform(id="ALR4")
+# pp(campaign,depth=1)
 # # add mission
 # campaign.add_mission(name="mission_1",
 #                      description="slocum glider Slocum_1 in the North Sea 2019",

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from mamma_mia.parameters import ALR_Latitude, LATITUDE
 from mamma_mia.sensors import Sensor2
 
 @dataclass
@@ -12,7 +11,8 @@ class ALRDataLogger(Sensor2):
     sensor_model: str = field(default="Autosub Long Range v2 {ALR} data logger",init=False)
 
     def __post_init__(self):
-        self.parameters = {"Latitude":ALR_Latitude}
+        pass
+        #self.parameters = {"Latitude":ALR_Latitude}
 
 @dataclass
 class SlocumDataLogger(Sensor2):
@@ -24,7 +24,7 @@ class SlocumDataLogger(Sensor2):
     sensor_model: str = field(default="Slocum G1+G2 Glider Navigation data logger",init=False)
 
     def __post_init__(self):
-        self.parameters = {"Latitude":LATITUDE}
+        pass
 
 Teledyne_Slocum_G1_G2_unit_398 = SlocumDataLogger(
     bodc_sensor_version_id=1139,

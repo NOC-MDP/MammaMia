@@ -6,7 +6,6 @@ import numpy as np
 from mamma_mia.catalog import Cats
 from mamma_mia.find_worlds import find_worlds
 from mamma_mia.get_worlds import get_worlds
-from mamma_mia.sensors import ADCP, CTD
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.exceptions import ValidationFailure, NullDataException
 

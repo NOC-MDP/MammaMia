@@ -1,6 +1,8 @@
+import json
 from dataclasses import dataclass, field
 from mamma_mia import sensors
-from mamma_mia import data_loggers
+from mamma_mia.exceptions import InvalidPlatform
+
 
 @dataclass
 class Platform:
@@ -20,65 +22,41 @@ class Platform:
     platform_family: str
     wmo_platform_code: int
     data_type: str
-    sensors: dict = field(default_factory=dict)
+    sensors: dict[str, sensors.Sensor]
 
     def __post_init__(self):
-        # Ensure all values in the sensors dictionary are instances of Sensor
-        for key, value in self.sensors.items():
-            if not isinstance(value, sensors.Sensor2):  # Runtime type check
-                raise TypeError(f"Sensor '{key}' must be an instance of sensors.Sensor, got {type(value)}")
+        # TODO add more validation and type checking here
+        if not isinstance(self.bodc_platform_model_id, int):
+            raise TypeError(f"bodc_platform_model_id must be an instance of int, got {type(self.bodc_platform_model_id)}")
 
-    def add_sensor(self,key:str,sensor):
-        if not isinstance(sensor, sensors.Sensor2):  # Runtime type check
-            raise TypeError(f"Sensor '{key}' must be an instance of sensors.Sensor, got {type(sensor)}")
-        self.sensors[key] = sensor
-
+    def register_sensor(self,sensor):
+        if not isinstance(sensor, sensors.Sensor):  # Runtime type check
+            raise TypeError(f"Sensor must be an instance of sensors.Sensor, got {type(sensor)}")
+        self.sensors[sensor.sensor_name] = sensor
 
 @dataclass
-class SlocumPlatform(Platform):
-    bodc_platform_model_id: int = field(default=117, init=False)
-    platform_model_id: int = field(default=358, init=False)
-    nvs_platform_id: str = field(default="B7600001", init=False)
-    platform_type: str = field(default="slocum", init=False)
-    platform_manufacturer: str = field(default="Teledyne Webb Research", init=False)
-    platform_model_name: str = field(default="G2", init=False)
+class PlatformCatalog:
+    glider: dict = field(default_factory=dict)
+    alr: dict = field(default_factory=dict)
 
+    def __post_init__(self):
 
-@dataclass
-class ALRPlatform(Platform):
-    bodc_platform_model_id: int = field(default=274, init=False)
-    platform_model_id: int = field(default=682, init=False)
-    nvs_platform_id: str = field(default="B7600021", init=False)
-    platform_type: str = field(default="Autosub Long Range", init=False)
-    platform_manufacturer: str = field(default="National Oceanography Centre", init=False)
-    platform_model_name: str = field(default="Autosub Long Range 1500", init=False)
+        with open("src/mamma_mia/platforms.json", "r") as f:
+            plats = json.load(f)
 
+        for platform_type, platforms in plats["platforms"].items():
+            if platform_type == "glider":
+                for platform in platforms:
+                    try:
+                        self.glider[platform["platform_name"]] = Platform(**platform)
+                    except KeyError:
+                        raise InvalidPlatform(f"{platform['platform_name']} is not a valid platform")
 
-Churchill = SlocumPlatform(
-    bodc_platform_id=862,
-    bodc_platform_type_id=402,
-    platform_name="Churchill",
-    platform_serial_number="unit_398",
-    platform_owner="NOCS",
-    platform_family="open ocean glider",
-    wmo_platform_code=6801573,
-    data_type="EGO glider time-series data",
-    sensors={"data_logger": data_loggers.Teledyne_Slocum_G1_G2_unit_398}
-)
+            if platform_type == "alr":
+                for platform in platforms:
+                    try:
+                        self.alr[platform["platform_name"]] = Platform(**platform)
+                    except KeyError:
+                        raise InvalidPlatform(f"{platform['platform_name']} is not a valid platform")
 
-
-ALR4 = ALRPlatform(
-    bodc_platform_id=1295,
-    bodc_platform_type_id=837,
-    platform_name="ALR_4",
-    platform_serial_number="ALR_4",
-    platform_owner="NOCS",
-    platform_family="open ocean glider",
-    wmo_platform_code=-9999999,
-    data_type="EGO glider time-series data",
-    sensors={"data_logger":data_loggers.ALR_v1_data_logger_ALR_4}
-)
-
-def availble():
-    AUVs = {"gliders": ["Churchill"],"ALRs": ["ALR_4"]}
-    return AUVs
+platforms = PlatformCatalog()

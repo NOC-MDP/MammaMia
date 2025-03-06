@@ -1,0 +1,90 @@
+{
+    "sensors": {
+        "CTD": [
+            {
+                "sensor_serial_number": "9099",
+                "bodc_sensor_version_id": 1304,
+                "bodc_sensor_id": 847,
+                "sensor_name": "SBE Glider Payload CTD 9099",
+                "bodc_sensor_model_id": 485,
+                "bodc_sensor_model_registry_id": 242,
+                "instrument_type": "water temperature sensor",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "parameters": {
+                    "TEMP": 1,
+                    "CNDC": 1,
+                    "PRES": 1
+                }
+            },
+            {
+                "sensor_serial_number": "9100",
+                "bodc_sensor_version_id": 1130,
+                "bodc_sensor_id": 677,
+                "sensor_name": "SBE Glider Payload CTD 9100",
+                "bodc_sensor_model_id": 485,
+                "bodc_sensor_model_registry_id": 242,
+                "instrument_type": "water temperature sensor",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "parameters": {
+                    "TEMP": 1,
+                    "CNDC": 1,
+                    "PRES": 1
+                }
+            },
+            {
+                "sensor_serial_number": "0221",
+                "bodc_sensor_version_id": 1661,
+                "bodc_sensor_id": 1229,
+                "sensor_name": "SBE 52-MP CTD 0221",
+                "bodc_sensor_model_id": 681,
+                "bodc_sensor_model_registry_id": 273,
+                "instrument_type": "CTD",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
+                "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
+                "parameters": {
+                    "TEMP": 1,
+                    "CNDC": 1,
+                    "PRES": 1
+                }
+            },
+            {
+                "sensor_serial_number": "0222",
+                "bodc_sensor_version_id": 1662,
+                "bodc_sensor_id": 1230,
+                "sensor_name": "SBE 52-MP CTD 0222",
+                "bodc_sensor_model_id": 681,
+                "bodc_sensor_model_registry_id": 273,
+                "instrument_type": "CTD",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
+                "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
+                "parameters": {
+                    "TEMP": 1,
+                    "CNDC": 1,
+                    "PRES": 1
+                }
+            },
+            {
+                "sensor_serial_number": "3289",
+                "bodc_sensor_version_id": 1095,
+                "bodc_sensor_id": 638,
+                "sensor_name": "WET Labs FLBBCD-SLC 3289",
+                "bodc_sensor_model_id": 622,
+                "bodc_sensor_model_registry_id": 259,
+                "instrument_type": "radiometers",
+                "sensor_manufacturer": "Wet Labs",
+                "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
+                "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
+                "parameters": {
+                    "CHLA": 1,
+                    "BBP700": 1
+                }
+            }
+        ]
+    }
+}

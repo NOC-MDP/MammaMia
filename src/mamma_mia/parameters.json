@@ -1,0 +1,36 @@
+{
+    "parameters": {
+        "environmental": [
+            {
+                "parameter_name": "CNDC",
+                "standard_name": "sea_water_electrical_conductivity",
+                "unit_of_measure": "mhos/m",
+                "parameter_definition": "Electrical conductivity of the water body by CTD",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/CNDCST01/",
+                "seadatanet_unit_of_measure": "SDN:P06::UECA",
+                "source_name": "sci_water_cond",
+                "ancillary_variables": "CNDC_QC"
+            },
+            {
+                "parameter_name": "PRES",
+                "standard_name": "sea_water_pressure",
+                "unit_of_measure": "decibar",
+                "parameter_definition": "Pressure (spatial coordinate) exerted by the water body by profiling pressure sensor and correction to read zero at sea level",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/PRESPR01/",
+                "seadatanet_unit_of_measure": "SDN:P06::UPDB",
+                "source_name": "sci_water_pressure",
+                "ancillary_variables": "PRES_QC"
+            },
+            {
+                "parameter_name": "TEMP",
+                "standard_name": "sea_water_temperature",
+                "unit_of_measure": "degree_Celsius",
+                "parameter_definition": "Temperature of the water body by CTD or STD",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/TEMPST01/",
+                "seadatanet_unit_of_measure": "SDN:P06::UPAA",
+                "source_name": "sci_water_temp",
+                "ancillary_variables": "TEMP_QC"
+            }
+        ]
+    }
+}
