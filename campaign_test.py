@@ -1,11 +1,11 @@
-#from mamma_mia import Campaign#, Slocum, CTD, BIO
-from pprint import pp
-
 from mamma_mia import sensors
 from mamma_mia import platforms
+
 ALR4 = platforms.get_platform(platform_name="ALR_4",platform_type="alr")
 sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="0221")
 ALR4.register_sensor(sensor)
+
+
 
 print("the end")
 

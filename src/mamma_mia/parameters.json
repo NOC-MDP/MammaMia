@@ -30,6 +30,36 @@
                 "seadatanet_unit_of_measure": "SDN:P06::UPAA",
                 "source_name": "sci_water_temp",
                 "ancillary_variables": "TEMP_QC"
+            },
+            {
+                "parameter_name": "CHLA",
+                "standard_name": "mass_concentration_of_chlorophyll_a_in_sea_water",
+                "unit_of_measure": "mg/m3",
+                "parameter_definition": "Concentration of chlorophyll-a {chl-a CAS 479-61-8} per unit volume of the water body [particulate >unknown phase] by in-situ chlorophyll fluorometer",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/CPHLPR01/",
+                "seadatanet_unit_of_measure": "SDN:P06::UMMC",
+                "source_name": "sci_flbbcd_chlor_units",
+                "ancillary_variables": "CHLA_QC"
+            },
+            {
+                "parameter_name": "CDOM",
+                "standard_name": "",
+                "unit_of_measure": "ppb",
+                "parameter_definition": "Concentration of coloured dissolved organic matter {CDOM Gelbstoff} per unit volume of the water body [dissolved plus reactive particulate phase] by in-situ WET Labs FDOM ECO fluorometer",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/CCOMD002/",
+                "seadatanet_unit_of_measure": "SDN:P06::UPPB",
+                "source_name": "sci_flbbcd_cdom_units",
+                "ancillary_variables": "CDOM_QC"
+            },
+            {
+                "parameter_name": "BBP700",
+                "standard_name": "",
+                "unit_of_measure": "m-1",
+                "parameter_definition": "Attenuation due to backscatter (700 nm wavelength at 117 degree incidence) by the water body [particulate >unknown phase] by in-situ optical backscatter measurement",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/BB117NIR/",
+                "seadatanet_unit_of_measure": "SDN:P06::UUUU",
+                "source_name": "sci_flbbcd_bb_units",
+                "ancillary_variables": "BBP700_QC"
             }
         ],
         "navigation": [
@@ -44,6 +74,18 @@
                 "valid_max":90.00,
                 "valid_min":-90.00,
                 "ancillary_variables":"LATITUDE_QC"
+            },
+            {
+                "parameter_name": "ALR_LATITUDE",
+                "standard_name": "latitude_north",
+                "unit_of_measure": "",
+                "parameter_definition": "Latitude north of measurement platform in the water body by estimation using best available on-board navigation system and algorithm",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATPT01/",
+                "seadatanet_unit_of_measure":"SDN:P06::UAAA",
+                "source_name":"Latitude",
+                "valid_max":90.00,
+                "valid_min":-90.00,
+                "ancillary_variables":"ALR_LATITUDE_QC"
             }
         ],
         "time": [

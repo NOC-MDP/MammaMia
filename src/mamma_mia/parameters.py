@@ -4,7 +4,7 @@ from mamma_mia.exceptions import InvalidParameter
 from pathlib import Path
 import os
 from loguru import logger
-
+import copy
 
 @dataclass(frozen=True)
 class TimeParameter:
@@ -45,84 +45,83 @@ class Parameter:
 
 @dataclass
 class ParameterCatalog:
-    environmental: dict[str, Parameter] = None
-    navigation: dict[str, Parameter] = None
-    time: dict[str, TimeParameter] = None
+    _parameter_types = ("_environmental", "_navigation","_time")
+    _environmental: dict[str, "Parameter"] = field(default_factory=dict, init=False)
+    _navigation: dict[str, "Parameter"] = field(default_factory=dict, init=False)
+    _time: dict[str, "TimeParameter"] = field(default_factory=dict, init=False)
 
     def __post_init__(self):
-        logger.info("creating parameter catalog")
+        logger.info("Creating parameter catalog")
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}parameters.json", "r") as f:
             params = json.load(f)
 
         for parameter_type, parameters in params["parameters"].items():
-            if parameter_type =="environmental":
-                if self.environmental is None:
-                    self.environmental = {}
-                for parameter in parameters:
-                    try:
-                        self.environmental[parameter["parameter_name"]] = Parameter(**parameter)
-                    except TypeError as e:
-                        logger.error(e)
-                        raise InvalidParameter(f"{parameter['parameter_name']} is not a valid parameter")
+            self._process_parameters(parameter_type, parameters)
 
-            elif parameter_type =="navigation":
-                if self.navigation is None:
-                    self.navigation = {}
-                for parameter in parameters:
-                    try:
-                        self.navigation[parameter["parameter_name"]] = Parameter(**parameter)
-                    except TypeError as e:
-                        logger.error(e)
-                        raise InvalidParameter(f"{parameter['parameter_name']} is not a valid parameter")
+        logger.info("Successfully created parameter catalog")
 
-            elif parameter_type =="time":
-                if self.time is None:
-                    self.time = {}
-                for parameter in parameters:
-                    try:
-                        self.time[parameter["parameter_name"]] = TimeParameter(**parameter)
-                    except TypeError as e:
-                        logger.error(e)
-                        raise InvalidParameter(f"{parameter['parameter_name']} is not a valid time parameter")
+    def _process_parameters(self, parameter_type, parameters):
+        param_dict = self._get_parameter_dict(parameter_type)
 
-            else:
-                logger.warning(f"unknown parameter type {parameter_type}")
-                logger.info(f"skipping parameter type {parameter_type}")
-        logger.success(f"successfully created parameter catalog")
+        for parameter in parameters:
+            try:
+                param_dict[parameter["parameter_name"]] = (
+                    TimeParameter(**parameter) if parameter_type == "time" else Parameter(**parameter)
+                )
+            except TypeError as e:
+                logger.error(e)
+                raise ValueError(f"{parameter['parameter_name']} is not a valid {parameter_type} parameter")
+
+    def _get_parameter_dict(self, parameter_type):
+        match parameter_type:
+            case "environmental":
+                return self._environmental
+            case "navigation":
+                return self._navigation
+            case "time":
+                return self._time
+            case _:
+                raise ValueError(f"Unknown parameter type {parameter_type}")
+
+    def get_parameter(self, parameter_type: str, parameter_name: str):
+        """Returns a copy of the requested parameter to prevent modification."""
+        param_dict = self._get_parameter_dict(parameter_type)
+        if parameter_name in param_dict:
+            return copy.deepcopy(param_dict[parameter_name])
+        raise KeyError(f"Parameter '{parameter_name}' not found in '{parameter_type}'")
+
+    def add_parameter(self, parameter_type: str, parameter: Parameter):
+        """Adds a new parameter, preventing modifications to existing ones."""
+        param_dict = self._get_parameter_dict(parameter_type)
+        if parameter.parameter_name in param_dict:
+            raise AttributeError(f"Parameter '{parameter.parameter_name}' already exists and cannot be modified.")
+        param_dict[parameter.parameter_name] = parameter
+
+    def remove_parameter(self, parameter_type: str, parameter_name: str):
+        """Removes a parameter from the catalog."""
+        param_dict = self._get_parameter_dict(parameter_type)
+        if parameter_name in param_dict:
+            del param_dict[parameter_name]
+        else:
+            raise KeyError(f"Parameter '{parameter_name}' not found in '{parameter_type}'")
+
+    def __setattr__(self, key, value):
+        """Prevents direct modification of dictionaries."""
+        if key in self._parameter_types and hasattr(self, key):
+            raise AttributeError(f"Direct modification of '{key}' is not allowed.")
+        super().__setattr__(key, value)
+
+    def __delattr__(self, key):
+        """Prevents deletion of catalog attributes."""
+        if key in self._parameter_types:
+            raise AttributeError(f"Cannot delete '{key}'. Use remove_parameter instead.")
+        super().__delattr__(key)
 
 parameters = ParameterCatalog()
 
-# CHLA = Parameter(
-#     parameter_name = "CHLA",
-#     standard_name = "mass_concentration_of_chlorophyll_a_in_sea_water",
-#     unit_of_measure = "mg/m3",
-#     parameter_definition = "Concentration of chlorophyll-a {chl-a CAS 479-61-8} per unit volume of the water body [particulate >unknown phase] by in-situ chlorophyll fluorometer",
-#     seadatanet_parameter= "http://vocab.nerc.ac.uk/collection/P01/current/CPHLPR01/",
-#     seadatanet_unit_of_measure = "SDN:P06::UMMC",
-#     source_name = "sci_flbbcd_chlor_units",
-#     ancillary_variables = "CHLA_QC",
-# )
 
-# CDOM = Parameter(
-#     parameter_name = "CDOM",
-#      unit_of_measure = "ppb",
-#      parameter_definition="Concentration of coloured dissolved organic matter {CDOM Gelbstoff} per unit volume of the water body [dissolved plus reactive particulate phase] by in-situ WET Labs FDOM ECO fluorometer",
-#      seadatanet_parameter="http://vocab.nerc.ac.uk/collection/P01/current/CCOMD002/",
-#      seadatanet_unit_of_measure="SDN:P06::UPPB",
-#      source_name="sci_flbbcd_cdom_units"
-# )
 
-# BBP700 = Parameter(
-#     parameter_name = "BBP700",
-#     standard_name = "",
-#     unit_of_measure = "m-1",
-#     parameter_definition="Attenuation due to backscatter (700 nm wavelength at 117 degree incidence) by the water body [particulate >unknown phase] by in-situ optical backscatter measurement",
-#     seadatanet_parameter="http://vocab.nerc.ac.uk/collection/P01/current/BB117NIR/",
-#     seadatanet_unit_of_measure="SDN:P06::UUUU",
-#     source_name="sci_flbbcd_bb_units",
-#     ancillary_variables="BBP700_QC",
-# )
 
 # TEMP_DOXY = Parameter(
 #     parameter_name = "TEMP_DOXY",
@@ -133,15 +132,7 @@ parameters = ParameterCatalog()
 #       source_name="sci_oxy4_temp"
 # )
 #
-# ALR_Latitude = Parameter(
-#     parameter_name = "",
-#      unit_of_measure = "",
-#      parameter_definition="Latitude north of measurement platform in the water body by estimation using best available on-board navigation system and algorithm",
-#      seadatanet_parameter="http://vocab.nerc.ac.uk/collection/P01/current/ALATPT01/",
-#      seadatanet_unit_of_measure="SDN:P06::UAAA",
-#      source_name="Latitude"
-# )
-#
+
 # WATERCURRENTS_U = Parameter(
 #     parameter_name = "WATERCURRENTS_U",
 #     unit_of_measure = "cm/s",
@@ -160,18 +151,7 @@ parameters = ParameterCatalog()
 #      source_name="m_altitude"
 # )
 
-# LATITUDE = Parameter(
-#     parameter_name = "LATITUDE",
-#     standard_name="latitude_north",
-#     unit_of_measure = "degrees_north",
-#     parameter_definition="Latitude north",
-#     seadatanet_parameter="http://vocab.nerc.ac.uk/collection/P01/current/ALATZZ01/",
-#     seadatanet_unit_of_measure="SDN:P06::DEGN",
-#     source_name="m_lat",
-#     valid_max=90.00,
-#     valid_min=-90.00,
-#     ancillary_variables="LATITUDE_QC"
-# )
+
 #
 # LATITUDE_GPS = Parameter(
 #     parameter_name = "LATITUDE_GPS",

@@ -8,6 +8,7 @@ from pathlib import Path
 from loguru import logger
 import copy
 
+
 @dataclass
 class Platform:
     # platform parameters
@@ -43,6 +44,7 @@ class Platform:
 
 @dataclass
 class PlatformCatalog:
+    _platform_types = ("_glider","_alr")
     _glider: dict = field(default_factory=dict, init=False)
     _alr: dict = field(default_factory=dict, init=False)
 
@@ -83,9 +85,11 @@ class PlatformCatalog:
 
     def get_platform(self, platform_type: str, platform_name: str):
         """Returns a deep copy of a platform (prevents direct modification)."""
+        logger.info(f"creating platform {platform_name} of type {platform_type}")
         platform_dict = self._get_platform_dict(platform_type)
         if platform_name not in platform_dict:
             raise KeyError(f"Platform '{platform_name}' not found in {platform_type}.")
+        logger.success(f"successfully created platform {platform_name} of type {platform_type}")
         return copy.deepcopy(platform_dict[platform_name])
 
     def add_platform(self, platform_type: str, platform: Platform):
@@ -96,7 +100,7 @@ class PlatformCatalog:
             raise ValueError("Platform entry missing 'platform_name'")
         if platform_name in platform_dict:
             raise ValueError(f"Platform '{platform_name}' already exists and cannot be modified.")
-        platform_dict[platform_name] = Platform(**platform)
+        platform_dict[platform_name] = platform
 
     def remove_platform(self, platform_type: str, platform_name: str):
         """Removes a platform from the catalog."""
