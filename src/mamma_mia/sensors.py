@@ -21,11 +21,10 @@ class Sensor:
     sensor_manufacturer: str
     model_name: str
     sensor_model: str
-    sample_rates: dict = field(default_factory=dict)
     parameters: dict = field(default_factory=dict)
 
     def __post_init__(self):
-        # convert all parameter strings to parameter objects
+        # convert all parameter strings/keys to parameter objects
         for parameter_key in self.parameters.keys():
             self._process_parameters(parameter_key, parameters)
 
@@ -38,7 +37,7 @@ class Sensor:
                     parameter = vars(parameters)[k1][k2]
         if parameter is None:
             raise InvalidParameter(f"parameter {parameter_key} not found")
-        self.parameters[parameter_key] = parameter
+        self.register_parameter(parameter=parameter)
 
     def register_parameter(self,parameter: Parameter):
         logger.info(f"registering parameter {parameter.parameter_name} to sensor {self.sensor_name}")
@@ -51,7 +50,6 @@ class Sensor:
 
 @dataclass
 class SensorCatalog:
-    _sensor_types = ("_CTD", "_radiometers", "_dataloggers")
     _CTD: dict = field(default_factory=dict, init=False)
     _radiometers: dict = field(default_factory=dict, init=False)
     _dataloggers: dict = field(default_factory=dict, init=False)
@@ -125,18 +123,6 @@ class SensorCatalog:
             case _:
                 raise ValueError(
                     f"Invalid sensor type '{sensor_type}'. Must be 'CTD', 'radiometers', or 'dataloggers'.")
-
-    def __setattr__(self, key, value):
-        """Prevents direct modification of catalog attributes."""
-        if key in self._sensor_types and hasattr(self, key):
-            raise AttributeError(f"Cannot modify '{key}' directly. Use add_sensor or remove_sensor instead.")
-        super().__setattr__(key, value)
-
-    def __delattr__(self, key):
-        """Prevents deletion of catalog attributes."""
-        if key in self._sensor_types:
-            raise AttributeError(f"Cannot delete '{key}'. Use remove_sensor instead.")
-        super().__delattr__(key)
 
 
 sensors = SensorCatalog()

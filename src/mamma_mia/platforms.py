@@ -44,7 +44,6 @@ class Platform:
 
 @dataclass
 class PlatformCatalog:
-    _platform_types = ("_glider","_alr")
     _glider: dict = field(default_factory=dict, init=False)
     _alr: dict = field(default_factory=dict, init=False)
 
@@ -62,7 +61,7 @@ class PlatformCatalog:
         platform_dict = self._get_platform_dict(platform_type)
 
         for platform in platforms:
-            # TODO look at this and see if a better error handling can be implemented
+            # TODO look at this is .get the best thing to use? maybe try except key error?
             try:
                 platform_name = platform.get("platform_name")
                 if not platform_name:
@@ -123,17 +122,6 @@ class PlatformCatalog:
             case _:
                 raise ValueError(f"Invalid platform type '{platform_type}'. Must be 'glider' or 'alr'.")
 
-    def __setattr__(self, key, value):
-        """Prevents direct modification of catalog attributes."""
-        if key in {"_glider", "_alr"} and hasattr(self, key):
-            raise AttributeError(f"Cannot modify '{key}' directly. Use add_platform or remove_platform instead.")
-        super().__setattr__(key, value)
-
-    def __delattr__(self, key):
-        """Prevents deletion of catalog attributes."""
-        if key in {"_glider", "_alr"}:
-            raise AttributeError(f"Cannot delete '{key}'. Use remove_platform instead.")
-        super().__delattr__(key)
 
 
 platforms = PlatformCatalog()

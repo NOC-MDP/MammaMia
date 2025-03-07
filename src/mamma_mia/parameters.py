@@ -1,6 +1,5 @@
 import json
 from dataclasses import dataclass, field
-from mamma_mia.exceptions import InvalidParameter
 from pathlib import Path
 import os
 from loguru import logger
@@ -45,10 +44,9 @@ class Parameter:
 
 @dataclass
 class ParameterCatalog:
-    _parameter_types = ("_environmental", "_navigation","_time")
-    _environmental: dict[str, "Parameter"] = field(default_factory=dict, init=False)
-    _navigation: dict[str, "Parameter"] = field(default_factory=dict, init=False)
-    _time: dict[str, "TimeParameter"] = field(default_factory=dict, init=False)
+    _environmental: dict[str, Parameter] = field(default_factory=dict)
+    _navigation: dict[str, Parameter] = field(default_factory=dict)
+    _time: dict[str, TimeParameter] = field(default_factory=dict)
 
     def __post_init__(self):
         logger.info("Creating parameter catalog")
@@ -106,17 +104,6 @@ class ParameterCatalog:
         else:
             raise KeyError(f"Parameter '{parameter_name}' not found in '{parameter_type}'")
 
-    def __setattr__(self, key, value):
-        """Prevents direct modification of dictionaries."""
-        if key in self._parameter_types and hasattr(self, key):
-            raise AttributeError(f"Direct modification of '{key}' is not allowed.")
-        super().__setattr__(key, value)
-
-    def __delattr__(self, key):
-        """Prevents deletion of catalog attributes."""
-        if key in self._parameter_types:
-            raise AttributeError(f"Cannot delete '{key}'. Use remove_parameter instead.")
-        super().__delattr__(key)
 
 parameters = ParameterCatalog()
 

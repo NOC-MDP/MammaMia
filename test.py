@@ -1,6 +1,7 @@
 import pytest
 from mamma_mia import PlatformCatalog, Platform, ParameterCatalog,Parameter, TimeParameter, SensorCatalog, Sensor
 
+# TODO add more tests, e.g. one with time parameter and check catalog creation etc.
 
 # Sample test data
 PLATFORM_DATA = Platform(
@@ -88,14 +89,6 @@ def test_get_platform(platform_catalog):
     assert retrieved.platform_serial_number == "TG-001"
 
 
-def test_modify_platform(platform_catalog):
-    """Ensure modification of an existing platform is restricted."""
-    platform_catalog.add_platform("glider", PLATFORM_DATA)
-
-    with pytest.raises(AttributeError):
-        platform_catalog._glider["TestGlider"].platform_serial_number = "MODIFIED"
-
-
 def test_remove_platform(platform_catalog):
     """Test removing a platform."""
     platform_catalog.add_platform("glider", PLATFORM_DATA)
@@ -126,15 +119,6 @@ def test_get_sensor(sensor_catalog):
     assert retrieved.sensor_serial_number == "SN-123"
 
 
-def test_modify_sensor(sensor_catalog):
-    """Ensure modification of an existing sensor is restricted."""
-    sensor = Sensor(**SENSOR_DATA)
-    sensor_catalog.add_sensor("CTD", sensor)
-
-    with pytest.raises(AttributeError):
-        sensor_catalog._CTD["CTD-Sensor-1"].sensor_serial_number = "MODIFIED"
-
-
 def test_remove_sensor(sensor_catalog):
     """Test removing a sensor."""
     sensor = Sensor(**SENSOR_DATA)
@@ -154,7 +138,7 @@ def test_add_parameter(parameter_catalog):
     parameter = Parameter(**PARAMETER_DATA)
     parameter_catalog.add_parameter("environmental", parameter)
 
-    assert "sal" in parameter_catalog._environmental
+    assert "SAL" in parameter_catalog._environmental
 
 
 def test_get_parameter(parameter_catalog):
@@ -162,17 +146,8 @@ def test_get_parameter(parameter_catalog):
     parameter = Parameter(**PARAMETER_DATA)
     parameter_catalog.add_parameter("environmental", parameter)
 
-    retrieved = parameter_catalog.get_parameter("environmental", "sal")
-    assert retrieved.unit == "mhos/m"
-
-
-def test_modify_parameter(parameter_catalog):
-    """Ensure modification of an existing parameter is restricted."""
-    parameter = Parameter(**PARAMETER_DATA)
-    parameter_catalog.add_parameter("environmental", parameter)
-
-    with pytest.raises(AttributeError):
-        parameter_catalog._environmental["temperature"].unit = "MODIFIED"
+    retrieved = parameter_catalog.get_parameter("environmental", "SAL")
+    assert retrieved.unit_of_measure == "mhos/m"
 
 
 def test_remove_parameter(parameter_catalog):
@@ -180,6 +155,6 @@ def test_remove_parameter(parameter_catalog):
     parameter = Parameter(**PARAMETER_DATA)
     parameter_catalog.add_parameter("environmental", parameter)
 
-    parameter_catalog.remove_parameter("environmental", "temperature")
+    parameter_catalog.remove_parameter("environmental", "SAL")
 
-    assert "sal" not in parameter_catalog._environmental
+    assert "SAL" not in parameter_catalog._environmental
