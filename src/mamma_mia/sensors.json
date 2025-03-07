@@ -68,7 +68,9 @@
                     "CNDC": 1,
                     "PRES": 1
                 }
-            },
+            }
+        ],
+        "radiometers": [
             {
                 "sensor_serial_number": "3289",
                 "bodc_sensor_version_id": 1095,
@@ -83,6 +85,53 @@
                 "parameters": {
                     "CHLA": 1,
                     "BBP700": 1
+                }
+            }
+        ],
+        "data_loggers": [
+            {
+                "sensor_serial_number": "ALR_4",
+                "bodc_sensor_version_id": 1296,
+                "bodc_sensor_id": 838,
+                "sensor_name": "ALR v1 data logger ALR_4",
+                "bodc_sensor_model_id": 761,
+                "bodc_sensor_model_registry_id": 281,
+                "instrument_type": "data loggers",
+                "sensor_manufacturer": "National Oceanography Centre",
+                "model_name": "Autosub Long Range v2 {ALR} data logger",
+                "sensor_model": "Autosub Long Range v2 {ALR} data logger",
+                "parameters": {
+                    "ALR_LATITUDE": 1
+                }
+            },
+            {
+                "sensor_serial_number": "ALR_6",
+                "bodc_sensor_version_id": 1664,
+                "bodc_sensor_id": 1232,
+                "sensor_name": "ALR data logger v2 ALR_6",
+                "bodc_sensor_model_id": 761,
+                "bodc_sensor_model_registry_id": 281,
+                "instrument_type": "data loggers",
+                "sensor_manufacturer": "National Oceanography Centre",
+                "model_name": "Autosub Long Range v2 {ALR} data logger",
+                "sensor_model": "Autosub Long Range v2 {ALR} data logger",
+                "parameters": {
+                    "ALR_LATITUDE": 1
+                }
+            },
+            {
+                "sensor_serial_number": "unit_398",
+                "bodc_sensor_version_id": 1139,
+                "bodc_sensor_id": 686,
+                "sensor_name": "Teledyne Slocum G1+G2 unit_398",
+                "bodc_sensor_model_id": 450,
+                "bodc_sensor_model_registry_id": 236,
+                "instrument_type": "data loggers",
+                "sensor_manufacturer": "Teledyne Webb Research",
+                "model_name": "Slocum G1+G2 Glider Navigation data logger",
+                "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
+                "parameters": {
+                    "LATITUDE": 1
                 }
             }
         ]
