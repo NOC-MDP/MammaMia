@@ -31,6 +31,20 @@
                 "source_name": "sci_water_temp",
                 "ancillary_variables": "TEMP_QC"
             }
+        ],
+        "navigation": [
+            {
+                "parameter_name": "LATITUDE",
+                "standard_name": "latitude_north",
+                "unit_of_measure": "degrees_north",
+                "parameter_definition": "Latitude north",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATZZ01/",
+                "seadatanet_unit_of_measure":"SDN:P06::DEGN",
+                "source_name":"m_lat",
+                "valid_max":90.00,
+                "valid_min":-90.00,
+                "ancillary_variables":"LATITUDE_QC"
+            }
         ]
     }
 }

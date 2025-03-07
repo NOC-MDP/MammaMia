@@ -29,6 +29,7 @@ class Platform:
         if not isinstance(self.bodc_platform_model_id, int):
             raise TypeError(f"bodc_platform_model_id must be an instance of int, got {type(self.bodc_platform_model_id)}")
 
+
     def register_sensor(self,sensor):
         if not isinstance(sensor, sensors.Sensor):  # Runtime type check
             raise TypeError(f"Sensor must be an instance of sensors.Sensor, got {type(sensor)}")

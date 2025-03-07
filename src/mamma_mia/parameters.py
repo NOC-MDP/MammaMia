@@ -55,19 +55,26 @@ class Parameter:
 
 @dataclass
 class ParameterCatalog:
-    parameters: dict[str, Parameter] = field(default_factory=dict)
+    environmental: dict[str, Parameter] = field(default_factory=dict)
+    navigation: dict[str, Parameter] = field(default_factory=dict)
 
     def __post_init__(self):
         with open("src/mamma_mia/parameters.json", "r") as f:
             params = json.load(f)
 
         for parameter_type, parameters in params["parameters"].items():
-            for parameter in parameters:
-                try:
-                    self.parameters[parameter["parameter_name"]] = Parameter(**parameter)
-                except KeyError:
-                    raise InvalidParameter(f"{parameter['parameter_name']} is not a valid parameter")
-
+            if parameter_type =="environmental":
+                for parameter in parameters:
+                    try:
+                        self.environmental[parameter["parameter_name"]] = Parameter(**parameter)
+                    except KeyError:
+                        raise InvalidParameter(f"{parameter['parameter_name']} is not a valid parameter")
+            if parameter_type =="navigation":
+                for parameter in parameters:
+                    try:
+                        self.navigation[parameter["parameter_name"]] = Parameter(**parameter)
+                    except KeyError:
+                        raise InvalidParameter(f"{parameter['parameter_name']} is not a valid parameter")
 parameters = ParameterCatalog()
 
 # CHLA = Parameter(

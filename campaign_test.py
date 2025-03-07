@@ -6,7 +6,7 @@ from mamma_mia import platforms
 from mamma_mia import parameters
 
 
-pp(sensors)
+pp(sensors.radiometers)
 pp(platforms,depth=1)
 pp(parameters)
 

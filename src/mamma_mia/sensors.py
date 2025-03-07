@@ -1,6 +1,9 @@
 import json
 from dataclasses import dataclass, field
 from mamma_mia.exceptions import InvalidSensor
+from loguru import logger
+from pathlib import Path
+import os
 
 @dataclass
 class Sensor:
@@ -29,16 +32,37 @@ class Sensor:
 
 @dataclass
 class SensorCatalog:
-    sensors: dict[str, Sensor] = field(default_factory=dict)
+    CTD: dict[str, Sensor] = field(default_factory=dict)
+    radiometers: dict[str, Sensor] = field(default_factory=dict)
+    dataloggers: dict[str, Sensor] = field(default_factory=dict)
 
     def __post_init__(self):
-        with open("src/mamma_mia/sensors.json", "r") as f:
+        # Get the directory where the module is located
+        module_dir = Path(__file__).parent
+        # TODO need to not have a hardcoded path here
+        with open(f"{module_dir}{os.sep}sensors.json", "r") as f:
             sens = json.load(f)
         for sensor_type, sensors in sens["sensors"].items():
             for sensor in sensors:
-                try:
-                    self.sensors[sensor["sensor_name"]] = Sensor(**sensor)
-                except KeyError:
-                    raise InvalidSensor(f"{sensor['sensor_name']} is not a valid sensor")
+                # TODO check the InvalidSensor exception as this doens't look right?
+                # TODO add more validation and checking here
+                if sensor_type == "CTD":
+                    try:
+                        self.CTD[sensor["sensor_name"]] = Sensor(**sensor)
+                    except KeyError:
+                        raise InvalidSensor(f"{sensor['sensor_name']} is not a valid sensor")
+                elif sensor_type == "radiometers":
+                    try:
+                        self.radiometers[sensor["sensor_name"]] = Sensor(**sensor)
+                    except KeyError:
+                        raise InvalidSensor(f"{sensor['sensor_name']} is not a valid sensor")
+                elif sensor_type == "dataloggers":
+                    try:
+                        self.dataloggers[sensor["sensor_name"]] = Sensor(**sensor)
+                    except KeyError:
+                        raise InvalidSensor(f"{sensor['sensor_name']} is not a valid sensor")
+                else:
+                    logger.warning(f"unknown sensor type {sensor_type}")
+
 
 sensors = SensorCatalog()
