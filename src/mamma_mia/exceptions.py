@@ -25,6 +25,9 @@ class NullDataException(Exception):
 class InvalidPlatform(Exception):
     pass
 
+class InvalidPlatformEntry(Exception):
+    pass
+
 class InvalidSensor(Exception):
     pass
 
