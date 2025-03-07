@@ -51,6 +51,7 @@ class Sensor:
 
 @dataclass
 class SensorCatalog:
+    _sensor_types = ("_CTD", "_radiometers", "_dataloggers")
     _CTD: dict = field(default_factory=dict, init=False)
     _radiometers: dict = field(default_factory=dict, init=False)
     _dataloggers: dict = field(default_factory=dict, init=False)
@@ -90,16 +91,16 @@ class SensorCatalog:
             raise KeyError(f"Sensor '{sensor_ref}' not found in {sensor_type}.")
         return copy.deepcopy(sensor_dict[sensor_ref])
 
-    def add_sensor(self, sensor_type: str, sensor: dict):
+    def add_sensor(self, sensor_type: str, sensor: Sensor):
         """Adds a new sensor. Raises an error if the sensor already exists."""
         sensor_dict = self._get_sensor_dict(sensor_type)
-        sensor_name = sensor.get("sensor_name") or sensor.get("sensor_serial_number")
+        sensor_name = sensor.sensor_name or sensor.sensor_serial_number
         if not sensor_name:
             raise ValueError("Sensor entry missing 'sensor_name' or 'sensor_serial_number'")
         if sensor_name in sensor_dict:
             raise ValueError(f"Sensor '{sensor_name}' already exists and cannot be modified.")
 
-        sensor_dict[sensor_name] = Sensor(**sensor)
+        sensor_dict[sensor_name] = sensor
 
     def remove_sensor(self, sensor_type: str, sensor_name: str):
         """Removes a sensor from the catalog."""
@@ -127,13 +128,13 @@ class SensorCatalog:
 
     def __setattr__(self, key, value):
         """Prevents direct modification of catalog attributes."""
-        if key in {"_CTD", "_radiometers", "_dataloggers"} and hasattr(self, key):
+        if key in self._sensor_types and hasattr(self, key):
             raise AttributeError(f"Cannot modify '{key}' directly. Use add_sensor or remove_sensor instead.")
         super().__setattr__(key, value)
 
     def __delattr__(self, key):
         """Prevents deletion of catalog attributes."""
-        if key in {"_CTD", "_radiometers", "_dataloggers"}:
+        if key in self._sensor_types:
             raise AttributeError(f"Cannot delete '{key}'. Use remove_sensor instead.")
         super().__delattr__(key)
 
