@@ -45,6 +45,28 @@
                 "valid_min":-90.00,
                 "ancillary_variables":"LATITUDE_QC"
             }
+        ],
+        "time": [
+            {
+                "parameter_name": "TIME",
+                "long_name": "time of measurement and gps location",
+                "units": "seconds since 1970-01-01 00:00:00Z",
+                "standard_name": "time",
+                "valid_min": 1000000000,
+                "valid_max": 4000000000,
+                "calendar": "gregorian",
+                "fill_value":-1.0
+            },
+                        {
+                "parameter_name": "TIME_GPS",
+                "long_name": "time of each gps location",
+                "units": "seconds since 1970-01-01 00:00:00Z",
+                "standard_name": "",
+                "valid_min": 1000000000,
+                "valid_max": 4000000000,
+                "calendar": "gregorian",
+                "fill_value":-1.0
+            }
         ]
     }
 }

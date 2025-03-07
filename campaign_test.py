@@ -3,20 +3,19 @@ from pprint import pp
 
 from mamma_mia import sensors
 from mamma_mia import platforms
-from mamma_mia import parameters
+ALR4 = platforms.get_platform(platform_name="ALR_4",platform_type="alr")
+sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="0221")
+ALR4.register_sensor(sensor)
+
+print("the end")
 
 
-pp(sensors.radiometers)
-pp(platforms,depth=1)
-pp(parameters)
-
-auv1 = platforms.alr["ALR_4"]
 # auv2 = platforms2.glider["Churchill"]
-sensor = sensors.sensors["SBE 52-MP CTD 0221"]
-# print(f"AUV is called {auv1.platform_name}")
-# print(f"Add sensor {sensor.sensor_name}")
-auv1.register_sensor(sensor=sensor)
-pp(auv1,depth=2)
+# sensor = sensors.sensors["SBE 52-MP CTD 0221"]
+# # print(f"AUV is called {auv1.platform_name}")
+# # print(f"Add sensor {sensor.sensor_name}")
+# auv1.register_sensor(sensor=sensor)
+# pp(auv1,depth=2)
 
 # print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # # create campaign

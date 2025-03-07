@@ -1,10 +1,14 @@
 import json
 from dataclasses import dataclass, field
 from mamma_mia.exceptions import InvalidParameter
+from pathlib import Path
+import os
+from loguru import logger
 
 
 @dataclass(frozen=True)
 class TimeParameter:
+    parameter_name: str
     long_name: str
     units: str
     standard_name: str
@@ -13,25 +17,11 @@ class TimeParameter:
     calendar: str
     fill_value: float
 
-TIME = TimeParameter(
-    long_name="time of measurement and gps location",
-    units="seconds since 1970-01-01 00:00:00Z",
-    standard_name="time",
-    valid_min=1000000000,
-    valid_max=4000000000,
-    calendar="gregorian",
-    fill_value=-1.0
-)
+    def __post_init__(self):
+        # TODO add more validation here
+        if not isinstance(self.parameter_name, str):
+            raise TypeError(f"parameter name must be an instance of str, got {type(self.parameter_name)}")
 
-TIME_GPS = TimeParameter(
-    long_name="time of ech gps locations",
-    units="seconds since 1970-01-01 00:00:00Z",
-    standard_name="",
-    valid_min=1000000000,
-    valid_max=4000000000,
-    calendar="gregorian",
-    fill_value=-1.0
-)
 
 @dataclass(frozen=True)
 class Parameter:
@@ -50,31 +40,57 @@ class Parameter:
     def __post_init__(self):
         # TODO add more validation here
         if not isinstance(self.parameter_name, str):
-            raise TypeError(f"parameter name must be an instance of str, got {type(self.bodc_platform_model_id)}")
+            raise TypeError(f"parameter name must be an instance of str, got {type(self.parameter_name)}")
 
 
 @dataclass
 class ParameterCatalog:
-    environmental: dict[str, Parameter] = field(default_factory=dict)
-    navigation: dict[str, Parameter] = field(default_factory=dict)
+    environmental: dict[str, Parameter] = None
+    navigation: dict[str, Parameter] = None
+    time: dict[str, TimeParameter] = None
 
     def __post_init__(self):
-        with open("src/mamma_mia/parameters.json", "r") as f:
+        logger.info("creating parameter catalog")
+        module_dir = Path(__file__).parent
+        with open(f"{module_dir}{os.sep}parameters.json", "r") as f:
             params = json.load(f)
 
         for parameter_type, parameters in params["parameters"].items():
             if parameter_type =="environmental":
+                if self.environmental is None:
+                    self.environmental = {}
                 for parameter in parameters:
                     try:
                         self.environmental[parameter["parameter_name"]] = Parameter(**parameter)
-                    except KeyError:
+                    except TypeError as e:
+                        logger.error(e)
                         raise InvalidParameter(f"{parameter['parameter_name']} is not a valid parameter")
-            if parameter_type =="navigation":
+
+            elif parameter_type =="navigation":
+                if self.navigation is None:
+                    self.navigation = {}
                 for parameter in parameters:
                     try:
                         self.navigation[parameter["parameter_name"]] = Parameter(**parameter)
-                    except KeyError:
+                    except TypeError as e:
+                        logger.error(e)
                         raise InvalidParameter(f"{parameter['parameter_name']} is not a valid parameter")
+
+            elif parameter_type =="time":
+                if self.time is None:
+                    self.time = {}
+                for parameter in parameters:
+                    try:
+                        self.time[parameter["parameter_name"]] = TimeParameter(**parameter)
+                    except TypeError as e:
+                        logger.error(e)
+                        raise InvalidParameter(f"{parameter['parameter_name']} is not a valid time parameter")
+
+            else:
+                logger.warning(f"unknown parameter type {parameter_type}")
+                logger.info(f"skipping parameter type {parameter_type}")
+        logger.success(f"successfully created parameter catalog")
+
 parameters = ParameterCatalog()
 
 # CHLA = Parameter(

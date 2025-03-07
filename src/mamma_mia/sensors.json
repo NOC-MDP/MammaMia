@@ -88,7 +88,7 @@
                 }
             }
         ],
-        "data_loggers": [
+        "dataloggers": [
             {
                 "sensor_serial_number": "ALR_4",
                 "bodc_sensor_version_id": 1296,

@@ -15,10 +15,7 @@
                 "platform_serial_number": "unit_398",
                 "platform_owner": "NOCS",
                 "wmo_platform_code": 6801573,
-                "data_type": "EGO glider time-series data",
-                "sensors": {
-                    "data_logger": "Teledyne_Slocum_G1_G2_unit_398"
-                }
+                "data_type": "EGO glider time-series data"
             }
         ],
         "alr": [
@@ -36,10 +33,7 @@
                 "platform_serial_number": "ALR_4",
                 "platform_owner": "NOCS",
                 "wmo_platform_code": -999999,
-                "data_type": "EGO glider time-series data",
-                "sensors": {
-                    "data_logger": "ALR_v1_data_logger_ALR_4"
-                }
+                "data_type": "EGO glider time-series data"
             }
         ]
     }
