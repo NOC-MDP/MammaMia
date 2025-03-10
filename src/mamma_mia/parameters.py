@@ -1,11 +1,12 @@
 import json
-from dataclasses import dataclass, field
 from pathlib import Path
 import os
 from loguru import logger
 import copy
+from attrs import frozen, field
+from cattrs import structure
 
-@dataclass(frozen=True)
+@frozen
 class TimeParameter:
     parameter_name: str
     long_name: str
@@ -16,13 +17,8 @@ class TimeParameter:
     calendar: str
     fill_value: float
 
-    def __post_init__(self):
-        # TODO add more validation here
-        if not isinstance(self.parameter_name, str):
-            raise TypeError(f"parameter name must be an instance of str, got {type(self.parameter_name)}")
 
-
-@dataclass(frozen=True)
+@frozen
 class Parameter:
     parameter_name: str
     standard_name: str
@@ -36,19 +32,14 @@ class Parameter:
     valid_max: float = None
     valid_min: float = None
 
-    def __post_init__(self):
-        # TODO add more validation here
-        if not isinstance(self.parameter_name, str):
-            raise TypeError(f"parameter name must be an instance of str, got {type(self.parameter_name)}")
 
-
-@dataclass
+@frozen
 class ParameterCatalog:
-    _environmental: dict[str, Parameter] = field(default_factory=dict)
-    _navigation: dict[str, Parameter] = field(default_factory=dict)
-    _time: dict[str, TimeParameter] = field(default_factory=dict)
+    _environmental: dict[str, Parameter] = field(factory=dict)
+    _navigation: dict[str, Parameter] = field(factory=dict)
+    _time: dict[str, TimeParameter] = field(factory=dict)
 
-    def __post_init__(self):
+    def __attrs_post_init__(self):
         logger.info("Creating parameter catalog")
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}parameters.json", "r") as f:
@@ -64,12 +55,14 @@ class ParameterCatalog:
 
         for parameter in parameters:
             try:
+                logger.info(f"registering parameter {parameter['parameter_name']} to catalog")
                 param_dict[parameter["parameter_name"]] = (
-                    TimeParameter(**parameter) if parameter_type == "time" else Parameter(**parameter)
+                    structure(parameter,TimeParameter) if parameter_type == "time" else structure(parameter,Parameter)
                 )
             except TypeError as e:
                 logger.error(e)
                 raise ValueError(f"{parameter['parameter_name']} is not a valid {parameter_type} parameter")
+            logger.success(f"paramter {parameter['parameter_name']} registered successfully")
 
     def _get_parameter_dict(self, parameter_type):
         match parameter_type:

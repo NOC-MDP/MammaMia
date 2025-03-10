@@ -1,19 +1,15 @@
-import json
-
-from mamma_mia.catalog import Cats, cmems_alias
+#from mamma_mia.catalog import Cats, cmems_alias
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
-from mamma_mia import platforms
-from mamma_mia.auv import AUV,Slocum,ALR1500
-from mamma_mia.exceptions import AUVExists, UnknownAUV, UnknownSensor, MissionExists, UnknownSourceKey, PlatformExists
-from dataclasses import dataclass,field,asdict
-import uuid
+from mamma_mia import Platform
+from mamma_mia.exceptions import MissionExists, PlatformExists
 from loguru import logger
 import zarr
 from os import sep
 import sys
+from attrs import frozen, field
 
-@dataclass
+@frozen
 class Campaign:
     """
     Campaign object, this contains all the missions that auv's are being deployed to undertake. It is the main object
@@ -29,62 +25,38 @@ class Campaign:
     """
     name: str
     description: str
-    catalog: Cats = field(init=False, default_factory=Cats)
-    platforms: dict = field(default_factory=dict)
-    auvs: dict[str,AUV] = field(default_factory=dict)
-    missions: dict[str, Mission] = field(init=False, default_factory=dict)
-    interpolators: dict[str, Interpolators] = field(init=False,default_factory=dict)
-    uuid: uuid = uuid.uuid4()
+    #catalog: Cats = field(init=False, default_factory=Cats)
+    platforms: dict[str,Platform] = field(factory=dict)
+    missions: dict[str, Mission] = field(factory=dict)
+    interpolators: dict[str, Interpolators] = field(factory=dict)
     verbose: bool = False
 
-    def __post_init__(self):
+    def __attrs_post_init__(self):
         # reset logger
         logger.remove()        # set logger based on requested verbosity
         if self.verbose:
             logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
         else:
             logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="WARNING")
-        self.catalog = Cats()
+        #self.catalog = Cats()
         logger.success(f"Campaign {self.name} created")
 
-    def add_auv(self,
-                id:str,
-                type:Slocum | ALR1500):
+    def register_platform(self,platform: Platform,name:str):
         """
-        Add an auv to the campaign AUV dictionary
+        Add an platform to the campaign platform dictionary
         Args:
-            id: auv reference id, it is used as a key in the campaign dictionary
-            type: auv type
-            sensor_arrays: sensor arrays to attach to auv
-
+            platform: platform object to add to campaign
+            name: name of the platform instance
         Returns:
-            auv object stored in the campaign auv dictionary under its id key
+            platform object stored in the campaign auv dictionary under its id key
 
         """
-        logger.info(f"adding auv {id} to campaign {self.name}")
-        if id in self.auvs:
-            logger.error(f"Auv {id} already exists in {self.name}")
-            raise AUVExists
-        self.auvs[id] = AUV(type=type,id=id)
-        logger.success(f"Auv {id} added to {self.name}")
-
-    def add_platform(self,id: str):
-            """
-            Add an platform to the campaign platform dictionary
-            Args:
-                id: reference id, it is used as a key in the campaign dictionary
-                type: platform type
-
-            Returns:
-                platform object stored in the campaign auv dictionary under its id key
-
-            """
-            logger.info(f"adding platform {id} to campaign {self.name}")
-            if id in self.platforms:
-                logger.error(f"Platform {id} already exists in {self.name}")
-                raise PlatformExists
-            self.platforms[id] = platforms[id]
-            logger.success(f"Platform {id} added to {self.name}")
+        logger.info(f"registering {name} of platform {platform.platform_name} to campaign {self.name}")
+        if name in self.platforms:
+            logger.error(f"{name} already exists in {self.name}")
+            raise PlatformExists
+        self.platforms[name] = platform
+        logger.success(f"{name} successfully registered to {self.name}")
 
     def add_mission(self,
                     name:str,
@@ -201,7 +173,7 @@ class Campaign:
         logger.success(f"zarr group {self.name} successfully created")
 
         for key1, mission in self.missions.items():
-            mission.create_dim_map(cmems_alias=cmems_alias,msm_cat=self.catalog.msm_cat)
+            #mission.create_dim_map(cmems_alias=cmems_alias,msm_cat=self.catalog.msm_cat)
             logger.info(f"creating zarr group for mission {mission.attrs['name']}")
             camp.create_group(mission.attrs['name'])
             logger.info(f"exporting {mission.attrs['name']}")

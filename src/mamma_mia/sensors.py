@@ -1,5 +1,6 @@
 import json
-from dataclasses import dataclass, field
+from attrs import frozen, field
+from cattrs import structure
 from loguru import logger
 from pathlib import Path
 import os
@@ -7,7 +8,7 @@ import copy
 from mamma_mia.parameters import Parameter, parameters
 from mamma_mia.exceptions import InvalidParameter
 
-@dataclass
+@frozen
 class Sensor:
     # instance parameters
     sensor_serial_number: str
@@ -21,20 +22,21 @@ class Sensor:
     sensor_manufacturer: str
     model_name: str
     sensor_model: str
-    parameters: dict = field(default_factory=dict)
+    parameters: dict = field(factory=dict)
 
-    def __post_init__(self):
+    def __attrs_post_init__(self):
         # convert all parameter strings/keys to parameter objects
         for parameter_key in self.parameters.keys():
             self._process_parameters(parameter_key, parameters)
 
     def _process_parameters(self, parameter_key, parameters):
         parameter = None
-        # TODO check that vars() is sensible here
-        for k1 in vars(parameters).keys():
-            for k2 in vars(parameters)[k1].keys():
-                if k2 == parameter_key:
-                    parameter = vars(parameters)[k1][k2]
+        for k1 in parameters.__attrs_attrs__:  # Iterate over attrs fields
+            sub_obj = getattr(parameters, k1.name)  # Get the field's value
+            if isinstance(sub_obj, dict):
+                for k2 in sub_obj.keys():
+                    if k2 == parameter_key:
+                        parameter = sub_obj[k2]
         if parameter is None:
             raise InvalidParameter(f"parameter {parameter_key} not found")
         self.register_parameter(parameter=parameter)
@@ -48,13 +50,13 @@ class Sensor:
         logger.success(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
 
 
-@dataclass
+@frozen
 class SensorCatalog:
-    _CTD: dict = field(default_factory=dict, init=False)
-    _radiometers: dict = field(default_factory=dict, init=False)
-    _dataloggers: dict = field(default_factory=dict, init=False)
+    _CTD: dict = field(factory=dict)
+    _radiometers: dict = field(factory=dict)
+    _dataloggers: dict = field(factory=dict)
 
-    def __post_init__(self):
+    def __attrs_post_init__(self):
         logger.info("Creating sensor catalog")
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}sensors.json", "r") as f:
@@ -77,7 +79,7 @@ class SensorCatalog:
                 continue
 
             try:
-                sensor_dict[sensor_ref] = Sensor(**sensor)
+                sensor_dict[sensor_ref] = structure(sensor,Sensor)
             except TypeError as e:
                 logger.error(f"Error initializing sensor {sensor_ref}: {e}")
                 raise ValueError(f"{sensor_ref} is not a valid sensor")
@@ -109,7 +111,15 @@ class SensorCatalog:
 
     def list_sensors(self, sensor_type: str):
         """Lists all sensor names in the specified category (CTD, radiometers, dataloggers)."""
-        return list(self._get_sensor_dict(sensor_type).keys())
+        return list(self._get_sensor_dict(sensor_type).values())
+
+    def list_sensor_types(self):
+        """
+        Lists all available sensor types.
+        Returns: list of sensor types.
+
+        """
+        return ["CTD", "radiometers", "dataloggers"]
 
     def _get_sensor_dict(self, sensor_type: str):
         """Helper function to get the correct sensor dictionary."""
