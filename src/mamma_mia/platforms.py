@@ -1,15 +1,15 @@
 import json
-from dataclasses import dataclass, field
-
 from mamma_mia.exceptions import InvalidPlatform
 from mamma_mia.sensors import sensors, Sensor
 import os
 from pathlib import Path
 from loguru import logger
 import copy
+from attrs import frozen, field
+from cattrs import structure
 
 
-@dataclass
+@frozen
 class Platform:
     # platform parameters
     bodc_platform_model_id: int
@@ -27,12 +27,7 @@ class Platform:
     platform_family: str
     wmo_platform_code: int
     data_type: str
-    sensors: dict[str, Sensor] = field(default_factory=dict)
-
-    def __post_init__(self):
-        # TODO add more validation and type checking here
-        if not isinstance(self.bodc_platform_model_id, int):
-            raise TypeError(f"bodc_platform_model_id must be an instance of int, got {type(self.bodc_platform_model_id)}")
+    sensors: dict[str, Sensor] = field(factory=dict)
 
     def register_sensor(self,sensor):
         logger.info(f"registering sensor {sensor.sensor_name} to platform {self.platform_name}")
@@ -42,12 +37,12 @@ class Platform:
         self.sensors[sensor.sensor_name] = sensor
         logger.success(f"successfully registered sensor {sensor.sensor_name} to platform {self.platform_name}")
 
-@dataclass
+@frozen
 class PlatformCatalog:
-    _glider: dict = field(default_factory=dict, init=False)
-    _alr: dict = field(default_factory=dict, init=False)
+    _glider: dict = field(factory=dict)
+    _alr: dict = field(factory=dict)
 
-    def __post_init__(self):
+    def __attrs_post_init__(self):
         logger.info("Creating platform catalog")
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}platforms.json", "r") as f:
@@ -75,7 +70,7 @@ class PlatformCatalog:
                 if not datalogger:
                     logger.error(f"Datalogger entry missing {serial_number}, skipping")
 
-                platform_dict[platform_name] = Platform(**platform)
+                platform_dict[platform_name] = structure(platform,Platform)
                 platform_dict[platform_name].register_sensor(sensor=datalogger)
 
             except TypeError as e:

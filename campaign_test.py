@@ -1,30 +1,32 @@
+from loguru import logger
+logger.info("<=========> preparing mamma mia catalogs <===========>")
 from mamma_mia import sensors
 from mamma_mia import platforms
+from mamma_mia import Campaign
+from pprint import pp
+logger.success("<=========> Mamma Mia catalogs successfully created <===========>")
+logger.info("<=========> starting Mamma Mia AUV Campaign test run <===========>")
+# create campaign
+campaign = Campaign(name="campaign_1",
+                    description="single slocum glider deployment in North sea 2019",
+                    verbose=True
+                    )
+# # add AUV
 
-ALR4 = platforms.get_platform(platform_name="ALR_4",platform_type="alr")
+ALR4_withCTD = platforms.get_platform(platform_name="ALR_4",platform_type="alr")
+logger.info(f"sensor types availble {sensors.list_sensor_types()}")
+pp(sensors.list_sensors(sensor_type="CTD"))
 sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="0221")
-ALR4.register_sensor(sensor)
+ALR4_withCTD.register_sensor(sensor)
 
+ALR4_noCTD = platforms.get_platform(platform_name="ALR_4",platform_type="alr")
 
+campaign.register_platform(platform=ALR4_noCTD,name="ALR_4_noCTD")
+campaign.register_platform(platform=ALR4_withCTD,name="ALR_4_withCTD")
 
 print("the end")
 
 
-# auv2 = platforms2.glider["Churchill"]
-# sensor = sensors.sensors["SBE 52-MP CTD 0221"]
-# # print(f"AUV is called {auv1.platform_name}")
-# # print(f"Add sensor {sensor.sensor_name}")
-# auv1.register_sensor(sensor=sensor)
-# pp(auv1,depth=2)
-
-# print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
-# # create campaign
-# campaign = Campaign(name="campaign_1",
-#                     description="single slocum glider deployment in North sea 2019",
-#                     verbose=True
-#                     )
-# # add AUV
-# campaign.add_platform(id="ALR4")
 # pp(campaign,depth=1)
 # # add mission
 # campaign.add_mission(name="mission_1",
