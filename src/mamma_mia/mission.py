@@ -1,7 +1,8 @@
 import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
-from mamma_mia.auv import AUV
+from cattrs import unstructure
+from mamma_mia import Platform
 from dataclasses import dataclass,fields
 import uuid
 from loguru import logger
@@ -38,7 +39,7 @@ class Mission(zarr.Group):
     def __init__(self,
                  name:str,
                  description:str,
-                 auv:AUV,
+                 platform:Platform,
                  trajectory_path:str,
                  store=None,
                  overwrite=False,
@@ -58,11 +59,15 @@ class Mission(zarr.Group):
         self.attrs["uuid"] = str(uuid.uuid4())
         self.attrs["description"] = description
 
-        auv_exp = self.create_group("auv")
-        auv_exp.attrs["id"] = auv.id
-        auv_exp.attrs["type"] = auv.type.type
-        auv_exp.attrs["uuid"] = str(auv.uuid)
-        auv_exp.attrs["sensor_arrays"] = str(auv.sensor_arrays)
+        platform_exp = self.create_group("platform")
+        platform_unstruct = unstructure(platform)
+
+        platform_exp.attrs.update(platform_unstruct)
+
+        # auv_exp.attrs["id"] = auv.id
+        # auv_exp.attrs["type"] = auv.type.type
+        # auv_exp.attrs["uuid"] = str(auv.uuid)
+        # auv_exp.attrs["sensor_arrays"] = str(auv.sensor_arrays)
 
         ds = xr.open_dataset(trajectory_path)
         traj = self.create_group("trajectory")
@@ -71,8 +76,8 @@ class Mission(zarr.Group):
         traj.array(name="depths",data=np.array(ds["m_depth"]))
         traj.array(name="pitch", data=np.array(ds["m_pitch"]))
         # TODO figure out if yaw and roll are in the glider simulator data
-        #traj.array(name="yaw", data=np.array(ds["m_heading"]))
-        #traj.array(name="roll", data=np.array(ds["m_fin"]))
+        traj.array(name="yaw", data=np.array(ds["m_heading"]))
+        traj.array(name="roll", data=np.array(ds["m_fin"]))
         traj.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
 
         for i in range(traj.longitudes.__len__()):
@@ -93,18 +98,18 @@ class Mission(zarr.Group):
         # construct sensor array dictionary to save as attribute and empty reality arrays for each sensor
         # TODO be able to handle more than one of the same array type e.g. CTD will overwrite any existing CTD arrays
         sensor_arrays = {}
-        for group in auv.sensor_arrays.values():
-            sensor_arrays[group.array] = {}
-            for sensor in fields(group):
-                # filter out uuid field
-                if "uuid" in sensor.name:
-                    sensor_arrays[group.array][sensor.name] = {"uuid": str(sensor.default)}
-                # if field starts with sensor then it's a sensor!
-                if "sensor" in sensor.name:
-                    # map sensor class to a JSON serializable object (a dict basically)
-                    sensor_arrays[group.array][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
-                    real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
-                    real_grp.attrs["mapped_name"] = sensor.default.type
+        # for group in auv.sensor_arrays.values():
+        #     sensor_arrays[group.array] = {}
+        #     for sensor in fields(group):
+        #         # filter out uuid field
+        #         if "uuid" in sensor.name:
+        #             sensor_arrays[group.array][sensor.name] = {"uuid": str(sensor.default)}
+        #         # if field starts with sensor then it's a sensor!
+        #         if "sensor" in sensor.name:
+        #             # map sensor class to a JSON serializable object (a dict basically)
+        #             sensor_arrays[group.array][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
+        #             real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
+        #             real_grp.attrs["mapped_name"] = sensor.default.type
         # update sensor array attribute in zarr group
         self.auv.attrs.update({"sensor_arrays": sensor_arrays})
         worlds = self.create_group("world")

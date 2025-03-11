@@ -61,7 +61,7 @@ class Campaign:
     def add_mission(self,
                     name:str,
                     description:str,
-                    auv:str,
+                    platform_name:str,
                     trajectory_path:str,
                     store=None,
                     overwrite=False,
@@ -94,7 +94,7 @@ class Campaign:
             raise MissionExists
         mission = Mission(name=name,
                           description=description,
-                          auv=self.auvs[auv],
+                          platform=self.platforms[platform_name],
                           trajectory_path=trajectory_path,
                           store=store,
                           overwrite=overwrite,
@@ -105,7 +105,7 @@ class Campaign:
                           )
         interpolator = Interpolators()
         logger.info(f"adding {mission.attrs['name']} to {self.name}")
-        logger.info(f"adding {auv} to {mission.attrs['name']}")
+        #logger.info(f"adding {auv} to {mission.attrs['name']}")
         self.missions[mission.attrs['name']] = mission
         self.interpolators[mission.attrs['name']] = interpolator
         logger.success(f"successfully added {mission.attrs['name']} to {self.name}")
