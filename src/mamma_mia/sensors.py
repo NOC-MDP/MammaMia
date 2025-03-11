@@ -5,6 +5,8 @@ from loguru import logger
 from pathlib import Path
 import os
 import copy
+
+from mamma_mia import TimeParameter
 from mamma_mia.parameters import Parameter, parameters
 from mamma_mia.exceptions import InvalidParameter
 
@@ -44,8 +46,8 @@ class Sensor:
     def register_parameter(self,parameter: Parameter):
         logger.info(f"registering parameter {parameter.parameter_name} to sensor {self.sensor_name}")
         # TODO add validation or checking here e.g. is it the right sensor type for the platform?
-        if not isinstance(parameter, Parameter):  # Runtime type check
-            raise TypeError(f"Sensor must be an instance of sensors.Sensor, got {type(parameter)}")
+        if not isinstance(parameter, (Parameter,TimeParameter)):  # Runtime type check
+            raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
         self.parameters[parameter.parameter_name] = parameter
         logger.success(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
 

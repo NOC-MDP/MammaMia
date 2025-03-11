@@ -13,16 +13,16 @@ campaign = Campaign(name="Greenland_2028",
                     )
 # # add AUV
 
-ALR4_withCTD = platforms.get_platform(platform_name="ALR_4",platform_type="alr")
+Churchill_withCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")
 print(f"sensor types availble {sensors.list_sensor_types()}")
 pp(sensors.list_sensors(sensor_type="CTD"))
-sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="0221")
-ALR4_withCTD.register_sensor(sensor)
+sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="9100")
+Churchill_withCTD.register_sensor(sensor)
 
-ALR4_noCTD = platforms.get_platform(platform_name="ALR_4",platform_type="alr")
+Churchill_noCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")
 
-campaign.register_platform(platform=ALR4_noCTD,name="ALR_4_noCTD")
-campaign.register_platform(platform=ALR4_withCTD,name="ALR_4_withCTD")
+campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
+campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
 
 
 
@@ -31,7 +31,7 @@ campaign.register_platform(platform=ALR4_withCTD,name="ALR_4_withCTD")
 # # add mission
 campaign.add_mission(name="GL28_01",
                      description="slocum glider Slocum_1 in the North Sea 2019",
-                     platform_name="ALR_4_withCTD",
+                     platform_name="Churchill_withCTD",
                      trajectory_path="comet-mm1.nc")
 
 print("the end")

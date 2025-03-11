@@ -2,7 +2,7 @@
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
 from mamma_mia import Platform
-from mamma_mia.exceptions import MissionExists, PlatformExists
+from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform
 from loguru import logger
 import zarr
 from os import sep
@@ -92,9 +92,14 @@ class Campaign:
         if name in self.missions:
             logger.error(f"mission {name} already exists")
             raise MissionExists
+        try:
+            platform_n = self.platforms[platform_name]
+        except KeyError:
+            raise UnknownPlatform
+
         mission = Mission(name=name,
                           description=description,
-                          platform=self.platforms[platform_name],
+                          platform=platform_n,
                           trajectory_path=trajectory_path,
                           store=store,
                           overwrite=overwrite,
