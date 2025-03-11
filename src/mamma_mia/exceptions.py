@@ -7,7 +7,13 @@ class PlatformExists(Exception):
 class UnknownAUV(Exception):
     pass
 
+class UnknownPlatform(Exception):
+    pass
+
 class UnknownSensor(Exception):
+    pass
+
+class UnknownParameter(Exception):
     pass
 
 class MissionExists(Exception):
@@ -32,4 +38,7 @@ class InvalidSensor(Exception):
     pass
 
 class InvalidParameter(Exception):
+    pass
+
+class CriticalParameterMissing(Exception):
     pass

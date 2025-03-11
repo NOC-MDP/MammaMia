@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import xarray as xr
 from cattrs import unstructure
 from mamma_mia import Platform
-from dataclasses import dataclass,fields
+from dataclasses import dataclass
 import uuid
 from loguru import logger
 import zarr
@@ -11,7 +11,8 @@ from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.find_worlds import find_worlds
 from mamma_mia.get_worlds import get_worlds
-from mamma_mia.exceptions import UnknownSourceKey
+from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing
+
 
 @dataclass
 class Mission(zarr.Group):
@@ -21,7 +22,6 @@ class Mission(zarr.Group):
     Args:
         name: name of the mission
         description: description of the mission
-        auv: AUV object created from AUV class
         trajectory_path: path of the AUV trajectory netcdf file
     Optional:
         store: set zarr store here, by default it will store in memory
@@ -59,31 +59,50 @@ class Mission(zarr.Group):
         self.attrs["uuid"] = str(uuid.uuid4())
         self.attrs["description"] = description
 
-        platform_exp = self.create_group("platform")
+        platform2 = self.create_group("platform")
         platform_unstruct = unstructure(platform)
 
-        platform_exp.attrs.update(platform_unstruct)
+        platform2.attrs.update(platform_unstruct)
 
         # auv_exp.attrs["id"] = auv.id
         # auv_exp.attrs["type"] = auv.type.type
         # auv_exp.attrs["uuid"] = str(auv.uuid)
         # auv_exp.attrs["sensor_arrays"] = str(auv.sensor_arrays)
+        # find parameter keys
+
+        lat_key = self.find_parameter_key(parameter="LATITUDE")
+        lon_key = self.find_parameter_key(parameter="LONGITUDE")
+        alt_key = self.find_parameter_key(parameter="ALTITUDE")
+        pitch_key = self.find_parameter_key(parameter="PITCH")
+        yaw_key = self.find_parameter_key(parameter="YAW")
+        roll_key = self.find_parameter_key(parameter="ROLL")
+        time_key = self.find_parameter_key(parameter="TIME")
 
         ds = xr.open_dataset(trajectory_path)
-        traj = self.create_group("trajectory")
-        traj.array(name="latitudes",data=np.array(ds["m_lat"]))
-        traj.array(name="longitudes",data=np.array(ds["m_lon"]))
-        traj.array(name="depths",data=np.array(ds["m_depth"]))
-        traj.array(name="pitch", data=np.array(ds["m_pitch"]))
-        # TODO figure out if yaw and roll are in the glider simulator data
-        traj.array(name="yaw", data=np.array(ds["m_heading"]))
-        traj.array(name="roll", data=np.array(ds["m_fin"]))
-        traj.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
+        trajectory = self.create_group("trajectory")
+        try:
+            trajectory.array(name="latitudes",data=np.array(ds[lat_key]))
+            trajectory.array(name="longitudes",data=np.array(ds[lon_key]))
+            trajectory.array(name="altitude",data=np.array(ds[alt_key]))
+        except KeyError as e:
+            logger.error(f"Critical parameter for operation missing: {e}")
+            raise CriticalParameterMissing
+        try:
+            if pitch_key is not None:
+                trajectory.array(name="pitch", data=np.array(ds[pitch_key]))
+            if yaw_key is not None:
+                trajectory.array(name="yaw", data=np.array(ds[yaw_key]))
+            if roll_key is not None:
+                trajectory.array(name="roll", data=np.array(ds[roll_key]))
+        except KeyError as e:
+            logger.warning(f"Optional parameter for operation not found: {e}")
 
-        for i in range(traj.longitudes.__len__()):
-            traj.longitudes[i] = self.__convert_to_decimal(traj.longitudes[i])
-        for i in range(traj.latitudes.__len__()):
-            traj.latitudes[i] = self.__convert_to_decimal(traj.latitudes[i])
+        trajectory.array(name="datetimes",data=np.array(ds[time_key],dtype='datetime64'))
+
+        for i in range(trajectory.longitudes.__len__()):
+            trajectory.longitudes[i] = self.__convert_to_decimal(trajectory.longitudes[i])
+        for i in range(trajectory.latitudes.__len__()):
+            trajectory.latitudes[i] = self.__convert_to_decimal(trajectory.latitudes[i])
 
         real_grp = self.create_group("reality")
         real_grp.array(name="latitudes",data=np.array(ds["m_lat"]))
@@ -114,14 +133,14 @@ class Mission(zarr.Group):
         self.auv.attrs.update({"sensor_arrays": sensor_arrays})
         worlds = self.create_group("world")
         extent = {
-                    "max_lat": np.around(np.max(traj.latitudes),2) + excess_space,
-                    "min_lat": np.around(np.min(traj.latitudes), 2) - excess_space,
-                    "max_lng": np.around(np.max(traj.longitudes), 2) + excess_space,
-                    "min_lng": np.around(np.min(traj.longitudes), 2) - excess_space,
+                    "max_lat": np.around(np.max(trajectory.latitudes),2) + excess_space,
+                    "min_lat": np.around(np.min(trajectory.latitudes), 2) - excess_space,
+                    "max_lng": np.around(np.max(trajectory.longitudes), 2) + excess_space,
+                    "min_lng": np.around(np.min(trajectory.longitudes), 2) - excess_space,
             # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
-                    "start_time": np.datetime_as_string(traj.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
-                    "end_time" : np.datetime_as_string(traj.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
-                    "max_depth": np.around(np.max(traj.depths), 2) + excess_depth
+                    "start_time": np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
+                    "end_time" : np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
+                    "max_depth": np.around(np.max(trajectory.depths), 2) + excess_depth
         }
         worlds.attrs["extent"] = extent
         worlds.attrs["catalog_priorities"] = {"msm":msm_priority,"cmems":cmems_priority}
@@ -129,6 +148,24 @@ class Mission(zarr.Group):
         worlds.attrs["matched_worlds"] = {}
         worlds.attrs["zarr_stores"] = {}
         worlds.attrs["dim_map"] = {}
+
+    def find_parameter_key(self,parameter:str,instrument_type:str ="data loggers") -> str:
+        sensor_key = None
+        parameter_key = None
+        for key in self.platform.attrs["sensors"].keys():
+            if self.platform.attrs["sensors"][key]["instrument_type"] == instrument_type:
+                sensor_key = key
+                break
+        try:
+            parameter_key = self.platform.attrs["sensors"][sensor_key]["parameters"][parameter]["source_name"]
+        except KeyError:
+            for key in self.platform.attrs["sensors"][sensor_key]["parameters"].keys():
+                if key.startswith(parameter) or key.endswith(parameter):
+                    try:
+                        parameter_key = self.platform.attrs["sensors"][sensor_key]["parameters"][key]["source_name"]
+                    except KeyError:
+                        parameter_key = self.platform.attrs["sensors"][sensor_key]["parameters"][key]["standard_name"]
+        return parameter_key
 
     def build_mission(self,cat:Cats) -> ():
         """

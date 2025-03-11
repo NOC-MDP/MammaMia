@@ -64,6 +64,26 @@
         ],
         "navigation": [
             {
+                "parameter_name": "WATERCURRENTS_U",
+                "standard_name": "eastward velocity of water",
+                "unit_of_measure": "cm/s",
+                "parameter_definition": "Eastward velocity of water current in the water body",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/LCEWZZ01/",
+                "seadatanet_unit_of_measure":"SDN:P06::UVAA",
+                "source_name":"m_final_water_vx",
+                "ancillary_variables":"WATERCURRENTS_U_QC"
+            },
+            {
+                "parameter_name": "ALTITUDE",
+                "standard_name": "height relative to seabed",
+                "unit_of_measure": "m",
+                "parameter_definition": "Height (spatial coordinate) relative to bed surface in the water body",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/AHSFZZ01/",
+                "seadatanet_unit_of_measure":"SDN:P06::ULAA",
+                "source_name":"m_altitude",
+                "ancillary_variables":"ALTITUDE_QC"
+            },
+            {
                 "parameter_name": "LATITUDE",
                 "standard_name": "latitude_north",
                 "unit_of_measure": "degrees_north",
@@ -71,9 +91,67 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::DEGN",
                 "source_name":"m_lat",
-                "valid_max":90.00,
-                "valid_min":-90.00,
                 "ancillary_variables":"LATITUDE_QC"
+            },
+            {
+                "parameter_name": "LATITUDE_GPS",
+                "standard_name": "latitude north relative to WGS84",
+                "unit_of_measure": "degree_north",
+                "parameter_definition": "Latitude north relative to WGS84 by unspecified GPS system",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATGP01/",
+                "seadatanet_unit_of_measure":"SDN:P06::DEGN",
+                "source_name":"m_gps_lat",
+                "ancillary_variables":"LATITUDE_GPS_QC"
+            },
+            {
+                "parameter_name": "LONGITUDE",
+                "standard_name": "longitude east",
+                "unit_of_measure": "degree_east",
+                "parameter_definition": "Longitude east",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALONZZ01/",
+                "seadatanet_unit_of_measure":"SDN:P06::DEGE",
+                "source_name":"m_lon",
+                "ancillary_variables":"LONGITUDE_GPS"
+            },
+            {
+                "parameter_name": "LONGITUDE_GPS",
+                "standard_name": "longitude east relative to WGS84",
+                "unit_of_measure": "degree_east",
+                "parameter_definition": "Longitude east relative to WGS84 by unspecified GPS system",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALONGP01/",
+                "seadatanet_unit_of_measure":"SDN:P06::DEGE",
+                "source_name":"m_gps_lon",
+                "ancillary_variables":"LONGITUDE_GPS"
+            },
+            {
+                "parameter_name": "WATERCURRENTS_V",
+                "standard_name": "northward velocity of water",
+                "unit_of_measure": "cm/s",
+                "parameter_definition": "Northward velocity of water current in the water body",
+                "seadatanet_parameter": "\thttp://vocab.nerc.ac.uk/collection/P01/current/LCNSZZ01/",
+                "seadatanet_unit_of_measure":"SDN:P06::UVAA",
+                "source_name":"m_final_water_vy",
+                "ancillary_variables":"WATERCURRENTS_V_GPS"
+            },
+            {
+                "parameter_name": "GLIDER_PITCH",
+                "standard_name": "orientation (pitch) of platform",
+                "unit_of_measure": "deg",
+                "parameter_definition": "Orientation (pitch) of measurement platform by triaxial fluxgate compass",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/PTCHFG01/",
+                "seadatanet_unit_of_measure":"SDN:P06::UAAA",
+                "source_name":"m_pitch",
+                "ancillary_variables":"GLIDER_PITCH_QC"
+            },
+            {
+                "parameter_name": "GLIDER_ROLL",
+                "standard_name": "orientation (roll) of platform",
+                "unit_of_measure": "deg",
+                "parameter_definition": "\tOrientation (roll) of measurement platform by triaxial fluxgate compass",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ROLLFG01/",
+                "seadatanet_unit_of_measure":"SDN:P06::UAAA",
+                "source_name":"m_roll",
+                "ancillary_variables":"GLIDER_ROLL_QC"
             },
             {
                 "parameter_name": "ALR_LATITUDE",
@@ -83,8 +161,6 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATPT01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
                 "source_name":"Latitude",
-                "valid_max":90.00,
-                "valid_min":-90.00,
                 "ancillary_variables":"ALR_LATITUDE_QC"
             }
         ],
