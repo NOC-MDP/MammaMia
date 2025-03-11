@@ -80,22 +80,30 @@ class Mission(zarr.Group):
 
         ds = xr.open_dataset(trajectory_path)
         trajectory = self.create_group("trajectory")
+        # TODO have a better reporting process so its clear to the user what is missing and where
+        # TODO e.g. it could be a missing or malformed parameter, or sensor or missing from netcdf intput.
         try:
             trajectory.array(name="latitudes",data=np.array(ds[lat_key]))
             trajectory.array(name="longitudes",data=np.array(ds[lon_key]))
             trajectory.array(name="altitude",data=np.array(ds[alt_key]))
         except KeyError as e:
-            logger.error(f"Critical parameter for operation missing: {e}")
+            logger.error(f"Critical parameter for trajectory missing: {e}")
             raise CriticalParameterMissing
         try:
             if pitch_key is not None:
                 trajectory.array(name="pitch", data=np.array(ds[pitch_key]))
+            else:
+                logger.warning(f"Optional parameter pitch not specified in sensor")
             if yaw_key is not None:
                 trajectory.array(name="yaw", data=np.array(ds[yaw_key]))
+            else:
+                logger.warning(f"Optional parameter yaw not specified in sensor")
             if roll_key is not None:
                 trajectory.array(name="roll", data=np.array(ds[roll_key]))
+            else:
+                logger.warning(f"Optional parameter roll not specified in sensor")
         except KeyError as e:
-            logger.warning(f"Optional parameter for operation not found: {e}")
+            logger.warning(f"Optional parameter for trajectory not found in simulated data: {e}")
 
         trajectory.array(name="datetimes",data=np.array(ds[time_key],dtype='datetime64'))
 
