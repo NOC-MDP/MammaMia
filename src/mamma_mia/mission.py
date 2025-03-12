@@ -44,7 +44,7 @@ class Mission(zarr.Group):
                  store=None,
                  overwrite=False,
                  excess_space: int=0.5,
-                 excess_depth: int = 100,
+                 extra_depth: int = 100,
                  msm_priority: int = 2,
                  cmems_priority: int = 1,
                  ):
@@ -55,21 +55,17 @@ class Mission(zarr.Group):
         super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
                          synchronizer=group.synchronizer)
 
+        # general mission meta data
         self.attrs["name"] = name
         self.attrs["uuid"] = str(uuid.uuid4())
         self.attrs["description"] = description
 
+        # create platform attributes from platform class
         platform2 = self.create_group("platform")
         platform_unstruct = unstructure(platform)
-
         platform2.attrs.update(platform_unstruct)
 
-        # auv_exp.attrs["id"] = auv.id
-        # auv_exp.attrs["type"] = auv.type.type
-        # auv_exp.attrs["uuid"] = str(auv.uuid)
-        # auv_exp.attrs["sensor_arrays"] = str(auv.sensor_arrays)
         # find parameter keys
-
         lat_key = self.find_parameter_key(parameter="LATITUDE")
         lon_key = self.find_parameter_key(parameter="LONGITUDE")
         alt_key = self.find_parameter_key(parameter="ALTITUDE")
@@ -78,14 +74,16 @@ class Mission(zarr.Group):
         roll_key = self.find_parameter_key(parameter="ROLL")
         time_key = self.find_parameter_key(parameter="TIME")
 
+        # create trajectory group from input simulated trajectory and sensor/parameter metadata
         ds = xr.open_dataset(trajectory_path)
         trajectory = self.create_group("trajectory")
         # TODO have a better reporting process so its clear to the user what is missing and where
-        # TODO e.g. it could be a missing or malformed parameter, or sensor or missing from netcdf intput.
+        # TODO e.g. it could be a missing or malformed parameter, or sensor or missing from netcdf input.
         try:
             trajectory.array(name="latitudes",data=np.array(ds[lat_key]))
             trajectory.array(name="longitudes",data=np.array(ds[lon_key]))
             trajectory.array(name="altitude",data=np.array(ds[alt_key]))
+            trajectory.array(name="datetimes",data=np.array(ds[time_key],dtype='datetime64'))
         except KeyError as e:
             logger.error(f"Critical parameter for trajectory missing: {e}")
             raise CriticalParameterMissing
@@ -94,34 +92,69 @@ class Mission(zarr.Group):
                 trajectory.array(name="pitch", data=np.array(ds[pitch_key]))
             else:
                 logger.warning(f"Optional parameter pitch not specified in sensor")
+        except KeyError as e:
+            logger.warning(f"Optional pitch parameter for trajectory not found in simulated data: {e}")
+
+        try:
             if yaw_key is not None:
                 trajectory.array(name="yaw", data=np.array(ds[yaw_key]))
             else:
                 logger.warning(f"Optional parameter yaw not specified in sensor")
+        except KeyError as e:
+            logger.warning(f"Optional yaw parameter for trajectory not found in simulated data: {e}")
+
+        try:
             if roll_key is not None:
                 trajectory.array(name="roll", data=np.array(ds[roll_key]))
             else:
                 logger.warning(f"Optional parameter roll not specified in sensor")
         except KeyError as e:
-            logger.warning(f"Optional parameter for trajectory not found in simulated data: {e}")
+            logger.warning(f"Optional roll parameter for trajectory not found in simulated data: {e}")
 
-        trajectory.array(name="datetimes",data=np.array(ds[time_key],dtype='datetime64'))
 
+        # TODO this most likely will only be needed for specific simulator inputs.
+        # convert from glider format to decimal degrees
         for i in range(trajectory.longitudes.__len__()):
             trajectory.longitudes[i] = self.__convert_to_decimal(trajectory.longitudes[i])
         for i in range(trajectory.latitudes.__len__()):
             trajectory.latitudes[i] = self.__convert_to_decimal(trajectory.latitudes[i])
 
-        real_grp = self.create_group("reality")
-        real_grp.array(name="latitudes",data=np.array(ds["m_lat"]))
-        real_grp.array(name="longitudes",data=np.array(ds["m_lon"]))
-        for i in range(real_grp.longitudes.__len__()):
-            real_grp.longitudes[i] = self.__convert_to_decimal(real_grp.longitudes[i])
-        for i in range(real_grp.latitudes.__len__()):
-            real_grp.latitudes[i] = self.__convert_to_decimal(real_grp.latitudes[i])
-        real_grp.array(name="depths",data=np.array(ds["m_depth"]))
-        real_grp.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
-        real_grp.array(name="pitch", data=np.array(ds["m_pitch"]))
+        # create empty world group
+        worlds = self.create_group("world")
+        if np.around(np.min(trajectory.altitude), 2) - extra_depth < 0:
+            min_altitude = 0
+        else:
+            min_altitude = np.around(np.min(trajectory.altitude), 2) - extra_depth
+        extent = {
+                    "max_lat": np.around(np.max(trajectory.latitudes),2) + excess_space,
+                    "min_lat": np.around(np.min(trajectory.latitudes), 2) - excess_space,
+                    "max_lng": np.around(np.max(trajectory.longitudes), 2) + excess_space,
+                    "min_lng": np.around(np.min(trajectory.longitudes), 2) - excess_space,
+            # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
+                    "start_time": np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
+                    "end_time" : np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
+                    "min_altitude": min_altitude,
+        }
+        worlds.attrs["extent"] = extent
+        worlds.attrs["catalog_priorities"] = {"msm":msm_priority,"cmems":cmems_priority}
+        worlds.attrs["interpolator_priorities"] = {}
+        worlds.attrs["matched_worlds"] = {}
+        worlds.attrs["zarr_stores"] = {}
+        worlds.attrs["dim_map"] = {}
+        
+        sensors = self.create_group("sensors")
+
+
+        # real_grp = self.create_group("reality")
+        # real_grp.array(name="latitudes",data=np.array(ds["m_lat"]))
+        # real_grp.array(name="longitudes",data=np.array(ds["m_lon"]))
+        # for i in range(real_grp.longitudes.__len__()):
+        #     real_grp.longitudes[i] = self.__convert_to_decimal(real_grp.longitudes[i])
+        # for i in range(real_grp.latitudes.__len__()):
+        #     real_grp.latitudes[i] = self.__convert_to_decimal(real_grp.latitudes[i])
+        # real_grp.array(name="depths",data=np.array(ds["m_depth"]))
+        # real_grp.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
+        # real_grp.array(name="pitch", data=np.array(ds["m_pitch"]))
         # construct sensor array dictionary to save as attribute and empty reality arrays for each sensor
         # TODO be able to handle more than one of the same array type e.g. CTD will overwrite any existing CTD arrays
         sensor_arrays = {}
@@ -138,24 +171,8 @@ class Mission(zarr.Group):
         #             real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
         #             real_grp.attrs["mapped_name"] = sensor.default.type
         # update sensor array attribute in zarr group
-        self.auv.attrs.update({"sensor_arrays": sensor_arrays})
-        worlds = self.create_group("world")
-        extent = {
-                    "max_lat": np.around(np.max(trajectory.latitudes),2) + excess_space,
-                    "min_lat": np.around(np.min(trajectory.latitudes), 2) - excess_space,
-                    "max_lng": np.around(np.max(trajectory.longitudes), 2) + excess_space,
-                    "min_lng": np.around(np.min(trajectory.longitudes), 2) - excess_space,
-            # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
-                    "start_time": np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
-                    "end_time" : np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
-                    "max_depth": np.around(np.max(trajectory.depths), 2) + excess_depth
-        }
-        worlds.attrs["extent"] = extent
-        worlds.attrs["catalog_priorities"] = {"msm":msm_priority,"cmems":cmems_priority}
-        worlds.attrs["interpolator_priorities"] = {}
-        worlds.attrs["matched_worlds"] = {}
-        worlds.attrs["zarr_stores"] = {}
-        worlds.attrs["dim_map"] = {}
+        #self.auv.attrs.update({"sensor_arrays": sensor_arrays})
+
 
     def find_parameter_key(self,parameter:str,instrument_type:str ="data loggers") -> str:
         sensor_key = None
@@ -175,7 +192,7 @@ class Mission(zarr.Group):
                         parameter_key = self.platform.attrs["sensors"][sensor_key]["parameters"][key]["standard_name"]
         return parameter_key
 
-    def build_mission(self,cat:Cats) -> ():
+    def build_mission(self,cat:Cats):
         """
         build missions, this searches for relevant data, downloads and updates attributes as needed
         Args:
@@ -195,7 +212,7 @@ class Mission(zarr.Group):
         """
 
         Args:
-            interpolator: Interpolator object with intepolators to fly through
+            interpolator: Interpolator object with interpolators to fly through
 
         Returns:
             void: mission object with filled reality arrays of interpolated data, i.e. AUV has flown its
@@ -227,7 +244,7 @@ class Mission(zarr.Group):
         """
         # Example parameters for the dropdown
         # Example parameters and their expected value ranges (cmin and cmax)
-        # TODO dynamically bulid this from AUV sensor array
+        # TODO dynamically build this from AUV sensor array
         parameters = {
             "temperature": {"cmin": 10, "cmax": 25},
             "salinity": {"cmin": 34, "cmax": 36},
@@ -280,7 +297,7 @@ class Mission(zarr.Group):
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
         # TODO fix the interaction between colour scales and parameters colour scale is not maintained when changing parameter
-        # TODO it will always deafult to Jet colourscale
+        # TODO it will always default to Jet colourscale
         # Define the dropdown for parameter selection
         parameter_dropdown = [
             {
@@ -381,7 +398,7 @@ class Mission(zarr.Group):
         fig.update_layout(title=title, scene=scene)
         fig.show()
 
-    def export(self, cmems_alias, msm_cat, store: zarr.DirectoryStore = None) -> ():
+    def export(self, cmems_alias, msm_cat, store: zarr.DirectoryStore = None):
         """
         Exports mission to a zarr directory store
         Args:
@@ -406,7 +423,7 @@ class Mission(zarr.Group):
     @staticmethod
     def __convert_to_decimal(x):
         """
-        Converts a latitiude or longitude in NMEA format to decimale degrees
+        Converts a latitude or longitude in NMEA format to decimal degrees
         """
         sign = np.sign(x)
         x_abs = np.abs(x)
@@ -415,7 +432,7 @@ class Mission(zarr.Group):
         decimal_format = degrees + minutes / 60.
         return decimal_format * sign
 
-    def create_dim_map(self,cmems_alias,msm_cat) -> ():
+    def create_dim_map(self,cmems_alias,msm_cat):
         """
         Creates a dimension mapping dictionary and updates the relevant attribute in the world group. This attribute is
         required to enable Xarray to read the zarr groups of the campaign object.
@@ -470,7 +487,7 @@ class Mission(zarr.Group):
         self.world.attrs.update({"dim_map": dim_map})
 
 
-    def add_array_dimensions(self,group, dim_map, path="") -> ():
+    def add_array_dimensions(self,group, dim_map, path=""):
         """
         Recursively add _ARRAY_DIMENSIONS attribute to all arrays in a Zarr group, including nested groups.
 

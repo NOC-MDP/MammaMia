@@ -1,5 +1,7 @@
 .idea
 .lapce
+.vscode
+.zed
 __pycache__
 *.zarr
 .DS_Store

@@ -66,7 +66,7 @@ class Campaign:
                     store=None,
                     overwrite=False,
                     excess_space: int = 0.5,
-                    excess_depth: int = 100,
+                    extra_depth: int = 100,
                     msm_priority: int = 2,
                     cmems_priority: int = 1,
                     ) -> ():
@@ -75,12 +75,11 @@ class Campaign:
         Args:
             name: name of the mission
             description: description of the mission
-            auv: AUV object that has been created with an specified sensor array
             trajectory_path: path to auv trajectory netcdf
             store: specify zarr store (Directory etc) default is memory store
             overwrite: overwrite an existing mission store, default is false
             excess_space: amount of excess space to add to model/world download in decimal degrees, default is 0.5
-            excess_depth: amount of excess depth to add to model/world download in metres, default is 100
+            extra_depth: amount of excess depth to add to model/world download in metres, default is 100
             msm_priority: priority value for msm world sources (higher values have greater priority)
             cmems_priority: priority value for cmems world sources (higher values have greater priority)
 
@@ -104,7 +103,7 @@ class Campaign:
                           store=store,
                           overwrite=overwrite,
                           excess_space=excess_space,
-                          excess_depth=excess_depth,
+                          extra_depth=extra_depth,
                           msm_priority=msm_priority,
                           cmems_priority=cmems_priority
                           )
