@@ -3,7 +3,6 @@ import plotly.graph_objects as go
 import xarray as xr
 from cattrs import unstructure
 from mamma_mia import Platform
-from attrs import define
 import uuid
 from loguru import logger
 import zarr
@@ -14,7 +13,6 @@ from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing
 
 
-@define
 class Mission(zarr.Group):
     """
     Mission object, this contains all the components to be able to fly an AUV mission (generate interpolated data)
@@ -142,7 +140,7 @@ class Mission(zarr.Group):
         worlds.attrs["zarr_stores"] = {}
         worlds.attrs["dim_map"] = {}
         
-        sensors = self.create_group("sensors")
+        payload = self.create_group("payload")
 
 
         # real_grp = self.create_group("reality")
