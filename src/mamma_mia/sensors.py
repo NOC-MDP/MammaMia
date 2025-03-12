@@ -6,8 +6,7 @@ from pathlib import Path
 import os
 import copy
 
-from mamma_mia import TimeParameter
-from mamma_mia.parameters import Parameter, parameters
+from mamma_mia.parameters import Parameter, parameters,TimeParameter
 from mamma_mia.exceptions import InvalidParameter
 
 @frozen
@@ -44,7 +43,6 @@ class Sensor:
         self.register_parameter(parameter=parameter)
 
     def register_parameter(self,parameter: Parameter):
-        logger.info(f"registering parameter {parameter.parameter_name} to sensor {self.sensor_name}")
         # TODO add validation or checking here e.g. is it the right sensor type for the platform?
         if not isinstance(parameter, (Parameter,TimeParameter)):  # Runtime type check
             raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
@@ -66,6 +64,7 @@ class SensorCatalog:
 
         for sensor_type, sensors in sens["sensors"].items():
             self._process_sensor(sensor_type, sensors)
+        logger.success("successfully created sensor catalog")
 
     def _process_sensor(self, sensor_type, sensors):
         sensor_dict = self._get_sensor_dict(sensor_type)

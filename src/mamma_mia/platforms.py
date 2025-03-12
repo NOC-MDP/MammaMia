@@ -30,7 +30,6 @@ class Platform:
     sensors: dict[str, Sensor] = field(factory=dict)
 
     def register_sensor(self,sensor):
-        logger.info(f"registering sensor {sensor.sensor_name} to platform {self.platform_name}")
         # TODO add validation or checking here e.g. is it the right sensor type for the platform?
         if not isinstance(sensor, Sensor):  # Runtime type check
             raise TypeError(f"Sensor must be an instance of sensors.Sensor, got {type(sensor)}")
@@ -116,7 +115,14 @@ class PlatformCatalog:
                 return self._alr
             case _:
                 raise ValueError(f"Invalid platform type '{platform_type}'. Must be 'glider' or 'alr'.")
+    
+    def list_platform_types(self):
+        """
+        Lists all available platform types.
+        Returns: list of platform types.
 
+        """
+        return ["alr", "glider"]
 
 
 platforms = PlatformCatalog()

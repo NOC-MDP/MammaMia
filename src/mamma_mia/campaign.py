@@ -108,11 +108,11 @@ class Campaign:
                           cmems_priority=cmems_priority
                           )
         interpolator = Interpolators()
-        logger.info(f"adding {mission.attrs['name']} to {self.name}")
+        logger.info(f"adding mission {mission.attrs['name']} to campaign {self.name}")
         #logger.info(f"adding {auv} to {mission.attrs['name']}")
         self.missions[mission.attrs['name']] = mission
         self.interpolators[mission.attrs['name']] = interpolator
-        logger.success(f"successfully added {mission.attrs['name']} to {self.name}")
+        logger.success(f"successfully added mission {mission.attrs['name']} to campaign {self.name}")
 
     def build_missions(self) -> ():
         """
