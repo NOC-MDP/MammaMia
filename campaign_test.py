@@ -8,12 +8,14 @@ print("<=========> Mamma Mia catalogs successfully created <===========>")
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
 campaign = Campaign(name="Greenland_2028",
-                    description="single slocum glider deployment in North sea 2019",
+                    description="single slocum glider deployment off South East Greenland",
                     verbose=True
                     )
 # # add AUV
-
+pp(platforms.list_platform_types())
+pp(platforms.list_platforms(platform_type="glider"))
 Churchill_withCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")
+# TODO link available sensors to selected platform? e.g. a list sensors method on the platform class?
 print(f"sensor types available {sensors.list_sensor_types()}")
 pp(sensors.list_sensors(sensor_type="CTD"))
 sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="9100")

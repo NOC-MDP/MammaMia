@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import xarray as xr
 from cattrs import unstructure
 from mamma_mia import Platform
-from dataclasses import dataclass
+from attrs import define
 import uuid
 from loguru import logger
 import zarr
@@ -14,7 +14,7 @@ from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing
 
 
-@dataclass
+@define
 class Mission(zarr.Group):
     """
     Mission object, this contains all the components to be able to fly an AUV mission (generate interpolated data)

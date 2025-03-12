@@ -48,21 +48,20 @@ class ParameterCatalog:
         for parameter_type, parameters in params["parameters"].items():
             self._process_parameters(parameter_type, parameters)
 
-        logger.info("Successfully created parameter catalog")
+        logger.success("Successfully created parameter catalog")
 
     def _process_parameters(self, parameter_type, parameters):
         param_dict = self._get_parameter_dict(parameter_type)
 
         for parameter in parameters:
             try:
-                logger.info(f"registering parameter {parameter['parameter_name']} to catalog")
                 param_dict[parameter["parameter_name"]] = (
                     structure(parameter,TimeParameter) if parameter_type == "time" else structure(parameter,Parameter)
                 )
             except TypeError as e:
                 logger.error(e)
                 raise ValueError(f"{parameter['parameter_name']} is not a valid {parameter_type} parameter")
-            logger.success(f"paramter {parameter['parameter_name']} registered successfully")
+            logger.success(f"parameter {parameter['parameter_name']} registered successfully")
 
     def _get_parameter_dict(self, parameter_type):
         match parameter_type:
