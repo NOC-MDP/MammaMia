@@ -14,7 +14,7 @@ campaign = Campaign(name="Greenland_2028",
 # # add AUV
 
 Churchill_withCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")
-print(f"sensor types availble {sensors.list_sensor_types()}")
+print(f"sensor types available {sensors.list_sensor_types()}")
 pp(sensors.list_sensors(sensor_type="CTD"))
 sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="9100")
 Churchill_withCTD.register_sensor(sensor)
@@ -24,10 +24,6 @@ Churchill_noCTD = platforms.get_platform(platform_name="Churchill",platform_type
 campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
 campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
 
-
-
-
-# pp(campaign,depth=1)
 # # add mission
 campaign.add_mission(name="GL28_01",
                      description="slocum glider Slocum_1 in the North Sea 2019",
