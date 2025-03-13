@@ -9,7 +9,7 @@ import sys
 
 from mamma_mia.parameters import Parameter, parameters,TimeParameter
 from mamma_mia.exceptions import InvalidParameter
-from mamma_mia.log import import_log_filter
+from mamma_mia.log import log_filter
 
 @frozen
 class Sensor:
@@ -62,14 +62,14 @@ class SensorCatalog:
 
     def __attrs_post_init__(self):
         logger.remove()
-        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=import_log_filter)
+        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}sensors.json", "r") as f:
             sens = json.load(f)
 
         for sensor_type, sensors2 in sens["sensors"].items():
             self._process_sensor(sensor_type, sensors2)
-        logger.success("successfully created sensor catalog")
+        logger.log("COMPLETED","successfully created sensor catalog")
 
     def _process_sensor(self, sensor_type, sensors2):
         sensor_dict = self._get_sensor_dict(sensor_type)

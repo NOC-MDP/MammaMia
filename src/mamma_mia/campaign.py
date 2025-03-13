@@ -8,7 +8,7 @@ import zarr
 from os import sep
 import sys
 from attrs import frozen, field
-from mamma_mia.log import import_log_filter
+from mamma_mia.log import log_filter
 
 @frozen
 class Campaign:
@@ -38,7 +38,7 @@ class Campaign:
         if self.verbose:
             logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
         else:
-            logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=import_log_filter)
+            logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         #self.catalog = Cats()
         logger.success(f"Campaign {self.name} created")
 
@@ -52,7 +52,6 @@ class Campaign:
             platform object stored in the campaign auv dictionary under its id key
 
         """
-        logger.info(f"registering {name} of platform {platform.platform_name} to campaign {self.name}")
         if name in self.platforms:
             logger.error(f"{name} already exists in {self.name}")
             raise PlatformExists
@@ -109,8 +108,6 @@ class Campaign:
                           cmems_priority=cmems_priority
                           )
         interpolator = Interpolators()
-        logger.info(f"adding mission {mission.attrs['name']} to campaign {self.name}")
-        #logger.info(f"adding {auv} to {mission.attrs['name']}")
         self.missions[mission.attrs['name']] = mission
         self.interpolators[mission.attrs['name']] = interpolator
         logger.success(f"successfully added mission {mission.attrs['name']} to campaign {self.name}")
