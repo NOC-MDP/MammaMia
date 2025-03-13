@@ -7,7 +7,7 @@ from loguru import logger
 from attrs import frozen, field, evolve
 from cattrs import structure
 import sys
-from mamma_mia.log import import_log_filter
+from mamma_mia.log import log_filter
 
 
 
@@ -55,7 +55,7 @@ class Platform:
             logger.error(f"sensor {sensor.sensor_name} is not compatible with platform {self.platform_type}")
             raise InvalidSensor
         self.sensors[sensor.sensor_name] = sensor
-        logger.info(f"successfully registered sensor {sensor.sensor_name} to platform {self.platform_name}")
+        logger.success(f"successfully registered sensor {sensor.sensor_name} to platform {self.platform_name}")
 
 
 @frozen
@@ -66,14 +66,14 @@ class PlatformCatalog:
     def __attrs_post_init__(self):
         # supress logs on import
         logger.remove()
-        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=import_log_filter)
+        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}platforms.json", "r") as f:
             plats = json.load(f)
 
         for platform_type, platforms2 in plats["platforms"].items():
             self._process_platform(platform_type, platforms2)
-        logger.success("successfully created platform catalog")
+        logger.log("COMPLETED","successfully created platform catalog")
 
     def _process_platform(self, platform_type, platforms2) -> None:
         platform_dict = self._get_platform_dict(platform_type)

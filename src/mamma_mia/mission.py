@@ -89,7 +89,7 @@ class Mission(zarr.Group):
             if pitch_key is not None:
                 trajectory.array(name="pitch", data=np.array(ds[pitch_key]))
             else:
-                logger.warning(f"Optional parameter pitch not specified in sensor")
+                logger.warning(f"Optional parameter pitch not specified in datalogger")
         except KeyError:
             logger.warning(f"Optional pitch parameter for trajectory not found in simulated data: No variable named '{pitch_key}'")
 
@@ -97,7 +97,7 @@ class Mission(zarr.Group):
             if yaw_key is not None:
                 trajectory.array(name="yaw", data=np.array(ds[yaw_key]))
             else:
-                logger.warning(f"Optional parameter yaw not specified in sensor")
+                logger.warning(f"Optional parameter yaw not specified in datalogger")
         except KeyError:
             logger.warning(f"Optional yaw parameter for trajectory not found in simulated data: No variable named '{yaw_key}'")
 
@@ -105,7 +105,7 @@ class Mission(zarr.Group):
             if roll_key is not None:
                 trajectory.array(name="roll", data=np.array(ds[roll_key]))
             else:
-                logger.warning(f"Optional parameter roll not specified in sensor")
+                logger.warning(f"Optional parameter roll not specified in datalogger")
         except KeyError:
             logger.warning(f"Optional roll parameter for trajectory not found in simulated data: No variable named '{roll_key}'")
 
@@ -128,7 +128,7 @@ class Mission(zarr.Group):
                     "min_lat": np.around(np.min(trajectory.latitudes), 2) - excess_space,
                     "max_lng": np.around(np.max(trajectory.longitudes), 2) + excess_space,
                     "min_lng": np.around(np.min(trajectory.longitudes), 2) - excess_space,
-            # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
+        # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
                     "start_time": np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
                     "end_time" : np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
                     "min_altitude": min_altitude,

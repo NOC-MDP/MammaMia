@@ -6,7 +6,7 @@ import copy
 from attrs import frozen, field
 from cattrs import structure
 import sys
-from mamma_mia.log import import_log_filter
+from mamma_mia.log import log_filter
 
 @frozen
 class TimeParameter:
@@ -43,7 +43,7 @@ class ParameterCatalog:
 
     def __attrs_post_init__(self):
         logger.remove()
-        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=import_log_filter)
+        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}parameters.json", "r") as f:
             params = json.load(f)
@@ -51,7 +51,7 @@ class ParameterCatalog:
         for parameter_type, parameters2 in params["parameters"].items():
             self._process_parameters(parameter_type, parameters2)
 
-        logger.success("Successfully created parameter catalog")
+        logger.log("COMPLETED","Successfully created parameter catalog")
 
     def _process_parameters(self, parameter_type, parameters2):
         param_dict = self._get_parameter_dict(parameter_type)
