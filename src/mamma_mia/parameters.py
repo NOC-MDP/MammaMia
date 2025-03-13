@@ -45,15 +45,15 @@ class ParameterCatalog:
         with open(f"{module_dir}{os.sep}parameters.json", "r") as f:
             params = json.load(f)
 
-        for parameter_type, parameters in params["parameters"].items():
-            self._process_parameters(parameter_type, parameters)
+        for parameter_type, parameters2 in params["parameters"].items():
+            self._process_parameters(parameter_type, parameters2)
 
         logger.success("Successfully created parameter catalog")
 
-    def _process_parameters(self, parameter_type, parameters):
+    def _process_parameters(self, parameter_type, parameters2):
         param_dict = self._get_parameter_dict(parameter_type)
 
-        for parameter in parameters:
+        for parameter in parameters2:
             try:
                 param_dict[parameter["parameter_name"]] = (
                     structure(parameter,TimeParameter) if parameter_type == "time" else structure(parameter,Parameter)

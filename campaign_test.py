@@ -1,6 +1,5 @@
 
 print("<=========> preparing mamma mia catalogs <===========>")
-# from mamma_mia import sensors
 from mamma_mia import platforms
 from mamma_mia import Campaign
 from pprint import pp
@@ -18,9 +17,7 @@ Churchill_withCTD = platforms.get_platform(platform_name="Churchill",platform_ty
 
 availbleCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
 availibleRadiometer = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
-# print(f"sensor types available {sensors.list_sensor_types()}")
-# pp(sensors.list_sensors(sensor_type="CTD"))
-# sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="9100")
+
 Churchill_withCTD.register_sensor(sensor=availbleCTD[0])
 
 Churchill_noCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")

@@ -1,5 +1,5 @@
 import json
-from mamma_mia.exceptions import InvalidPlatform
+from mamma_mia.exceptions import InvalidPlatform, InvalidSensor
 from mamma_mia.sensors import sensors, Sensor
 import os
 from pathlib import Path
@@ -29,21 +29,31 @@ class Platform:
     data_type: str
     sensors: dict[str, Sensor] = field(factory=dict)
 
-    def list_compatible_sensors(self, sensor_type:str):
-        sensors_compatible = []
-        sensors2 = sensors._get_sensor_dict(sensor_type)
-        for key, sensor in sensors2.items():
-            if self.platform_type in sensor.platform_compatibility:
-                sensors_compatible.append(sensor)
-        return sensors_compatible
+    def list_compatible_sensors(self, sensor_type:str=None) -> list[Sensor]:
+        """
+        Returns a list of sensors compatible with a given platform, results can be restricted to a specific sensor type e.g. CTD
+        Args:
+            sensor_type: string denoting the sensor type, if not specified, all compatible sensors are returned
 
+        Returns: list containing Sensor class objects
 
-    def register_sensor(self,sensor):
-        # TODO add validation or checking here e.g. is it the right sensor type for the platform?
+        """
+        return sensors.list_compatible_sensors(sensor_type=sensor_type, platform_type=self.platform_type)
+
+    def register_sensor(self,sensor: Sensor) -> None:
+        """
+        registers a sensor to a platform to use in a mission, checking it is a compatible sensor
+        Args:
+            sensor: Sensor class object
+        """
         if not isinstance(sensor, Sensor):  # Runtime type check
             raise TypeError(f"Sensor must be an instance of sensors.Sensor, got {type(sensor)}")
+        if self.platform_type not in sensor.platform_compatibility:
+            logger.error(f"sensor {sensor.sensor_name} is not compatible with platform {self.platform_type}")
+            raise InvalidSensor
         self.sensors[sensor.sensor_name] = sensor
         logger.success(f"successfully registered sensor {sensor.sensor_name} to platform {self.platform_name}")
+
 
 @frozen
 class PlatformCatalog:
@@ -56,14 +66,14 @@ class PlatformCatalog:
         with open(f"{module_dir}{os.sep}platforms.json", "r") as f:
             plats = json.load(f)
 
-        for platform_type, platforms in plats["platforms"].items():
-            self._process_platform(platform_type, platforms)
+        for platform_type, platforms2 in plats["platforms"].items():
+            self._process_platform(platform_type, platforms2)
         logger.success("successfully create platform catalog")
 
-    def _process_platform(self, platform_type, platforms):
+    def _process_platform(self, platform_type, platforms2) -> None:
         platform_dict = self._get_platform_dict(platform_type)
 
-        for platform in platforms:
+        for platform in platforms2:
             # TODO look at this is .get the best thing to use? maybe try except key error?
             try:
                 platform_name = platform.get("platform_name")
@@ -82,8 +92,8 @@ class PlatformCatalog:
                 platform_dict[platform_name].register_sensor(sensor=datalogger)
 
             except TypeError as e:
-                logger.error(f"Error initializing platform {platform_name}: {e}")
-                raise InvalidPlatform(f"{platform_name} is not a valid platform")
+                logger.error(f"Error initializing platform: {e}")
+                raise InvalidPlatform
 
     def get_platform(self, platform_type: str, platform_name: str):
         """Returns a deep copy of a platform (prevents direct modification)."""
@@ -125,7 +135,8 @@ class PlatformCatalog:
             case _:
                 raise ValueError(f"Invalid platform type '{platform_type}'. Must be 'glider' or 'alr'.")
     
-    def list_platform_types(self):
+    @staticmethod
+    def list_platform_types():
         """
         Lists all available platform types.
         Returns: list of platform types.
