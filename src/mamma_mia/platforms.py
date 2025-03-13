@@ -4,9 +4,11 @@ from mamma_mia.sensors import sensors, Sensor
 import os
 from pathlib import Path
 from loguru import logger
-import copy
-from attrs import frozen, field
+from attrs import frozen, field, evolve
 from cattrs import structure
+import sys
+from mamma_mia.log import import_log_filter
+
 
 
 @frozen
@@ -28,6 +30,7 @@ class Platform:
     wmo_platform_code: int
     data_type: str
     sensors: dict[str, Sensor] = field(factory=dict)
+    platform_ref: str = None
 
     def list_compatible_sensors(self, sensor_type:str=None) -> list[Sensor]:
         """
@@ -52,7 +55,7 @@ class Platform:
             logger.error(f"sensor {sensor.sensor_name} is not compatible with platform {self.platform_type}")
             raise InvalidSensor
         self.sensors[sensor.sensor_name] = sensor
-        logger.success(f"successfully registered sensor {sensor.sensor_name} to platform {self.platform_name}")
+        logger.info(f"successfully registered sensor {sensor.sensor_name} to platform {self.platform_name}")
 
 
 @frozen
@@ -61,14 +64,16 @@ class PlatformCatalog:
     _alr: dict = field(factory=dict)
 
     def __attrs_post_init__(self):
-        logger.info("Creating platform catalog")
+        # supress logs on import
+        logger.remove()
+        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=import_log_filter)
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}platforms.json", "r") as f:
             plats = json.load(f)
 
         for platform_type, platforms2 in plats["platforms"].items():
             self._process_platform(platform_type, platforms2)
-        logger.success("successfully create platform catalog")
+        logger.success("successfully created platform catalog")
 
     def _process_platform(self, platform_type, platforms2) -> None:
         platform_dict = self._get_platform_dict(platform_type)
@@ -95,14 +100,14 @@ class PlatformCatalog:
                 logger.error(f"Error initializing platform: {e}")
                 raise InvalidPlatform
 
-    def get_platform(self, platform_type: str, platform_name: str):
+    def get_platform(self,platform_ref:str, platform_type: str, platform: str):
         """Returns a deep copy of a platform (prevents direct modification)."""
-        logger.info(f"creating platform {platform_name} of type {platform_type}")
         platform_dict = self._get_platform_dict(platform_type)
-        if platform_name not in platform_dict:
-            raise KeyError(f"Platform '{platform_name}' not found in {platform_type}.")
-        logger.success(f"successfully created platform {platform_name} of type {platform_type}")
-        return copy.deepcopy(platform_dict[platform_name])
+        if platform not in platform_dict:
+            raise KeyError(f"Platform '{platform}' not found in {platform_type}.")
+        created_platform = evolve(platform_dict[platform],platform_ref=platform_ref)
+        logger.success(f"successfully created {platform_ref} as platform {platform} of type {platform_type}")
+        return created_platform
 
     def add_platform(self, platform_type: str, platform: Platform):
         """Adds a new platform. Raises an error if the platform already exists."""

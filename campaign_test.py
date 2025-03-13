@@ -13,14 +13,14 @@ campaign = Campaign(name="Greenland_2028",
 # # add AUV
 pp(f"Availble platform types: {platforms.list_platform_types()}")
 pp(f"Availble platforms of type glider: {platforms.list_platforms(platform_type='glider')}")
-Churchill_withCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")
+Churchill_withCTD = platforms.get_platform(platform_ref="Churchill_withCTD",platform="Churchill",platform_type="glider")
 
-availbleCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
-availibleRadiometer = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
+availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
+availableRadiometers = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
 
-Churchill_withCTD.register_sensor(sensor=availbleCTD[0])
+Churchill_withCTD.register_sensor(sensor=availableCTD[0])
 
-Churchill_noCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")
+Churchill_noCTD = platforms.get_platform(platform_ref="Churchill_noCTD",platform="Churchill",platform_type="glider")
 
 campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
 campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")

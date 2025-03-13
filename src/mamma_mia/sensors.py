@@ -5,9 +5,11 @@ from loguru import logger
 from pathlib import Path
 import os
 import copy
+import sys
 
 from mamma_mia.parameters import Parameter, parameters,TimeParameter
 from mamma_mia.exceptions import InvalidParameter
+from mamma_mia.log import import_log_filter
 
 @frozen
 class Sensor:
@@ -31,6 +33,7 @@ class Sensor:
         for parameter_key in self.parameters.keys():
             self._process_parameters(parameter_key, parameters)
 
+
     def _process_parameters(self, parameter_key, parameters2):
         parameter = None
         for k1 in parameters2.__attrs_attrs__:  # Iterate over attrs fields
@@ -48,7 +51,7 @@ class Sensor:
         if not isinstance(parameter, (Parameter,TimeParameter)):  # Runtime type check
             raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
         self.parameters[parameter.parameter_name] = parameter
-        logger.success(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
+        logger.info(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
 
 
 @frozen
@@ -58,7 +61,8 @@ class SensorCatalog:
     _dataloggers: dict = field(factory=dict)
 
     def __attrs_post_init__(self):
-        logger.info("Creating sensor catalog")
+        logger.remove()
+        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=import_log_filter)
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}sensors.json", "r") as f:
             sens = json.load(f)
