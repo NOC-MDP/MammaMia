@@ -53,7 +53,7 @@ class Mission(zarr.Group):
         super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
                          synchronizer=group.synchronizer)
 
-        # general mission meta data
+        # general mission metadata
         self.attrs["name"] = name
         self.attrs["uuid"] = str(uuid.uuid4())
         self.attrs["description"] = description
@@ -90,24 +90,24 @@ class Mission(zarr.Group):
                 trajectory.array(name="pitch", data=np.array(ds[pitch_key]))
             else:
                 logger.warning(f"Optional parameter pitch not specified in sensor")
-        except KeyError as e:
-            logger.warning(f"Optional pitch parameter for trajectory not found in simulated data: {e}")
+        except KeyError:
+            logger.warning(f"Optional pitch parameter for trajectory not found in simulated data: No variable named '{pitch_key}'")
 
         try:
             if yaw_key is not None:
                 trajectory.array(name="yaw", data=np.array(ds[yaw_key]))
             else:
                 logger.warning(f"Optional parameter yaw not specified in sensor")
-        except KeyError as e:
-            logger.warning(f"Optional yaw parameter for trajectory not found in simulated data: {e}")
+        except KeyError:
+            logger.warning(f"Optional yaw parameter for trajectory not found in simulated data: No variable named '{yaw_key}'")
 
         try:
             if roll_key is not None:
                 trajectory.array(name="roll", data=np.array(ds[roll_key]))
             else:
                 logger.warning(f"Optional parameter roll not specified in sensor")
-        except KeyError as e:
-            logger.warning(f"Optional roll parameter for trajectory not found in simulated data: {e}")
+        except KeyError:
+            logger.warning(f"Optional roll parameter for trajectory not found in simulated data: No variable named '{roll_key}'")
 
 
         # TODO this most likely will only be needed for specific simulator inputs.
@@ -155,7 +155,7 @@ class Mission(zarr.Group):
         # real_grp.array(name="pitch", data=np.array(ds["m_pitch"]))
         # construct sensor array dictionary to save as attribute and empty reality arrays for each sensor
         # TODO be able to handle more than one of the same array type e.g. CTD will overwrite any existing CTD arrays
-        sensor_arrays = {}
+        #sensor_arrays = {}
         # for group in auv.sensor_arrays.values():
         #     sensor_arrays[group.array] = {}
         #     for sensor in fields(group):
@@ -259,7 +259,7 @@ class Mission(zarr.Group):
 
         marker = {
             "size": 2,
-            "color": np.array(self.reality[initial_parameter]),  # Ensuring it's serializable
+            "color": np.array(self.reality[initial_parameter]),  # Ensuring its serializable
             "colorscale": initial_colour_scale,
             "cmin": parameters[initial_parameter]["cmin"],  # Set the minimum value for the color scale
             "cmax": parameters[initial_parameter]["cmax"],  # Set the maximum value for the color scale
@@ -401,6 +401,8 @@ class Mission(zarr.Group):
         Exports mission to a zarr directory store
         Args:
             store: path to save mission zarr group too.
+            cmems_alias:
+            msm_cat:
 
         Returns:
             void: zarr group is saved to directory store
