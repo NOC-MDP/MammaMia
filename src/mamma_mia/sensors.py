@@ -31,10 +31,10 @@ class Sensor:
         for parameter_key in self.parameters.keys():
             self._process_parameters(parameter_key, parameters)
 
-    def _process_parameters(self, parameter_key, parameters):
+    def _process_parameters(self, parameter_key, parameters2):
         parameter = None
-        for k1 in parameters.__attrs_attrs__:  # Iterate over attrs fields
-            sub_obj = getattr(parameters, k1.name)  # Get the field's value
+        for k1 in parameters2.__attrs_attrs__:  # Iterate over attrs fields
+            sub_obj = getattr(parameters2, k1.name)  # Get the field's value
             if isinstance(sub_obj, dict):
                 for k2 in sub_obj.keys():
                     if k2 == parameter_key:
@@ -63,14 +63,14 @@ class SensorCatalog:
         with open(f"{module_dir}{os.sep}sensors.json", "r") as f:
             sens = json.load(f)
 
-        for sensor_type, sensors in sens["sensors"].items():
-            self._process_sensor(sensor_type, sensors)
+        for sensor_type, sensors2 in sens["sensors"].items():
+            self._process_sensor(sensor_type, sensors2)
         logger.success("successfully created sensor catalog")
 
-    def _process_sensor(self, sensor_type, sensors):
+    def _process_sensor(self, sensor_type, sensors2):
         sensor_dict = self._get_sensor_dict(sensor_type)
 
-        for sensor in sensors:
+        for sensor in sensors2:
             sensor_ref = sensor.get("sensor_serial_number")
             if not sensor_ref:
                 logger.error("Sensor entry missing 'sensor_serial_number', skipping")
@@ -115,7 +115,8 @@ class SensorCatalog:
         """Lists all sensor names in the specified category (CTD, radiometers, dataloggers)."""
         return list(self._get_sensor_dict(sensor_type).values())
 
-    def list_sensor_types(self):
+    @staticmethod
+    def list_sensor_types():
         """
         Lists all available sensor types.
         Returns: list of sensor types.
@@ -135,6 +136,28 @@ class SensorCatalog:
             case _:
                 raise ValueError(
                     f"Invalid sensor type '{sensor_type}'. Must be 'CTD', 'radiometers', or 'dataloggers'.")
+
+    def list_compatible_sensors(self, platform_type: str, sensor_type: str = None):
+        """
+        Returns a list of compatible sensors for a given platform type
+        Args:
+            platform_type: string denoting the platform type
+            sensor_type: string denoting the sensor type, if not specified, all compatible sensors are returned
+
+        Returns:
+
+        """
+        sensors_compatible = []
+        if sensor_type is None:
+            sensor_types = self.list_sensor_types()
+        else:
+            sensor_types = [sensor_type]
+        for sensor_type in sensor_types:
+            sensors2 = self._get_sensor_dict(sensor_type)
+            for key, sensor in sensors2.items():
+                if platform_type in sensor.platform_compatibility:
+                    sensors_compatible.append(sensor)
+        return sensors_compatible
 
 
 sensors = SensorCatalog()
