@@ -8,6 +8,7 @@ import zarr
 from os import sep
 import sys
 from attrs import frozen, field
+from mamma_mia.log import import_log_filter
 
 @frozen
 class Campaign:
@@ -37,7 +38,7 @@ class Campaign:
         if self.verbose:
             logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
         else:
-            logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="WARNING")
+            logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=import_log_filter)
         #self.catalog = Cats()
         logger.success(f"Campaign {self.name} created")
 
