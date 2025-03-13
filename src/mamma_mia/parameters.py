@@ -5,6 +5,8 @@ from loguru import logger
 import copy
 from attrs import frozen, field
 from cattrs import structure
+import sys
+from mamma_mia.log import import_log_filter
 
 @frozen
 class TimeParameter:
@@ -40,7 +42,8 @@ class ParameterCatalog:
     _time: dict[str, TimeParameter] = field(factory=dict)
 
     def __attrs_post_init__(self):
-        logger.info("Creating parameter catalog")
+        logger.remove()
+        logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=import_log_filter)
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}parameters.json", "r") as f:
             params = json.load(f)
@@ -61,7 +64,7 @@ class ParameterCatalog:
             except TypeError as e:
                 logger.error(e)
                 raise ValueError(f"{parameter['parameter_name']} is not a valid {parameter_type} parameter")
-            logger.success(f"parameter {parameter['parameter_name']} registered successfully")
+            logger.info(f"parameter {parameter['parameter_name']} registered successfully")
 
     def _get_parameter_dict(self, parameter_type):
         match parameter_type:

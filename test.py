@@ -90,7 +90,7 @@ def test_get_platform(platform_catalog):
     platform = structure(PLATFORM_DATA,Platform)
     platform_catalog.add_platform("glider", platform=platform)
 
-    retrieved = platform_catalog.get_platform("glider","TestGlider")
+    retrieved = platform_catalog.get_platform("Testy McTestFace","glider","TestGlider")
     assert retrieved.platform_serial_number == "TG-001"
 
 
