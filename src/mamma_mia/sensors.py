@@ -23,7 +23,8 @@ class Sensor:
     sensor_manufacturer: str
     model_name: str
     sensor_model: str
-    parameters: dict = field(factory=dict)
+    parameters: dict = field(factory=dict),
+    platform_compatibility: list = field(factory=list),
 
     def __attrs_post_init__(self):
         # convert all parameter strings/keys to parameter objects
