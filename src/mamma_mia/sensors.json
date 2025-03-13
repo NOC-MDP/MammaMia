@@ -16,7 +16,8 @@
                     "TEMP": 1,
                     "CNDC": 1,
                     "PRES": 1
-                }
+                },
+                "platform_compatibility": ["slocum"]
             },
             {
                 "sensor_serial_number": "9100",
@@ -33,7 +34,8 @@
                     "TEMP": 1,
                     "CNDC": 1,
                     "PRES": 1
-                }
+                },
+                "platform_compatibility": ["slocum"]
             },
             {
                 "sensor_serial_number": "0221",
@@ -50,7 +52,8 @@
                     "TEMP": 1,
                     "CNDC": 1,
                     "PRES": 1
-                }
+                },
+                "platform_compatibility": ["Autosub Long Range"]
             },
             {
                 "sensor_serial_number": "0222",
@@ -67,7 +70,8 @@
                     "TEMP": 1,
                     "CNDC": 1,
                     "PRES": 1
-                }
+                },
+                "platform_compatibility": ["Autosub Long Range"]
             }
         ],
         "radiometers": [
@@ -85,7 +89,8 @@
                 "parameters": {
                     "CHLA": 1,
                     "BBP700": 1
-                }
+                },
+                "platform_compatibility": ["slocum", "Autosub Long Range"]
             }
         ],
         "dataloggers": [
@@ -102,7 +107,8 @@
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "parameters": {
                     "ALR_LATITUDE": 1
-                }
+                },
+                "platform_compatibility": ["Autosub Long Range"]
             },
             {
                 "sensor_serial_number": "ALR_6",
@@ -117,7 +123,8 @@
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "parameters": {
                     "ALR_LATITUDE": 1
-                }
+                },
+                "platform_compatibility": ["Autosub Long Range"]
             },
             {
                 "sensor_serial_number": "unit_398",
@@ -137,7 +144,8 @@
                     "GLIDER_PITCH": 1,
                     "GLIDER_ROLL":1,
                     "TIME": 1
-                }
+                },
+                "platform_compatibility": ["slocum"]
             }
         ]
     }

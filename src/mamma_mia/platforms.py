@@ -29,6 +29,15 @@ class Platform:
     data_type: str
     sensors: dict[str, Sensor] = field(factory=dict)
 
+    def list_compatible_sensors(self, sensor_type:str):
+        sensors_compatible = []
+        sensors2 = sensors._get_sensor_dict(sensor_type)
+        for key, sensor in sensors2.items():
+            if self.platform_type in sensor.platform_compatibility:
+                sensors_compatible.append(sensor)
+        return sensors_compatible
+
+
     def register_sensor(self,sensor):
         # TODO add validation or checking here e.g. is it the right sensor type for the platform?
         if not isinstance(sensor, Sensor):  # Runtime type check

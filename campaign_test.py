@@ -1,6 +1,6 @@
 
 print("<=========> preparing mamma mia catalogs <===========>")
-from mamma_mia import sensors
+# from mamma_mia import sensors
 from mamma_mia import platforms
 from mamma_mia import Campaign
 from pprint import pp
@@ -12,14 +12,16 @@ campaign = Campaign(name="Greenland_2028",
                     verbose=True
                     )
 # # add AUV
-pp(platforms.list_platform_types())
-pp(platforms.list_platforms(platform_type="glider"))
+pp(f"Availble platform types: {platforms.list_platform_types()}")
+pp(f"Availble platforms of type glider: {platforms.list_platforms(platform_type='glider')}")
 Churchill_withCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")
-# TODO link available sensors to selected platform? e.g. a list sensors method on the platform class?
-print(f"sensor types available {sensors.list_sensor_types()}")
-pp(sensors.list_sensors(sensor_type="CTD"))
-sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="9100")
-Churchill_withCTD.register_sensor(sensor)
+
+availbleCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
+availibleRadiometer = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
+# print(f"sensor types available {sensors.list_sensor_types()}")
+# pp(sensors.list_sensors(sensor_type="CTD"))
+# sensor = sensors.get_sensor(sensor_type="CTD",sensor_ref="9100")
+Churchill_withCTD.register_sensor(sensor=availbleCTD[0])
 
 Churchill_noCTD = platforms.get_platform(platform_name="Churchill",platform_type="glider")
 
