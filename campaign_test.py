@@ -1,6 +1,5 @@
 from mamma_mia import platforms
 from mamma_mia import Campaign
-from mamma_mia import SensorBehaviour
 from pprint import pp
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
@@ -20,7 +19,7 @@ Churchill_withCTD.register_sensor(sensor=availableCTD[0])
 
 Churchill_noCTD = platforms.get_platform(instance_name="Churchill_noCTD",platform="Churchill",platform_type="glider")
 Churchill_noCTD.toggle_sensor_coupling()
-Churchill_noCTD.update_sensor_behaviour(sensor_behaviour=SensorBehaviour.SIXTY_SECONDS_UPCAST)
+Churchill_noCTD.update_sensor_behaviour(sensor_behaviour="60_seconds_upcast")
 campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
 campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
 
