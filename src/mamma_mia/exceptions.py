@@ -45,3 +45,6 @@ class CriticalParameterMissing(Exception):
 
 class InvalidSensorRate(Exception):
     pass
+
+class InvalidSensorBehaviour(Exception):
+    pass

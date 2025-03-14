@@ -1,5 +1,5 @@
 import json
-from mamma_mia.exceptions import InvalidPlatform, InvalidSensor
+from mamma_mia.exceptions import InvalidPlatform, InvalidSensor, InvalidSensorBehaviour
 from mamma_mia.sensors import sensors, Sensor, SensorBehaviour, SensorMode
 import os
 from pathlib import Path
@@ -60,7 +60,7 @@ class Platform:
         self.sensors[sensor.sensor_name] = sensor
         logger.success(f"successfully registered sensor {sensor.sensor_name} to platform {self.platform_name}")
 
-    def update_sensor_behaviour(self, sensor_behaviour: SensorBehaviour) -> None:
+    def update_sensor_behaviour(self, sensor_behaviour: str) -> None:
         """
         Update the sensor behaviour from default all on as fast as possible (sample at max rate)
         Args:
@@ -69,8 +69,16 @@ class Platform:
         Returns:
 
         """
-        self.science_sensor_behaviour = sensor_behaviour
-        logger.success(f"successfully updated sensor behaviour for instance {self.platform_ref} to {sensor_behaviour.value}")
+        match sensor_behaviour:
+            case "all_on_fast_as_possible":
+                behaviour = SensorBehaviour.ALL_ON_FAST_AS_POSSIBLE
+            case "60_seconds_upcast":
+                behaviour = SensorBehaviour.SIXTY_SECONDS_UPCAST
+            case _:
+                logger.error(f"sensor behaviour {sensor_behaviour} is invalid")
+                raise InvalidSensorBehaviour
+        self.science_sensor_behaviour = behaviour
+        logger.success(f"successfully updated sensor behaviour for instance {self.platform_ref} to {behaviour.value}")
 
     def toggle_sensor_coupling(self) -> None:
         """
