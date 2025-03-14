@@ -4,14 +4,14 @@ from mamma_mia.sensors import sensors, Sensor, SensorBehaviour, SensorMode
 import os
 from pathlib import Path
 from loguru import logger
-from attrs import frozen, field, evolve
+from attrs import frozen, field, evolve, define
 from cattrs import structure
 import sys
 from mamma_mia.log import log_filter
 
 
 
-@frozen
+@define
 class Platform:
     # platform parameters
     bodc_platform_model_id: int
@@ -60,6 +60,32 @@ class Platform:
         self.sensors[sensor.sensor_name] = sensor
         logger.success(f"successfully registered sensor {sensor.sensor_name} to platform {self.platform_name}")
 
+    def update_sensor_behaviour(self, sensor_behaviour: SensorBehaviour) -> None:
+        """
+        Update the sensor behaviour from default all on as fast as possible (sample at max rate)
+        Args:
+            sensor_behaviour:
+
+        Returns:
+
+        """
+        self.science_sensor_behaviour = sensor_behaviour
+        logger.success(f"successfully updated sensor behaviour for instance {self.platform_ref} to {sensor_behaviour.value}")
+
+    def toggle_sensor_coupling(self) -> None:
+        """
+        toggle sensor coupling so each sensor will sample at its defined rate
+        Returns:
+
+        """
+        if self.science_sensor_mode == SensorMode.COUPLED:
+            self.science_sensor_mode = SensorMode.DECOUPLED
+            logger.success(f"scientific sensors on instance {self.platform_ref} are now decoupled")
+        elif self.science_sensor_mode == SensorMode.DECOUPLED:
+            logger.success(f"scientific sensors on instance {self.platform_ref} are now coupled")
+            self.science_sensor_mode = SensorMode.COUPLED
+        else:
+            logger.warning(f"sensor mode {self.science_sensor_mode} is not supported")
 
 @frozen
 class PlatformCatalog:
