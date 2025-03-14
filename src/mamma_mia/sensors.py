@@ -1,5 +1,5 @@
 import json
-from attrs import frozen, field, evolve
+from attrs import define, field, evolve, frozen
 from cattrs import structure
 from loguru import logger
 from pathlib import Path
@@ -13,14 +13,14 @@ from mamma_mia.log import log_filter
 
 
 class SensorBehaviour(Enum):
-    ALL_ON_FAST_AS_POSSIBLE = 0
-    SIXTY_SECONDS_UPCAST = 60
+    ALL_ON_FAST_AS_POSSIBLE = "all_on_fast_as_possible"
+    SIXTY_SECONDS_UPCAST = "60_seconds_upcast"
 
 class SensorMode(Enum):
     COUPLED = 1
     DECOUPLED = 2
 
-@frozen
+@define
 class Sensor:
     # instance parameters
     sensor_serial_number: str
@@ -40,6 +40,7 @@ class Sensor:
     platform_compatibility: list = field(factory=list),
 
     def __attrs_post_init__(self):
+        self.sample_rate = self.max_sample_rate
         # convert all parameter strings/keys to parameter objects
         for parameter_key in self.parameters.keys():
             self._process_parameters(parameter_key, parameters)
@@ -67,7 +68,7 @@ class Sensor:
         if sample_rate < self.max_sample_rate:
             logger.error(f"sensor max sample rate is {self.max_sample_rate} unable to set to {sample_rate}")
             raise InvalidSensorRate
-        return evolve(self,sample_rate = sample_rate)
+        self.sample_rate = sample_rate
 
 
 @frozen
