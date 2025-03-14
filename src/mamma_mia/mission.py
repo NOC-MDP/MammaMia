@@ -2,7 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
 from cattrs import unstructure
-from mamma_mia import Platform
+from mamma_mia import create_platform_class
 import uuid
 from loguru import logger
 import zarr
@@ -37,7 +37,7 @@ class Mission(zarr.Group):
     def __init__(self,
                  name:str,
                  description:str,
-                 platform:Platform,
+                 platform:create_platform_class(),
                  trajectory_path:str,
                  store=None,
                  overwrite=False,
