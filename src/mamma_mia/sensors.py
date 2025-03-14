@@ -1,6 +1,6 @@
 import json
-from attrs import define, field, evolve, frozen
-from cattrs import structure
+from attrs import define, field, frozen
+from cattrs import structure,unstructure
 from loguru import logger
 from pathlib import Path
 import os
@@ -20,55 +20,69 @@ class SensorMode(Enum):
     COUPLED = 1
     DECOUPLED = 2
 
-@define
-class Sensor:
-    # instance parameters
-    sensor_serial_number: str
-    bodc_sensor_version_id: int
-    bodc_sensor_id: int
-    sensor_name: str
-    # type parameters
-    bodc_sensor_model_id: int
-    bodc_sensor_model_registry_id: int
-    instrument_type: str
-    sensor_manufacturer: str
-    model_name: str
-    sensor_model: str
-    max_sample_rate: int
-    sample_rate: int = None
-    parameters: dict = field(factory=dict)
-    platform_compatibility: list = field(factory=list),
 
-    def __attrs_post_init__(self):
-        self.sample_rate = self.max_sample_rate
-        # convert all parameter strings/keys to parameter objects
-        for parameter_key in self.parameters.keys():
-            self._process_parameters(parameter_key, parameters)
+def create_sensor_class(frozen_mode=False):
+    base_decorator = frozen if frozen_mode else define
 
-    def _process_parameters(self, parameter_key, parameters2):
-        parameter = None
-        for k1 in parameters2.__attrs_attrs__:  # Iterate over attrs fields
-            sub_obj = getattr(parameters2, k1.name)  # Get the field's value
-            if isinstance(sub_obj, dict):
-                for k2 in sub_obj.keys():
-                    if k2 == parameter_key:
-                        parameter = sub_obj[k2]
-        if parameter is None:
-            raise InvalidParameter(f"parameter {parameter_key} not found")
-        self.register_parameter(parameter=parameter)
+    # noinspection PyDataclass
+    @base_decorator
+    class Sensor:
+        # instance parameters
+        sensor_serial_number: str
+        bodc_sensor_version_id: int
+        bodc_sensor_id: int
+        sensor_name: str
+        # type parameters
+        bodc_sensor_model_id: int
+        bodc_sensor_model_registry_id: int
+        instrument_type: str
+        sensor_manufacturer: str
+        model_name: str
+        sensor_model: str
+        max_sample_rate: int
+        sample_rate: int = -999
+        parameters: dict = field(factory=dict)
+        platform_compatibility: list = field(factory=list),
+        entity_name: str = None
 
-    def register_parameter(self,parameter: Parameter):
-        # TODO add validation or checking here e.g. is it the right sensor type for the platform?
-        if not isinstance(parameter, (Parameter,TimeParameter)):  # Runtime type check
-            raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
-        self.parameters[parameter.parameter_name] = parameter
-        logger.info(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
+        def __attrs_post_init__(self):
+            # convert all parameter strings/keys to parameter objects
+            for parameter_key in self.parameters.keys():
+                self._process_parameters(parameter_key, parameters)
 
-    def update_sample_rate(self, sample_rate: int):
-        if sample_rate < self.max_sample_rate:
-            logger.error(f"sensor max sample rate is {self.max_sample_rate} unable to set to {sample_rate}")
-            raise InvalidSensorRate
-        self.sample_rate = sample_rate
+        def _process_parameters(self, parameter_key, parameters2):
+            parameter = None
+            for k1 in parameters2.__attrs_attrs__:  # Iterate over attrs fields
+                sub_obj = getattr(parameters2, k1.name)  # Get the field's value
+                if isinstance(sub_obj, dict):
+                    for k2 in sub_obj.keys():
+                        if k2 == parameter_key:
+                            parameter = sub_obj[k2]
+            if parameter is None:
+                raise InvalidParameter(f"parameter {parameter_key} not found")
+            self.register_parameter(parameter=parameter)
+
+        def register_parameter(self, parameter: Parameter):
+            # TODO add validation or checking here e.g. is it the right sensor type for the platform?
+            if not isinstance(parameter, (Parameter, TimeParameter)):  # Runtime type check
+                raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
+            self.parameters[parameter.parameter_name] = parameter
+            logger.info(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
+
+        if not frozen_mode:
+            def __attrs_post_init__(self):
+                self.sample_rate = self.max_sample_rate
+                # convert all parameter strings/keys to parameter objects
+                for parameter_key in self.parameters.keys():
+                    self._process_parameters(parameter_key, parameters)
+
+            def update_sample_rate(self, sample_rate: int):
+                if sample_rate < self.max_sample_rate:
+                    logger.error(f"sensor max sample rate is {self.max_sample_rate} unable to set to {sample_rate}")
+                    raise InvalidSensorRate
+                self.sample_rate = sample_rate
+
+    return Sensor
 
 
 @frozen
@@ -102,7 +116,7 @@ class SensorCatalog:
                 continue
 
             try:
-                sensor_dict[sensor_ref] = structure(sensor,Sensor)
+                sensor_dict[sensor_ref] = structure(sensor,create_sensor_class(frozen_mode=True))
             except TypeError as e:
                 logger.error(f"Error initializing sensor {sensor_ref}: {e}")
                 raise ValueError(f"{sensor_ref} is not a valid sensor")
@@ -114,7 +128,27 @@ class SensorCatalog:
             raise KeyError(f"Sensor '{sensor_ref}' not found in {sensor_type}.")
         return copy.deepcopy(sensor_dict[sensor_ref])
 
-    def add_sensor(self, sensor_type: str, sensor: Sensor):
+    def create_entity(self,entity_name:str, sensor_type: str, sensor_ref: str):
+        """
+        creates a mutable sensor entity
+        Args:
+            entity_name:
+            sensor_type:
+            sensor_ref:
+
+        Returns:
+
+        """
+        sensor_dict = self._get_sensor_dict(sensor_type)
+        if sensor_ref not in sensor_dict:
+            raise KeyError(f"Sensor '{sensor_ref}' not found in {sensor_type}.")
+        sensor_unstruct = unstructure(sensor_dict[sensor_ref])
+        created_sensor = structure(sensor_unstruct,create_sensor_class(frozen_mode=False))
+        created_sensor.entity_name = entity_name
+        logger.success(f"successfully created sensor entity {entity_name} as type {sensor_type}")
+        return created_sensor
+
+    def add_sensor(self, sensor_type: str, sensor: create_sensor_class(frozen_mode=True)):
         """Adds a new sensor. Raises an error if the sensor already exists."""
         sensor_dict = self._get_sensor_dict(sensor_type)
         sensor_name = sensor.sensor_name or sensor.sensor_serial_number

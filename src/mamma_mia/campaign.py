@@ -1,7 +1,7 @@
 #from mamma_mia.catalog import Cats, cmems_alias
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
-from mamma_mia import Platform
+from mamma_mia import create_platform_class
 from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform
 from loguru import logger
 import zarr
@@ -27,7 +27,7 @@ class Campaign:
     name: str
     description: str
     #catalog: Cats = field(init=False, default_factory=Cats)
-    platforms: dict[str,Platform] = field(factory=dict)
+    platforms: dict[str,create_platform_class()] = field(factory=dict)
     missions: dict[str, Mission] = field(factory=dict)
     interpolators: dict[str, Interpolators] = field(factory=dict)
     verbose: bool = False
@@ -42,7 +42,7 @@ class Campaign:
         #self.catalog = Cats()
         logger.success(f"Campaign {self.name} created")
 
-    def register_platform(self,platform: Platform,name:str):
+    def register_platform(self,platform: create_platform_class(),name:str):
         """
         Add an platform to the campaign platform dictionary
         Args:
