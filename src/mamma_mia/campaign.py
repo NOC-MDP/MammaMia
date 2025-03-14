@@ -73,6 +73,7 @@ class Campaign:
         """
         Function that adds an auv mission to the campaign.
         Args:
+            platform_name:
             name: name of the mission
             description: description of the mission
             trajectory_path: path to auv trajectory netcdf
@@ -171,7 +172,7 @@ class Campaign:
         camp = zarr.group(store=store,overwrite=overwrite)
         camp.attrs['name'] = self.name
         camp.attrs['description'] = self.description
-        camp.attrs['uuid'] = str(self.uuid)
+        #camp.attrs['uuid'] = str(self.uuid)
         logger.success(f"zarr group {self.name} successfully created")
 
         for key1, mission in self.missions.items():

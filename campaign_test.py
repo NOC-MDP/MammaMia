@@ -1,9 +1,6 @@
-
-print("<=========> preparing mamma mia catalogs <===========>")
 from mamma_mia import platforms
 from mamma_mia import Campaign
 from pprint import pp
-print("<=========> Mamma Mia catalogs successfully created <===========>")
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
 campaign = Campaign(name="Greenland_2028",
@@ -13,21 +10,21 @@ campaign = Campaign(name="Greenland_2028",
 # # add AUV
 pp(f"Availble platform types: {platforms.list_platform_types()}")
 pp(f"Availble platforms of type glider: {platforms.list_platforms(platform_type='glider')}")
-Churchill_withCTD = platforms.get_platform(platform_ref="Churchill_withCTD",platform="Churchill",platform_type="glider")
+Churchill_withCTD = platforms.get_platform(instance_name="Churchill_withCTD",platform="Churchill",platform_type="glider")
 
 availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
 availableRadiometers = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
+update_sample_rate = availableCTD[0].update_sample_rate(sample_rate=60)
+Churchill_withCTD.register_sensor(sensor=update_sample_rate)
 
-Churchill_withCTD.register_sensor(sensor=availableCTD[0])
-
-Churchill_noCTD = platforms.get_platform(platform_ref="Churchill_noCTD",platform="Churchill",platform_type="glider")
+Churchill_noCTD = platforms.get_platform(instance_name="Churchill_noCTD",platform="Churchill",platform_type="glider")
 
 campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
 campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
 
 # # add mission
 campaign.add_mission(name="GL28_01",
-                     description="slocum glider Slocum_1 in the North Sea 2019",
+                     description="Churchill with CTD deployment off South East Greenland",
                      platform_name="Churchill_withCTD",
                      trajectory_path="comet-mm1.nc")
 
