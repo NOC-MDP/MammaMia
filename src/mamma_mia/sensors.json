@@ -12,10 +12,11 @@
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "max_sample_rate": 5,
                 "parameters": {
-                    "TEMP": 1,
-                    "CNDC": 1,
-                    "PRES": 1
+                    "TEMP": 5,
+                    "CNDC": 5,
+                    "PRES": 5
                 },
                 "platform_compatibility": ["slocum"]
             },
@@ -30,10 +31,11 @@
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "max_sample_rate": 5,
                 "parameters": {
-                    "TEMP": 1,
-                    "CNDC": 1,
-                    "PRES": 1
+                    "TEMP": 5,
+                    "CNDC": 5,
+                    "PRES": 5
                 },
                 "platform_compatibility": ["slocum"]
             },
@@ -48,10 +50,11 @@
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
+                "max_sample_rate": 5,
                 "parameters": {
-                    "TEMP": 1,
-                    "CNDC": 1,
-                    "PRES": 1
+                    "TEMP": 5,
+                    "CNDC": 5,
+                    "PRES": 5
                 },
                 "platform_compatibility": ["Autosub Long Range"]
             },
@@ -66,10 +69,11 @@
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
+                "max_sample_rate": 5,
                 "parameters": {
-                    "TEMP": 1,
-                    "CNDC": 1,
-                    "PRES": 1
+                    "TEMP": 5,
+                    "CNDC": 5,
+                    "PRES": 5
                 },
                 "platform_compatibility": ["Autosub Long Range"]
             }
@@ -86,9 +90,10 @@
                 "sensor_manufacturer": "Wet Labs",
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
+                "max_sample_rate": 5,
                 "parameters": {
-                    "CHLA": 1,
-                    "BBP700": 1
+                    "CHLA": 5,
+                    "BBP700": 5
                 },
                 "platform_compatibility": ["slocum", "Autosub Long Range"]
             }
@@ -105,6 +110,7 @@
                 "sensor_manufacturer": "National Oceanography Centre",
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
+                "max_sample_rate": 1,
                 "parameters": {
                     "ALR_LATITUDE": 1
                 },
@@ -121,6 +127,7 @@
                 "sensor_manufacturer": "National Oceanography Centre",
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
+                "max_sample_rate": 1,
                 "parameters": {
                     "ALR_LATITUDE": 1
                 },
@@ -137,6 +144,7 @@
                 "sensor_manufacturer": "Teledyne Webb Research",
                 "model_name": "Slocum G1+G2 Glider Navigation data logger",
                 "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
+                "max_sample_rate": 1,
                 "parameters": {
                     "LATITUDE": 1,
                     "LONGITUDE": 1,

@@ -142,7 +142,9 @@ class Mission(zarr.Group):
         
         payload = self.create_group("payload")
 
-
+        mission_total_time_seconds = (trajectory.datetimes[-1]-trajectory.datetimes[0]).astype('timedelta64[s]')
+        # TODO need to account for different sensor sampling rates for different sensors and different AUV behaviours e.g. surfacing or diving
+        print(mission_total_time_seconds)
         # real_grp = self.create_group("reality")
         # real_grp.array(name="latitudes",data=np.array(ds["m_lat"]))
         # real_grp.array(name="longitudes",data=np.array(ds["m_lon"]))

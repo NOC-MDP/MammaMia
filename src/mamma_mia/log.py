@@ -15,4 +15,4 @@ logger.remove()
 logger.add(sys.stderr, level="DEBUG", filter=log_filter)
 
 # Export the logger
-__all__ = ["logger", "COMPLETED_LEVEL"]
+__all__ = ["logger", "COMPLETED_LEVEL","log_filter"]

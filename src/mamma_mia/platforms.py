@@ -1,6 +1,6 @@
 import json
 from mamma_mia.exceptions import InvalidPlatform, InvalidSensor
-from mamma_mia.sensors import sensors, Sensor
+from mamma_mia.sensors import sensors, Sensor, SensorBehaviour, SensorMode
 import os
 from pathlib import Path
 from loguru import logger
@@ -29,6 +29,9 @@ class Platform:
     platform_family: str
     wmo_platform_code: int
     data_type: str
+    # TODO make the two enums below actually do something
+    science_sensor_behaviour: SensorBehaviour = SensorBehaviour.ALL_ON_FAST_AS_POSSIBLE
+    science_sensor_mode: SensorMode = SensorMode.COUPLED
     sensors: dict[str, Sensor] = field(factory=dict)
     platform_ref: str = None
 
@@ -100,13 +103,13 @@ class PlatformCatalog:
                 logger.error(f"Error initializing platform: {e}")
                 raise InvalidPlatform
 
-    def get_platform(self,platform_ref:str, platform_type: str, platform: str):
+    def get_platform(self,instance_name:str, platform_type: str, platform: str):
         """Returns a deep copy of a platform (prevents direct modification)."""
         platform_dict = self._get_platform_dict(platform_type)
         if platform not in platform_dict:
             raise KeyError(f"Platform '{platform}' not found in {platform_type}.")
-        created_platform = evolve(platform_dict[platform],platform_ref=platform_ref)
-        logger.success(f"successfully created {platform_ref} as platform {platform} of type {platform_type}")
+        created_platform = evolve(platform_dict[platform],platform_ref=instance_name)
+        logger.success(f"successfully created {instance_name} as platform {platform} of type {platform_type}")
         return created_platform
 
     def add_platform(self, platform_type: str, platform: Platform):

@@ -1,15 +1,24 @@
 import json
-from attrs import frozen, field
+from attrs import frozen, field, evolve
 from cattrs import structure
 from loguru import logger
 from pathlib import Path
 import os
 import copy
 import sys
-
+from enum import Enum
 from mamma_mia.parameters import Parameter, parameters,TimeParameter
-from mamma_mia.exceptions import InvalidParameter
+from mamma_mia.exceptions import InvalidParameter, InvalidSensorRate
 from mamma_mia.log import log_filter
+
+
+class SensorBehaviour(Enum):
+    ALL_ON_FAST_AS_POSSIBLE = 0
+    SIXTY_SECONDS_UPCAST = 60
+
+class SensorMode(Enum):
+    COUPLED = 1
+    DECOUPLED = 2
 
 @frozen
 class Sensor:
@@ -25,14 +34,15 @@ class Sensor:
     sensor_manufacturer: str
     model_name: str
     sensor_model: str
-    parameters: dict = field(factory=dict),
+    max_sample_rate: int
+    sample_rate: int = None
+    parameters: dict = field(factory=dict)
     platform_compatibility: list = field(factory=list),
 
     def __attrs_post_init__(self):
         # convert all parameter strings/keys to parameter objects
         for parameter_key in self.parameters.keys():
             self._process_parameters(parameter_key, parameters)
-
 
     def _process_parameters(self, parameter_key, parameters2):
         parameter = None
@@ -52,6 +62,12 @@ class Sensor:
             raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
         self.parameters[parameter.parameter_name] = parameter
         logger.info(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
+
+    def update_sample_rate(self, sample_rate: int):
+        if sample_rate < self.max_sample_rate:
+            logger.error(f"sensor max sample rate is {self.max_sample_rate} unable to set to {sample_rate}")
+            raise InvalidSensorRate
+        return evolve(self,sample_rate = sample_rate)
 
 
 @frozen
