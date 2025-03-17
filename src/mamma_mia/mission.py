@@ -142,36 +142,19 @@ class Mission(zarr.Group):
         
         payload = self.create_group("payload")
 
+        # total mission time in seconds (largest that a payload array could be)
         mission_total_time_seconds = (trajectory.datetimes[-1]-trajectory.datetimes[0]).astype('timedelta64[s]')
+
+        for name,sensor in platform.sensors.items():
+            for name2,parameter in sensor.parameters.items():
+                # Don't create a payload array for any time parameters since seconds for each sensor sample are stored in each payload array
+                if "TIME" in name2:
+                    continue
+                payload.empty(name=name2, shape=(2,mission_total_time_seconds.astype(int)), dtype=np.float64)
+
         # TODO need to account for different sensor sampling rates for different sensors and different AUV behaviours e.g. surfacing or diving
-        print(mission_total_time_seconds)
-        # real_grp = self.create_group("reality")
-        # real_grp.array(name="latitudes",data=np.array(ds["m_lat"]))
-        # real_grp.array(name="longitudes",data=np.array(ds["m_lon"]))
-        # for i in range(real_grp.longitudes.__len__()):
-        #     real_grp.longitudes[i] = self.__convert_to_decimal(real_grp.longitudes[i])
-        # for i in range(real_grp.latitudes.__len__()):
-        #     real_grp.latitudes[i] = self.__convert_to_decimal(real_grp.latitudes[i])
-        # real_grp.array(name="depths",data=np.array(ds["m_depth"]))
-        # real_grp.array(name="datetimes",data=np.array(ds["time"],dtype='datetime64'))
-        # real_grp.array(name="pitch", data=np.array(ds["m_pitch"]))
-        # construct sensor array dictionary to save as attribute and empty reality arrays for each sensor
-        # TODO be able to handle more than one of the same array type e.g. CTD will overwrite any existing CTD arrays
-        #sensor_arrays = {}
-        # for group in auv.sensor_arrays.values():
-        #     sensor_arrays[group.array] = {}
-        #     for sensor in fields(group):
-        #         # filter out uuid field
-        #         if "uuid" in sensor.name:
-        #             sensor_arrays[group.array][sensor.name] = {"uuid": str(sensor.default)}
-        #         # if field starts with sensor then it's a sensor!
-        #         if "sensor" in sensor.name:
-        #             # map sensor class to a JSON serializable object (a dict basically)
-        #             sensor_arrays[group.array][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
-        #             real_grp.full(name=sensor.default.type, shape=traj.latitudes.__len__(), dtype=np.float64, fill_value=np.nan)
-        #             real_grp.attrs["mapped_name"] = sensor.default.type
-        # update sensor array attribute in zarr group
-        #self.auv.attrs.update({"sensor_arrays": sensor_arrays})
+        # TODO when flying mission keep a present seconds into mission so that sensor arrays can be updated dynamically at the sample rate, e.g. every 5 or 1 seconds
+
 
 
     def find_parameter_key(self,parameter:str,instrument_type:str ="data loggers") -> str:

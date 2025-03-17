@@ -36,7 +36,7 @@ class Parameter:
 
 
 @frozen
-class ParameterCatalog:
+class ParameterInventory:
     _environmental: dict[str, Parameter] = field(factory=dict)
     _navigation: dict[str, Parameter] = field(factory=dict)
     _time: dict[str, TimeParameter] = field(factory=dict)
@@ -51,7 +51,7 @@ class ParameterCatalog:
         for parameter_type, parameters2 in params["parameters"].items():
             self._process_parameters(parameter_type, parameters2)
 
-        logger.log("COMPLETED","Successfully created parameter catalog")
+        logger.log("COMPLETED","Successfully created parameter inventory")
 
     def _process_parameters(self, parameter_type, parameters2):
         param_dict = self._get_parameter_dict(parameter_type)
@@ -99,10 +99,7 @@ class ParameterCatalog:
         else:
             raise KeyError(f"Parameter '{parameter_name}' not found in '{parameter_type}'")
 
-
-parameters = ParameterCatalog()
-
-
+parameter_inventory = ParameterInventory()
 
 
 # TEMP_DOXY = Parameter(

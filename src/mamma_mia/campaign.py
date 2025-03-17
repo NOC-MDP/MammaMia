@@ -1,4 +1,4 @@
-#from mamma_mia.catalog import Cats, cmems_alias
+from mamma_mia.catalog import Cats, cmems_alias
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
 from mamma_mia import create_platform_class
@@ -7,10 +7,10 @@ from loguru import logger
 import zarr
 from os import sep
 import sys
-from attrs import frozen, field
+from attrs import define, field
 from mamma_mia.log import log_filter
 
-@frozen
+@define
 class Campaign:
     """
     Campaign object, this contains all the missions that auv's are being deployed to undertake. It is the main object
@@ -26,7 +26,7 @@ class Campaign:
     """
     name: str
     description: str
-    #catalog: Cats = field(init=False, default_factory=Cats)
+    catalog: Cats = field(factory=Cats)
     platforms: dict[str,create_platform_class()] = field(factory=dict)
     missions: dict[str, Mission] = field(factory=dict)
     interpolators: dict[str, Interpolators] = field(factory=dict)
@@ -39,8 +39,10 @@ class Campaign:
             logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
         else:
             logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
-        #self.catalog = Cats()
         logger.success(f"Campaign {self.name} created")
+
+    def init_catalog(self):
+        self.catalog = Cats()
 
     def register_platform(self,platform: create_platform_class(),name:str):
         """
