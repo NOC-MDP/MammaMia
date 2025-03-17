@@ -1,6 +1,6 @@
 import json
 from mamma_mia.exceptions import InvalidPlatform, InvalidSensor, InvalidSensorBehaviour
-from mamma_mia.sensors import sensors, create_sensor_class, SensorBehaviour, SensorMode
+from mamma_mia.sensors import sensor_inventory, create_sensor_class, SensorBehaviour, SensorMode
 import os
 from pathlib import Path
 from loguru import logger
@@ -8,6 +8,7 @@ from attrs import frozen, field, define
 from cattrs import structure, unstructure
 import sys
 from mamma_mia.log import log_filter
+
 
 
 # Factory function to create a platform class
@@ -48,7 +49,7 @@ def create_platform_class(frozen_mode=False):
             Returns: list containing Sensor class objects
 
             """
-            return sensors.list_compatible_sensors(sensor_type=sensor_type, platform_type=self.platform_type)
+            return sensor_inventory.list_compatible_sensors(sensor_type=sensor_type, platform_type=self.platform_type)
 
         def register_sensor(self,sensor: create_sensor_class(frozen_mode=True)) -> None:
             """
@@ -72,6 +73,7 @@ def create_platform_class(frozen_mode=False):
                 Returns:
 
                 """
+                logger.warning(f"sensor {sensor_behaviour} updates are not implemented yet")
                 match sensor_behaviour:
                     case "all_on_fast_as_possible":
                         behaviour = SensorBehaviour.ALL_ON_FAST_AS_POSSIBLE
@@ -89,6 +91,7 @@ def create_platform_class(frozen_mode=False):
                 Returns:
 
                 """
+                logger.warning("sensor coupling is not yet implemented")
                 if self.science_sensor_mode == SensorMode.COUPLED:
                     self.science_sensor_mode = SensorMode.DECOUPLED
                     logger.success(f"scientific sensors on entity {self.entity_name} are now decoupled")
@@ -101,7 +104,7 @@ def create_platform_class(frozen_mode=False):
     return Platform
 
 @frozen
-class PlatformCatalog:
+class PlatformInventory:
     _glider: dict = field(factory=dict)
     _alr: dict = field(factory=dict)
 
@@ -115,7 +118,7 @@ class PlatformCatalog:
 
         for platform_type, platforms2 in plats["platforms"].items():
             self._process_platform(platform_type, platforms2)
-        logger.log("COMPLETED","successfully created platform catalog")
+        logger.log("COMPLETED","successfully created platform Inventory")
 
     def _process_platform(self, platform_type, platforms2) -> None:
         """
@@ -128,7 +131,6 @@ class PlatformCatalog:
 
         """
         platform_dict = self._get_platform_dict(platform_type)
-
         for platform in platforms2:
             # TODO look at this is .get the best thing to use? maybe try except key error?
             try:
@@ -140,7 +142,7 @@ class PlatformCatalog:
                 if not serial_number:
                     logger.error("Platform entry missing 'platform_serial_number', skipping")
                     continue
-                datalogger = sensors.get_sensor(sensor_type="dataloggers",sensor_ref=serial_number)
+                datalogger = sensor_inventory.get_sensor(sensor_type="dataloggers",sensor_ref=serial_number)
                 if not datalogger:
                     logger.error(f"Datalogger entry missing {serial_number}, skipping")
 
@@ -202,5 +204,4 @@ class PlatformCatalog:
         """
         return ["alr", "glider"]
 
-
-platforms = PlatformCatalog()
+platform_inventory = PlatformInventory()

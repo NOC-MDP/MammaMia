@@ -7,7 +7,7 @@ import os
 import copy
 import sys
 from enum import Enum
-from mamma_mia.parameters import Parameter, parameters,TimeParameter
+from mamma_mia.parameters import parameter_inventory,Parameter,TimeParameter
 from mamma_mia.exceptions import InvalidParameter, InvalidSensorRate
 from mamma_mia.log import log_filter
 
@@ -48,9 +48,9 @@ def create_sensor_class(frozen_mode=False):
         def __attrs_post_init__(self):
             # convert all parameter strings/keys to parameter objects
             for parameter_key in self.parameters.keys():
-                self._process_parameters(parameter_key, parameters)
+                self._process_parameters(parameter_key, parameter_inventory)
 
-        def _process_parameters(self, parameter_key, parameters2):
+        def _process_parameters(self, parameter_key, parameters2:parameter_inventory):
             parameter = None
             for k1 in parameters2.__attrs_attrs__:  # Iterate over attrs fields
                 sub_obj = getattr(parameters2, k1.name)  # Get the field's value
@@ -74,7 +74,7 @@ def create_sensor_class(frozen_mode=False):
                 self.sample_rate = self.max_sample_rate
                 # convert all parameter strings/keys to parameter objects
                 for parameter_key in self.parameters.keys():
-                    self._process_parameters(parameter_key, parameters)
+                    self._process_parameters(parameter_key, parameter_inventory)
 
             def update_sample_rate(self, sample_rate: int):
                 if sample_rate < self.max_sample_rate:
@@ -86,7 +86,7 @@ def create_sensor_class(frozen_mode=False):
 
 
 @frozen
-class SensorCatalog:
+class SensorInventory:
     _CTD: dict = field(factory=dict)
     _radiometers: dict = field(factory=dict)
     _dataloggers: dict = field(factory=dict)
@@ -100,7 +100,7 @@ class SensorCatalog:
 
         for sensor_type, sensors2 in sens["sensors"].items():
             self._process_sensor(sensor_type, sensors2)
-        logger.log("COMPLETED","successfully created sensor catalog")
+        logger.log("COMPLETED","successfully created sensor inventory")
 
     def _process_sensor(self, sensor_type, sensors2):
         sensor_dict = self._get_sensor_dict(sensor_type)
@@ -214,5 +214,4 @@ class SensorCatalog:
                     sensors_compatible.append(sensor)
         return sensors_compatible
 
-
-sensors = SensorCatalog()
+sensor_inventory = SensorInventory()
