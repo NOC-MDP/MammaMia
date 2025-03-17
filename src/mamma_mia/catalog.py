@@ -38,5 +38,6 @@ class Cats:
     overwrite: bool = True
     # TODO need some kind of refresh option that will delete caches of downloaded data. (user enabled and probably if data is older than x?)
     def __post_init__(self, search,cat_path ):
+
         self.cmems_cat = copernicusmarine.describe(contains=[search], include_datasets=True,overwrite_metadata_cache=self.overwrite)
         self.msm_cat = intake.open_catalog(cat_path)
