@@ -1,16 +1,16 @@
 from mamma_mia import platform_inventory
 from mamma_mia import Campaign
 from mamma_mia import sensor_inventory
-from pprint import pp
+
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
 campaign = Campaign(name="Greenland_2028",
                     description="single slocum glider deployment off South East Greenland",
                     verbose=True
                     )
-# # add AUV
-pp(f"Availble platform types: {platform_inventory.list_platform_types()}")
-pp(f"Availble platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
+# # add platform
+print(f"Availble platform types: {platform_inventory.list_platform_types()}")
+print(f"Availble platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
 Churchill_withCTD = platform_inventory.create_entity(entity_name="Churchill_withCTD",platform="Churchill",platform_type="glider")
 
 availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
@@ -32,6 +32,7 @@ campaign.add_mission(name="GL28_01",
                      platform_name="Churchill_withCTD",
                      trajectory_path="comet-mm1.nc")
 
+# initalise model catalogs
 campaign.init_catalog()
 
 print("the end")

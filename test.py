@@ -1,10 +1,8 @@
-from dataclasses import FrozenInstanceError
-
 import attrs.exceptions
 import pytest
-from mamma_mia import PlatformCatalog, Platform, ParameterCatalog,Parameter, SensorCatalog, Sensor
+from mamma_mia import PlatformInventory, create_platform_class,ParameterInventory,Parameter, SensorInventory, create_sensor_class
 from cattrs import structure
-# TODO add more tests, e.g. one with time parameter and check catalog creation etc.
+# TODO add more tests, e.g. one with time parameter and check inventory creation etc.
 
 # Sample test data
 PLATFORM_DATA = {
@@ -35,6 +33,7 @@ SENSOR_DATA = {
                 "sensor_manufacturer": "Eagle Instruments",
                 "model_name": "EI Glider Payload (GPCTD) CTD",
                 "sensor_model": "EI Glider Payload (GPCTD) CTD",
+                "max_sample_rate": 5,
                 "parameters": {
                     "TEMP": 1,
                     "CNDC": 1,
@@ -55,135 +54,135 @@ PARAMETER_DATA = {
 
 
 @pytest.fixture
-def platform_catalog():
-    """Fixture to create a fresh PlatformCatalog instance for each test."""
-    return PlatformCatalog()
+def platform_inventory():
+    """Fixture to create a fresh Platforminventory instance for each test."""
+    return PlatformInventory()
 
 
 @pytest.fixture
-def sensor_catalog():
-    """Fixture to create a fresh SensorCatalog instance for each test."""
-    return SensorCatalog()
+def sensor_inventory():
+    """Fixture to create a fresh Sensorinventory instance for each test."""
+    return SensorInventory()
 
 
 @pytest.fixture
-def parameter_catalog():
-    """Fixture to create a fresh ParameterCatalog instance for each test."""
-    return ParameterCatalog()
+def parameter_inventory():
+    """Fixture to create a fresh Parameterinventory instance for each test."""
+    return ParameterInventory()
 
 
 # ----------------------------------
-# PLATFORM CATALOG TESTS
+# PLATFORM inventory TESTS
 # ----------------------------------
 
-def test_add_platform(platform_catalog):
-    """Test adding a new platform to the catalog."""
-    platform = structure(PLATFORM_DATA,Platform)
-    platform_catalog.add_platform(platform_type="glider", platform=platform)
+def test_add_platform(platform_inventory):
+    """Test adding a new platform to the inventory."""
+    platform = structure(PLATFORM_DATA,create_platform_class(frozen_mode=True))
+    platform_inventory.add_platform(platform_type="glider", platform=platform)
 
-    assert "TestGlider" in platform_catalog._glider
-    assert platform_catalog._glider["TestGlider"].platform_serial_number == "TG-001"
+    assert "TestGlider" in platform_inventory._glider
+    assert platform_inventory._glider["TestGlider"].platform_serial_number == "TG-001"
 
 
-def test_get_platform(platform_catalog):
+def test_get_platform(platform_inventory):
     """Test retrieving a platform by name."""
-    platform = structure(PLATFORM_DATA,Platform)
-    platform_catalog.add_platform("glider", platform=platform)
+    platform = structure(PLATFORM_DATA,create_platform_class(frozen_mode=True))
+    platform_inventory.add_platform("glider", platform=platform)
 
-    retrieved = platform_catalog.get_platform("Testy McTestFace","glider","TestGlider")
+    retrieved = platform_inventory.create_entity("Testy McTestFace","glider","TestGlider")
     assert retrieved.platform_serial_number == "TG-001"
 
 
-def test_modify_platform(platform_catalog):
+def test_modify_platform(platform_inventory):
     """Ensure modification of an existing platform is restricted."""
-    platform = structure(PLATFORM_DATA,Platform)
-    platform_catalog.add_platform("glider", platform=platform)
+    platform = structure(PLATFORM_DATA,create_platform_class(frozen_mode=True))
+    platform_inventory.add_platform("glider", platform=platform)
 
     with pytest.raises(attrs.exceptions.FrozenInstanceError):
-        platform_catalog._glider["TestGlider"].platform_serial_number = "MODIFIED"
+        platform_inventory._glider["TestGlider"].platform_serial_number = "MODIFIED"
 
-def test_remove_platform(platform_catalog):
+def test_remove_platform(platform_inventory):
     """Test removing a platform."""
-    platform = structure(PLATFORM_DATA,Platform)
-    platform_catalog.add_platform("glider", platform=platform)
+    platform = structure(PLATFORM_DATA,create_platform_class(frozen_mode=True))
+    platform_inventory.add_platform("glider", platform=platform)
 
-    platform_catalog.remove_platform("glider", "TestGlider")
+    platform_inventory.remove_platform("glider", "TestGlider")
 
-    assert "TestGlider" not in platform_catalog._glider
+    assert "TestGlider" not in platform_inventory._glider
 
 
 # ----------------------------------
-# SENSOR CATALOG TESTS
+# SENSOR inventory TESTS
 # ----------------------------------
 
-def test_add_sensor(sensor_catalog):
-    """Test adding a new sensor to the catalog."""
-    sensor = structure(SENSOR_DATA,Sensor)
-    sensor_catalog.add_sensor("CTD", sensor)
+def test_add_sensor(sensor_inventory):
+    """Test adding a new sensor to the inventory."""
+    sensor = structure(SENSOR_DATA,create_sensor_class(frozen_mode=True))
+    sensor_inventory.add_sensor("CTD", sensor)
 
-    assert "CTD-Sensor-1" in sensor_catalog._CTD
+    assert "CTD-Sensor-1" in sensor_inventory._CTD
 
 
-def test_get_sensor(sensor_catalog):
+def test_get_sensor(sensor_inventory):
     """Test retrieving a sensor by name."""
-    sensor = structure(SENSOR_DATA, Sensor)
-    sensor_catalog.add_sensor("CTD", sensor)
+    sensor = structure(SENSOR_DATA, create_sensor_class(frozen_mode=True))
+    sensor_inventory.add_sensor("CTD", sensor)
 
-    retrieved = sensor_catalog.get_sensor("CTD", "CTD-Sensor-1")
+    retrieved = sensor_inventory.get_sensor("CTD", "CTD-Sensor-1")
     assert retrieved.sensor_serial_number == "SN-123"
 
-def test_modify_sensor(sensor_catalog):
+def test_modify_sensor(sensor_inventory):
     """Ensure modification of an existing sensor is restricted."""
-    sensor = structure(SENSOR_DATA, Sensor)
-    sensor_catalog.add_sensor("CTD", sensor)
+    sensor = structure(SENSOR_DATA, create_sensor_class(frozen_mode=True))
+    sensor_inventory.add_sensor("CTD", sensor)
 
     with pytest.raises(attrs.exceptions.FrozenInstanceError):
-        sensor_catalog._CTD["CTD-Sensor-1"].sensor_serial_number = "MODIFIED"
+        sensor_inventory._CTD["CTD-Sensor-1"].sensor_serial_number = "MODIFIED"
 
-def test_remove_sensor(sensor_catalog):
+def test_remove_sensor(sensor_inventory):
     """Test removing a sensor."""
-    sensor = structure(SENSOR_DATA, Sensor)
-    sensor_catalog.add_sensor("CTD", sensor)
+    sensor = structure(SENSOR_DATA, create_sensor_class(frozen_mode=True))
+    sensor_inventory.add_sensor("CTD", sensor)
 
-    sensor_catalog.remove_sensor("CTD", "CTD-Sensor-1")
+    sensor_inventory.remove_sensor("CTD", "CTD-Sensor-1")
 
-    assert "CTD-Sensor-1" not in sensor_catalog._CTD
+    assert "CTD-Sensor-1" not in sensor_inventory._CTD
 
 
 # ----------------------------------
-# PARAMETER CATALOG TESTS
+# PARAMETER inventory TESTS
 # ----------------------------------
 
-def test_add_parameter(parameter_catalog):
-    """Test adding a new parameter to the catalog."""
+def test_add_parameter(parameter_inventory):
+    """Test adding a new parameter to the inventory."""
     parameter = structure(PARAMETER_DATA, Parameter)
-    parameter_catalog.add_parameter("environmental", parameter)
+    parameter_inventory.add_parameter("environmental", parameter)
 
-    assert "SAL" in parameter_catalog._environmental
+    assert "SAL" in parameter_inventory._environmental
 
 
-def test_get_parameter(parameter_catalog):
+def test_get_parameter(parameter_inventory):
     """Test retrieving a parameter by name."""
     parameter = structure(PARAMETER_DATA, Parameter)
-    parameter_catalog.add_parameter("environmental", parameter)
+    parameter_inventory.add_parameter("environmental", parameter)
 
-    retrieved = parameter_catalog.get_parameter("environmental", "SAL")
+    retrieved = parameter_inventory.get_parameter("environmental", "SAL")
     assert retrieved.unit_of_measure == "mhos/m"
 
-def test_modify_parameter(parameter_catalog):
+def test_modify_parameter(parameter_inventory):
     """Ensure modification of an existing parameter is restricted."""
     parameter = structure(PARAMETER_DATA, Parameter)
-    parameter_catalog.add_parameter("environmental", parameter)
+    parameter_inventory.add_parameter("environmental", parameter)
 
     with pytest.raises(attrs.exceptions.FrozenInstanceError):
-        parameter_catalog._environmental["SAL"].unit_of_measure = "MODIFIED"
+        parameter_inventory._environmental["SAL"].unit_of_measure = "MODIFIED"
 
 
-def test_remove_parameter(parameter_catalog):
+def test_remove_parameter(parameter_inventory):
     """Test removing a parameter."""
     parameter = structure(PARAMETER_DATA, Parameter)
-    parameter_catalog.add_parameter("environmental", parameter)
+    parameter_inventory.add_parameter("environmental", parameter)
 
-    parameter_catalog.remove_parameter("environmental", "SAL")
+    parameter_inventory.remove_parameter("environmental", "SAL")
 
-    assert "SAL" not in parameter_catalog._environmental
+    assert "SAL" not in parameter_inventory._environmental
