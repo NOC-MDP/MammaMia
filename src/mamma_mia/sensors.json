@@ -2,6 +2,25 @@
     "sensors": {
         "CTD": [
             {
+                "sensor_serial_number": "mamma_mia",
+                "bodc_sensor_version_id": -999,
+                "bodc_sensor_id": -999,
+                "sensor_name": "MM CTD",
+                "bodc_sensor_model_id": -999,
+                "bodc_sensor_model_registry_id": -999,
+                "instrument_type": "water temperature sensor",
+                "sensor_manufacturer": "Mamma Mia",
+                "model_name": "Mamma Mia CTD",
+                "sensor_model": "Mamma Mia CTD",
+                "max_sample_rate": -999,
+                "parameters": {
+                    "TEMP": 5,
+                    "CNDC": 5,
+                    "PRES": 5
+                },
+                "platform_compatibility": ["mm"]
+            },
+            {
                 "sensor_serial_number": "9099",
                 "bodc_sensor_version_id": 1304,
                 "bodc_sensor_id": 847,
@@ -76,6 +95,27 @@
                     "PRES": 5
                 },
                 "platform_compatibility": ["ALR_6"]
+            }
+        ],
+        "ADCP": [
+            {
+                "sensor_serial_number": "mamma_mia",
+                "bodc_sensor_version_id": -999,
+                "bodc_sensor_id": -999,
+                "sensor_name": "MM ADCP",
+                "bodc_sensor_model_id": -999,
+                "bodc_sensor_model_registry_id": -999,
+                "instrument_type": "water current sensor",
+                "sensor_manufacturer": "Mamma Mia",
+                "model_name": "Mamma Mia ADCP",
+                "sensor_model": "Mamma Mia ADCP",
+                "max_sample_rate": -999,
+                "parameters": {
+                    "WATERCURRENTS_U": 5,
+                    "WATERCURRENTS_V": 5,
+                    "WATERCURRENTS_W": 5
+                },
+                "platform_compatibility": ["mm"]
             }
         ],
         "radiometers": [

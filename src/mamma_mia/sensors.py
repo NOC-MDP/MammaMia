@@ -88,6 +88,7 @@ def create_sensor_class(frozen_mode=False):
 @frozen
 class SensorInventory:
     _CTD: dict = field(factory=dict)
+    _ADCP: dict = field(factory=dict)
     _radiometers: dict = field(factory=dict)
     _dataloggers: dict = field(factory=dict)
 
@@ -184,6 +185,8 @@ class SensorInventory:
         match sensor_type:
             case "CTD":
                 return self._CTD
+            case "ADCP":
+                return self._ADCP
             case "radiometers":
                 return self._radiometers
             case "dataloggers":
