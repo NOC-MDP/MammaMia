@@ -16,6 +16,22 @@
                 "platform_owner": "NOCS",
                 "wmo_platform_code": 6801573,
                 "data_type": "EGO glider time-series data"
+            },
+            {
+                "bodc_platform_model_id": 286,
+                "platform_model_id": 841,
+                "nvs_platform_id": "B7600029",
+                "platform_type": "slocum",
+                "platform_manufacturer": "Teledyne Webb Research",
+                "platform_model_name":"Teledyne Webb Research Slocum G3S glider",
+                "bodc_platform_id": 1543,
+                "bodc_platform_type_id": 1088,
+                "platform_name": "Cheesy",
+                "platform_family": "open_ocean_glider",
+                "platform_serial_number": "unit_887",
+                "platform_owner": "NOCS",
+                "wmo_platform_code": 6801556,
+                "data_type": "EGO glider time-series data"
             }
         ],
         "alr": [

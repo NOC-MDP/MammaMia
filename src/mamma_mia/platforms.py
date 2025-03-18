@@ -57,7 +57,7 @@ def create_platform_class(frozen_mode=False):
             Args:
                 sensor: Sensor class object
             """
-            if self.platform_type not in sensor.platform_compatibility:
+            if self.platform_serial_number not in sensor.platform_compatibility:
                 logger.error(f"sensor {sensor.sensor_name} is not compatible with platform {self.platform_type}")
                 raise InvalidSensor
             self.sensors[sensor.sensor_name] = sensor

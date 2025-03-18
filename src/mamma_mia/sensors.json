@@ -18,7 +18,7 @@
                     "CNDC": 5,
                     "PRES": 5
                 },
-                "platform_compatibility": ["slocum"]
+                "platform_compatibility": ["unit_397"]
             },
             {
                 "sensor_serial_number": "9100",
@@ -37,7 +37,7 @@
                     "CNDC": 5,
                     "PRES": 5
                 },
-                "platform_compatibility": ["slocum"]
+                "platform_compatibility": ["unit_398"]
             },
             {
                 "sensor_serial_number": "0221",
@@ -56,7 +56,7 @@
                     "CNDC": 5,
                     "PRES": 5
                 },
-                "platform_compatibility": ["Autosub Long Range"]
+                "platform_compatibility": ["ALR_4"]
             },
             {
                 "sensor_serial_number": "0222",
@@ -75,7 +75,7 @@
                     "CNDC": 5,
                     "PRES": 5
                 },
-                "platform_compatibility": ["Autosub Long Range"]
+                "platform_compatibility": ["ALR_6"]
             }
         ],
         "radiometers": [
@@ -87,7 +87,7 @@
                 "bodc_sensor_model_id": 622,
                 "bodc_sensor_model_registry_id": 259,
                 "instrument_type": "radiometers",
-                "sensor_manufacturer": "Wet Labs",
+                "sensor_manufacturer": "WET Labs",
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "max_sample_rate": 5,
@@ -95,7 +95,7 @@
                     "CHLA": 5,
                     "BBP700": 5
                 },
-                "platform_compatibility": ["slocum", "Autosub Long Range"]
+                "platform_compatibility": ["unit_398"]
             }
         ],
         "dataloggers": [
@@ -114,7 +114,7 @@
                 "parameters": {
                     "ALR_LATITUDE": 1
                 },
-                "platform_compatibility": ["Autosub Long Range"]
+                "platform_compatibility": ["ALR_4"]
             },
             {
                 "sensor_serial_number": "ALR_6",
@@ -154,7 +154,30 @@
                     "GLIDER_DEPTH": 1,
                     "TIME": 1
                 },
-                "platform_compatibility": ["slocum"]
+                "platform_compatibility": ["unit_398"]
+            },
+            {
+                "sensor_serial_number": "unit_887",
+                "bodc_sensor_version_id": 1549,
+                "bodc_sensor_id": 1094,
+                "sensor_name": "G3S Glider data logger unit_887",
+                "bodc_sensor_model_id": 881,
+                "bodc_sensor_model_registry_id": 288,
+                "instrument_type": "data loggers",
+                "sensor_manufacturer": "Teledyne Webb Research",
+                "model_name": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
+                "sensor_model": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
+                "max_sample_rate": 1,
+                "parameters": {
+                    "LATITUDE": 1,
+                    "LONGITUDE": 1,
+                    "ALTITUDE": 1,
+                    "GLIDER_PITCH": 1,
+                    "GLIDER_ROLL":1,
+                    "GLIDER_DEPTH": 1,
+                    "TIME": 1
+                },
+                "platform_compatibility": ["unit_887"]
             }
         ]
     }
