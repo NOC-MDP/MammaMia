@@ -1,4 +1,4 @@
-from mamma_mia.catalog import Cats, cmems_alias
+
 from mamma_mia.mission import Mission
 from mamma_mia.interpolator import Interpolators
 from mamma_mia import create_platform_class
@@ -9,6 +9,7 @@ from os import sep
 import sys
 from attrs import define, field
 from mamma_mia.log import log_filter
+from mamma_mia.catalog import Cats
 
 @define
 class Campaign:
@@ -43,6 +44,7 @@ class Campaign:
 
     def init_catalog(self):
         self.catalog = Cats()
+        self.catalog.init_catalog()
 
     def register_platform(self,platform: create_platform_class(),name:str):
         """

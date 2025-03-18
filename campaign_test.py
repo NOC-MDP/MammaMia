@@ -35,13 +35,16 @@ campaign.add_mission(name="GL28_01",
 # initalise model catalogs
 campaign.init_catalog()
 
+# Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
+#campaign.enable_interpolator_cache()
+# build missions (search datasets, download datasets, build interpolators etc)
+campaign.build_missions()
+
+# run/fly missions
+campaign.run()
+
 print("the end")
-# # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
-# #campaign.enable_interpolator_cache()
-# # build missions (search datasets, download datasets, build interpolators etc)
-# campaign.build_missions()
-# # run/fly missions
-# campaign.run()
+
 # # # visualise the results
 # # # colourmap options are here https://plotly.com/python/builtin-colorscales/
 # # campaign.missions["mission_1"].plot_trajectory()
@@ -49,7 +52,4 @@ print("the end")
 # # export the campaign
 # campaign.export()
 #
-# print(">===========< Mamma Mia AUV campaign test complete >==========<")
-#
-# def test_glider():
-#     assert campaign.missions["mission_1"].auv.type == "Slocum"
+

@@ -36,7 +36,7 @@ def create_platform_class(frozen_mode=False):
         data_type: str
         # TODO make the two enums below actually do something
         science_sensor_behaviour: SensorBehaviour = SensorBehaviour.ALL_ON_FAST_AS_POSSIBLE
-        science_sensor_mode: SensorMode = SensorMode.COUPLED
+        science_sensor_mode: SensorMode = SensorMode.DECOUPLED
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
 
@@ -73,7 +73,7 @@ def create_platform_class(frozen_mode=False):
                 Returns:
 
                 """
-                logger.warning(f"sensor {sensor_behaviour} updates are not implemented yet")
+                logger.critical(f"sensor behaviour {sensor_behaviour} is not implemented yet")
                 match sensor_behaviour:
                     case "all_on_fast_as_possible":
                         behaviour = SensorBehaviour.ALL_ON_FAST_AS_POSSIBLE
@@ -83,7 +83,7 @@ def create_platform_class(frozen_mode=False):
                         logger.error(f"sensor behaviour {sensor_behaviour} is invalid")
                         raise InvalidSensorBehaviour
                 self.science_sensor_behaviour = behaviour
-                logger.success(f"successfully updated sensor behaviour for entity {self.entity_name} to {behaviour.value}")
+                #logger.success(f"successfully updated sensor behaviour for entity {self.entity_name} to {behaviour.value}")
 
             def toggle_sensor_coupling(self) -> None:
                 """
@@ -91,13 +91,13 @@ def create_platform_class(frozen_mode=False):
                 Returns:
 
                 """
-                logger.warning("sensor coupling is not yet implemented")
+                logger.critical("sensor coupling is not yet implemented")
                 if self.science_sensor_mode == SensorMode.COUPLED:
                     self.science_sensor_mode = SensorMode.DECOUPLED
-                    logger.success(f"scientific sensors on entity {self.entity_name} are now decoupled")
+                    #logger.success(f"scientific sensors on entity {self.entity_name} are now decoupled")
                 elif self.science_sensor_mode == SensorMode.DECOUPLED:
-                    logger.success(f"scientific sensors on entity {self.entity_name} are now coupled")
                     self.science_sensor_mode = SensorMode.COUPLED
+                    #logger.success(f"scientific sensors on entity {self.entity_name} are now coupled")
                 else:
                     logger.warning(f"sensor mode {self.science_sensor_mode} is not supported")
 
