@@ -73,6 +73,26 @@
                 "source_name":"m_final_water_vx",
                 "ancillary_variables":"WATERCURRENTS_U_QC"
             },
+                        {
+                "parameter_name": "WATERCURRENTS_V",
+                "standard_name": "northward velocity of water",
+                "unit_of_measure": "cm/s",
+                "parameter_definition": "Northward velocity of water current in the water body",
+                "seadatanet_parameter": "",
+                "seadatanet_unit_of_measure":"",
+                "source_name":"",
+                "ancillary_variables":"WATERCURRENTS_V_QC"
+            },
+                        {
+                "parameter_name": "WATERCURRENTS_W",
+                "standard_name": "vertical velocity of water",
+                "unit_of_measure": "cm/s",
+                "parameter_definition": "vertical velocity of water current in the water body",
+                "seadatanet_parameter": "",
+                "seadatanet_unit_of_measure":"",
+                "source_name":"",
+                "ancillary_variables":"WATERCURRENTS_W_QC"
+            },
             {
                 "parameter_name": "ALTITUDE",
                 "standard_name": "height relative to seabed",

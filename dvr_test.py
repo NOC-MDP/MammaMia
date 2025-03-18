@@ -1,7 +1,9 @@
-from mamma_mia import Extent,Point,VelocityReality,DensityReality
+from mamma_mia import Extent, Point, RealityWorld, sensor_inventory
 
 print("<=========> starting Mamma Mia Velocity Reality test run <===========>")
 
+ctd = sensor_inventory.create_entity(entity_name="ctd",sensor_type="CTD",sensor_ref="mamma_mia")
+adcp = sensor_inventory.create_entity(entity_name="adcp",sensor_type="ADCP", sensor_ref="mamma_mia")
 extent = Extent(max_lat=58.0,
                 min_lat=56.0,
                 min_lng=6.0,
@@ -16,10 +18,9 @@ point = Point(latitude=57.1,
               dt="2023-01-03T00:00:00",
 
 )
-VR = VelocityReality(extent=extent)
-DR = DensityReality(extent=extent)
-V = VR.teleport(point=point)
-D = DR.teleport(point=point)
-print(V)
-print(D)
-print(">===========< Mamma Mia Velocity Reality test complete >==========<")
+
+DVR = RealityWorld(extent=extent,adcp=adcp,ctd=ctd)
+print("the end")
+# Real = DVR.teleport(point=point)
+# print(Real)
+# print(">===========< Mamma Mia Velocity Reality test complete >==========<")
