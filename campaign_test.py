@@ -9,8 +9,8 @@ campaign = Campaign(name="Greenland_2028",
                     verbose=True
                     )
 # # add platform
-print(f"Availble platform types: {platform_inventory.list_platform_types()}")
-print(f"Availble platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
+print(f"Available platform types: {platform_inventory.list_platform_types()}")
+print(f"Available platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
 Churchill_withCTD = platform_inventory.create_entity(entity_name="Churchill_withCTD",platform="Churchill",platform_type="glider")
 
 availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
