@@ -151,6 +151,7 @@
                     "ALTITUDE": 1,
                     "GLIDER_PITCH": 1,
                     "GLIDER_ROLL":1,
+                    "GLIDER_DEPTH": 1,
                     "TIME": 1
                 },
                 "platform_compatibility": ["slocum"]

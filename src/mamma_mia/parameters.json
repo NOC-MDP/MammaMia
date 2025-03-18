@@ -154,6 +154,16 @@
                 "ancillary_variables":"GLIDER_ROLL_QC"
             },
             {
+                "parameter_name": "GLIDER_DEPTH",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "parameter_definition": "",
+                "seadatanet_parameter": "",
+                "seadatanet_unit_of_measure":"",
+                "source_name":"m_depth",
+                "ancillary_variables":"GLIDER_DEPTH_QC"
+            },
+            {
                 "parameter_name": "ALR_LATITUDE",
                 "standard_name": "latitude_north",
                 "unit_of_measure": "",

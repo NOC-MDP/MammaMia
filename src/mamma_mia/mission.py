@@ -66,7 +66,7 @@ class Mission(zarr.Group):
         # find parameter keys
         lat_key = self.find_parameter_key(parameter="LATITUDE")
         lon_key = self.find_parameter_key(parameter="LONGITUDE")
-        alt_key = self.find_parameter_key(parameter="ALTITUDE")
+        dep_key = self.find_parameter_key(parameter="GLIDER_DEPTH")
         pitch_key = self.find_parameter_key(parameter="PITCH")
         yaw_key = self.find_parameter_key(parameter="YAW")
         roll_key = self.find_parameter_key(parameter="ROLL")
@@ -80,7 +80,7 @@ class Mission(zarr.Group):
         try:
             trajectory.array(name="latitudes",data=np.array(ds[lat_key]))
             trajectory.array(name="longitudes",data=np.array(ds[lon_key]))
-            trajectory.array(name="altitude",data=np.array(ds[alt_key]))
+            trajectory.array(name="depths",data=np.array(ds[dep_key]))
             trajectory.array(name="datetimes",data=np.array(ds[time_key],dtype='datetime64'))
         except KeyError as e:
             logger.error(f"Critical parameter for trajectory missing: {e}")
@@ -119,10 +119,6 @@ class Mission(zarr.Group):
 
         # create empty world group
         worlds = self.create_group("world")
-        if np.around(np.min(trajectory.altitude), 2) - extra_depth < 0:
-            min_altitude = 0
-        else:
-            min_altitude = np.around(np.min(trajectory.altitude), 2) - extra_depth
         extent = {
                     "max_lat": np.around(np.max(trajectory.latitudes),2) + excess_space,
                     "min_lat": np.around(np.min(trajectory.latitudes), 2) - excess_space,
@@ -131,7 +127,7 @@ class Mission(zarr.Group):
         # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
                     "start_time": np.datetime_as_string(trajectory.datetimes[0] - np.timedelta64(30, 'D'), unit="D"),
                     "end_time" : np.datetime_as_string(trajectory.datetimes[-1] + np.timedelta64(30, 'D'), unit="D"),
-                    "min_altitude": min_altitude,
+                    "max_depth": np.around(np.max(trajectory.depths),2) + extra_depth,
         }
         worlds.attrs["extent"] = extent
         worlds.attrs["catalog_priorities"] = {"msm":msm_priority,"cmems":cmems_priority}
@@ -186,7 +182,7 @@ class Mission(zarr.Group):
                   and zarr store attributes are updated with the new values (what worlds match sensors and trajectory etc)
 
         """
-        matched_worlds = find_worlds(cat=cat,reality=self.reality,extent=self.world.attrs["extent"])
+        matched_worlds = find_worlds(cat=cat,reality=self.payload,extent=self.world.attrs["extent"])
         self.world.attrs.update({"matched_worlds": matched_worlds})
         zarr_stores = get_worlds(cat=cat, world=self.world)
         self.world.attrs.update({"zarr_stores": zarr_stores})
@@ -195,25 +191,60 @@ class Mission(zarr.Group):
         """
 
         Args:
+
             interpolator: Interpolator object with interpolators to fly through
 
         Returns:
             void: mission object with filled reality arrays of interpolated data, i.e. AUV has flown its
                   mission through the world.
         """
-        logger.info(f"flying {self.attrs['name']} using {self.auv.attrs['id']}")
+        logger.info(f"flying {self.attrs['name']} using {self.platform.attrs['entity_name']}")
         flight = {
             "longitude": np.array(self.trajectory["longitudes"]),
             "latitude": np.array(self.trajectory["latitudes"]),
             "depth": np.array(self.trajectory["depths"]),
             "time": np.array(self.trajectory["datetimes"], dtype='datetime64'),
         }
-        for key in self.reality.array_keys():
+        seconds_into_mission = np.arange(0, self.trajectory["datetimes"].__len__(), 1, dtype=np.float64)
+        sample_rate = 1
+        for key in self.payload.array_keys():
+            for k1, v1 in self.platform.attrs["sensors"].items():
+                if key in self.platform.attrs["sensors"][k1]["parameters"].keys():
+                    sample_rate = self.platform.attrs["sensors"][k1]["sample_rate"]
+                    # if a sample rate has not been explicitly set use the max rate of the sensor
+                    if sample_rate == -999:
+                        sample_rate = self.platform.attrs["sensors"][k1]["max_sample_rate"]
+
             try:
-                logger.info(f"flying through {key} world and creating reality")
-                self.reality[key] = interpolator.interpolator[key].quadrivariate(flight)
+                logger.info(f"flying through {key} world and creating interpolated data for flight")
+                track = interpolator.interpolator[key].quadrivariate(flight)
             except KeyError:
-                logger.warning(f"no interpolator found for parameter {key}")
+                # TODO need to check to see if key is a navigation parameter and set track to be the trajectory component
+                logger.warning(f"no interpolator found for parameter {key} removing from payload")
+                try:
+                    del(self.payload[key])
+                # this exception seems to always occur when calling delete on zarr array?
+                except KeyError:
+                    continue
+                continue
+            stride_track = track[::sample_rate]
+            stride_time = seconds_into_mission[::sample_rate]
+
+            # Ensure they have the same length
+            try:
+                assert len(stride_track) == len(stride_time), "Arrays must have the same length"
+            except AssertionError:
+                logger.error("track and time arrays must have same length")
+                raise Exception
+            n = len(stride_time)
+
+            # Update the first n elements of the Zarr array
+            self.payload[key][0, :n] = stride_time
+            self.payload[key][1, :n] = stride_track
+
+            # Trim the Zarr array to the new length
+            self.payload[key].resize((2, n))
+
 
         logger.success(f"{self.attrs['name']} flown successfully")
 
