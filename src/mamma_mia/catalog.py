@@ -11,9 +11,9 @@ cmems_alias = {
     "TEMP": ["thetao"],
     "CNDC": ["so"],
     "PRES": ["pres"],
-    "u_component": ["uo"],
-    "v_component": ["vo"],
-    "w_component": ["wo"]
+    "WATERCURRENTS_U": ["uo"],
+    "WATERCURRENTS_V": ["vo"],
+    "WATERCURRENTS_W": ["wo"]
 }
 
 
