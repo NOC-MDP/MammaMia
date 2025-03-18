@@ -1,8 +1,9 @@
-from mamma_mia import Extent, Point, RealityWorld
-
+from mamma_mia import Extent, Point, Reality
+from loguru import logger
+import sys
 print("<=========> starting Mamma Mia Velocity Reality test run <===========>")
-
-
+logger.remove()
+logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
 extent = Extent(max_lat=58.0,
                 min_lat=56.0,
                 min_lng=6.0,
@@ -18,8 +19,7 @@ point = Point(latitude=57.1,
 
 )
 
-DVR = RealityWorld(extent=extent)
-print("the end")
-# Real = DVR.teleport(point=point)
-# print(Real)
-# print(">===========< Mamma Mia Velocity Reality test complete >==========<")
+DVR = Reality(extent=extent)
+Real = DVR.teleport(point=point)
+print(Real)
+print(">===========< Mamma Mia Velocity Reality test complete >==========<")

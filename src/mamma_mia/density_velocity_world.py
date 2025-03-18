@@ -67,9 +67,9 @@ class Point:
         object.__setattr__(self, 'datetime', np.datetime64(self.dt))
 
 @frozen
-class Reality:
+class RealityPt:
     """
-    Immutable vector object, contains U, V and W components of velocity at a single point
+    Immutable vector object, contains U, V and W components of velocity, temperature, salinity at a single point
     """
     u_velocity: float
     v_velocity: float
@@ -138,6 +138,7 @@ class RealityWorld(zarr.Group):
         real_grp = self.create_group("reality")
         # create cats
         cats = Cats()
+        cats.init_catalog()
         ctd = sensor_inventory.create_entity(entity_name="ctd", sensor_type="CTD", sensor_ref="mamma_mia")
         adcp = sensor_inventory.create_entity(entity_name="adcp", sensor_type="ADCP", sensor_ref="mamma_mia")
 
@@ -148,25 +149,13 @@ class RealityWorld(zarr.Group):
         for name,sensor in ctd.parameters.items():
             real_grp.empty(name=name,shape=1,dtype=np.float64)
 
-            # # filter out uuid field
-            # if "uuid" in sensor.name:
-            #     sensor_arrays["ADCP"][sensor.name] = {"uuid": str(sensor.default)}
-            # # if field starts with sensor then it's a sensor!
-            # if "sensor" in sensor.name:
-            #     # map sensor class to a JSON serializable object (a dict basically)
-            #     sensor_arrays["ADCP"][sensor.name] = {"type":sensor.default.type,"units":sensor.default.units}
-            #     # TODO look into why this is needed as it is only used for its keys should be able to use the sensor array above
-            #     # TODO but find worlds is dependant on the reality group and it shouldn't be.
-            #     real_grp.full(name=sensor.default.type, shape=1, dtype=np.float64, fill_value=np.nan)
-            #     real_grp.attrs["mapped_name"] = sensor.default.type
-
         matched_worlds = find_worlds(cat=cats,extent=extent_excess,reality=self.reality)
         self.world.attrs.update({"matched_worlds": matched_worlds})
         zarr_stores = get_worlds(cat=cats, world=self.world)
         self.world.attrs.update({"zarr_stores": zarr_stores})
-        logger.success("velocity world created successfully")
+        logger.success("reality world created successfully")
 
-    def get_reality(self,point:Point,interpolator:Interpolators) -> Reality:
+    def get_reality(self,point:Point,interpolator:Interpolators) -> RealityPt:
         """
         Interpolates a point object using the interpolators and returns a vector object containing the interpolated data
 
@@ -189,46 +178,46 @@ class RealityWorld(zarr.Group):
                 self.reality[key] = interpolator.interpolator[key].quadrivariate(location)
             except KeyError:
                 # TODO need to dynamically set up a list of components that should be there rather than assuming as sometimes W is not available
-                if key != "w_component":
+                if key != "WATERCURRENTS_W":
                     logger.warning(f"no interpolator for {key}")
 
-        if np.isnan(self.reality["u_component"][0]):
+        if np.isnan(self.reality["WATERCURRENTS_U"][0]):
             if point.depth >= 0.5:
                 logger.warning(f"U component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
             raise NullDataException
         else:
-            u_velocity = self.reality["u_component"][0]
+            u_velocity = self.reality["WATERCURRENTS_U"][0]
 
-        if np.isnan(self.reality["v_component"][0]):
+        if np.isnan(self.reality["WATERCURRENTS_V"][0]):
             if point.depth >= 0.5:
                 logger.warning(f"V component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
             raise NullDataException
         else:
-            v_velocity = self.reality["v_component"][0]
+            v_velocity = self.reality["WATERCURRENTS_V"][0]
 
-        if np.isnan(self.reality["w_component"][0]):
+        if np.isnan(self.reality["WATERCURRENTS_W"][0]):
             if point.depth >= 0.5:
                 pass
                 # logger.warning(f"W component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
             raise NullDataException
         else:
-            w_velocity = self.reality["w_component"][0]
+            w_velocity = self.reality["WATERCURRENTS_W"][0]
 
-        if np.isnan(self.reality["temperature"][0]):
+        if np.isnan(self.reality["TEMP"][0]):
             if point.depth >= 0.5:
                 logger.warning(f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}, assuming 14 degrees temperature")
             raise NullDataException
         else:
-            temperature = self.reality["temperature"][0]
+            temperature = self.reality["TEMP"][0]
 
-        if np.isnan(self.reality["salinity"][0]):
+        if np.isnan(self.reality["CNDC"][0]):
             if point.depth >= 0.5:
                 logger.warning(f"salinity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming 35 PSU")
             raise NullDataException
         else:
-            salinity = self.reality["salinity"][0]
+            salinity = self.reality["CNDC"][0]
 
-        reality = Reality(u_velocity=u_velocity,
+        reality = RealityPt(u_velocity=u_velocity,
                         v_velocity=v_velocity,
                         w_velocity=w_velocity,
                         salinity=salinity,
@@ -257,7 +246,7 @@ class Reality:
         self.interpolators.build(worlds=self.world["world"],mission="DVR")
         logger.success("reality created successfully")
 
-    def teleport(self, point: Point) -> Reality:
+    def teleport(self, point: Point) -> RealityPt:
         """
         Teleports (interpolates) the point object using the generated interpolators and returns a vector object
         containing the interpolated velocity components
