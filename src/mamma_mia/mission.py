@@ -205,7 +205,8 @@ class Mission(zarr.Group):
             "depth": np.array(self.trajectory["depths"]),
             "time": np.array(self.trajectory["datetimes"], dtype='datetime64'),
         }
-        seconds_into_mission = np.arange(0, self.trajectory["datetimes"].__len__(), 1, dtype=np.float64)
+        seconds_per_step = np.int64((self.trajectory["datetimes"][1] - self.trajectory["datetimes"][0]).astype('timedelta64[s]'))
+        seconds_into_mission = np.arange(0, self.trajectory["datetimes"].__len__()*seconds_per_step, seconds_per_step, dtype=np.float64)
         sample_rate = 1
         for key in self.payload.array_keys():
             for k1, v1 in self.platform.attrs["sensors"].items():
@@ -227,8 +228,16 @@ class Mission(zarr.Group):
                 except KeyError:
                     continue
                 continue
-            stride_track = track[::sample_rate]
-            stride_time = seconds_into_mission[::sample_rate]
+            stride_int = np.int64(sample_rate/seconds_per_step)
+            stride_float = np.float64(sample_rate/seconds_per_step)
+            if stride_float != stride_int:
+                logger.warning(f"unable to match track stride with sampling rate have set to closest compatible rate of {stride_int*seconds_per_step}")
+            if stride_int < 1:
+                logger.warning("simulation timestep is not a high enough resolution to resolve sampling rate")
+                logger.warning(f"sampling rate set to {seconds_per_step}")
+                stride = 1
+            stride_track = track[::stride_int]
+            stride_time = seconds_into_mission[::stride_int]
 
             # Ensure they have the same length
             try:
