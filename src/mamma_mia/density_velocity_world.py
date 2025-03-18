@@ -2,14 +2,14 @@ from attrs import frozen,field,define
 import zarr
 from loguru import logger
 import numpy as np
-
+import sys
 from mamma_mia.sensors import sensor_inventory
 from mamma_mia.catalog import Cats
 from mamma_mia.find_worlds import find_worlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.exceptions import ValidationFailure, NullDataException
-
+from mamma_mia.log import log_filter
 
 @frozen
 class Extent:
@@ -39,9 +39,9 @@ class Extent:
     def __attrs_post_init__(self):
         object.__setattr__(self, 'start_datetime', np.datetime64(self.start_dt))
         object.__setattr__(self, 'end_datetime', np.datetime64(self.end_dt))
-        self.validate()
+        self._validate()
 
-    def validate(self):
+    def _validate(self):
         if self.max_lat > 90 or self.max_lat < -90:
             raise ValidationFailure(f"Maximum Latitude {self.max_lat} failed validation")
         if self.min_lat > 90 or self.min_lat < -90:
@@ -177,20 +177,18 @@ class RealityWorld(zarr.Group):
             try:
                 self.reality[key] = interpolator.interpolator[key].quadrivariate(location)
             except KeyError:
-                # TODO need to dynamically set up a list of components that should be there rather than assuming as sometimes W is not available
-                if key != "WATERCURRENTS_W":
-                    logger.warning(f"no interpolator for {key}")
+                logger.warning(f"no interpolator for {key}")
 
         if np.isnan(self.reality["WATERCURRENTS_U"][0]):
             if point.depth >= 0.5:
-                logger.warning(f"U component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
+                logger.error(f"U component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}")
             raise NullDataException
         else:
             u_velocity = self.reality["WATERCURRENTS_U"][0]
 
         if np.isnan(self.reality["WATERCURRENTS_V"][0]):
             if point.depth >= 0.5:
-                logger.warning(f"V component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
+                logger.error(f"V component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
             raise NullDataException
         else:
             v_velocity = self.reality["WATERCURRENTS_V"][0]
@@ -198,30 +196,31 @@ class RealityWorld(zarr.Group):
         if np.isnan(self.reality["WATERCURRENTS_W"][0]):
             if point.depth >= 0.5:
                 pass
-                # logger.warning(f"W component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming zero velocity for this component")
+                logger.error(f"W component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
             raise NullDataException
         else:
             w_velocity = self.reality["WATERCURRENTS_W"][0]
 
         if np.isnan(self.reality["TEMP"][0]):
             if point.depth >= 0.5:
-                logger.warning(f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}, assuming 14 degrees temperature")
+                logger.error(f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
             raise NullDataException
         else:
             temperature = self.reality["TEMP"][0]
 
         if np.isnan(self.reality["CNDC"][0]):
             if point.depth >= 0.5:
-                logger.warning(f"salinity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}, assuming 35 PSU")
+                logger.error(f"salinity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
             raise NullDataException
         else:
             salinity = self.reality["CNDC"][0]
 
         reality = RealityPt(u_velocity=u_velocity,
-                        v_velocity=v_velocity,
-                        w_velocity=w_velocity,
-                        salinity=salinity,
-                        temperature=temperature,)
+                            v_velocity=v_velocity,
+                            w_velocity=w_velocity,
+                            salinity=salinity,
+                            temperature=temperature
+                            )
         return reality
 
 
@@ -238,8 +237,15 @@ class Reality:
     extent: Extent
     world: RealityWorld = field(init=False)
     interpolators: Interpolators = field(init=False)
+    verbose: bool = False
 
     def __attrs_post_init__(self):
+        # reset logger
+        logger.remove()        # set logger based on requested verbosity
+        if self.verbose:
+            logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
+        else:
+            logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         logger.info("creating velocity reality")
         self.world = RealityWorld(extent=self.extent)
         self.interpolators = Interpolators()

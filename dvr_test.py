@@ -19,7 +19,7 @@ point = Point(latitude=57.1,
 
 )
 
-DVR = Reality(extent=extent)
+DVR = Reality(extent=extent,verbose=True)
 Real = DVR.teleport(point=point)
 print(Real)
 print(">===========< Mamma Mia Velocity Reality test complete >==========<")
