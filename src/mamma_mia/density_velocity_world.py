@@ -1,10 +1,9 @@
 from attrs import frozen,field,define
 import zarr
-import uuid
 from loguru import logger
 import numpy as np
 
-from mamma_mia.sensors import create_sensor_class
+from mamma_mia.sensors import sensor_inventory
 from mamma_mia.catalog import Cats
 from mamma_mia.find_worlds import find_worlds
 from mamma_mia.get_worlds import get_worlds
@@ -94,8 +93,6 @@ class RealityWorld(zarr.Group):
 
     """
     extent: Extent
-    adcp: create_sensor_class()
-    ctd: create_sensor_class()
     store = None
     overwrite = False
     excess_space: float = 0.5
@@ -141,11 +138,14 @@ class RealityWorld(zarr.Group):
         real_grp = self.create_group("reality")
         # create cats
         cats = Cats()
+        ctd = sensor_inventory.create_entity(entity_name="ctd", sensor_type="CTD", sensor_ref="mamma_mia")
+        adcp = sensor_inventory.create_entity(entity_name="adcp", sensor_type="ADCP", sensor_ref="mamma_mia")
+
         # TODO sort out the sensor specification here so that velocities, temp, salinity worlds are created
 
-        for name,sensor in self.adcp.parameters.items():
+        for name,sensor in adcp.parameters.items():
             real_grp.empty(name=name,shape=1,dtype=np.float64)
-        for name,sensor in self.ctd.parameters.items():
+        for name,sensor in ctd.parameters.items():
             real_grp.empty(name=name,shape=1,dtype=np.float64)
 
             # # filter out uuid field
