@@ -11,7 +11,7 @@ from mamma_mia.interpolator import Interpolators
 from mamma_mia.find_worlds import find_worlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing
-
+from scipy.interpolate import interp1d
 
 class Mission(zarr.Group):
     """
@@ -205,8 +205,6 @@ class Mission(zarr.Group):
             "depth": np.array(self.trajectory["depths"]),
             "time": np.array(self.trajectory["datetimes"], dtype='datetime64'),
         }
-        seconds_per_step = np.int64((self.trajectory["datetimes"][1] - self.trajectory["datetimes"][0]).astype('timedelta64[s]'))
-        seconds_into_mission = np.arange(0, self.trajectory["datetimes"].__len__()*seconds_per_step, seconds_per_step, dtype=np.float64)
         sample_rate = 1
         for key in self.payload.array_keys():
             for k1, v1 in self.platform.attrs["sensors"].items():
@@ -216,9 +214,10 @@ class Mission(zarr.Group):
                     if sample_rate == -999:
                         sample_rate = self.platform.attrs["sensors"][k1]["max_sample_rate"]
 
+            resampled_flight = self._resample_flight(flight=flight,new_interval_seconds=sample_rate)
             try:
                 logger.info(f"flying through {key} world and creating interpolated data for flight")
-                track = interpolator.interpolator[key].quadrivariate(flight)
+                track = interpolator.interpolator[key].quadrivariate(resampled_flight)
             except KeyError:
                 # TODO need to check to see if key is a navigation parameter and set track to be the trajectory component
                 logger.warning(f"no interpolator found for parameter {key} removing from payload")
@@ -228,34 +227,64 @@ class Mission(zarr.Group):
                 except KeyError:
                     continue
                 continue
-            stride_int = np.int64(sample_rate/seconds_per_step)
-            stride_float = np.float64(sample_rate/seconds_per_step)
-            if stride_float != stride_int:
-                logger.warning(f"unable to match track stride with sampling rate have set to closest compatible rate of {stride_int*seconds_per_step}")
-            if stride_int < 1:
-                logger.warning("simulation timestep is not a high enough resolution to resolve sampling rate")
-                logger.warning(f"sampling rate set to {seconds_per_step}")
-                stride = 1
-            stride_track = track[::stride_int]
-            stride_time = seconds_into_mission[::stride_int]
+
+            # Convert time to seconds from the start
+            seconds_into_mission = (resampled_flight["time"] - resampled_flight["time"][0]) / np.timedelta64(1, 's')
 
             # Ensure they have the same length
             try:
-                assert len(stride_track) == len(stride_time), "Arrays must have the same length"
+                assert len(track) == len(seconds_into_mission), "Arrays must have the same length"
             except AssertionError:
                 logger.error("track and time arrays must have same length")
                 raise Exception
-            n = len(stride_time)
+            n = len(track)
 
             # Update the first n elements of the Zarr array
-            self.payload[key][0, :n] = stride_time
-            self.payload[key][1, :n] = stride_track
+            self.payload[key][0, :n] = seconds_into_mission
+            self.payload[key][1, :n] = track
 
             # Trim the Zarr array to the new length
             self.payload[key].resize((2, n))
 
 
         logger.success(f"{self.attrs['name']} flown successfully")
+
+    @staticmethod
+    def _resample_flight(flight, new_interval_seconds):
+        """
+        Resample flight trajectory to a new time interval.
+
+        Parameters:
+            flight (dict): Dictionary containing 'longitude', 'latitude', 'depth', and 'time'.
+            new_interval_seconds (int or float): The desired interval between samples in seconds.
+
+        Returns:
+            dict: A new flight dictionary with resampled data.
+        """
+        # Convert time to seconds since the first timestamp
+        time_seconds = (flight["time"] - flight["time"][0]) / np.timedelta64(1, 's')
+
+        # Create new time array with specified interval
+        new_time_seconds = np.arange(time_seconds[0], time_seconds[-1], new_interval_seconds)
+        new_time = flight["time"][0] + new_time_seconds.astype('timedelta64[s]')
+
+        # Interpolators
+        lon_interp = interp1d(time_seconds, flight["longitude"], kind='linear', fill_value="extrapolate")
+        lat_interp = interp1d(time_seconds, flight["latitude"], kind='linear', fill_value="extrapolate")
+        depth_interp = interp1d(time_seconds, flight["depth"], kind='linear', fill_value="extrapolate")
+
+        # Apply interpolation
+        new_longitudes = lon_interp(new_time_seconds)
+        new_latitudes = lat_interp(new_time_seconds)
+        new_depths = depth_interp(new_time_seconds)
+
+        # Return new flight data
+        return {
+            "longitude": new_longitudes,
+            "latitude": new_latitudes,
+            "depth": new_depths,
+            "time": new_time
+        }
 
     def show_reality(self):
         """

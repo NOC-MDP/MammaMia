@@ -17,7 +17,7 @@ availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
 availableRadiometers = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
 
 glider_CTD = sensor_inventory.create_entity(entity_name="ctd_for_churchill",sensor_type="CTD",sensor_ref="9100")
-glider_CTD.update_sample_rate(sample_rate=60)
+glider_CTD.update_sample_rate(sample_rate=10)
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
 
 Churchill_noCTD = platform_inventory.create_entity(entity_name="Churchill_noCTD",platform="Churchill",platform_type="glider")
