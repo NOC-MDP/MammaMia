@@ -199,10 +199,26 @@ class Mission(zarr.Group):
                   mission through the world.
         """
         logger.info(f"flying {self.attrs['name']} using {self.platform.attrs['entity_name']}")
+        # build orientation
+        try:
+            pitch = np.array(self.trajectory["pitch"])
+        except KeyError:
+            pitch = np.zeros(shape=self.trajectory["latitudes"].__len__())
+        try:
+            yaw = np.array(self.trajectory["yaw"])
+        except KeyError:
+            yaw = np.zeros(shape=self.trajectory["latitudes"].__len__())
+        try:
+            roll = np.array(self.trajectory["roll"])
+        except KeyError:
+            roll = np.zeros(shape=self.trajectory["latitudes"].__len__())
         flight = {
             "longitude": np.array(self.trajectory["longitudes"]),
             "latitude": np.array(self.trajectory["latitudes"]),
             "depth": np.array(self.trajectory["depths"]),
+            "pitch": pitch,
+            "yaw": yaw,
+            "roll": roll,
             "time": np.array(self.trajectory["datetimes"], dtype='datetime64'),
         }
         sample_rate = 1
@@ -215,18 +231,24 @@ class Mission(zarr.Group):
                         sample_rate = self.platform.attrs["sensors"][k1]["max_sample_rate"]
 
             resampled_flight = self._resample_flight(flight=flight,new_interval_seconds=sample_rate)
+            flight_subset = {key: resampled_flight[key] for key in ["longitude", "latitude", "depth", "time"]}
             try:
                 logger.info(f"flying through {key} world and creating interpolated data for flight")
-                track = interpolator.interpolator[key].quadrivariate(resampled_flight)
+                track = interpolator.interpolator[key].quadrivariate(flight_subset)
             except KeyError:
+                track = None
                 # TODO need to check to see if key is a navigation parameter and set track to be the trajectory component
-                logger.warning(f"no interpolator found for parameter {key} removing from payload")
-                try:
-                    del(self.payload[key])
-                # this exception seems to always occur when calling delete on zarr array?
-                except KeyError:
+                for key2 in resampled_flight.keys():
+                    if key2 in key.lower():
+                        track = resampled_flight[key2]
+                if track is None:
+                    logger.warning(f"no interpolator found for parameter {key} removing from payload")
+                    try:
+                        del(self.payload[key])
+                    # this exception seems to always occur when calling delete on zarr array?
+                    except KeyError:
+                        continue
                     continue
-                continue
 
             # Convert time to seconds from the start
             seconds_into_mission = (resampled_flight["time"] - resampled_flight["time"][0]) / np.timedelta64(1, 's')
@@ -279,12 +301,20 @@ class Mission(zarr.Group):
         new_depths = depth_interp(new_time_seconds)
 
         # Return new flight data
-        return {
+        new_flight = {
             "longitude": new_longitudes,
             "latitude": new_latitudes,
             "depth": new_depths,
             "time": new_time
         }
+        # Optional fields: Interpolate if they exist
+        for key in ["pitch", "yaw", "roll"]:
+            if key in flight:
+                interp_func = interp1d(time_seconds, flight[key], kind='linear', fill_value="extrapolate")
+                new_flight[key] = interp_func(new_time_seconds)
+
+        return new_flight
+
 
     def show_reality(self):
         """
