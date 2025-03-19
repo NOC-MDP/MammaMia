@@ -49,7 +49,7 @@ print("the end")
 # # # colourmap options are here https://plotly.com/python/builtin-colorscales/
 # # campaign.missions["mission_1"].plot_trajectory()
 # campaign.missions["mission_1"].show_reality()
-# # export the campaign
-# campaign.export()
-#
+# export the campaign
+campaign.export()
+
 
