@@ -316,7 +316,7 @@ class Mission(zarr.Group):
         return new_flight
 
 
-    def show_reality(self):
+    def show_payload(self):
         """
         Creates an interactive plot of the AUV trajectory with the given parameters data mapped onto it using the
         specified colour map.
@@ -327,23 +327,22 @@ class Mission(zarr.Group):
         # Example parameters for the dropdown
         # Example parameters and their expected value ranges (cmin and cmax)
         # TODO dynamically build this from AUV sensor array
+
         parameters = {
-            "temperature": {"cmin": 10, "cmax": 25},
-            "salinity": {"cmin": 34, "cmax": 36},
-            "phosphate": {"cmin": 0, "cmax": 1},
-            "silicate": {"cmin": 0, "cmax": 6}
+            "TEMP": {"cmin": np.round(np.nanmin(self.payload["TEMP"][1,:]),2), "cmax": np.round(np.nanmax(self.payload["TEMP"][1,:]),2)},
+            "CNDC": {"cmin": np.round(np.nanmin(self.payload["CNDC"][1,:]),2), "cmax": np.round(np.nanmax(self.payload["CNDC"][1,:]),2)},
         }
 
         # List of available color scales for the user to choose from
         colour_scales = ["Jet","Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
 
         # Initial setup: first parameter and color scale
-        initial_parameter = "temperature"
+        initial_parameter = "TEMP"
         initial_colour_scale = "Jet"
 
         marker = {
             "size": 2,
-            "color": np.array(self.reality[initial_parameter]),  # Ensuring its serializable
+            "color": np.array(self.payload[initial_parameter][1,:]),  # Ensuring its serializable
             "colorscale": initial_colour_scale,
             "cmin": parameters[initial_parameter]["cmin"],  # Set the minimum value for the color scale
             "cmax": parameters[initial_parameter]["cmax"],  # Set the maximum value for the color scale
@@ -352,7 +351,7 @@ class Mission(zarr.Group):
         }
 
         title = {
-            "text": f"Glider Reality: {initial_parameter}",
+            "text": f"Glider Payload: {initial_parameter}",
             "font": {"size": 30},
             "automargin": True,
             "yref": "paper"
@@ -363,13 +362,16 @@ class Mission(zarr.Group):
             "yaxis_title": "latitude",
             "zaxis_title": "depth",
         }
-
+        # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
+        x = np.interp(self.payload[initial_parameter][0,:],self.payload["LONGITUDE"][0,:],self.payload["LONGITUDE"][1,:])
+        y = np.interp(self.payload[initial_parameter][0,:],self.payload["LATITUDE"][0,:],self.payload["LATITUDE"][1,:])
+        z = np.interp(self.payload[initial_parameter][0,:],self.payload["GLIDER_DEPTH"][0,:],self.payload["GLIDER_DEPTH"][1,:])
         # Create the initial figure
         fig = go.Figure(data=[
             go.Scatter3d(
-                x=self.trajectory["longitudes"],
-                y=self.trajectory["latitudes"],
-                z=self.trajectory["depths"],
+                x=x,
+                y=y,
+                z=z,
                 mode='markers',
                 marker=marker
             )
@@ -384,11 +386,11 @@ class Mission(zarr.Group):
         parameter_dropdown = [
             {
                 "args": [
-                    {"marker.color": [np.array(self.reality[parameter])],  # Update the color for the new parameter
+                    {"marker.color": [np.array(self.payload[parameter][1,:])],  # Update the color for the new parameter
                      "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
                      "marker.cmax": parameters[parameter]["cmax"],  # Set cmax for the new parameter
                      "marker.colorscale": initial_colour_scale},  # Keep the initial color scale (can be updated below)
-                    {"title.text": f"Glider Reality: {parameter}"}  # Update the title to reflect the new parameter
+                    {"title.text": f"Glider Payload: {parameter}"}  # Update the title to reflect the new parameter
                 ],
                 "label": parameter,
                 "method": "update"
@@ -440,7 +442,7 @@ class Mission(zarr.Group):
             ]
         )
         fig.show()
-        logger.success(f"successfully plotted reality")
+        logger.success(f"successfully plotted payloads")
 
     def plot_trajectory(self,colour_scale:str='Viridis',):
         """
@@ -550,7 +552,7 @@ class Mission(zarr.Group):
         # TODO need to figure out how to dynamically set the dimensions in the mapping attribute as these could change
         # TODO Also ideally need to do the other variables in the world datasets e.g. time, depth etc
         dim_map = {}
-        for k2, v2 in self.reality.items():
+        for k2, v2 in self.payload.items():
             dim_map[f"{self.attrs['name']}/reality/{k2}"] = ['time']
         for k3, v3 in self.trajectory.items():
             dim_map[f"{self.attrs['name']}/trajectory/{k3}"] = ['time']

@@ -43,13 +43,13 @@ campaign.build_missions()
 # run/fly missions
 campaign.run()
 
-print("the end")
 
-# # # visualise the results
-# # # colourmap options are here https://plotly.com/python/builtin-colorscales/
-# # campaign.missions["mission_1"].plot_trajectory()
-# campaign.missions["mission_1"].show_reality()
+
+# visualise the results
+# colourmap options are here https://plotly.com/python/builtin-colorscales/
+campaign.missions["GL28_01"].plot_trajectory()
+campaign.missions["GL28_01"].show_payload()
 # export the campaign
 campaign.export()
-
+print("the end")
 
