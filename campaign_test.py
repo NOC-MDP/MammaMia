@@ -8,22 +8,31 @@ campaign = Campaign(name="Greenland_2028",
                     description="single slocum glider deployment off South East Greenland",
                     verbose=True
                     )
-# # add platform
+# list platforms
 print(f"Available platform types: {platform_inventory.list_platform_types()}")
 print(f"Available platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
 
+# create platform entity (mutable)
 Churchill_withCTD = platform_inventory.create_entity(entity_name="Churchill_withCTD",platform="Churchill",platform_type="glider")
 
+# list compatible sensors for entity
 availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
 availableRadiometers = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
 
+# create sensor entity (mutable)
 glider_CTD = sensor_inventory.create_entity(entity_name="ctd_for_churchill",sensor_type="CTD",sensor_ref="9100")
 glider_CTD.update_sample_rate(sample_rate=10)
+# register sensor to platform
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
 
+# create new entity of same platform
 Churchill_noCTD = platform_inventory.create_entity(entity_name="Churchill_noCTD",platform="Churchill",platform_type="glider")
+
+# change sensor behaviour (currently unsupported)
 Churchill_noCTD.toggle_sensor_coupling()
 Churchill_noCTD.update_sensor_behaviour(sensor_behaviour="60_seconds_upcast")
+
+# register platforms to the campaign for use in missions
 campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
 campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
 
@@ -38,6 +47,7 @@ campaign.init_catalog()
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
 #campaign.enable_interpolator_cache()
+
 # build missions (search datasets, download datasets, build interpolators etc)
 campaign.build_missions()
 

@@ -185,12 +185,12 @@ class Campaign:
 
         for key1, mission in self.missions.items():
             mission.create_dim_map(cmems_alias=cmems_alias,msm_cat=self.catalog.msm_cat)
-            logger.info(f"creating zarr group for mission {mission.attrs['name']}")
-            camp.create_group(mission.attrs['name'])
-            logger.info(f"exporting {mission.attrs['name']}")
-            zarr.copy_all(source=mission,dest=camp[mission.attrs['name']])
+            logger.info(f"creating zarr group for mission {mission.attrs['mission']}")
+            camp.create_group(mission.attrs['mission'])
+            logger.info(f"exporting {mission.attrs['mission']}")
+            zarr.copy_all(source=mission,dest=camp[mission.attrs['mission']])
             mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
-            logger.success(f"successfully exported {mission.attrs['name']}")
+            logger.success(f"successfully exported {mission.attrs['mission']}")
         logger.info(f"consolidating metadata for {export_path}")
         zarr.consolidate_metadata(export_path)
         logger.success(f"successfully exported {self.name}")
