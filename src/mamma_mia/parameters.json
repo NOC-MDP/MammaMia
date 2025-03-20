@@ -177,7 +177,7 @@
                 "parameter_name": "GLIDER_DEPTH",
                 "standard_name": "",
                 "unit_of_measure": "",
-                "parameter_definition": "",
+                "parameter_definition": "depth",
                 "seadatanet_parameter": "",
                 "seadatanet_unit_of_measure":"",
                 "source_name":"m_depth",
