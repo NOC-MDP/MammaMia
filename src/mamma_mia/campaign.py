@@ -78,7 +78,6 @@ class Campaign:
                     contributor:Contributor = Contributor(),
                     agency:Agency = Agency(),
                     publisher:Publisher = Publisher(),
-
                     ) -> None:
         """
         Function that adds an auv mission to the campaign.
