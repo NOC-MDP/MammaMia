@@ -1,6 +1,7 @@
 from mamma_mia import platform_inventory
 from mamma_mia import Campaign
 from mamma_mia import sensor_inventory
+from mamma_mia import Creator
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
@@ -32,12 +33,20 @@ Churchill_noCTD = platform_inventory.create_entity(entity_name="Churchill_noCTD"
 campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
 campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
 
+# for metadata purposes a creator can be created
+creator = Creator(email="thopri@noc.ac.uk",
+                  institution="NOCS",
+                  name="thopri",
+                  creator_type="",
+                  url="noc.ac.uk")
+
 # # add mission
 campaign.add_mission(mission_name="GL28_01",
                      title="Churchill with CTD deployment off South East Greenland",
                      summary="single glider deployed to undertake 15 dives to 200m",
                      platform_name="Churchill_withCTD",
-                     trajectory_path="comet-mm1.nc")
+                     trajectory_path="comet-mm1.nc",
+                     creator=creator)
 
 # initalise model catalogs
 campaign.init_catalog()
