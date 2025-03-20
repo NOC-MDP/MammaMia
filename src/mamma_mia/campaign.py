@@ -1,5 +1,5 @@
 
-from mamma_mia.mission import Mission, Creator, Contributor, Agency, Publisher
+from mamma_mia.mission import Mission, Creator, Contributor, Publisher
 from mamma_mia.interpolator import Interpolators
 from mamma_mia import create_platform_class
 from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform
@@ -76,14 +76,12 @@ class Campaign:
                     cmems_priority: int = 1,
                     creator:Creator = Creator(),
                     contributor:Contributor = Contributor(),
-                    agency:Agency = Agency(),
                     publisher:Publisher = Publisher(),
                     ) -> None:
         """
         Function that adds an auv mission to the campaign.
         Args:
             contributor:
-            agency:
             publisher:
             creator:
             summary: sumary of mission
@@ -119,7 +117,6 @@ class Campaign:
                           creator=creator,
                           publisher=publisher,
                           contributor=contributor,
-                          agency=agency,
                           store=store,
                           overwrite=overwrite,
                           excess_space=excess_space,
