@@ -29,6 +29,12 @@ class Agency:
 class Publisher:
     """
     stores details of mission publisher
+    Args:
+        email :str
+        institution :str
+        name :str
+        type :str
+        url :str
     """
     email: str = "mamma-mia@mm.ac.uk"
     institution: str = "mamma-mia"
@@ -42,7 +48,6 @@ class Contributor:
     stores details of mission contributor
     """
     email: str = "mm1@mm.ac.uk"
-    institution: str = "MammaMia"
     name: str = "mamma mia"
     role: str = "Principal Investigator"
     role_vocab: str = ""
@@ -51,12 +56,12 @@ class Contributor:
 class Creator:
     """
     stores details of mission creator
-
-    email :str
-    institution :str
-    name :str
-    creator_type :str
-    url :str
+    Args:
+        email:
+        institution:
+        name:
+        creator_type:
+        url:
     """
     email: str= "gliders@mm.ac.uk"
     institution: str = "MammaMia"
@@ -91,10 +96,6 @@ class Mission(zarr.Group):
                  title:str,
                  platform:create_platform_class(),
                  trajectory_path:str,
-                 creator: Creator,
-                 publisher: Publisher,
-                 contributor: Contributor,
-                 agency: Agency,
                  store=None,
                  overwrite=False,
                  excess_space: int=0.5,
@@ -103,6 +104,10 @@ class Mission(zarr.Group):
                  cmems_priority: int = 1,
                  crs: str = 'EPSG:4326',
                  vertical_crs: str = 'EPSG:5831',
+                 creator: Creator = Creator(),
+                 publisher: Publisher = Publisher(),
+                 contributor: Contributor = Contributor(),
+                 agency: Agency = Agency(),
 
                  ):
         # Create the group using the separate method
@@ -148,6 +153,7 @@ class Mission(zarr.Group):
         platform_unstruct = unstructure(platform)
         platform2.attrs.update(platform_unstruct)
         self.attrs["platform"] = platform2.attrs["platform_family"]
+        self.attrs["wmoid"] = platform2.attrs["wmo_platform_code"]
 
         # find datalogger
         data_logger_key = None
