@@ -25,20 +25,17 @@ glider_CTD.update_sample_rate(sample_rate=10)
 # register sensor to platform
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
 
-# create new entity of same platform
+# create new entity of same platform this one doesn't have a CTD
 Churchill_noCTD = platform_inventory.create_entity(entity_name="Churchill_noCTD",platform="Churchill",platform_type="glider")
-
-# change sensor behaviour (currently unsupported)
-Churchill_noCTD.toggle_sensor_coupling()
-Churchill_noCTD.update_sensor_behaviour(sensor_behaviour="60_seconds_upcast")
 
 # register platforms to the campaign for use in missions
 campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
 campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
 
 # # add mission
-campaign.add_mission(name="GL28_01",
-                     summary="Churchill with CTD deployment off South East Greenland",
+campaign.add_mission(mission_name="GL28_01",
+                     title="Churchill with CTD deployment off South East Greenland",
+                     summary="single glider deployed to undertake 15 dives to 200m",
                      platform_name="Churchill_withCTD",
                      trajectory_path="comet-mm1.nc")
 

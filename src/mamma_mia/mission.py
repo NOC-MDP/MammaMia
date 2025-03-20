@@ -2,6 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
 from cattrs import unstructure
+from attrs import define
 from mamma_mia import create_platform_class
 import uuid
 from loguru import logger
@@ -14,12 +15,43 @@ from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing, Dat
 from scipy.interpolate import interp1d
 from datetime import datetime
 
+@define
+class Agency:
+    agency: str = "NOCS"
+    id_vocab: str = "EDMO"
+    role: str = "contact point"
+    role_vocab: str = "https://edmo.seadatanet.org/"
+
+@define
+class Publisher:
+    email: str = "mamma-mia@mm.ac.uk"
+    institution: str = "mamma-mia"
+    name: str = "mm"
+    type: str = ""
+    url: str = "https://www.mm.ac.uk/"
+
+@define
+class Contributor:
+    email: str = "mm1@mm.ac.uk"
+    institution: str = "MammaMia"
+    name: str = "mamma mia"
+    role: str = "Principal Investigator"
+    role_vocab: str = ""
+
+@define
+class Creator:
+    email: str= "gliders@mm.ac.uk"
+    institution: str = "MammaMia"
+    name: str = "mamma mia"
+    creator_type: str = ""
+    url: str = "https://gliders.mm.ac.uk/"
+
 class Mission(zarr.Group):
     """
     Mission object, this contains all the components to be able to fly an AUV mission (generate interpolated data)
 
     Args:
-        name: name of the mission
+        mission: name of the mission
         summary: description of the mission
         trajectory_path: path of the AUV trajectory netcdf file
     Optional:
@@ -36,8 +68,9 @@ class Mission(zarr.Group):
 
     """
     def __init__(self,
-                 name:str,
+                 mission:str,
                  summary:str,
+                 title:str,
                  platform:create_platform_class(),
                  trajectory_path:str,
                  store=None,
@@ -48,6 +81,10 @@ class Mission(zarr.Group):
                  cmems_priority: int = 1,
                  crs: str = 'EPSG:4326',
                  vertical_crs: str = 'EPSG:5831',
+                 creator: Creator = Creator(),
+                 publisher: Publisher = Publisher(),
+                 contributor: Contributor = Contributor(),
+                 agency: Agency = Agency(),
                  ):
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
@@ -57,18 +94,42 @@ class Mission(zarr.Group):
                          synchronizer=group.synchronizer)
 
         # general mission metadata
-        self.attrs["mission"] = name
-        self.attrs["uuid"] = str(uuid.uuid4())
+        self.attrs["mission"] = mission
+        self.attrs["internal_mission_identifier"] = str(uuid.uuid4())
         self.attrs["summary"] = summary
+        self.attrs["title"] = title
         self.attrs["date_created"] = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%f")
+
+        # metadata from input classes
+        self.attrs["agency"] = agency.agency
+        self.attrs["agency_id_vocabulary"] = agency.id_vocab
+        self.attrs["agency_role"] = agency.role
+        self.attrs["agency_role_vocabulary"] = agency.role_vocab
+
+        self.attrs["contributor_email"] = contributor.email
+        self.attrs["contributor_name"] = contributor.name
+        self.attrs["contributor_role"] = contributor.role
+        self.attrs["contributor_role_vocabulary"] = contributor.role_vocab
+
+        self.attrs["creator_email"] = creator.email
+        self.attrs["creator_institution"] = creator.institution
+        self.attrs["creator_name"] = creator.name
+        self.attrs["creator_type"] = creator.creator_type
+        self.attrs["creator_url"] = creator.url
+
+        self.attrs["publisher_email"] = publisher.email
+        self.attrs["publisher_name"] = publisher.name
+        self.attrs["publisher_type"] = publisher.type
+        self.attrs["publisher_url"] = publisher.url
+
+        self.attrs["standard_name_vocabulary"] = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html"
 
         # create platform attributes from platform class
         platform2 = self.create_group("platform")
         platform_unstruct = unstructure(platform)
         platform2.attrs.update(platform_unstruct)
-        # TODO generate parameter list from platform paramters and use that to find input dataset names
-        # only problem is how to know what parameter is what
-        # find parameter keys
+        self.attrs["platform"] = platform2.attrs["platform_family"]
+
         # find datalogger
         data_logger_key = None
         for sensor_key,sensor in platform_unstruct["sensors"].items():
@@ -178,8 +239,8 @@ class Mission(zarr.Group):
         self.attrs["featureType"] = "Trajectory"
 
         instruments = []
-        for instrument in platform.sensors.values():
-            instruments.append(instrument.sensor_name)
+        for instrument in platform2.attrs["sensors"].values():
+            instruments.append(instrument["sensor_name"])
 
         self.attrs["instruments"] = instruments
         # create empty world group
