@@ -43,7 +43,7 @@
             },
             {
                 "parameter_name": "CDOM",
-                "standard_name": "",
+                "standard_name": "concentration of dissolved organic matter",
                 "unit_of_measure": "ppb",
                 "parameter_definition": "Concentration of coloured dissolved organic matter {CDOM Gelbstoff} per unit volume of the water body [dissolved plus reactive particulate phase] by in-situ WET Labs FDOM ECO fluorometer",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/CCOMD002/",
@@ -53,7 +53,7 @@
             },
             {
                 "parameter_name": "BBP700",
-                "standard_name": "",
+                "standard_name": "attenuation of 700 nm wavelength radiation",
                 "unit_of_measure": "m-1",
                 "parameter_definition": "Attenuation due to backscatter (700 nm wavelength at 117 degree incidence) by the water body [particulate >unknown phase] by in-situ optical backscatter measurement",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/BB117NIR/",
@@ -63,36 +63,7 @@
             }
         ],
         "navigation": [
-            {
-                "parameter_name": "WATERCURRENTS_U",
-                "standard_name": "eastward velocity of water",
-                "unit_of_measure": "cm/s",
-                "parameter_definition": "Eastward velocity of water current in the water body",
-                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/LCEWZZ01/",
-                "seadatanet_unit_of_measure":"SDN:P06::UVAA",
-                "source_name":"m_final_water_vx",
-                "ancillary_variables":"WATERCURRENTS_U_QC"
-            },
-                        {
-                "parameter_name": "WATERCURRENTS_V",
-                "standard_name": "northward velocity of water",
-                "unit_of_measure": "cm/s",
-                "parameter_definition": "Northward velocity of water current in the water body",
-                "seadatanet_parameter": "",
-                "seadatanet_unit_of_measure":"",
-                "source_name":"",
-                "ancillary_variables":"WATERCURRENTS_V_QC"
-            },
-                        {
-                "parameter_name": "WATERCURRENTS_W",
-                "standard_name": "vertical velocity of water",
-                "unit_of_measure": "cm/s",
-                "parameter_definition": "vertical velocity of water current in the water body",
-                "seadatanet_parameter": "",
-                "seadatanet_unit_of_measure":"",
-                "source_name":"",
-                "ancillary_variables":"WATERCURRENTS_W_QC"
-            },
+
             {
                 "parameter_name": "ALTITUDE",
                 "standard_name": "height relative to seabed",
@@ -143,15 +114,35 @@
                 "source_name":"m_gps_lon",
                 "ancillary_variables":"LONGITUDE_GPS"
             },
+                        {
+                "parameter_name": "WATERCURRENTS_U",
+                "standard_name": "eastward velocity of water",
+                "unit_of_measure": "cm/s",
+                "parameter_definition": "Eastward velocity of water current in the water body",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/LCEWZZ01/",
+                "seadatanet_unit_of_measure":"SDN:P06::UVAA",
+                "source_name":"m_final_water_vx",
+                "ancillary_variables":"WATERCURRENTS_U_QC"
+            },
+            {
+                "parameter_name": "WATERCURRENTS_W",
+                "standard_name": "vertical velocity of water",
+                "unit_of_measure": "cm/s",
+                "parameter_definition": "vertical velocity of water current in the water body",
+                "seadatanet_parameter": "",
+                "seadatanet_unit_of_measure":"",
+                "source_name":"",
+                "ancillary_variables":"WATERCURRENTS_W_QC"
+            },
             {
                 "parameter_name": "WATERCURRENTS_V",
                 "standard_name": "northward velocity of water",
                 "unit_of_measure": "cm/s",
                 "parameter_definition": "Northward velocity of water current in the water body",
-                "seadatanet_parameter": "\thttp://vocab.nerc.ac.uk/collection/P01/current/LCNSZZ01/",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/LCNSZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UVAA",
                 "source_name":"m_final_water_vy",
-                "ancillary_variables":"WATERCURRENTS_V_GPS"
+                "ancillary_variables":"WATERCURRENTS_V_QC"
             },
             {
                 "parameter_name": "GLIDER_PITCH",
@@ -167,7 +158,7 @@
                 "parameter_name": "GLIDER_ROLL",
                 "standard_name": "orientation (roll) of platform",
                 "unit_of_measure": "deg",
-                "parameter_definition": "\tOrientation (roll) of measurement platform by triaxial fluxgate compass",
+                "parameter_definition": "Orientation (roll) of measurement platform by triaxial fluxgate compass",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ROLLFG01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
                 "source_name":"m_roll",
@@ -175,23 +166,33 @@
             },
             {
                 "parameter_name": "GLIDER_DEPTH",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "parameter_definition": "depth",
-                "seadatanet_parameter": "",
-                "seadatanet_unit_of_measure":"",
+                "standard_name": "depth relative to water surface",
+                "unit_of_measure": "m",
+                "parameter_definition": "Depth (spatial coordinate) relative to water surface in the water body",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ADEPZZ01/",
+                "seadatanet_unit_of_measure":"SDN:P06::ULAA",
                 "source_name":"m_depth",
                 "ancillary_variables":"GLIDER_DEPTH_QC"
             },
             {
-                "parameter_name": "ALR_LATITUDE",
+                "parameter_name": "ALAPT01",
                 "standard_name": "latitude_north",
-                "unit_of_measure": "",
+                "unit_of_measure": "UAAA",
                 "parameter_definition": "Latitude north of measurement platform in the water body by estimation using best available on-board navigation system and algorithm",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATPT01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
                 "source_name":"Latitude",
-                "ancillary_variables":"ALR_LATITUDE_QC"
+                "ancillary_variables":"ALAPT01_QC"
+            },
+            {
+                "parameter_name": "ADEPPT01",
+                "standard_name": "depth relative to water surface",
+                "unit_of_measure": "ULAA",
+                "parameter_definition": "Depth (spatial coordinate) relative to water surface in the water body by estimation using best available on-board navigation system and algorithm",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ADEPPT01/",
+                "seadatanet_unit_of_measure":"SDN:P06::ULAA",
+                "source_name":"Depth",
+                "ancillary_variables":"ALAPT01_QC"
             }
         ],
         "time": [

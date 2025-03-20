@@ -12,6 +12,7 @@ from mamma_mia.find_worlds import find_worlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing, DataloggerNotFound
 from scipy.interpolate import interp1d
+from datetime import datetime
 
 class Mission(zarr.Group):
     """
@@ -19,7 +20,7 @@ class Mission(zarr.Group):
 
     Args:
         name: name of the mission
-        description: description of the mission
+        summary: description of the mission
         trajectory_path: path of the AUV trajectory netcdf file
     Optional:
         store: set zarr store here, by default it will store in memory
@@ -36,7 +37,7 @@ class Mission(zarr.Group):
     """
     def __init__(self,
                  name:str,
-                 description:str,
+                 summary:str,
                  platform:create_platform_class(),
                  trajectory_path:str,
                  store=None,
@@ -45,6 +46,8 @@ class Mission(zarr.Group):
                  extra_depth: int = 100,
                  msm_priority: int = 2,
                  cmems_priority: int = 1,
+                 crs: str = 'EPSG:4326',
+                 vertical_crs: str = 'EPSG:5831',
                  ):
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
@@ -54,9 +57,10 @@ class Mission(zarr.Group):
                          synchronizer=group.synchronizer)
 
         # general mission metadata
-        self.attrs["name"] = name
+        self.attrs["mission"] = name
         self.attrs["uuid"] = str(uuid.uuid4())
-        self.attrs["description"] = description
+        self.attrs["summary"] = summary
+        self.attrs["date_created"] = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%f")
 
         # create platform attributes from platform class
         platform2 = self.create_group("platform")
@@ -144,6 +148,26 @@ class Mission(zarr.Group):
         for i in range(trajectory.latitude.__len__()):
             trajectory.latitude[i] = self.__convert_to_decimal(trajectory.latitude[i])
 
+        # TODO figure out best way to set units (from input data or from parameter.json)
+        # write geospatial meta data
+        self.attrs["geospatial_bounds_crs"] = crs
+        self.attrs["geospatial_bounds_vertical_crs"] = vertical_crs
+        self.attrs["geospatial_lat_max"] = np.max(trajectory.latitude)
+        self.attrs["geospatial_lat_min"] = np.min(trajectory.latitude)
+        self.attrs["geospatial_lat_units"] = "degrees_north"
+        self.attrs["geospatial_lon_min"] = np.min(trajectory.longitude)
+        self.attrs["geospatial_lon_max"] = np.max(trajectory.longitude)
+        self.attrs["geospatial_lon_units"] = "degrees_east"
+        self.attrs["geospatial_vertical_max"] = np.max(trajectory.depth)
+        self.attrs["geospatial_vertical_min"] = np.min(trajectory.depth)
+        self.attrs["geospatial_vertical_units"] = "m"
+
+        self.attrs["geospatial_bounds"] = (f"POLYGON(({self.attrs['geospatial_lon_min']},"
+                                           f"{self.attrs['geospatial_lon_max']},"
+                                           f"{self.attrs['geospatial_lat_min']},"
+                                           f"{self.attrs['geospatial_lat_max']},))")
+
+
         # create empty world group
         worlds = self.create_group("world")
         extent = {
@@ -225,7 +249,7 @@ class Mission(zarr.Group):
             void: mission object with filled reality arrays of interpolated data, i.e. AUV has flown its
                   mission through the world.
         """
-        logger.info(f"flying {self.attrs['name']} using {self.platform.attrs['entity_name']}")
+        logger.info(f"flying {self.attrs['mission']} using {self.platform.attrs['entity_name']}")
         # build orientation arrays, if missing from trajectory replace with zeros
         try:
             pitch = np.array(self.trajectory["pitch"])
@@ -296,7 +320,7 @@ class Mission(zarr.Group):
             self.payload[key].resize((2, n))
 
 
-        logger.success(f"{self.attrs['name']} flown successfully")
+        logger.success(f"{self.attrs['mission']} flown successfully")
 
     @staticmethod
     def _resample_flight(flight, new_interval_seconds):

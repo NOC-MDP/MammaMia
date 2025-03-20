@@ -29,7 +29,7 @@ campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
 
 # # add mission
 campaign.add_mission(name="GL28_01",
-                     description="Churchill with CTD deployment off South East Greenland",
+                     summary="Churchill with CTD deployment off South East Greenland",
                      platform_name="Churchill_withCTD",
                      trajectory_path="comet-mm1.nc")
 

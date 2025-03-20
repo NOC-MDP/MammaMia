@@ -64,7 +64,7 @@ class Campaign:
 
     def add_mission(self,
                     name:str,
-                    description:str,
+                    summary:str,
                     platform_name:str,
                     trajectory_path:str,
                     store=None,
@@ -73,13 +73,13 @@ class Campaign:
                     extra_depth: int = 100,
                     msm_priority: int = 2,
                     cmems_priority: int = 1,
-                    ) -> ():
+                    ) -> None:
         """
         Function that adds an auv mission to the campaign.
         Args:
+            summary: sumary of mission
             platform_name:
             name: name of the mission
-            description: description of the mission
             trajectory_path: path to auv trajectory netcdf
             store: specify zarr store (Directory etc) default is memory store
             overwrite: overwrite an existing mission store, default is false
@@ -102,7 +102,7 @@ class Campaign:
             raise UnknownPlatform
 
         mission = Mission(name=name,
-                          description=description,
+                          summary=summary,
                           platform=platform_n,
                           trajectory_path=trajectory_path,
                           store=store,
@@ -113,9 +113,9 @@ class Campaign:
                           cmems_priority=cmems_priority
                           )
         interpolator = Interpolators()
-        self.missions[mission.attrs['name']] = mission
-        self.interpolators[mission.attrs['name']] = interpolator
-        logger.success(f"successfully added mission {mission.attrs['name']} to campaign {self.name}")
+        self.missions[mission.attrs['mission']] = mission
+        self.interpolators[mission.attrs['mission']] = interpolator
+        logger.success(f"successfully added mission {mission.attrs['mission']} to campaign {self.name}")
 
     def build_missions(self) -> None:
         """
@@ -127,15 +127,19 @@ class Campaign:
         """
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
-            logger.info(f"building {mission.attrs['name']}")
+            logger.info(f"building {mission.attrs['mission']}")
             mission.build_mission(cat=self.catalog)
-            logger.success(f"successfully built {mission.attrs['name']}")
+            logger.success(f"successfully built {mission.attrs['mission']}")
         for key, interpol in self.interpolators.items():
             logger.info(f"building interpolators for {key}")
             interpol.build(worlds=self.missions[key]["world"],mission=key)
             logger.success(f"successfully built interpolators for {key}")
 
-    def enable_interpolator_cache(self):
+    def enable_interpolator_cache(self) -> None:
+        """
+        enable interpolator cache so generated intepolators are stored on disk
+
+        """
         for key, interpol in self.interpolators.items():
             interpol.cache = True
             logger.info(f"enabled interpolator cache for {key}")
@@ -144,17 +148,17 @@ class Campaign:
         """
         Function that runs the missions contained within the missions dictionary.
         Returns:
-            void: populated reality data arrays in each mission within the missions dictionary. This emulates each auv
+            void: populated reality data arrays in each mission within the mission's dictionary. This emulates each auv
                   mission deployment.
 
         """
         logger.info(f"running {self.name}")
         for mission in self.missions.values():
-            logger.info(f"flying {mission.attrs['name']}")
-            mission.fly(self.interpolators[mission.attrs['name']])
+            logger.info(f"flying {mission.attrs['mission']}")
+            mission.fly(self.interpolators[mission.attrs['mission']])
         logger.success(f"{self.name} finished successfully")
 
-    def export(self,overwrite=True,export_path=None) -> ():
+    def export(self,overwrite=True,export_path=None) -> None:
         """
         Function that exports the campaign object as an zarr group
         Args:
