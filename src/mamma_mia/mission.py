@@ -15,15 +15,6 @@ from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing, Dat
 from scipy.interpolate import interp1d
 from datetime import datetime
 
-@define
-class Agency:
-    """
-    stores details of agency meta data
-    """
-    agency: str = "NOCS"
-    id_vocab: str = "EDMO"
-    role: str = "contact point"
-    role_vocab: str = "https://edmo.seadatanet.org/"
 
 @define
 class Publisher:
@@ -42,6 +33,7 @@ class Publisher:
     type: str = ""
     url: str = "https://www.mm.ac.uk/"
 
+
 @define
 class Contributor:
     """
@@ -51,6 +43,7 @@ class Contributor:
     name: str = "mamma mia"
     role: str = "Principal Investigator"
     role_vocab: str = ""
+
 
 @define
 class Creator:
@@ -63,11 +56,12 @@ class Creator:
         creator_type:
         url:
     """
-    email: str= "gliders@mm.ac.uk"
+    email: str = "gliders@mm.ac.uk"
     institution: str = "MammaMia"
     name: str = "mamma mia"
     creator_type: str = ""
     url: str = "https://gliders.mm.ac.uk/"
+
 
 class Mission(zarr.Group):
     """
@@ -90,15 +84,16 @@ class Mission(zarr.Group):
         and initialised arrays ready for reality data
 
     """
+
     def __init__(self,
-                 mission:str,
-                 summary:str,
-                 title:str,
-                 platform:create_platform_class(),
-                 trajectory_path:str,
+                 mission: str,
+                 summary: str,
+                 title: str,
+                 platform: create_platform_class(),
+                 trajectory_path: str,
                  store=None,
                  overwrite=False,
-                 excess_space: int=0.5,
+                 excess_space: int = 0.5,
                  extra_depth: int = 100,
                  msm_priority: int = 2,
                  cmems_priority: int = 1,
@@ -107,8 +102,6 @@ class Mission(zarr.Group):
                  creator: Creator = Creator(),
                  publisher: Publisher = Publisher(),
                  contributor: Contributor = Contributor(),
-                 agency: Agency = Agency(),
-
                  ):
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
@@ -123,12 +116,6 @@ class Mission(zarr.Group):
         self.attrs["summary"] = summary
         self.attrs["title"] = title
         self.attrs["date_created"] = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%f")
-
-        # metadata from input classes
-        self.attrs["agency"] = agency.agency
-        self.attrs["agency_id_vocabulary"] = agency.id_vocab
-        self.attrs["agency_role"] = agency.role
-        self.attrs["agency_role_vocabulary"] = agency.role_vocab
 
         self.attrs["contributor_email"] = contributor.email
         self.attrs["contributor_name"] = contributor.name
@@ -157,7 +144,7 @@ class Mission(zarr.Group):
 
         # find datalogger
         data_logger_key = None
-        for sensor_key,sensor in platform_unstruct["sensors"].items():
+        for sensor_key, sensor in platform_unstruct["sensors"].items():
             if sensor["instrument_type"] == "data loggers":
                 data_logger_key = sensor_key
         # look up dict for navigation parameters linking, parameter to source trajectory and MM trajectory group
@@ -172,7 +159,7 @@ class Mission(zarr.Group):
         }
         # for each datalogger parameter get the source key for dataset and try to match to navigation by checking definition and long name
         if data_logger_key is not None:
-            for parameter_key,parameter in platform_unstruct["sensors"][data_logger_key]["parameters"].items():
+            for parameter_key, parameter in platform_unstruct["sensors"][data_logger_key]["parameters"].items():
                 ds_key = self.find_parameter_key(parameter=parameter_key)
                 for nav in navigation:
                     try:
@@ -192,10 +179,10 @@ class Mission(zarr.Group):
         ds = xr.open_dataset(trajectory_path)
         trajectory = self.create_group("trajectory")
         try:
-            trajectory.array(name="latitude",data=np.array(ds[navigation["latitude"]]))
-            trajectory.array(name="longitude",data=np.array(ds[navigation["longitude"]]))
-            trajectory.array(name="depth",data=np.array(ds[navigation["depth"]]))
-            trajectory.array(name="time",data=np.array(ds[navigation["time"]],dtype='datetime64'))
+            trajectory.array(name="latitude", data=np.array(ds[navigation["latitude"]]))
+            trajectory.array(name="longitude", data=np.array(ds[navigation["longitude"]]))
+            trajectory.array(name="depth", data=np.array(ds[navigation["depth"]]))
+            trajectory.array(name="time", data=np.array(ds[navigation["time"]], dtype='datetime64'))
         except KeyError as e:
             logger.error(f"Critical parameter for trajectory missing: {e}")
             raise CriticalParameterMissing
@@ -206,7 +193,8 @@ class Mission(zarr.Group):
             else:
                 logger.warning(f"Optional parameter pitch not specified in datalogger")
         except KeyError:
-            logger.warning(f"Optional pitch parameter for trajectory not found in simulated data: No variable named '{navigation['pitch']}'")
+            logger.warning(
+                f"Optional pitch parameter for trajectory not found in simulated data: No variable named '{navigation['pitch']}'")
 
         try:
             if navigation["yaw"] != "":
@@ -214,7 +202,8 @@ class Mission(zarr.Group):
             else:
                 logger.warning(f"Optional parameter yaw not specified in datalogger")
         except KeyError:
-            logger.warning(f"Optional yaw parameter for trajectory not found in simulated data: No variable named '{navigation['yaw']}'")
+            logger.warning(
+                f"Optional yaw parameter for trajectory not found in simulated data: No variable named '{navigation['yaw']}'")
 
         try:
             if navigation["roll"] != "":
@@ -222,8 +211,8 @@ class Mission(zarr.Group):
             else:
                 logger.warning(f"Optional parameter roll not specified in datalogger")
         except KeyError:
-            logger.warning(f"Optional roll parameter for trajectory not found in simulated data: No variable named '{navigation['roll']}'")
-
+            logger.warning(
+                f"Optional roll parameter for trajectory not found in simulated data: No variable named '{navigation['roll']}'")
 
         # TODO this most likely will only be needed for specific simulator inputs.
         # convert from glider format to decimal degrees
@@ -231,7 +220,6 @@ class Mission(zarr.Group):
             trajectory.longitude[i] = self.__convert_to_decimal(trajectory.longitude[i])
         for i in range(trajectory.latitude.__len__()):
             trajectory.latitude[i] = self.__convert_to_decimal(trajectory.latitude[i])
-
 
         # write geospatial meta data
         self.attrs["geospatial_bounds_crs"] = crs
@@ -256,8 +244,8 @@ class Mission(zarr.Group):
                                            f"{self.attrs['geospatial_lat_min']},"
                                            f"{self.attrs['geospatial_lat_max']},))")
 
-        self.attrs["time_coverage_start"] = np.datetime_as_string(trajectory.time[0],unit="s")
-        self.attrs["time_coverage_end"] = np.datetime_as_string(trajectory.time[-1],unit="s")
+        self.attrs["time_coverage_start"] = np.datetime_as_string(trajectory.time[0], unit="s")
+        self.attrs["time_coverage_end"] = np.datetime_as_string(trajectory.time[-1], unit="s")
 
         self.attrs["featureType"] = "Trajectory"
 
@@ -269,36 +257,35 @@ class Mission(zarr.Group):
         # create empty world group
         worlds = self.create_group("world")
         extent = {
-                    "max_lat": np.around(np.max(trajectory.latitude),2) + excess_space,
-                    "min_lat": np.around(np.min(trajectory.latitude), 2) - excess_space,
-                    "max_lng": np.around(np.max(trajectory.longitude), 2) + excess_space,
-                    "min_lng": np.around(np.min(trajectory.longitude), 2) - excess_space,
-        # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
-                    "start_time": np.datetime_as_string(trajectory.time[0] - np.timedelta64(30, 'D'), unit="D"),
-                    "end_time" : np.datetime_as_string(trajectory.time[-1] + np.timedelta64(30, 'D'), unit="D"),
-                    "max_depth": np.around(np.max(trajectory.depth),2) + extra_depth,
+            "max_lat": np.around(np.max(trajectory.latitude), 2) + excess_space,
+            "min_lat": np.around(np.min(trajectory.latitude), 2) - excess_space,
+            "max_lng": np.around(np.max(trajectory.longitude), 2) + excess_space,
+            "min_lng": np.around(np.min(trajectory.longitude), 2) - excess_space,
+            # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
+            "start_time": np.datetime_as_string(trajectory.time[0] - np.timedelta64(30, 'D'), unit="D"),
+            "end_time": np.datetime_as_string(trajectory.time[-1] + np.timedelta64(30, 'D'), unit="D"),
+            "max_depth": np.around(np.max(trajectory.depth), 2) + extra_depth,
         }
         worlds.attrs["extent"] = extent
-        worlds.attrs["catalog_priorities"] = {"msm":msm_priority,"cmems":cmems_priority}
+        worlds.attrs["catalog_priorities"] = {"msm": msm_priority, "cmems": cmems_priority}
         worlds.attrs["interpolator_priorities"] = {}
         worlds.attrs["matched_worlds"] = {}
         worlds.attrs["zarr_stores"] = {}
         worlds.attrs["dim_map"] = {}
-        
+
         payload = self.create_group("payload")
 
         # total mission time in seconds (largest that a payload array could be)
-        mission_total_time_seconds = (trajectory.time[-1]-trajectory.time[0]).astype('timedelta64[s]')
+        mission_total_time_seconds = (trajectory.time[-1] - trajectory.time[0]).astype('timedelta64[s]')
 
-        for name,sensor in platform.sensors.items():
-            for name2,parameter in sensor.parameters.items():
+        for name, sensor in platform.sensors.items():
+            for name2, parameter in sensor.parameters.items():
                 # Don't create a payload array for any time parameters since seconds for each sensor sample are stored in each payload array
                 if "TIME" in name2:
                     continue
-                payload.empty(name=name2, shape=(2,mission_total_time_seconds.astype(int)), dtype=np.float64)
+                payload.empty(name=name2, shape=(2, mission_total_time_seconds.astype(int)), dtype=np.float64)
 
-
-    def find_parameter_key(self,parameter:str,instrument_type:str ="data loggers") -> str:
+    def find_parameter_key(self, parameter: str, instrument_type: str = "data loggers") -> str:
         sensor_key = None
         parameter_key = None
         for key in self.platform.attrs["sensors"].keys():
@@ -316,7 +303,7 @@ class Mission(zarr.Group):
                         parameter_key = self.platform.attrs["sensors"][sensor_key]["parameters"][key]["standard_name"]
         return parameter_key
 
-    def get_parameter_units(self,parameter:str,instrument_type:str ="data loggers") -> str:
+    def get_parameter_units(self, parameter: str, instrument_type: str = "data loggers") -> str:
         sensor_key = None
         parameter_units = None
         for key in self.platform.attrs["sensors"].keys():
@@ -336,7 +323,7 @@ class Mission(zarr.Group):
 
         return parameter_units
 
-    def build_mission(self,cat:Cats):
+    def build_mission(self, cat: Cats):
         """
         build missions, this searches for relevant data, downloads and updates attributes as needed
         Args:
@@ -347,12 +334,12 @@ class Mission(zarr.Group):
                   and zarr store attributes are updated with the new values (what worlds match sensors and trajectory etc)
 
         """
-        matched_worlds = find_worlds(cat=cat,reality=self.payload,extent=self.world.attrs["extent"])
+        matched_worlds = find_worlds(cat=cat, reality=self.payload, extent=self.world.attrs["extent"])
         self.world.attrs.update({"matched_worlds": matched_worlds})
         zarr_stores = get_worlds(cat=cat, world=self.world)
         self.world.attrs.update({"zarr_stores": zarr_stores})
 
-    def fly(self,interpolator:Interpolators):
+    def fly(self, interpolator: Interpolators):
         """
 
         Args:
@@ -395,7 +382,7 @@ class Mission(zarr.Group):
                     if sample_rate == -999:
                         sample_rate = self.platform.attrs["sensors"][k1]["max_sample_rate"]
 
-            resampled_flight = self._resample_flight(flight=flight,new_interval_seconds=sample_rate)
+            resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
             # subset flight to only what is needed for interpolation (position rather than orientation)
             flight_subset = {key: resampled_flight[key] for key in ["longitude", "latitude", "depth", "time"]}
             try:
@@ -409,7 +396,7 @@ class Mission(zarr.Group):
                 if track is None:
                     logger.warning(f"no interpolator found for parameter {key} removing from payload")
                     try:
-                        del(self.payload[key])
+                        del (self.payload[key])
                     # this exception seems to always occur when calling delete on zarr array?
                     except KeyError:
                         continue
@@ -432,7 +419,6 @@ class Mission(zarr.Group):
 
             # Trim the Zarr array to the new length
             self.payload[key].resize((2, n))
-
 
         logger.success(f"{self.attrs['mission']} flown successfully")
 
@@ -480,7 +466,6 @@ class Mission(zarr.Group):
 
         return new_flight
 
-
     def show_payload(self):
         """
         Creates an interactive plot of the AUV trajectory with the given parameters data mapped onto it using the
@@ -494,12 +479,14 @@ class Mission(zarr.Group):
         # TODO dynamically build this from payload group
 
         parameters = {
-            "TEMP": {"cmin": np.round(np.nanmin(self.payload["TEMP"][1,:]),2), "cmax": np.round(np.nanmax(self.payload["TEMP"][1,:]),2)},
-            "CNDC": {"cmin": np.round(np.nanmin(self.payload["CNDC"][1,:]),2), "cmax": np.round(np.nanmax(self.payload["CNDC"][1,:]),2)},
+            "TEMP": {"cmin": np.round(np.nanmin(self.payload["TEMP"][1, :]), 2),
+                     "cmax": np.round(np.nanmax(self.payload["TEMP"][1, :]), 2)},
+            "CNDC": {"cmin": np.round(np.nanmin(self.payload["CNDC"][1, :]), 2),
+                     "cmax": np.round(np.nanmax(self.payload["CNDC"][1, :]), 2)},
         }
 
         # List of available color scales for the user to choose from
-        colour_scales = ["Jet","Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
+        colour_scales = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
 
         # Initial setup: first parameter and color scale
         initial_parameter = "TEMP"
@@ -507,7 +494,7 @@ class Mission(zarr.Group):
 
         marker = {
             "size": 2,
-            "color": np.array(self.payload[initial_parameter][1,:]),  # Ensuring its serializable
+            "color": np.array(self.payload[initial_parameter][1, :]),  # Ensuring its serializable
             "colorscale": initial_colour_scale,
             "cmin": parameters[initial_parameter]["cmin"],  # Set the minimum value for the color scale
             "cmax": parameters[initial_parameter]["cmax"],  # Set the maximum value for the color scale
@@ -528,9 +515,12 @@ class Mission(zarr.Group):
             "zaxis_title": "depth",
         }
         # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
-        x = np.interp(self.payload[initial_parameter][0,:],self.payload["LONGITUDE"][0,:],self.payload["LONGITUDE"][1,:])
-        y = np.interp(self.payload[initial_parameter][0,:],self.payload["LATITUDE"][0,:],self.payload["LATITUDE"][1,:])
-        z = np.interp(self.payload[initial_parameter][0,:],self.payload["GLIDER_DEPTH"][0,:],self.payload["GLIDER_DEPTH"][1,:])
+        x = np.interp(self.payload[initial_parameter][0, :], self.payload["LONGITUDE"][0, :],
+                      self.payload["LONGITUDE"][1, :])
+        y = np.interp(self.payload[initial_parameter][0, :], self.payload["LATITUDE"][0, :],
+                      self.payload["LATITUDE"][1, :])
+        z = np.interp(self.payload[initial_parameter][0, :], self.payload["GLIDER_DEPTH"][0, :],
+                      self.payload["GLIDER_DEPTH"][1, :])
         # Create the initial figure
         fig = go.Figure(data=[
             go.Scatter3d(
@@ -551,7 +541,8 @@ class Mission(zarr.Group):
         parameter_dropdown = [
             {
                 "args": [
-                    {"marker.color": [np.array(self.payload[parameter][1,:])],  # Update the color for the new parameter
+                    {"marker.color": [np.array(self.payload[parameter][1, :])],
+                     # Update the color for the new parameter
                      "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
                      "marker.cmax": parameters[parameter]["cmax"],  # Set cmax for the new parameter
                      "marker.colorscale": initial_colour_scale},  # Keep the initial color scale (can be updated below)
@@ -579,7 +570,8 @@ class Mission(zarr.Group):
             annotations=[
                 # Add labels for dropdowns
                 dict(text="Sensor:", x=0.05, y=1.2, showarrow=False, xref="paper", yref="paper", font=dict(size=14)),
-                dict(text="Color Scale:", x=0.05, y=1.15, showarrow=False, xref="paper", yref="paper",font=dict(size=14))
+                dict(text="Color Scale:", x=0.05, y=1.15, showarrow=False, xref="paper", yref="paper",
+                     font=dict(size=14))
             ]
         )
 
@@ -609,7 +601,7 @@ class Mission(zarr.Group):
         fig.show()
         logger.success(f"successfully plotted payloads")
 
-    def plot_trajectory(self,colour_scale:str='Viridis',):
+    def plot_trajectory(self, colour_scale: str = 'Viridis', ):
         """
         Created an interactive plot of the auv trajectory, with the datetime of the trajectory colour mapped onto it.
 
@@ -642,7 +634,9 @@ class Mission(zarr.Group):
         }
 
         fig = go.Figure(
-            data=[go.Scatter3d(x=self.trajectory["longitude"], y=self.trajectory["latitude"], z=self.trajectory["depth"], mode='markers', marker=marker)])
+            data=[
+                go.Scatter3d(x=self.trajectory["longitude"], y=self.trajectory["latitude"], z=self.trajectory["depth"],
+                             mode='markers', marker=marker)])
         fig.update_scenes(zaxis_autorange="reversed")
         fig.update_layout(title=title, scene=scene)
         fig.show()
@@ -664,8 +658,8 @@ class Mission(zarr.Group):
             export_store = store
         logger.info(f"exporting mission {self.attrs['name']} to {export_store}")
         zarr.copy_store(self.store, export_store)
-        self.create_dim_map(cmems_alias=cmems_alias,msm_cat=msm_cat)
-        self.add_array_dimensions(group=self,dim_map=self.world.attrs['dim_map'])
+        self.create_dim_map(cmems_alias=cmems_alias, msm_cat=msm_cat)
+        self.add_array_dimensions(group=self, dim_map=self.world.attrs['dim_map'])
         zarr.consolidate_metadata(export_store)
         logger.success(f"successfully exported {self.attrs['name']}")
 
@@ -683,7 +677,7 @@ class Mission(zarr.Group):
         decimal_format = degrees + minutes / 60.
         return decimal_format * sign
 
-    def create_dim_map(self,cmems_alias,msm_cat):
+    def create_dim_map(self, cmems_alias, msm_cat):
         """
         Creates a dimension mapping dictionary and updates the relevant attribute in the world group. This attribute is
         required to enable Xarray to read the zarr groups of the campaign object.
@@ -731,14 +725,14 @@ class Mission(zarr.Group):
                     msm_metadata = msm_cat[k4].describe()['metadata']
                     msm_alias = msm_metadata.get('aliases', [])
                     if k5 in msm_alias.keys():
-                        dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time_counter', 'deptht', 'latitude','longitude']
+                        dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time_counter', 'deptht', 'latitude',
+                                                                               'longitude']
                 else:
                     logger.error(f"unknown model source key {k5}")
                     raise UnknownSourceKey
         self.world.attrs.update({"dim_map": dim_map})
 
-
-    def add_array_dimensions(self,group, dim_map, path=""):
+    def add_array_dimensions(self, group, dim_map, path=""):
         """
         Recursively add _ARRAY_DIMENSIONS attribute to all arrays in a Zarr group, including nested groups.
 
@@ -764,11 +758,3 @@ class Mission(zarr.Group):
                     logger.info(f"Added _ARRAY_DIMENSIONS to {full_path}: {dim_map[full_path]}")
                 else:
                     logger.warning(f"No dimension information found for {full_path}")
-
-
-
-
-
-
-
-
