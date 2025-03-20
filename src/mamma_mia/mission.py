@@ -162,12 +162,26 @@ class Mission(zarr.Group):
         self.attrs["geospatial_vertical_min"] = np.min(trajectory.depth)
         self.attrs["geospatial_vertical_units"] = "m"
 
+        self.attrs["Westernmost_Easting"] = np.min(trajectory.longitude)
+        self.attrs["Easternmost_Easting"] = np.max(trajectory.longitude)
+        self.attrs["Northernmost_Northing"] = np.max(trajectory.latitude)
+        self.attrs["Southernmost_Northing"] = np.min(trajectory.latitude)
+
         self.attrs["geospatial_bounds"] = (f"POLYGON(({self.attrs['geospatial_lon_min']},"
                                            f"{self.attrs['geospatial_lon_max']},"
                                            f"{self.attrs['geospatial_lat_min']},"
                                            f"{self.attrs['geospatial_lat_max']},))")
 
+        self.attrs["time_coverage_start"] = np.datetime_as_string(trajectory.time[0],unit="s")
+        self.attrs["time_coverage_end"] = np.datetime_as_string(trajectory.time[-1],unit="s")
 
+        self.attrs["featureType"] = "Trajectory"
+
+        instruments = []
+        for instrument in platform.sensors.values():
+            instruments.append(instrument.sensor_name)
+
+        self.attrs["instruments"] = instruments
         # create empty world group
         worlds = self.create_group("world")
         extent = {
@@ -604,20 +618,20 @@ class Mission(zarr.Group):
         # TODO Also ideally need to do the other variables in the world datasets e.g. time, depth etc
         dim_map = {}
         for k2, v2 in self.payload.items():
-            dim_map[f"{self.attrs['name']}/reality/{k2}"] = ['time']
+            dim_map[f"{self.attrs['mission']}/payload/{k2}"] = ['time']
         for k3, v3 in self.trajectory.items():
-            dim_map[f"{self.attrs['name']}/trajectory/{k3}"] = ['time']
+            dim_map[f"{self.attrs['mission']}/trajectory/{k3}"] = ['time']
         for k4, v4 in self.world.items():
             split_key = k4.split('_')
             for k5, v5 in v4.items():
                 if split_key[0] == "cmems":
                     if [k5] in cmems_alias.values():
-                        dim_map[f"{self.attrs['name']}/world/{k4}/{k5}"] = ['time', 'depth', 'latitude', 'longitude']
+                        dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time', 'depth', 'latitude', 'longitude']
                 elif split_key[0] == "msm":
                     msm_metadata = msm_cat[k4].describe()['metadata']
                     msm_alias = msm_metadata.get('aliases', [])
                     if k5 in msm_alias.keys():
-                        dim_map[f"{self.attrs['name']}/world/{k4}/{k5}"] = ['time_counter', 'deptht', 'latitude','longitude']
+                        dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time_counter', 'deptht', 'latitude','longitude']
                 else:
                     logger.error(f"unknown model source key {k5}")
                     raise UnknownSourceKey
