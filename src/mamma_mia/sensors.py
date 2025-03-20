@@ -6,18 +6,9 @@ from pathlib import Path
 import os
 import copy
 import sys
-from enum import Enum
 from mamma_mia.parameters import parameter_inventory,Parameter,TimeParameter
 from mamma_mia.exceptions import InvalidParameter, InvalidSensorRate
 from mamma_mia.log import log_filter
-
-class SensorBehaviour(Enum):
-    ALL_ON_FAST_AS_POSSIBLE = "all_on_fast_as_possible"
-    SIXTY_SECONDS_UPCAST = "60_seconds_upcast"
-
-class SensorMode(Enum):
-    COUPLED = 1
-    DECOUPLED = 2
 
 
 def create_sensor_class(frozen_mode=False):
@@ -199,7 +190,6 @@ class SensorInventory:
         Returns a list of compatible sensors for a given platform type
         Args:
             platform_serial_number:
-            platform_type: string denoting the platform type
             sensor_type: string denoting the sensor type, if not specified, all compatible sensors are returned
 
         Returns:

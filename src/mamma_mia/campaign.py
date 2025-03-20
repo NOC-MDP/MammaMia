@@ -63,8 +63,9 @@ class Campaign:
         logger.success(f"{name} successfully registered to {self.name}")
 
     def add_mission(self,
-                    name:str,
+                    mission_name:str,
                     summary:str,
+                    title:str,
                     platform_name:str,
                     trajectory_path:str,
                     store=None,
@@ -79,7 +80,8 @@ class Campaign:
         Args:
             summary: sumary of mission
             platform_name:
-            name: name of the mission
+            mission_name: name of the mission
+            title: title of the mission
             trajectory_path: path to auv trajectory netcdf
             store: specify zarr store (Directory etc) default is memory store
             overwrite: overwrite an existing mission store, default is false
@@ -93,15 +95,16 @@ class Campaign:
             is also initialized and stored in the interpolated dictionary coded with the mission key. (each mission has its own
             set of interpolators).
         """
-        if name in self.missions:
-            logger.error(f"mission {name} already exists")
+        if mission_name in self.missions:
+            logger.error(f"mission {mission_name} already exists")
             raise MissionExists
         try:
             platform_n = self.platforms[platform_name]
         except KeyError:
             raise UnknownPlatform
 
-        mission = Mission(name=name,
+        mission = Mission(mission=mission_name,
+                          title=title,
                           summary=summary,
                           platform=platform_n,
                           trajectory_path=trajectory_path,

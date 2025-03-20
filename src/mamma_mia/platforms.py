@@ -1,6 +1,6 @@
 import json
-from mamma_mia.exceptions import InvalidPlatform, InvalidSensor, InvalidSensorBehaviour
-from mamma_mia.sensors import sensor_inventory, create_sensor_class, SensorBehaviour, SensorMode
+from mamma_mia.exceptions import InvalidPlatform, InvalidSensor
+from mamma_mia.sensors import sensor_inventory, create_sensor_class
 import os
 from pathlib import Path
 from loguru import logger
@@ -8,11 +8,7 @@ from attrs import frozen, field, define
 from cattrs import structure, unstructure
 import sys
 from mamma_mia.log import log_filter
-from enum import Enum
 
-class PlatformTypes(Enum):
-    glider = ["GLIDER_DEPTH",'LATITUDE']
-    alr = ["ADEPPT01","ALATPT01"]
 
 # Factory function to create a platform class
 def create_platform_class(frozen_mode=False):
@@ -37,9 +33,6 @@ def create_platform_class(frozen_mode=False):
         platform_family: str
         wmo_platform_code: int
         data_type: str
-        # TODO make the two enums below actually do something
-        science_sensor_behaviour: SensorBehaviour = SensorBehaviour.ALL_ON_FAST_AS_POSSIBLE
-        science_sensor_mode: SensorMode = SensorMode.DECOUPLED
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
 
@@ -66,43 +59,6 @@ def create_platform_class(frozen_mode=False):
             self.sensors[sensor.sensor_name] = sensor
             logger.success(f"successfully registered sensor {sensor.sensor_name} to entity {self.entity_name}")
 
-        if not frozen_mode:
-            def update_sensor_behaviour(self, sensor_behaviour: str) -> None:
-                """
-                Update the sensor behaviour from default all on as fast as possible (sample at max rate)
-                Args:
-                    sensor_behaviour:
-
-                Returns:
-
-                """
-                logger.critical(f"sensor behaviour {sensor_behaviour} is not implemented yet")
-                match sensor_behaviour:
-                    case "all_on_fast_as_possible":
-                        behaviour = SensorBehaviour.ALL_ON_FAST_AS_POSSIBLE
-                    case "60_seconds_upcast":
-                        behaviour = SensorBehaviour.SIXTY_SECONDS_UPCAST
-                    case _:
-                        logger.error(f"sensor behaviour {sensor_behaviour} is invalid")
-                        raise InvalidSensorBehaviour
-                self.science_sensor_behaviour = behaviour
-                #logger.success(f"successfully updated sensor behaviour for entity {self.entity_name} to {behaviour.value}")
-
-            def toggle_sensor_coupling(self) -> None:
-                """
-                toggle sensor coupling so each sensor will sample at its defined rate
-                Returns:
-
-                """
-                logger.critical("sensor coupling is not yet implemented")
-                if self.science_sensor_mode == SensorMode.COUPLED:
-                    self.science_sensor_mode = SensorMode.DECOUPLED
-                    #logger.success(f"scientific sensors on entity {self.entity_name} are now decoupled")
-                elif self.science_sensor_mode == SensorMode.DECOUPLED:
-                    self.science_sensor_mode = SensorMode.COUPLED
-                    #logger.success(f"scientific sensors on entity {self.entity_name} are now coupled")
-                else:
-                    logger.warning(f"sensor mode {self.science_sensor_mode} is not supported")
 
     return Platform
 
