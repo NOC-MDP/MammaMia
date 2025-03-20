@@ -63,7 +63,6 @@
             }
         ],
         "navigation": [
-
             {
                 "parameter_name": "ALTITUDE",
                 "standard_name": "height relative to seabed",
@@ -87,7 +86,7 @@
             {
                 "parameter_name": "LATITUDE_GPS",
                 "standard_name": "latitude north relative to WGS84",
-                "unit_of_measure": "degree_north",
+                "unit_of_measure": "degrees_north",
                 "parameter_definition": "Latitude north relative to WGS84 by unspecified GPS system",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATGP01/",
                 "seadatanet_unit_of_measure":"SDN:P06::DEGN",
@@ -97,7 +96,7 @@
             {
                 "parameter_name": "LONGITUDE",
                 "standard_name": "longitude east",
-                "unit_of_measure": "degree_east",
+                "unit_of_measure": "degrees_east",
                 "parameter_definition": "Longitude east",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALONZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::DEGE",
@@ -107,7 +106,7 @@
             {
                 "parameter_name": "LONGITUDE_GPS",
                 "standard_name": "longitude east relative to WGS84",
-                "unit_of_measure": "degree_east",
+                "unit_of_measure": "degrees_east",
                 "parameter_definition": "Longitude east relative to WGS84 by unspecified GPS system",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALONGP01/",
                 "seadatanet_unit_of_measure":"SDN:P06::DEGE",

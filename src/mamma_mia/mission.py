@@ -17,6 +17,9 @@ from datetime import datetime
 
 @define
 class Agency:
+    """
+    stores details of agency meta data
+    """
     agency: str = "NOCS"
     id_vocab: str = "EDMO"
     role: str = "contact point"
@@ -24,6 +27,9 @@ class Agency:
 
 @define
 class Publisher:
+    """
+    stores details of mission publisher
+    """
     email: str = "mamma-mia@mm.ac.uk"
     institution: str = "mamma-mia"
     name: str = "mm"
@@ -32,6 +38,9 @@ class Publisher:
 
 @define
 class Contributor:
+    """
+    stores details of mission contributor
+    """
     email: str = "mm1@mm.ac.uk"
     institution: str = "MammaMia"
     name: str = "mamma mia"
@@ -40,6 +49,15 @@ class Contributor:
 
 @define
 class Creator:
+    """
+    stores details of mission creator
+
+    email :str
+    institution :str
+    name :str
+    creator_type :str
+    url :str
+    """
     email: str= "gliders@mm.ac.uk"
     institution: str = "MammaMia"
     name: str = "mamma mia"
@@ -73,6 +91,10 @@ class Mission(zarr.Group):
                  title:str,
                  platform:create_platform_class(),
                  trajectory_path:str,
+                 creator: Creator,
+                 publisher: Publisher,
+                 contributor: Contributor,
+                 agency: Agency,
                  store=None,
                  overwrite=False,
                  excess_space: int=0.5,
@@ -81,10 +103,7 @@ class Mission(zarr.Group):
                  cmems_priority: int = 1,
                  crs: str = 'EPSG:4326',
                  vertical_crs: str = 'EPSG:5831',
-                 creator: Creator = Creator(),
-                 publisher: Publisher = Publisher(),
-                 contributor: Contributor = Contributor(),
-                 agency: Agency = Agency(),
+
                  ):
         # Create the group using the separate method
         group = zarr.group(store=store, overwrite=overwrite)
@@ -166,8 +185,6 @@ class Mission(zarr.Group):
         # create trajectory group from input simulated trajectory and sensor/parameter metadata
         ds = xr.open_dataset(trajectory_path)
         trajectory = self.create_group("trajectory")
-        # TODO have a better reporting process so its clear to the user what is missing and where
-        # TODO e.g. it could be a missing or malformed parameter, or sensor or missing from netcdf input.
         try:
             trajectory.array(name="latitude",data=np.array(ds[navigation["latitude"]]))
             trajectory.array(name="longitude",data=np.array(ds[navigation["longitude"]]))
@@ -209,16 +226,16 @@ class Mission(zarr.Group):
         for i in range(trajectory.latitude.__len__()):
             trajectory.latitude[i] = self.__convert_to_decimal(trajectory.latitude[i])
 
-        # TODO figure out best way to set units (from input data or from parameter.json)
+
         # write geospatial meta data
         self.attrs["geospatial_bounds_crs"] = crs
         self.attrs["geospatial_bounds_vertical_crs"] = vertical_crs
         self.attrs["geospatial_lat_max"] = np.max(trajectory.latitude)
         self.attrs["geospatial_lat_min"] = np.min(trajectory.latitude)
-        self.attrs["geospatial_lat_units"] = "degrees_north"
+        self.attrs["geospatial_lat_units"] = self.get_parameter_units(parameter="latitude")
         self.attrs["geospatial_lon_min"] = np.min(trajectory.longitude)
         self.attrs["geospatial_lon_max"] = np.max(trajectory.longitude)
-        self.attrs["geospatial_lon_units"] = "degrees_east"
+        self.attrs["geospatial_lon_units"] = self.get_parameter_units(parameter="longitude")
         self.attrs["geospatial_vertical_max"] = np.max(trajectory.depth)
         self.attrs["geospatial_vertical_min"] = np.min(trajectory.depth)
         self.attrs["geospatial_vertical_units"] = "m"
@@ -274,10 +291,6 @@ class Mission(zarr.Group):
                     continue
                 payload.empty(name=name2, shape=(2,mission_total_time_seconds.astype(int)), dtype=np.float64)
 
-        # TODO need to account for different sensor sampling rates for different sensors and different AUV behaviours e.g. surfacing or diving
-        # TODO when flying mission keep a present seconds into mission so that sensor arrays can be updated dynamically at the sample rate, e.g. every 5 or 1 seconds
-
-
 
     def find_parameter_key(self,parameter:str,instrument_type:str ="data loggers") -> str:
         sensor_key = None
@@ -296,6 +309,26 @@ class Mission(zarr.Group):
                     except KeyError:
                         parameter_key = self.platform.attrs["sensors"][sensor_key]["parameters"][key]["standard_name"]
         return parameter_key
+
+    def get_parameter_units(self,parameter:str,instrument_type:str ="data loggers") -> str:
+        sensor_key = None
+        parameter_units = None
+        for key in self.platform.attrs["sensors"].keys():
+            if self.platform.attrs["sensors"][key]["instrument_type"] == instrument_type:
+                sensor_key = key
+                break
+        try:
+            parameter_units = self.platform.attrs["sensors"][sensor_key]["parameters"][parameter]["unit_of_measure"]
+        except KeyError:
+            for val in self.platform.attrs["sensors"][sensor_key]["parameters"].values():
+                try:
+                    if parameter in val["parameter_definition"].lower():
+                        parameter_units = val["unit_of_measure"]
+                except KeyError:
+                    if parameter in val["long_name"].lower():
+                        parameter_units = val["units"]
+
+        return parameter_units
 
     def build_mission(self,cat:Cats):
         """
