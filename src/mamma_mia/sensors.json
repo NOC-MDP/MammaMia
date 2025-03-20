@@ -152,7 +152,8 @@
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "max_sample_rate": 1,
                 "parameters": {
-                    "ALR_LATITUDE": 1
+                    "ALAPT01": 1,
+                    "ADEPPT01": 1
                 },
                 "platform_compatibility": ["ALR_4"]
             },
@@ -169,9 +170,10 @@
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "max_sample_rate": 1,
                 "parameters": {
-                    "ALR_LATITUDE": 1
+                    "ALAPT01": 1,
+                    "ADEPPT01": 1
                 },
-                "platform_compatibility": ["Autosub Long Range"]
+                "platform_compatibility": ["ALR_6"]
             },
             {
                 "sensor_serial_number": "unit_398",
