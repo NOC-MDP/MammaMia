@@ -117,7 +117,7 @@ class Campaign:
         self.interpolators[mission.attrs['name']] = interpolator
         logger.success(f"successfully added mission {mission.attrs['name']} to campaign {self.name}")
 
-    def build_missions(self) -> ():
+    def build_missions(self) -> None:
         """
         Function that builds the missions contained within the missions dictionary.
 

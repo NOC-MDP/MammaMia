@@ -8,8 +8,11 @@ from attrs import frozen, field, define
 from cattrs import structure, unstructure
 import sys
 from mamma_mia.log import log_filter
+from enum import Enum
 
-
+class PlatformTypes(Enum):
+    glider = ["GLIDER_DEPTH",'LATITUDE']
+    alr = ["ADEPPT01","ALATPT01"]
 
 # Factory function to create a platform class
 def create_platform_class(frozen_mode=False):
@@ -49,7 +52,7 @@ def create_platform_class(frozen_mode=False):
             Returns: list containing Sensor class objects
 
             """
-            return sensor_inventory.list_compatible_sensors(sensor_type=sensor_type, platform_type=self.platform_type)
+            return sensor_inventory.list_compatible_sensors(sensor_type=sensor_type, platform_serial_number=self.platform_serial_number)
 
         def register_sensor(self,sensor: create_sensor_class(frozen_mode=True)) -> None:
             """

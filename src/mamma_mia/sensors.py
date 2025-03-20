@@ -11,7 +11,6 @@ from mamma_mia.parameters import parameter_inventory,Parameter,TimeParameter
 from mamma_mia.exceptions import InvalidParameter, InvalidSensorRate
 from mamma_mia.log import log_filter
 
-
 class SensorBehaviour(Enum):
     ALL_ON_FAST_AS_POSSIBLE = "all_on_fast_as_possible"
     SIXTY_SECONDS_UPCAST = "60_seconds_upcast"
@@ -195,10 +194,11 @@ class SensorInventory:
                 raise ValueError(
                     f"Invalid sensor type '{sensor_type}'. Must be 'CTD', 'radiometers', or 'dataloggers'.")
 
-    def list_compatible_sensors(self, platform_type: str, sensor_type: str = None):
+    def list_compatible_sensors(self, platform_serial_number: str, sensor_type: str = None):
         """
         Returns a list of compatible sensors for a given platform type
         Args:
+            platform_serial_number:
             platform_type: string denoting the platform type
             sensor_type: string denoting the sensor type, if not specified, all compatible sensors are returned
 
@@ -213,7 +213,7 @@ class SensorInventory:
         for sensor_type in sensor_types:
             sensors2 = self._get_sensor_dict(sensor_type)
             for key, sensor in sensors2.items():
-                if platform_type in sensor.platform_compatibility:
+                if platform_serial_number in sensor.platform_compatibility:
                     sensors_compatible.append(sensor)
         return sensors_compatible
 
