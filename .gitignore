@@ -18,3 +18,4 @@ build
 *.laz
 3dtiles
 interpolator_cache
+!img/*.png
