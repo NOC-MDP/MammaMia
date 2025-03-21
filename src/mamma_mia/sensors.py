@@ -19,12 +19,8 @@ def create_sensor_class(frozen_mode=False):
     class Sensor:
         # instance parameters
         sensor_serial_number: str
-        bodc_sensor_version_id: int
-        bodc_sensor_id: int
         sensor_name: str
         # type parameters
-        bodc_sensor_model_id: int
-        bodc_sensor_model_registry_id: int
         instrument_type: str
         sensor_manufacturer: str
         model_name: str

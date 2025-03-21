@@ -74,6 +74,8 @@ class Campaign:
                     extra_depth: int = 100,
                     msm_priority: int = 2,
                     cmems_priority: int = 1,
+                    crs: str = 'EPSG:4326',
+                    vertical_crs: str = 'EPSG:5831',
                     creator:Creator = Creator(),
                     contributor:Contributor = Contributor(),
                     publisher:Publisher = Publisher(),
@@ -122,7 +124,9 @@ class Campaign:
                           excess_space=excess_space,
                           extra_depth=extra_depth,
                           msm_priority=msm_priority,
-                          cmems_priority=cmems_priority
+                          cmems_priority=cmems_priority,
+                          crs = 'EPSG:4326',
+                          vertical_crs = 'EPSG:5831',
                           )
         interpolator = Interpolators()
         self.missions[mission.attrs['mission']] = mission

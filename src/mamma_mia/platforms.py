@@ -18,15 +18,11 @@ def create_platform_class(frozen_mode=False):
     @base_decorator
     class Platform:
         # platform parameters
-        bodc_platform_model_id: int
-        platform_model_id: int
         nvs_platform_id: str
         platform_type: str
         platform_manufacturer: str
         platform_model_name: str
         # instance parameters
-        bodc_platform_id: int
-        bodc_platform_type_id: int
         platform_name: str
         platform_serial_number: str
         platform_owner: str

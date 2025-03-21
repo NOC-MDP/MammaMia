@@ -3,11 +3,7 @@
         "CTD": [
             {
                 "sensor_serial_number": "mamma_mia",
-                "bodc_sensor_version_id": -999,
-                "bodc_sensor_id": -999,
                 "sensor_name": "MM CTD",
-                "bodc_sensor_model_id": -999,
-                "bodc_sensor_model_registry_id": -999,
                 "instrument_type": "water temperature sensor",
                 "sensor_manufacturer": "Mamma Mia",
                 "model_name": "Mamma Mia CTD",
@@ -22,11 +18,7 @@
             },
             {
                 "sensor_serial_number": "9099",
-                "bodc_sensor_version_id": 1304,
-                "bodc_sensor_id": 847,
                 "sensor_name": "SBE Glider Payload CTD 9099",
-                "bodc_sensor_model_id": 485,
-                "bodc_sensor_model_registry_id": 242,
                 "instrument_type": "water temperature sensor",
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
@@ -41,11 +33,7 @@
             },
             {
                 "sensor_serial_number": "9100",
-                "bodc_sensor_version_id": 1130,
-                "bodc_sensor_id": 677,
                 "sensor_name": "SBE Glider Payload CTD 9100",
-                "bodc_sensor_model_id": 485,
-                "bodc_sensor_model_registry_id": 242,
                 "instrument_type": "water temperature sensor",
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
@@ -60,11 +48,7 @@
             },
             {
                 "sensor_serial_number": "0221",
-                "bodc_sensor_version_id": 1661,
-                "bodc_sensor_id": 1229,
                 "sensor_name": "SBE 52-MP CTD 0221",
-                "bodc_sensor_model_id": 681,
-                "bodc_sensor_model_registry_id": 273,
                 "instrument_type": "CTD",
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
@@ -79,11 +63,7 @@
             },
             {
                 "sensor_serial_number": "0222",
-                "bodc_sensor_version_id": 1662,
-                "bodc_sensor_id": 1230,
                 "sensor_name": "SBE 52-MP CTD 0222",
-                "bodc_sensor_model_id": 681,
-                "bodc_sensor_model_registry_id": 273,
                 "instrument_type": "CTD",
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
@@ -100,11 +80,7 @@
         "ADCP": [
             {
                 "sensor_serial_number": "mamma_mia",
-                "bodc_sensor_version_id": -999,
-                "bodc_sensor_id": -999,
                 "sensor_name": "MM ADCP",
-                "bodc_sensor_model_id": -999,
-                "bodc_sensor_model_registry_id": -999,
                 "instrument_type": "water current sensor",
                 "sensor_manufacturer": "Mamma Mia",
                 "model_name": "Mamma Mia ADCP",
@@ -121,11 +97,7 @@
         "radiometers": [
             {
                 "sensor_serial_number": "3289",
-                "bodc_sensor_version_id": 1095,
-                "bodc_sensor_id": 638,
                 "sensor_name": "WET Labs FLBBCD-SLC 3289",
-                "bodc_sensor_model_id": 622,
-                "bodc_sensor_model_registry_id": 259,
                 "instrument_type": "radiometers",
                 "sensor_manufacturer": "WET Labs",
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
@@ -141,11 +113,7 @@
         "dataloggers": [
             {
                 "sensor_serial_number": "ALR_4",
-                "bodc_sensor_version_id": 1296,
-                "bodc_sensor_id": 838,
                 "sensor_name": "ALR v1 data logger ALR_4",
-                "bodc_sensor_model_id": 761,
-                "bodc_sensor_model_registry_id": 281,
                 "instrument_type": "data loggers",
                 "sensor_manufacturer": "National Oceanography Centre",
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
@@ -159,11 +127,7 @@
             },
             {
                 "sensor_serial_number": "ALR_6",
-                "bodc_sensor_version_id": 1664,
-                "bodc_sensor_id": 1232,
                 "sensor_name": "ALR data logger v2 ALR_6",
-                "bodc_sensor_model_id": 761,
-                "bodc_sensor_model_registry_id": 281,
                 "instrument_type": "data loggers",
                 "sensor_manufacturer": "National Oceanography Centre",
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
@@ -177,11 +141,7 @@
             },
             {
                 "sensor_serial_number": "unit_398",
-                "bodc_sensor_version_id": 1139,
-                "bodc_sensor_id": 686,
                 "sensor_name": "Teledyne Slocum G1+G2 unit_398",
-                "bodc_sensor_model_id": 450,
-                "bodc_sensor_model_registry_id": 236,
                 "instrument_type": "data loggers",
                 "sensor_manufacturer": "Teledyne Webb Research",
                 "model_name": "Slocum G1+G2 Glider Navigation data logger",
@@ -200,11 +160,7 @@
             },
             {
                 "sensor_serial_number": "unit_887",
-                "bodc_sensor_version_id": 1549,
-                "bodc_sensor_id": 1094,
                 "sensor_name": "G3S Glider data logger unit_887",
-                "bodc_sensor_model_id": 881,
-                "bodc_sensor_model_registry_id": 288,
                 "instrument_type": "data loggers",
                 "sensor_manufacturer": "Teledyne Webb Research",
                 "model_name": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",

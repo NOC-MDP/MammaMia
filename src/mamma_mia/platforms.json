@@ -2,14 +2,10 @@
     "platforms": {
         "glider": [
             {
-                "bodc_platform_model_id": 117,
-                "platform_model_id": 358,
                 "nvs_platform_id": "B7600001",
                 "platform_type": "slocum",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "platform_model_name":"G2",
-                "bodc_platform_id": 862,
-                "bodc_platform_type_id": 402,
                 "platform_name": "Churchill",
                 "platform_family": "open_ocean_glider",
                 "platform_serial_number": "unit_398",
@@ -18,14 +14,10 @@
                 "data_type": "EGO glider time-series data"
             },
             {
-                "bodc_platform_model_id": 286,
-                "platform_model_id": 841,
                 "nvs_platform_id": "B7600029",
                 "platform_type": "slocum",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "platform_model_name":"Teledyne Webb Research Slocum G3S glider",
-                "bodc_platform_id": 1543,
-                "bodc_platform_type_id": 1088,
                 "platform_name": "Cheesy",
                 "platform_family": "open_ocean_glider",
                 "platform_serial_number": "unit_887",
@@ -36,14 +28,10 @@
         ],
         "alr": [
             {
-                "bodc_platform_model_id": 274,
-                "platform_model_id": 682,
                 "nvs_platform_id": "B7600021",
                 "platform_type": "Autosub Long Range",
                 "platform_manufacturer": "National Oceanography Centre",
                 "platform_model_name": "Autosub Long Range 1500",
-                "bodc_platform_id": 1295,
-                "bodc_platform_type_id": 837,
                 "platform_name": "ALR_4",
                 "platform_family": "open ocean glider",
                 "platform_serial_number": "ALR_4",
