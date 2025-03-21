@@ -8,14 +8,10 @@ from cattrs import structure
 
 # Sample test data
 PLATFORM_DATA = {
-                "bodc_platform_model_id": 134,
-                "platform_model_id":567,
                 "nvs_platform_id": "B7600002",
                 "platform_type": "eagle",
                 "platform_manufacturer": "Feel Good Inc",
                 "platform_model_name": "K2",
-                "bodc_platform_id": 456,
-                "bodc_platform_type_id": 874,
                 "platform_name": "TestGlider",
                 "platform_family" : "coastal_ocean_glider",
                 "platform_serial_number": "TG-001",
@@ -26,11 +22,7 @@ PLATFORM_DATA = {
 
 SENSOR_DATA = {
                 "sensor_serial_number": "SN-123",
-                "bodc_sensor_version_id": 1567,
-                "bodc_sensor_id": 734,
                 "sensor_name": "CTD-Sensor-1",
-                "bodc_sensor_model_id": 223,
-                "bodc_sensor_model_registry_id": 211,
                 "instrument_type": "water temperature sensor",
                 "sensor_manufacturer": "Eagle Instruments",
                 "model_name": "EI Glider Payload (GPCTD) CTD",
