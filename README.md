@@ -1,27 +1,38 @@
 # Mamma Mia toolbox
 
 ## Description
-This toolbox enables the simulation of a glider through a models "virtual reality". A world is created which the glider 
-will fly through, this comprises a suitable model or set of models. When creating the virtual glider the user can define
-sensor arrays which comprise of different sets of instrumentation, e,g, CTD or ADCP. All together these components are 
-defined in a mission, that when executed will return a "reality" that contains the interpolated values that the virtual 
-glider observes during its mission. A trajectory is generated using a glider simulator that simulates a slocum glider.
+
+###  Main functions
+This toolbox enables the simulation of a platform through a model "virtual reality". Platforms can be any observation
+platform such as gliders and autosubs. Mamma Mia takes a simulated trajectory of a platform, and creates a world encompassing
+it. This world will contain data (or as much as can be found) that is defined in the platform's payload.
+
+Each trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,
+these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations. 
+e.g. same glider with different payloads or the same glider with the same payload but with different model sources prioritised.
+
+When the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had
+been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders
+collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.
+
+### Supplementary function
+In addition to simulating a gliders data payload, Mamma mia can support the platform simulator by provided interpolated data
+e.g. (velocity and density) to a specified spatial and temporal coordinate. This allows the simulator to take into account the 
+environment when creating the trajectory.
+
+### Example output
 
 ![example_trajectory](img/example_trajectory.png)
 *Example trajectory of a glider, the colour denotes time (the darker the colour the older the section of the trajectory is)*
 
-When processed through Mamma mia, this trajectory results in a reality, containing interpolated data from an model. 
-The screenshot below shows what this would look like. The temperature the glider experiences over the trajectory is
-shown as a colour.
+When processed through Mamma mia, this trajectory results in a payload, containing interpolated data from one or more models. 
+The screenshots below shows an example mission of a slocum glider off Greenland
 
-![example_reality](img/example_reality.png)
-*Example reality produced by Mamma mia, this has been generated using the trajectory above and a CMEMS global model.*
+![example_reality](img/example_payload.png)
+*Example glider temperature payload produced by Mamma mia, this has been generated using the trajectory above and a CMEMS global model.*
 
-Mamma mia will be able to produce a reality based on the sensor specification of the virtual AUV. This will be able 
-to be visualised and exported to use for planning and operations.
-
-Gliders and missions are organised into campaigns, these can hold one or more auv's and one or more missions. This allows
-the user to define multiple glider deployments in one object.
+![example_reality](img/example_payload2.png)
+*Example glider salinity payload produced by Mamma mia, this has been generated using the trajectory above and a CMEMS global model.*
 
 ## Requirements
 Mamma mia has a number of dependencies, (numpy pyinterp, xarray, zarr, ploty etc). These can be installed using a conda
@@ -34,7 +45,7 @@ Assuming a conda package manager:
 $ conda env create --file enviroment.yml
 ```
 This should create a virtual environment containing all of Mamma mias dependencies. Ensure the environment is activated
-before using,
+before using.
 
 ```shell
 $ conda activate mm
@@ -51,11 +62,12 @@ $ pip install blosc
 ```
 
 ### Installing the glider simulator
-Currently the glider simulator is not part of mamma mia and is used/operated seperately. In a separate folder (or HOME) running
-the following script will install the glider simulator. It is recommended a separate virtual environment to Mamma mia is
-used to ensure no dependency clashes.
-```#!/bin/bash
+Currently, the glider simulator used in the example is not part of mamma mia and is used/operated separately. 
+In a separate folder (or HOME) running the following script will install the glider simulator. It is recommended a 
+separate virtual environment to Mamma mia is used to ensure no dependency clashes. Mamma mia is designed to be agnostic 
+to the physical simulator allowing gliders, autosubs, argo floats and potentially even air ships to be simulated.
 
+```#!/bin/bash
 # get the source of additional packages from github
 git clone https://github.com/NOC-MDP/latlon.git
 git clone https://github.com/NOC-MDP/GliderNetCDF.git
@@ -67,76 +79,162 @@ pip install gsw
 # Get and install glidersim.
 git clone https://github.com/NOC-MDP/glidersim.git
 pip install glidersim
-
 ```
 
 ## Testing
 ### Prerequisites
-In order to test Mamma mia, an glider trajectory needs to be created, please read the install and usage sections of the glider
-simulator. The example script in the glidersim repository will produce the required trajectory.
+In order to test Mamma mia, a glider trajectory needs to be created, please read the installation and usage sections of the glider
+simulator. The example script in the glidersim repository should produce the example trajectory shown above.
 
 ### Running test suite
 Mamma mia uses pytest to test its code, to test for correction installation please run:
 
 ```shell
-$ pytest campaign_test.py
+$ pytest test.py
 ```
 This will execute the test suite and display the results. All tests should pass.(WIP!)
 
+### Example scripts
+In addition to the pytest suite there are some example scripts showing how Mamma Mia can be used.
+
+#### campaign_test.py
+Running this script will run an example campaign with a single glider mission that undertakes a number of dives off
+Greenland in 2019. It demostrations the main functions of Mamma mia as follows:
+
+- creating a campaign
+- listing available platform types
+- listing available platforms of a specific type (glider)
+- creating a platform/entity from the inventory
+- listing available CTD sensors for that platform entity
+- listing available radiometers for that platform entity
+- creating a CTD entity suitable for the platform
+- updating the CTD sample rate
+- registering the sensor to the platform
+- creating a new entity of the same platform but with no CTD to add
+- register both platforms to the campaign
+- create custom metadata objects such as 
+  - creator
+  - publisher
+  - contributor
+- add a mission to the campaign, specifying which entity to use and where the trajectory is located
+- initialising the catalog which is used to determine what model data is availble
+- building the missions in the campaign (downloads model data, creates interpolators etc)
+- runs the campaign which flies each mission (generates interpolated resampled data to match what is specified in the sensors)
+- mission is visualised both as a trajectory and an interpolated payload
+- campaign exported as a zarr group.
+
+#### dvr_test.py
+Running this script demonstrates how Mamma mia can be used to get interpolated environmental data to help simulate a platform
+and generate a more accurate trajectory.
+
+It demonstrates this as follows:
+
+- creates an extent (Mamma mia uses trajectory to determine this in main operation)
+- creates a point (where interpolated data is desired)
+- Creates a reality (contains model data and interpolators as required for the extent specifed)
+- shows how to teleport (returns interpolated velocities and temp/salinity for the provided point)
+
 ## Usage
-Mamma mia is a library that can be implemented in a number of different ways. It is anticipated that users will primarily interact with 
-the campaign object adding missions and AUV's to it before running and visualising the output. There is an example campaign implementation
-demostrated in test_campaign.py
+Mamma Mia is designed to be flexible and be able to used as a python module allowing an interface such as a REST API, 
+GUI or just a python script to be overlaid on top. An integrated product containing:
+
+- platform simulator
+- mamma mia toolbox
+- user interface 
+
+may be created in the future.
 
 ## Architecture
-Mamma mia has the following concepts:
+Mamma mia is structured in the following way with the following concepts:
 
-- AUV (virtual glider)
-- Sensors (virtual sensors defined in arrays)
-- World (subset of a model)
-- Trajectory (glider path through 3D space and time)
-- Reality (interpolated model data onto glider trajectory)
+- parameters (this is specific variable such as temperature)
+- sensors (this is a specific sensor such as a CTD that measures , temperature, salinity, pressure)
+- platforms (this is a specific platform such as a slocum glider)
+
+Each of the components above are specified in separate JSON files, mamma mia reads these on import and creates an immutable
+inventory for each. Users can then create entities from this inventory that are mutable.
+
+It is possible to add new platforms, sensors and parameters, this is demonstrated in the pytest script "test.py". However, 
+any added entries do not persist and must be added each time. It is planned that Mamma mia will read any compatible JSON files 
+provided and combine those with the stored files in the module.
+
+### Vocabulary
+Mamma mia uses the following terms to describe different aspects of the toolbox
+
+- World (subset of a model the encompasses a trajectory)
+- Trajectory(flight through 3D space and time)
+- Payload (interpolated model data onto resampled flight to match sensor sampling rate)
 - Mission (all the above stored in one object)
-- Campaign (holds missions, auvs, interpolators for one set of auv missions)
+- Campaign (holds missions, platforms, interpolators in one group that can be exported)
 
-### AUV (virtual glider)
-This is represented in Mamma mia as a class object, containing the sensor arrays that has been specified. 
+### Parameters
+These specify a specific variable or dataset, an example being temperature:
+
+```json
+            {
+                "parameter_name": "TEMP",
+                "standard_name": "sea_water_temperature",
+                "unit_of_measure": "degree_Celsius",
+                "parameter_definition": "Temperature of the water body by CTD or STD",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/TEMPST01/",
+                "seadatanet_unit_of_measure": "SDN:P06::UPAA",
+                "source_name": "sci_water_temp",
+                "ancillary_variables": "TEMP_QC"
+            }
+```
 
 ### Sensors
-Sensors are grouped in several ways:
+These specify a specific set of parameters along with a sampling rate. They can mirror a real sensor, the following is 
+an CTD that is compatible with a slocum glider with serial number unit_397
 
-* On the AUV (dict[SensorArray])
-* As an instrument array e.g. CTD (SensorArray)
-* As a specific sensor e.g. temperature (Sensor)
-
-Therefore, it the structure of sensors is as follows: 
-
+```json
+            {
+                "sensor_serial_number": "9099",
+                "sensor_name": "SBE Glider Payload CTD 9099",
+                "instrument_type": "water temperature sensor",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "max_sample_rate": 5,
+                "parameters": {
+                    "TEMP": 5,
+                    "CNDC": 5,
+                    "PRES": 5
+                },
+                "platform_compatibility": ["unit_397"]
+            }
 ```
-    AUV -> SensorArray -> Sensor
+
+### Platforms
+This specifies a set of sensors, along with specific platform data such as serial numbers, the following is a slocum G2 
+glider called Churchill
+
+```json
+            {
+                "nvs_platform_id": "B7600001",
+                "platform_type": "slocum",
+                "platform_manufacturer": "Teledyne Webb Research",
+                "platform_model_name":"G2",
+                "platform_name": "Churchill",
+                "platform_family": "open_ocean_glider",
+                "platform_serial_number": "unit_398",
+                "platform_owner": "NOCS",
+                "wmo_platform_code": 6801573,
+                "data_type": "EGO glider time-series data"
+            }
 ```
 
-#### SensorArray
-This is a specific class created for each array type. Currently they have to be coded directly within MM but it is anticipated that 
-functinality will be added so users will be able to construct their own easily.
-
-* CTD (temperature, pressure, salinity)
-* BIO (silicate, phosphate, nitrate)
-* ADCP (U, V, W velocity components)
-
-#### Sensor
-Build sensors using this class, they will need to be part of an SensorArray so they are usually declared as part of 
-constructing an SensorArray. Currently Sensors must be part of an array, even if only one is required.
 
 ### World
-The world is the model data that will be interpolated onto the gliders trajectory. This is currently downloaded from 
-CMEMS for the full extent of the trajectory
+The world is the model data that will be interpolated onto the glider's trajectory. This is currently downloaded from 
+CMEMS and other sources for the full extent of the trajectory
 
 ### Trajectory
 The trajectory is currently created from a real glider dataset, it consists of a zarr group containing the latitudes, 
 longitudes, depths as well as datetimes.
 
-### Reality
-Reality is a zarr Group that holds arrays that reflect the specifed sensors in the virtual AUV, this is populated with 
+### Payload
+Payload is a zarr Group that holds arrays that reflect the specified sensors in the virtual AUV, this is populated with 
 interpolated data from the world.
 
 ### Mission
@@ -144,15 +242,15 @@ This is the parent/main class for Mamma mia in that it holds all the other class
 
 ### Campaign
 This is the class a MM user is expected to interact with, it holds all the missions, interpolators and auv's required for a 
-dpeloyment or campaign.
+deployment or campaign.
 
 ## Using the glider simulator
-The simulator has been modifed so it works with the example script in its README. A new mission profile has been created
+The simulator has been modified so it works with the example script in its README. A new mission profile has been created
 called mm1, this will run a glider simulation that results in the trajectory above. (6 hours no surfacing a single waypoint)
 
 To generate the simulation output, there needs to be a bathymetry file. GEBCO is suitable and compatible with the mm1 
-configuration. However the bathymetry needs to be a subset from the global dataset. Easiest method is to download the subset
-from BODC. Downloading 45-48 N and -6.5 to -8 E should be sufficent.
+configuration. However, the bathymetry needs to be a subset from the global dataset. Easiest method is to download the subset
+from BODC. Downloading 45-48 N and -6.5 to -8 E should be sufficient.
 
 Generate the output by running the example.py script:
 
@@ -160,15 +258,12 @@ Generate the output by running the example.py script:
 $ python example.py
 ```
 
-The output "comet-mm1.nc" can then be copied into the MammaMia repository, where it should be recognised by the test.py script.
+The output "comet-mm1.nc" can then be copied into the MammaMia repository, where it should be recognised by the campaign_test.py script.
 
-## Velocity Reality
-Mamma Mia also has the abilty to return interpolated velocity data at requested points, this is to provide environment data for the
-glider simulator as part of the trajectory creation. See test_vr.py for an example implementation.
+## Reality
+Mamma Mia also has the abilty to return interpolated data at requested points, this is to provide environment data for the
+glider simulator as part of the trajectory creation. See dvr_test.py for an example implementation.
 
-## Outstanding development
-Mamma mia is in very early development and has many things outstanding, please see the issues section of the repository 
-for a non exhaustive list.
 
 
 
