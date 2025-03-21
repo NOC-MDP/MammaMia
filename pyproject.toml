@@ -1,6 +1,6 @@
 [project]
 name = "mamma_mia"
-version = "0.2.2"
+version = "0.2.3"
 
 [build-system]
 requires = ["setuptools>=61.3.1"]

@@ -80,5 +80,6 @@ campaign.missions["SEG19_01"].plot_trajectory()
 campaign.missions["SEG19_01"].show_payload()
 # export the campaign
 campaign.export()
+campaign.missions["SEG19_01"].export_to_nc()
 print("the end")
 

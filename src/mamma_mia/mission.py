@@ -653,15 +653,25 @@ class Mission(zarr.Group):
             void: zarr group is saved to directory store
         """
         if store is None:
-            export_store = zarr.DirectoryStore(f"{self.attrs['name']}.zarr")
+            export_store = zarr.DirectoryStore(f"{self.attrs['mission']}.zarr")
         else:
             export_store = store
-        logger.info(f"exporting mission {self.attrs['name']} to {export_store}")
+        logger.info(f"exporting mission {self.attrs['mission']} to {export_store}")
         zarr.copy_store(self.store, export_store)
         self.create_dim_map(cmems_alias=cmems_alias, msm_cat=msm_cat)
         self.add_array_dimensions(group=self, dim_map=self.world.attrs['dim_map'])
         zarr.consolidate_metadata(export_store)
-        logger.success(f"successfully exported {self.attrs['name']}")
+        logger.success(f"successfully exported {self.attrs['mission']}")
+
+    def export_to_nc(self,outname=None):
+        if outname is None:
+            name = self.attrs['mission']
+        else:
+            name = outname
+        logger.info(f"exporting mission {self.attrs['mission']} to {name}.nc")
+        ds = xr.open_zarr(store=self.store)
+        ds.to_netcdf(f"{name}.nc")
+        logger.success(f"successfully exported {self.attrs['mission']} as netcdf file")
 
     # From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
     # Lucas Merckelbach
