@@ -5,7 +5,7 @@ from mamma_mia import Creator
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
-campaign = Campaign(name="Greenland_2028",
+campaign = Campaign(name="SE_Greenland_2019",
                     description="single slocum glider deployment off South East Greenland",
                     verbose=True
                     )
@@ -53,7 +53,7 @@ contributor = Contributor(email="thopri@noc.ac.uk",
                           role="Collaborator",)
 
 # # add mission
-campaign.add_mission(mission_name="GL28_01",
+campaign.add_mission(mission_name="SEG19_01",
                      title="Churchill with CTD deployment off South East Greenland",
                      summary="single glider deployed to undertake 15 dives to 200m",
                      platform_name="Churchill_withCTD",
@@ -76,8 +76,8 @@ campaign.run()
 
 # visualise the results
 # colourmap options are here https://plotly.com/python/builtin-colorscales/
-campaign.missions["GL28_01"].plot_trajectory()
-campaign.missions["GL28_01"].show_payload()
+campaign.missions["SEG19_01"].plot_trajectory()
+campaign.missions["SEG19_01"].show_payload()
 # export the campaign
 campaign.export()
 print("the end")
