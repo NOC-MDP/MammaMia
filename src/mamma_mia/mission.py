@@ -27,7 +27,7 @@ class Publisher:
         type :str
         url :str
     """
-    email: str = "mamma-mia@mm.ac.uk"
+    email: str = "mm1@mm.ac.uk"
     institution: str = "mamma-mia"
     name: str = "mm"
     type: str = ""
@@ -39,8 +39,8 @@ class Contributor:
     """
     stores details of mission contributor
     """
-    email: str = "mm1@mm.ac.uk"
-    name: str = "mamma mia"
+    email: str = "mm2@mm.ac.uk"
+    name: str = "mm2"
     role: str = "Principal Investigator"
     role_vocab: str = ""
 
