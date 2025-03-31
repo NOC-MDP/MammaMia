@@ -31,12 +31,12 @@ class Cats:
     Returns:
         Populated Cats object
     """
-    cmems_cat: dict = field(init=False)
-    msm_cat: intake.Catalog = field(init=False)
+    cmems_cat: dict = field(factory=dict)
+    msm_cat: intake.Catalog = field(factory=intake.Catalog)
     search : str = "Global"
     cat_path: str = "https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml"
-    overwrite: bool = True
-    # TODO need some kind of refresh option that will delete caches of downloaded data. (user enabled and probably if data is older than x?)
-    def init_catalog(self):
+    overwrite: bool = False
+
+    def __attrs_post_init__(self):
         self.cmems_cat = copernicusmarine.describe(contains=[self.search], include_datasets=True,overwrite_metadata_cache=self.overwrite)
         self.msm_cat = intake.open_catalog(self.cat_path)

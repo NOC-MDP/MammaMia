@@ -1,7 +1,6 @@
-from mamma_mia import platform_inventory, Publisher, Contributor
+from mamma_mia import platform_inventory, sensor_inventory
 from mamma_mia import Campaign
-from mamma_mia import sensor_inventory
-from mamma_mia import Creator
+from mamma_mia import Creator, Publisher, Contributor
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
@@ -18,7 +17,14 @@ Churchill_withCTD = platform_inventory.create_entity(entity_name="Churchill_with
 
 # list compatible sensors for entity
 availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
+#print the sensor names and serial numbers
+for sensor in availableCTD:
+    print(f"sensor: {sensor.sensor_name}")
+    print(f"serial number: {sensor.sensor_serial_number}")
 availableRadiometers = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
+for sensor in availableRadiometers:
+    print(f"sensor: {sensor.sensor_name}")
+    print(f"serial number: {sensor.sensor_serial_number}")
 
 # create sensor entity (mutable)
 glider_CTD = sensor_inventory.create_entity(entity_name="ctd_for_churchill",sensor_type="CTD",sensor_ref="9100")
@@ -61,9 +67,6 @@ campaign.add_mission(mission_name="SEG19_01",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor)
-
-# initalise model catalogs
-campaign.init_catalog()
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
 #campaign.enable_interpolator_cache()

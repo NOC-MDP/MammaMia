@@ -29,7 +29,7 @@ def create_sensor_class(frozen_mode=False):
         sample_rate: int = -999
         parameters: dict = field(factory=dict)
         platform_compatibility: list = field(factory=list),
-        entity_name: str = None
+        entity_name: str = ""
 
         def __attrs_post_init__(self):
             # convert all parameter strings/keys to parameter objects

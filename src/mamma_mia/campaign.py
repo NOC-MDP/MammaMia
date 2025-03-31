@@ -44,7 +44,6 @@ class Campaign:
 
     def init_catalog(self):
         self.catalog = Cats()
-        self.catalog.init_catalog()
 
     def register_platform(self,platform: create_platform_class(),name:str):
         """
@@ -186,6 +185,7 @@ class Campaign:
 
         """
         logger.info(f"exporting {self.name}")
+
         if export_path is None:
             logger.info(f"creating zarr store at {self.name}.zarr")
             export_path = f"{self.name}.zarr"
@@ -208,6 +208,6 @@ class Campaign:
             mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
             logger.success(f"successfully exported {mission.attrs['mission']}")
         logger.info(f"consolidating metadata for {export_path}")
-        zarr.consolidate_metadata(export_path)
+        zarr.consolidate_metadata(store=store)
         logger.success(f"successfully exported {self.name}")
 
