@@ -53,7 +53,7 @@ def create_platform_class(frozen_mode=False):
                 logger.error(f"sensor {sensor.sensor_name} is not compatible with platform {self.platform_type}")
                 raise InvalidSensor
             self.sensors[sensor.sensor_name] = sensor
-            logger.success(f"successfully registered sensor {sensor.sensor_name} to entity {self.entity_name}")
+            logger.success(f"successfully registered sensor {sensor.entity_name} to entity {self.entity_name}")
 
 
     return Platform

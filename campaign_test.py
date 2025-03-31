@@ -8,9 +8,14 @@ campaign = Campaign(name="SE_Greenland_2019",
                     description="single slocum glider deployment off South East Greenland",
                     verbose=True
                     )
+
+print(f"sources available: {campaign.catalog.get_sources_list()}")
+campaign.catalog.set_priority(source="MSM",priority=3)
+print(f"sources available: {campaign.catalog.get_sources_list()}")
+
 # list platforms
 print(f"Available platform types: {platform_inventory.list_platform_types()}")
-print(f"Available platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
+print(f"Availpip iable platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
 
 # create platform entity (mutable)
 Churchill_withCTD = platform_inventory.create_entity(entity_name="Churchill_withCTD",platform="Churchill",platform_type="glider")

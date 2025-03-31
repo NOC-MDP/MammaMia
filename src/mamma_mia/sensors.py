@@ -132,7 +132,7 @@ class SensorInventory:
         sensor_unstruct = unstructure(sensor_dict[sensor_ref])
         created_sensor = structure(sensor_unstruct,create_sensor_class(frozen_mode=False))
         created_sensor.entity_name = entity_name
-        logger.success(f"successfully created sensor entity {entity_name} as type {sensor_type}")
+        logger.success(f"successfully created sensor entity {entity_name} of type {sensor_type}")
         return created_sensor
 
     def add_sensor(self, sensor_type: str, sensor: create_sensor_class(frozen_mode=True)):
@@ -169,7 +169,7 @@ class SensorInventory:
             case "dataloggers":
                 return self._dataloggers
             case "all":
-                return ["CTD", "radiometers", "dataloggers"]
+                return {"CTD":1, "radiometers":2, "dataloggers":3}
             case _:
                 raise ValueError(
                     f"Invalid sensor type '{sensor_type}'. Must be 'CTD', 'radiometers', or 'dataloggers'.")

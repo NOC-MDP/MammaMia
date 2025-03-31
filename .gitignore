@@ -19,3 +19,4 @@ build
 3dtiles
 interpolator_cache
 !img/*.png
+.ipynb_checkpoints

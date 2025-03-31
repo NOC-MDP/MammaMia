@@ -29,7 +29,7 @@
                     "CNDC": 5,
                     "PRES": 5
                 },
-                "platform_compatibility": ["unit_397"]
+                "platform_compatibility": ["unit_397","unit_398"]
             },
             {
                 "sensor_serial_number": "9100",
@@ -44,7 +44,7 @@
                     "CNDC": 5,
                     "PRES": 5
                 },
-                "platform_compatibility": ["unit_398"]
+                "platform_compatibility": ["unit_398","unit_397"]
             },
             {
                 "sensor_serial_number": "0221",
@@ -59,7 +59,7 @@
                     "CNDC": 5,
                     "PRES": 5
                 },
-                "platform_compatibility": ["ALR_4"]
+                "platform_compatibility": ["ALR_4","ALR_6"]
             },
             {
                 "sensor_serial_number": "0222",
@@ -74,7 +74,7 @@
                     "CNDC": 5,
                     "PRES": 5
                 },
-                "platform_compatibility": ["ALR_6"]
+                "platform_compatibility": ["ALR_6","ALR_4"]
             }
         ],
         "ADCP": [
