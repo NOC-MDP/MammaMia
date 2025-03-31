@@ -86,7 +86,7 @@ class ParameterInventory:
             return copy.deepcopy(param_dict[parameter_name])
         raise KeyError(f"Parameter '{parameter_name}' not found in '{parameter_type}'")
 
-    def add_parameter(self, parameter_type: str, parameter: Parameter):
+    def add_parameter(self, parameter_type: str, parameter: Parameter | TimeParameter):
         """Adds a new parameter, preventing modifications to existing ones."""
         param_dict = self._get_parameter_dict(parameter_type)
         if parameter.parameter_name in param_dict:
