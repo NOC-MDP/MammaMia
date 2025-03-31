@@ -138,7 +138,6 @@ class RealityWorld(zarr.Group):
         real_grp = self.create_group("reality")
         # create cats
         cats = Cats()
-        cats.init_catalog()
         ctd = sensor_inventory.create_entity(entity_name="ctd", sensor_type="CTD", sensor_ref="mamma_mia")
         adcp = sensor_inventory.create_entity(entity_name="adcp", sensor_type="ADCP", sensor_ref="mamma_mia")
 
