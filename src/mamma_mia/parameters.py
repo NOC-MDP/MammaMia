@@ -74,6 +74,8 @@ class ParameterInventory:
                 return self._navigation
             case "time":
                 return self._time
+            case "all":
+                return ["environmental", "navigation", "time"]
             case _:
                 raise ValueError(f"Unknown parameter type {parameter_type}")
 

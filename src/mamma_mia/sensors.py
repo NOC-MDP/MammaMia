@@ -157,15 +157,6 @@ class SensorInventory:
         """Lists all sensor names in the specified category (CTD, radiometers, dataloggers)."""
         return list(self._get_sensor_dict(sensor_type).values())
 
-    @staticmethod
-    def list_sensor_types():
-        """
-        Lists all available sensor types.
-        Returns: list of sensor types.
-
-        """
-        return ["CTD", "radiometers", "dataloggers"]
-
     def _get_sensor_dict(self, sensor_type: str):
         """Helper function to get the correct sensor dictionary."""
         match sensor_type:
@@ -177,6 +168,8 @@ class SensorInventory:
                 return self._radiometers
             case "dataloggers":
                 return self._dataloggers
+            case "all":
+                return ["CTD", "radiometers", "dataloggers"]
             case _:
                 raise ValueError(
                     f"Invalid sensor type '{sensor_type}'. Must be 'CTD', 'radiometers', or 'dataloggers'.")
@@ -193,7 +186,7 @@ class SensorInventory:
         """
         sensors_compatible = []
         if sensor_type is None:
-            sensor_types = self.list_sensor_types()
+            sensor_types = self._get_sensor_dict(sensor_type="all")
         else:
             sensor_types = [sensor_type]
         for sensor_type in sensor_types:
