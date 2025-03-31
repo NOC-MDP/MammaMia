@@ -82,6 +82,8 @@ class Campaign:
         """
         Function that adds an auv mission to the campaign.
         Args:
+            crs:
+            vertical_crs:
             contributor:
             publisher:
             creator:
@@ -124,8 +126,8 @@ class Campaign:
                           extra_depth=extra_depth,
                           msm_priority=msm_priority,
                           cmems_priority=cmems_priority,
-                          crs = 'EPSG:4326',
-                          vertical_crs = 'EPSG:5831',
+                          crs = crs,
+                          vertical_crs = vertical_crs,
                           )
         interpolator = Interpolators()
         self.missions[mission.attrs['mission']] = mission
@@ -159,7 +161,7 @@ class Campaign:
             interpol.cache = True
             logger.info(f"enabled interpolator cache for {key}")
 
-    def run(self) -> ():
+    def run(self) -> None:
         """
         Function that runs the missions contained within the missions dictionary.
         Returns:
@@ -208,6 +210,7 @@ class Campaign:
             mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
             logger.success(f"successfully exported {mission.attrs['mission']}")
         logger.info(f"consolidating metadata for {export_path}")
+        # TODO fix the consilidate meta data warning that happens here
         zarr.consolidate_metadata(store=store)
         logger.success(f"successfully exported {self.name}")
 
