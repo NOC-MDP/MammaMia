@@ -219,8 +219,8 @@ def test_platform_inventory():
 def test_platform_creation():
     churchill = platform_inventory.create_entity(entity_name="Churchill_withCTD", platform="Churchill",
                                                  platform_type="glider")
-    assert churchill.platform == "Churchill"
-    assert churchill.platform_type == "glider"
+    assert churchill.platform_name == "Churchill"
+    assert churchill.platform_type == "slocum"
 
 
 def test_sensor_inventory():
