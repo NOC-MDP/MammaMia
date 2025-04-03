@@ -9,7 +9,7 @@ from loguru import logger
 import zarr
 from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.find_worlds import find_worlds
+from mamma_mia.find_worlds import Worlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing, DataloggerNotFound
 from scipy.interpolate import interp1d
@@ -334,7 +334,8 @@ class Mission(zarr.Group):
                   and zarr store attributes are updated with the new values (what worlds match sensors and trajectory etc)
 
         """
-        matched_worlds = find_worlds(cat=cat, reality=self.payload, extent=self.world.attrs["extent"])
+        matched_worlds = Worlds()
+        matched_worlds.search_worlds(cat=cat, payload=self.payload, extent=self.world.attrs["extent"])
         self.world.attrs.update({"matched_worlds": unstructure(matched_worlds)})
         zarr_stores = get_worlds(cat=cat, world=self.world)
         self.world.attrs.update({"zarr_stores": zarr_stores})
@@ -477,13 +478,18 @@ class Mission(zarr.Group):
         # Example parameters for the dropdown
         # Example parameters and their expected value ranges (cmin and cmax)
         # TODO dynamically build this from payload group
+        parameters = {}
+        for key in  self.payload.array_keys():
+            parameters[key] = {"cmin": np.nanmin(self.payload[key][1, :]),
+                              "cmax": np.nanmax(self.payload[key][1, :])
+                              }
 
-        parameters = {
-            "TEMP": {"cmin": np.round(np.nanmin(self.payload["TEMP"][1, :]), 2),
-                     "cmax": np.round(np.nanmax(self.payload["TEMP"][1, :]), 2)},
-            "CNDC": {"cmin": np.round(np.nanmin(self.payload["CNDC"][1, :]), 2),
-                     "cmax": np.round(np.nanmax(self.payload["CNDC"][1, :]), 2)},
-        }
+        # parameters = {
+        #     "TEMP": {"cmin": np.round(np.nanmin(self.payload["TEMP"][1, :]), 2),
+        #              "cmax": np.round(np.nanmax(self.payload["TEMP"][1, :]), 2)},
+        #     "CNDC": {"cmin": np.round(np.nanmin(self.payload["CNDC"][1, :]), 2),
+        #              "cmax": np.round(np.nanmax(self.payload["CNDC"][1, :]), 2)},
+        # }
 
         # List of available color scales for the user to choose from
         colour_scales = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]

@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from mamma_mia.sensors import sensor_inventory
 from mamma_mia.catalog import Cats
-from mamma_mia.find_worlds import find_worlds
+from mamma_mia.find_worlds import Worlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.exceptions import ValidationFailure, NullDataException
@@ -145,8 +145,8 @@ class RealityWorld(zarr.Group):
             real_grp.empty(name=name,shape=1,dtype=np.float64)
         for name,sensor in ctd.parameters.items():
             real_grp.empty(name=name,shape=1,dtype=np.float64)
-
-        matched_worlds = find_worlds(cat=cats,extent=extent_excess,reality=self.reality)
+        matched_worlds = Worlds()
+        matched_worlds.search_worlds(cat=cats,extent=extent_excess,payload=self.reality)
         self.world.attrs.update({"matched_worlds": matched_worlds})
         zarr_stores = get_worlds(cat=cats, world=self.world)
         self.world.attrs.update({"zarr_stores": zarr_stores})
