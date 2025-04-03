@@ -1,8 +1,30 @@
-from mamma_mia.catalog import Cats,cmems_alias
+from mamma_mia.catalog import Cats,cmems_alias,model_field_alias,field_rank_map
+from mamma_mia.exceptions import UnknownModelField
 from loguru import logger
 from datetime import datetime
 import numpy as np
 import zarr
+from attrs import frozen,field
+
+
+@frozen
+class MatchedWorld:
+    data_id: str
+    source: str
+    world_type: str
+    domain: str
+    dataset_name: str
+    resolution: str
+    field_type: str
+    variable_alias: dict
+
+    def __attrs_post_init__(self):
+        # TODO add some validation here
+        pass
+
+@frozen
+class Worlds:
+    entries: dict[str,MatchedWorld]
 
 def find_worlds(cat: Cats,reality:zarr.Group,extent:dict) -> dict:
     """
@@ -21,7 +43,7 @@ def find_worlds(cat: Cats,reality:zarr.Group,extent:dict) -> dict:
     for key in reality.array_keys():
         logger.info(f"searching worlds for key {key}")
         matched_worlds = __find_cmems_worlds(key=key, cat=cat, matched_worlds=matched_worlds,extent=extent)
-        matched_worlds = __find_msm_worlds(key=key, cat=cat, matched_worlds=matched_worlds,extent=extent)
+        #matched_worlds = __find_msm_worlds(key=key, cat=cat, matched_worlds=matched_worlds,extent=extent)
 
     logger.success("world search completed successfully")
     return  matched_worlds
@@ -108,10 +130,18 @@ def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :dict,extent:dict) -
                         continue
                     if variables[m]["short_name"] in cmems_alias[key]:
                         # if trajectory spatial extent is within variable data
-                        if (variables[m]["bbox"][0] < extent["min_lng"] or
-                                variables[m]["bbox"][1] > extent["min_lat"]
-                                or variables[m]["bbox"][2] > extent["max_lng"] or
-                                variables[m]["bbox"][3] > extent["min_lat"]):
+                        if (variables[m]["bbox"][0] < extent["min_lng"] and
+                                variables[m]["bbox"][1] < extent["min_lat"]
+                                and variables[m]["bbox"][2] > extent["max_lng"] and
+                                variables[m]["bbox"][3] > extent["max_lat"]):
+                            depth_len = 0
+                            # get length of depth dimension
+                            for coord in variables[m]['coordinates']:
+                                if coord["coordinates_id"] == "depth":
+                                    depth_len = coord["values"].__len__()
+                            # if depth dimension is single value i.e. 2D then skip dataset
+                            if depth_len == 1:
+                                continue
                             # find the time coordinate index
                             n = None
                             for n in range(len(variables[m]["coordinates"])):
@@ -135,19 +165,40 @@ def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :dict,extent:dict) -
                                 '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
                             # check if trajectory temporal extent is within variable data
                             if start_traj > start and end_traj < end:
-                                # make sure data is at least daily
-                                if step <= 86400000:
-                                    logger.success(f"found a match in {dataset['dataset_id']} for {key}")
-                                    # TODO add support for multiple model types e.g. daily instantaneous, hourly mean etc
-                                    mod_type = dataset['dataset_id'].split("_")[-1]
-                                    if mod_type != "P1D-m":
-                                        logger.warning("Only Daily means are currently supported in CMEMS sources")
-                                        logger.info(f"{dataset['dataset_id']} will not be added as a matched world")
-                                        continue
-                                    if dataset["dataset_id"] in matched_worlds:
-                                        logger.info(f"updating {dataset['dataset_id']} with key {key}")
-                                        matched_worlds[dataset["dataset_id"]][key] = variables[m]["short_name"]
+                                parts = dataset["dataset_id"].split("_")
+                                # skip any interim datasets
+                                if "myint" in parts:
+                                    continue
+
+                                field_type = parts[-1]
+                                # find the field type alias
+                                field_type_alias = None
+                                for k3, v3 in model_field_alias.items():
+                                    if field_type in v3:
+                                        field_type_alias = k3
+                                        break
+                                if field_type_alias is None:
+                                    raise UnknownModelField(f"field type {field_type} is not supported")
+                                world_id = "_".join(parts[:-1])
+                                logger.success(f"found a match in {dataset['dataset_id']} for {key}")
+                                new_world = MatchedWorld(
+                                    data_id = dataset["dataset_id"],
+                                    source=parts[0],
+                                    world_type=parts[1],
+                                    domain=parts[2],
+                                    dataset_name=parts[3],
+                                    resolution=parts[5],
+                                    field_type=field_type_alias,
+                                    variable_alias={variables[m]["short_name"]:key}
+                                )
+                                if world_id in matched_worlds:
+                                    if field_rank_map[matched_worlds[world_id].field_type] > field_rank_map[new_world.field_type]:
+                                        matched_worlds[world_id] = new_world
                                     else:
-                                        logger.info(f"creating new matched world {dataset['dataset_id']} for key {key}")
-                                        matched_worlds[dataset["dataset_id"]] = {key: variables[m]["short_name"]}
+                                        logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type_alias}")
+                                        if variables[m]["short_name"] not in matched_worlds[world_id].variable_alias.keys():
+                                            matched_worlds[world_id].variable_alias[variables[m]["short_name"]] = key
+                                else:
+                                    logger.info(f"creating new matched world {dataset['dataset_id']} for key {key}")
+                                    matched_worlds[world_id] = new_world
     return matched_worlds

@@ -4,7 +4,7 @@ from mamma_mia import Creator, Publisher, Contributor
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
-campaign = Campaign(name="SE_Greenland_2019",
+campaign = Campaign(name="SE_Greenland_Aug_2024",
                     description="single slocum glider deployment off South East Greenland",
                     verbose=True
                     )
@@ -15,7 +15,7 @@ print(f"sources available: {campaign.catalog.get_sources_list()}")
 
 # list platforms
 print(f"Available platform types: {platform_inventory.list_platform_types()}")
-print(f"Availpip iable platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
+print(f"Available platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
 
 # create platform entity (mutable)
 Churchill_withCTD = platform_inventory.create_entity(entity_name="Churchill_withCTD",platform="Churchill",platform_type="glider")
@@ -64,11 +64,11 @@ contributor = Contributor(email="thopri@noc.ac.uk",
                           role="Collaborator",)
 
 # # add mission
-campaign.add_mission(mission_name="SEG19_01",
-                     title="Churchill with CTD deployment off South East Greenland",
-                     summary="single glider deployed to undertake 15 dives to 200m",
+campaign.add_mission(mission_name="SEG24_01",
+                     title="Churchill with CTD deployment off South East Greenland in August 2024",
+                     summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
                      platform_name="Churchill_withCTD",
-                     trajectory_path="comet-mm1.nc",
+                     trajectory_path="eb1l2n-spiral.nc",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor)
@@ -84,10 +84,10 @@ campaign.run()
 
 # visualise the results
 # colourmap options are here https://plotly.com/python/builtin-colorscales/
-campaign.missions["SEG19_01"].plot_trajectory()
-campaign.missions["SEG19_01"].show_payload()
+campaign.missions["SEG24_01"].plot_trajectory()
+campaign.missions["SEG24_01"].show_payload()
 # export the campaign
 campaign.export()
-campaign.missions["SEG19_01"].export_to_nc()
+campaign.missions["SEG24_01"].export_to_nc()
 print("the end")
 

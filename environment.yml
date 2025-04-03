@@ -1,4 +1,4 @@
-name: mm3
+name: mm
 channels:
   - conda-forge
 dependencies:

@@ -335,7 +335,7 @@ class Mission(zarr.Group):
 
         """
         matched_worlds = find_worlds(cat=cat, reality=self.payload, extent=self.world.attrs["extent"])
-        self.world.attrs.update({"matched_worlds": matched_worlds})
+        self.world.attrs.update({"matched_worlds": unstructure(matched_worlds)})
         zarr_stores = get_worlds(cat=cat, world=self.world)
         self.world.attrs.update({"zarr_stores": zarr_stores})
 

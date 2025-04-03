@@ -133,7 +133,7 @@ def __get_cmems_worlds(key: str, value,world:zarr.Group) -> str:
     cmems.attrs["temporal_extent"] = {"start_time": world.attrs["extent"]["start_time"],
                                       "end_time": world.attrs["extent"]["end_time"]}
 
-    zarr_f = (f"{key}_{cmems.attrs['spatial_extent']['max_lng']}_{cmems.attrs['spatial_extent']['min_lng']}_"
+    zarr_f = (f"{value['data_id']}_{cmems.attrs['spatial_extent']['max_lng']}_{cmems.attrs['spatial_extent']['min_lng']}_"
               f"{cmems.attrs['spatial_extent']['max_lat']}_{cmems.attrs['spatial_extent']['min_lat']}_"
               f"{cmems.attrs['spatial_extent']['max_depth']}_{cmems.attrs['temporal_extent']['start_time']}_"
               f"{cmems.attrs['temporal_extent']['end_time']}.zarr")
@@ -142,8 +142,8 @@ def __get_cmems_worlds(key: str, value,world:zarr.Group) -> str:
     if not os.path.isdir(zarr_d + zarr_f):
         logger.info(f"{zarr_f} has not been cached, downloading now")
         copernicusmarine.subset(
-            dataset_id=key,
-            variables=vars2,
+            dataset_id=value['data_id'],
+            variables=value["variables"],
             minimum_longitude=cmems.attrs['spatial_extent']['min_lng'],
             maximum_longitude=cmems.attrs['spatial_extent']['max_lng'],
             minimum_latitude=cmems.attrs['spatial_extent']['min_lat'],

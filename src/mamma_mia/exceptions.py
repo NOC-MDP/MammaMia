@@ -16,6 +16,9 @@ class UnknownSensor(Exception):
 class UnknownParameter(Exception):
     pass
 
+class UnknownModelField(Exception):
+    pass
+
 class MissionExists(Exception):
     pass
 

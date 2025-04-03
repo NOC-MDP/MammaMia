@@ -174,41 +174,46 @@ class RealityWorld(zarr.Group):
             try:
                 self.reality[key] = interpolator.interpolator[key].quadrivariate(location)
             except KeyError:
-                logger.warning(f"no interpolator for {key}")
+                pass
+                #logger.warning(f"no interpolator for {key}")
 
         if np.isnan(self.reality["WATERCURRENTS_U"][0]):
             if point.depth >= 0.5:
                 logger.error(f"U component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}")
-            raise NullDataException
+                raise NullDataException
+            u_velocity = 0.0
         else:
             u_velocity = self.reality["WATERCURRENTS_U"][0]
 
         if np.isnan(self.reality["WATERCURRENTS_V"][0]):
             if point.depth >= 0.5:
                 logger.error(f"V component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
-            raise NullDataException
+                raise NullDataException
+            v_velocity = 0.0
         else:
             v_velocity = self.reality["WATERCURRENTS_V"][0]
 
         if np.isnan(self.reality["WATERCURRENTS_W"][0]):
             if point.depth >= 0.5:
-                pass
                 logger.error(f"W component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
-            raise NullDataException
+                raise NullDataException
+            w_velocity = 0.0
         else:
             w_velocity = self.reality["WATERCURRENTS_W"][0]
 
         if np.isnan(self.reality["TEMP"][0]):
             if point.depth >= 0.5:
                 logger.error(f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
-            raise NullDataException
+                raise NullDataException
+            temperature = 15.00
         else:
             temperature = self.reality["TEMP"][0]
 
         if np.isnan(self.reality["CNDC"][0]):
             if point.depth >= 0.5:
                 logger.error(f"salinity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
-            raise NullDataException
+                raise NullDataException
+            salinity = 34.5
         else:
             salinity = self.reality["CNDC"][0]
 
