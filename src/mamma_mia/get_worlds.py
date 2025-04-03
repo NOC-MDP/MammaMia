@@ -21,7 +21,7 @@ def get_worlds(cat: Cats, world:zarr.Group) -> dict:
 
     """
     zarr_stores = {}
-    for key, value in world.attrs["matched_worlds"].items():
+    for key, value in world.attrs["matched_worlds"]["entries"].items():
         split_key = key.split("_")
 
         if split_key[0] == "cmems":

@@ -4,7 +4,7 @@ from loguru import logger
 from datetime import datetime
 import numpy as np
 import zarr
-from attrs import frozen,field
+from attrs import frozen
 
 
 @frozen
@@ -26,7 +26,7 @@ class MatchedWorld:
 class Worlds:
     entries: dict[str,MatchedWorld]
 
-def find_worlds(cat: Cats,reality:zarr.Group,extent:dict) -> dict:
+def find_worlds(cat: Cats,reality:zarr.Group,extent:dict) -> Worlds:
     """
     Function to search the catalog and return a dictionary of matched worlds/datasets for all catalog sources
     Args:
@@ -38,7 +38,7 @@ def find_worlds(cat: Cats,reality:zarr.Group,extent:dict) -> dict:
         dict: dictionary of matched worlds that can be used as a reference to download data subsets/worlds
     """
     # for every array in the reality group
-    matched_worlds = {}
+    matched_worlds = Worlds(entries={})
     # TODO see if a different approach can be used rather than using the reality keys e.g. use AUV sensor array attribute
     for key in reality.array_keys():
         logger.info(f"searching worlds for key {key}")
@@ -93,7 +93,7 @@ def __find_msm_worlds(key :str ,cat :Cats ,matched_worlds :dict,extent:dict) -> 
                     matched_worlds[k1] = {key: var_key}
     return matched_worlds
 
-def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :dict,extent:dict) -> dict:
+def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :Worlds,extent:dict) -> Worlds:
     """
     Traverses CMEMS catalog and find products/datasets that match the glider sensors and
     the trajectory spatial and temporal extent.
@@ -152,12 +152,12 @@ def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :dict,extent:dict) -
                             try:
                                 start = variables[m]["coordinates"][n]["values"][0]
                                 end = variables[m]["coordinates"][n]["values"][-1]
-                                step = variables[m]["coordinates"][n]["values"][1] - \
-                                       variables[m]["coordinates"][n]["values"][0]
+                                #step = variables[m]["coordinates"][n]["values"][1] - \
+                                #       variables[m]["coordinates"][n]["values"][0]
                             except TypeError:
                                 start = variables[m]["coordinates"][n]["minimum_value"]
                                 end = variables[m]["coordinates"][n]["maximum_value"]
-                                step = variables[m]["coordinates"][n]["step"]
+                                #step = variables[m]["coordinates"][n]["step"]
                             # convert trajectory datetimes into timestamps to be able to compare with CMEMS catalog
                             start_traj = float((np.datetime64(extent["start_time"]) - np.datetime64(
                                 '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
@@ -191,14 +191,20 @@ def __find_cmems_worlds(key: str ,cat :Cats ,matched_worlds :dict,extent:dict) -
                                     field_type=field_type_alias,
                                     variable_alias={variables[m]["short_name"]:key}
                                 )
-                                if world_id in matched_worlds:
-                                    if field_rank_map[matched_worlds[world_id].field_type] > field_rank_map[new_world.field_type]:
-                                        matched_worlds[world_id] = new_world
+                                if world_id in matched_worlds.entries:
+                                    if field_rank_map[matched_worlds.entries[world_id].field_type] > field_rank_map[new_world.field_type]:
+                                        # get any existing variables
+                                        existing_vars = matched_worlds.entries[world_id].variable_alias
+                                        matched_worlds.entries[world_id] = new_world
+                                        # add new variables if they aren't already present
+                                        for key5,var5 in existing_vars.items():
+                                            if variables[m]["short_name"] not in matched_worlds.entries[world_id].variable_alias.keys():
+                                                matched_worlds.entries[world_id].variable_alias[key5] = var5
                                     else:
                                         logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type_alias}")
-                                        if variables[m]["short_name"] not in matched_worlds[world_id].variable_alias.keys():
-                                            matched_worlds[world_id].variable_alias[variables[m]["short_name"]] = key
+                                        if variables[m]["short_name"] not in matched_worlds.entries[world_id].variable_alias.keys():
+                                            matched_worlds.entries[world_id].variable_alias[variables[m]["short_name"]] = key
                                 else:
                                     logger.info(f"creating new matched world {dataset['dataset_id']} for key {key}")
-                                    matched_worlds[world_id] = new_world
+                                    matched_worlds.entries[world_id] = new_world
     return matched_worlds

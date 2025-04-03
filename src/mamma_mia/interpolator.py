@@ -36,7 +36,7 @@ class Interpolators:
             # for every variable
             for var in worlds[key]:
                 # for each item in matched dictionary
-                world_attrs = worlds.attrs["matched_worlds"][key]
+                world_attrs = worlds.attrs["matched_worlds"]["entries"][key]
                 if var in world_attrs["variable_alias"].keys():
                     logger.info(f"building world for variable {var}")
                     # check priorities of dataset to see if it should update the interpolated world or not
