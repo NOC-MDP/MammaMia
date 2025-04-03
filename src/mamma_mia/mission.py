@@ -477,25 +477,16 @@ class Mission(zarr.Group):
         """
         # Example parameters for the dropdown
         # Example parameters and their expected value ranges (cmin and cmax)
-        # TODO dynamically build this from payload group
         parameters = {}
         for key in  self.payload.array_keys():
             parameters[key] = {"cmin": np.nanmin(self.payload[key][1, :]),
                               "cmax": np.nanmax(self.payload[key][1, :])
                               }
-
-        # parameters = {
-        #     "TEMP": {"cmin": np.round(np.nanmin(self.payload["TEMP"][1, :]), 2),
-        #              "cmax": np.round(np.nanmax(self.payload["TEMP"][1, :]), 2)},
-        #     "CNDC": {"cmin": np.round(np.nanmin(self.payload["CNDC"][1, :]), 2),
-        #              "cmax": np.round(np.nanmax(self.payload["CNDC"][1, :]), 2)},
-        # }
-
         # List of available color scales for the user to choose from
         colour_scales = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
 
         # Initial setup: first parameter and color scale
-        initial_parameter = "TEMP"
+        initial_parameter = next(iter(self.payload.array_keys()))
         initial_colour_scale = "Jet"
 
         marker = {
@@ -547,7 +538,10 @@ class Mission(zarr.Group):
         parameter_dropdown = [
             {
                 "args": [
-                    {"marker.color": [np.array(self.payload[parameter][1, :])],
+                    {"x": [np.interp(self.payload[parameter][0, :], self.payload["LONGITUDE"][0, :],self.payload["LONGITUDE"][1, :])],  # Update x-coordinates
+                     "y": [np.interp(self.payload[parameter][0, :], self.payload["LATITUDE"][0, :],self.payload["LATITUDE"][1, :])],  # Update y-coordinates
+                     "z": [np.interp(self.payload[parameter][0, :], self.payload["GLIDER_DEPTH"][0, :],self.payload["GLIDER_DEPTH"][1, :])],
+                     "marker.color": [np.array(self.payload[parameter][1, :])],
                      # Update the color for the new parameter
                      "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
                      "marker.cmax": parameters[parameter]["cmax"],  # Set cmax for the new parameter
