@@ -1,11 +1,11 @@
 from mamma_mia import Campaign
 from mamma_mia import Creator, Publisher, Contributor
-from mamma_mia import Inventory
+from mamma_mia import inventory
 from mamma_mia import SensorBehavior
 
-print(Inventory.list_inventory_groups())# list platforms
-print(f"Available platform types: {Inventory.list_platform_types()}")
-print(f"Available platforms of type slocum: {Inventory.list_platforms(platform_type='slocum')}")
+print(inventory.list_inventory_groups())# list platforms
+print(f"Available platform types: {inventory.list_platform_types()}")
+print(f"Available platforms of type slocum: {inventory.list_platforms(platform_type='slocum')}")
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
@@ -21,9 +21,9 @@ print(f"sources available: {campaign.catalog.get_sources_list()}")
 
 
 # create platform entity (mutable)
-Churchill_withCTD = Inventory.create_platform_entity(entity_name="Churchill_withCTD",platform="Churchill")
+Churchill_withCTD = inventory.create_platform_entity(entity_name="Churchill_withCTD",platform="Churchill")
 
-print(f"sensor types: {Inventory.list_sensor_types()}")
+print(f"sensor types: {inventory.list_sensor_types()}")
 
 # list compatible sensors for entity of type CTD
 availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
@@ -33,14 +33,14 @@ availableSensors = Churchill_withCTD.list_compatible_sensors()
 print(availableSensors)
 
 # create sensor entity (mutable)
-glider_CTD = Inventory.create_sensor_entity(entity_name="ctd_for_churchill",sensor_ref=availableCTD["CTD"][0]["serial_number"])
+glider_CTD = inventory.create_sensor_entity(entity_name="ctd_for_churchill",sensor_ref=availableCTD["CTD"][0]["serial_number"])
 glider_CTD.update_sample_rate(sample_rate=10)
 # register sensor to platform
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
 # change sensor sampling to upcast only
 Churchill_withCTD.sensor_behaviour = SensorBehavior.Upcast
 # create new entity of same platform this one doesn't have a CTD
-Churchill_noCTD = Inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
+Churchill_noCTD = inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
 
 # register platforms to the campaign for use in missions
 campaign.register_platform(entity=Churchill_noCTD)

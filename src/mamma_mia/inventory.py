@@ -54,4 +54,4 @@ class InventoryClass:
     def create_sensor_entity(self,entity_name: str, sensor_ref: str):
         return self.sensors.create_entity(entity_name=entity_name, sensor_ref=sensor_ref)
 
-Inventory = InventoryClass()
+inventory = InventoryClass()
