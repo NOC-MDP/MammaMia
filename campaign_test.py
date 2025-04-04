@@ -1,6 +1,7 @@
 from mamma_mia import Campaign
 from mamma_mia import Creator, Publisher, Contributor
 from mamma_mia import Inventory
+from mamma_mia import SensorBehavior
 
 print(Inventory.list_inventory_groups())# list platforms
 print(f"Available platform types: {Inventory.list_platform_types()}")
@@ -36,7 +37,8 @@ glider_CTD = Inventory.create_sensor_entity(entity_name="ctd_for_churchill",sens
 glider_CTD.update_sample_rate(sample_rate=10)
 # register sensor to platform
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
-
+# change sensor sampling to upcast only
+Churchill_withCTD.sensor_behaviour = SensorBehavior.Upcast
 # create new entity of same platform this one doesn't have a CTD
 Churchill_noCTD = Inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
 

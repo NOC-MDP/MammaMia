@@ -432,11 +432,16 @@ class Mission(zarr.Group):
             except AssertionError:
                 logger.error("track and time arrays must have same length")
                 raise Exception
-            n = len(track)
 
+            events = self.trajectory["behaviour"][:].astype(str)
+            event_idx_for_payload = np.searchsorted(flight["time"], resampled_flight["time"],side="right") -1
+            event_idx_for_payload = np.clip(event_idx_for_payload, 0, flight["time"].__len__()-1)
+            event_at_payload = events[event_idx_for_payload]
+            event_mask =np.isin(event_at_payload, self.platform.attrs["sensor_behaviour"])
+            n = len(track[event_mask])
             # Update the first n elements of the Zarr array
-            self.payload[key][0, :n] = seconds_into_mission
-            self.payload[key][1, :n] = track
+            self.payload[key][0, :n] = seconds_into_mission[event_mask]
+            self.payload[key][1, :n] = track[event_mask]
 
             # Trim the Zarr array to the new length
             self.payload[key].resize((2, n))

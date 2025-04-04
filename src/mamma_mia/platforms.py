@@ -8,8 +8,14 @@ from attrs import frozen, field, define
 from cattrs import structure, unstructure
 import sys
 from mamma_mia.log import log_filter
+from enum import Enum
 
 sensor_inventory = SensorInventory()
+
+class SensorBehavior(Enum):
+    Upcast = ["climbing"]
+    Downcast = ["diving"]
+    Constant = ["climbing", "diving"]
 
 # Factory function to create a platform class
 def create_platform_class(frozen_mode=False):
@@ -32,6 +38,7 @@ def create_platform_class(frozen_mode=False):
         data_type: str
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
+        sensor_behaviour: SensorBehavior = SensorBehavior.Constant
 
         def list_compatible_sensors(self, sensor_type:str=None) -> dict:
             """
