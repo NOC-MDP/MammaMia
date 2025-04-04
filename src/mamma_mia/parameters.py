@@ -40,7 +40,7 @@ class Parameter:
 
 @frozen
 class ParameterInventory:
-    _entries: dict[str,Parameter|TimeParameter] = field(factory=dict)
+    entries: dict[str,Parameter|TimeParameter] = field(factory=dict)
 
     def __attrs_post_init__(self):
         logger.remove()
@@ -57,7 +57,7 @@ class ParameterInventory:
     def _process_parameters(self, parameter_type, parameters2):
         for parameter in parameters2:
             try:
-                self._entries[parameter["parameter_name"]] = (
+                self.entries[parameter["parameter_name"]] = (
                     structure(parameter,TimeParameter) if parameter_type == "time" else structure(parameter,Parameter)
                 )
             except TypeError as e:
@@ -67,20 +67,20 @@ class ParameterInventory:
 
     def get_parameter(self,parameter_name: str):
         """Returns a copy of the requested parameter to prevent modification."""
-        if parameter_name in self._entries:
-            return copy.deepcopy(self._entries[parameter_name])
+        if parameter_name in self.entries:
+            return copy.deepcopy(self.entries[parameter_name])
         raise KeyError(f"Parameter '{parameter_name}' not found in parameter inventory")
 
     def add_parameter(self,parameter: Parameter | TimeParameter):
         """Adds a new parameter, preventing modifications to existing ones."""
-        if parameter.parameter_name in self._entries:
+        if parameter.parameter_name in self.entries:
             raise AttributeError(f"Parameter '{parameter.parameter_name}' already exists and cannot be modified.")
-        self._entries[parameter.parameter_name] = parameter
+        self.entries[parameter.parameter_name] = parameter
 
     def remove_parameter(self,parameter_name: str):
         """Removes a parameter from the catalog."""
-        if parameter_name in self._entries:
-            del self._entries[parameter_name]
+        if parameter_name in self.entries:
+            del self.entries[parameter_name]
         else:
             raise KeyError(f"Parameter '{parameter_name}' not found in parameter inventory")
 

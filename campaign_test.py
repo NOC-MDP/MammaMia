@@ -3,8 +3,11 @@ from mamma_mia import Creator, Publisher, Contributor
 from mamma_mia import inventory
 from mamma_mia import SensorBehavior
 
-print(inventory.list_inventory_groups())# list platforms
+print(inventory.list_inventory_groups())
 print(f"Available platform types: {inventory.list_platform_types()}")
+print(f"Available parameters: {inventory.list_parameters()}")
+print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
+print(f"Parameter Info: {inventory.get_parameter_info(parameter_ref='salinity')}")
 print(f"Available platforms of type slocum: {inventory.list_platforms(platform_type='slocum')}")
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")

@@ -37,6 +37,33 @@ class InventoryClass:
                 sensor_types.append(sensor.instrument_type)
         return sensor_types
 
+    def list_parameters(self):
+        """
+        Lists all available parameters.
+        Returns:
+
+        """
+        parameters = []
+        for parameter in self.parameters.entries.values():
+            parameters.append(parameter.parameter_name)
+        return parameters
+
+    def list_parameter_aliases(self):
+        """
+        Lists all available parameter aliases.
+        Returns:
+
+        """
+        parameter_aliases = {}
+        for parameter in self.parameters.entries.values():
+            parameter_aliases[parameter.parameter_name] = parameter.alias
+        return parameter_aliases
+
+    def get_parameter_info(self,parameter_ref:str):
+        for parameter in self.parameters.entries.values():
+            if parameter_ref == parameter.parameter_name or parameter_ref in parameter.alias:
+                return parameter
+
     def list_platforms(self, platform_type: str = None) -> list:
         """Lists all platform names in the specified category"""
         platforms = []
