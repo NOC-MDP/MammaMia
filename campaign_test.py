@@ -3,12 +3,16 @@ from mamma_mia import Creator, Publisher, Contributor
 from mamma_mia import inventory
 from mamma_mia import SensorBehavior
 
-print(inventory.list_inventory_groups())
+print(f"Available groups in inventory {inventory.list_inventory_groups()}")
 print(f"Available platform types: {inventory.list_platform_types()}")
+print(f"Available platforms of type slocum: {inventory.list_platforms(platform_type='slocum')}")
 print(f"Available parameters: {inventory.list_parameters()}")
+print(f"Available sensor types: {inventory.list_sensor_types()}")
 print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
 print(f"Parameter Info: {inventory.get_parameter_info(parameter_ref='salinity')}")
-print(f"Available platforms of type slocum: {inventory.list_platforms(platform_type='slocum')}")
+print(f"Platform Info: {inventory.get_platform_info(platform_ref='Cheesy')}")
+print(f"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}")
+print(f"sensor info: {inventory.get_sensor_info(sensor_ref='SBE Glider Payload CTD 9099')}")
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
@@ -21,12 +25,8 @@ print(f"sources available: {campaign.catalog.get_sources_list()}")
 campaign.catalog.set_priority(source="MSM",priority=3)
 print(f"sources available: {campaign.catalog.get_sources_list()}")
 
-
-
 # create platform entity (mutable)
 Churchill_withCTD = inventory.create_platform_entity(entity_name="Churchill_withCTD",platform="Churchill")
-
-print(f"sensor types: {inventory.list_sensor_types()}")
 
 # list compatible sensors for entity of type CTD
 availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
