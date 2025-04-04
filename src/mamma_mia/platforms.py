@@ -1,6 +1,6 @@
 import json
 from mamma_mia.exceptions import InvalidPlatform, InvalidSensor
-from mamma_mia.sensors import sensor_inventory, create_sensor_class
+from mamma_mia.sensors import create_sensor_class, SensorInventory
 import os
 from pathlib import Path
 from loguru import logger
@@ -9,6 +9,7 @@ from cattrs import structure, unstructure
 import sys
 from mamma_mia.log import log_filter
 
+sensor_inventory = SensorInventory()
 
 # Factory function to create a platform class
 def create_platform_class(frozen_mode=False):
@@ -32,16 +33,29 @@ def create_platform_class(frozen_mode=False):
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
 
-        def list_compatible_sensors(self, sensor_type:str=None) -> list[create_sensor_class(frozen_mode=True)]:
+        def list_compatible_sensors(self, sensor_type:str=None) -> dict:
             """
             Returns a list of sensors compatible with a given platform, results can be restricted to a specific sensor type e.g. CTD
             Args:
-                sensor_type: string denoting the sensor type, if not specified, all compatible sensors are returned
 
-            Returns: list containing Sensor class objects
-
+            Returns: list containing simplified sensor dicts (contains name and serial number)
             """
-            return sensor_inventory.list_compatible_sensors(sensor_type=sensor_type, platform_serial_number=self.platform_serial_number)
+            sensors = {}
+            for sensor in sensor_inventory.entries.values():
+                if sensor_type is not None:
+                    if sensor.instrument_type == sensor_type and self.platform_serial_number in sensor.platform_compatibility:
+                        if sensor.instrument_type not in sensors:
+                            sensors[sensor.instrument_type] = [{"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number}]
+                        else:
+                            sensors[sensor.instrument_type].append({"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number})
+                else:
+                    if self.platform_serial_number in sensor.platform_compatibility:
+                        if sensor.instrument_type not in sensors:
+                            sensors[sensor.instrument_type] = [{"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number}]
+                        else:
+                            sensors[sensor.instrument_type].append({"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number})
+
+            return sensors
 
         def register_sensor(self,sensor: create_sensor_class(frozen_mode=True)) -> None:
             """
@@ -60,8 +74,7 @@ def create_platform_class(frozen_mode=False):
 
 @frozen
 class PlatformInventory:
-    _glider: dict = field(factory=dict)
-    _alr: dict = field(factory=dict)
+    entries: dict[str,create_platform_class(frozen_mode=True)] = field(factory=dict)
 
     def __attrs_post_init__(self):
         # supress logs on import
@@ -72,22 +85,20 @@ class PlatformInventory:
             plats = json.load(f)
 
         for platform_type, platforms2 in plats["platforms"].items():
-            self._process_platform(platform_type, platforms2)
+            self._process_platform(platforms2)
         logger.log("COMPLETED","successfully created platform Inventory")
 
-    def _process_platform(self, platform_type, platforms2) -> None:
+    def _process_platform(self, platforms2) -> None:
         """
         Processes the platform json entries that have been read into their appropriate sections of the catalog
         Args:
-            platform_type:
             platforms2:
 
         Returns:
 
         """
-        platform_dict = self._get_platform_dict(platform_type)
         for platform in platforms2:
-            # TODO look at this is .get the best thing to use? maybe try except key error?
+            # TODO this is more complicated than just a Invalid platform exception need to handle it better
             try:
                 platform_name = platform.get("platform_name")
                 if not platform_name:
@@ -97,66 +108,42 @@ class PlatformInventory:
                 if not serial_number:
                     logger.error("Platform entry missing 'platform_serial_number', skipping")
                     continue
-                datalogger = sensor_inventory.get_sensor(sensor_type="dataloggers",sensor_ref=serial_number)
+                datalogger = sensor_inventory.get_sensor(sensor_ref=serial_number)
+                if datalogger.instrument_type != "data loggers":
+                    raise InvalidSensor(f"invalid instrument type {datalogger.instrument_type}")
                 if not datalogger:
                     logger.error(f"Datalogger entry missing {serial_number}, skipping")
 
-                platform_dict[platform_name] = structure(platform,create_platform_class(frozen_mode=True))
-                platform_dict[platform_name].register_sensor(sensor=datalogger)
+                self.entries[platform_name] = structure(platform,create_platform_class(frozen_mode=True))
+                self.entries[platform_name].register_sensor(sensor=datalogger)
 
             except TypeError as e:
                 logger.error(f"Error initializing platform: {e}")
                 raise InvalidPlatform
 
-    def create_entity(self,entity_name:str, platform_type: str, platform: str):
+    def create_entity(self,entity_name:str, platform: str):
         """Returns a deep copy of a platform (prevents direct modification)."""
-        platform_dict = self._get_platform_dict(platform_type)
-        if platform not in platform_dict:
-            raise KeyError(f"Platform '{platform}' not found in {platform_type}.")
-        platform_unstruct = unstructure(platform_dict[platform])
+        if platform not in self.entries:
+            raise KeyError(f"Platform '{platform}' not found in platform inventory.")
+        platform_unstruct = unstructure(self.entries[platform])
         created_platform = structure(platform_unstruct,create_platform_class(frozen_mode=False))
         created_platform.entity_name = entity_name
-        logger.success(f"successfully created entity {entity_name} as platform {platform} of type {platform_type}")
+        logger.success(f"successfully created entity {created_platform.entity_name} as platform {platform} of type {created_platform.platform_type}")
         return created_platform
 
-    def add_platform(self, platform_type: str, platform: create_platform_class(frozen_mode=False)):
+    def add_platform(self, platform: create_platform_class(frozen_mode=False)):
         """Adds a new platform. Raises an error if the platform already exists."""
-        platform_dict = self._get_platform_dict(platform_type)
         platform_name = platform.platform_name
         if not platform_name:
             raise ValueError("Platform entry missing 'platform_name'")
-        if platform_name in platform_dict:
+        if platform_name in self.entries:
             raise ValueError(f"Platform '{platform_name}' already exists and cannot be modified.")
-        platform_dict[platform_name] = platform
+        self.entries[platform_name] = platform
 
-    def remove_platform(self, platform_type: str, platform_name: str):
+    def remove_platform(self, platform_name: str):
         """Removes a platform from the catalog."""
-        platform_dict = self._get_platform_dict(platform_type)
-        if platform_name not in platform_dict:
-            raise KeyError(f"Platform '{platform_name}' not found in {platform_type}.")
-        del platform_dict[platform_name]
 
-    def list_platforms(self, platform_type: str):
-        """Lists all platform names in the specified category (glider or alr)."""
-        return list(self._get_platform_dict(platform_type).keys())
+        if platform_name not in self.entries:
+            raise KeyError(f"Platform '{platform_name}' not found in platform inventory.")
+        del self.entries[platform_name]
 
-    def _get_platform_dict(self, platform_type: str):
-        """Helper function to get the correct platform dictionary."""
-        match platform_type:
-            case "glider":
-                return self._glider
-            case "alr":
-                return self._alr
-            case _:
-                raise ValueError(f"Invalid platform type '{platform_type}'. Must be 'glider' or 'alr'.")
-    
-    @staticmethod
-    def list_platform_types():
-        """
-        Lists all available platform types.
-        Returns: list of platform types.
-
-        """
-        return ["alr", "glider"]
-
-platform_inventory = PlatformInventory()

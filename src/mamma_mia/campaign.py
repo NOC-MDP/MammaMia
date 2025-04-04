@@ -2,7 +2,7 @@
 from mamma_mia.mission import Mission, Creator, Contributor, Publisher
 from mamma_mia.interpolator import Interpolators
 from mamma_mia import create_platform_class
-from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform
+from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform, InvalidEntity
 from loguru import logger
 import zarr
 from os import sep
@@ -27,7 +27,7 @@ class Campaign:
     """
     name: str
     description: str
-    catalog: Cats = field(factory=Cats)
+    catalog: Cats = Cats()
     platforms: dict[str,create_platform_class()] = field(factory=dict)
     missions: dict[str, Mission] = field(factory=dict)
     interpolators: dict[str, Interpolators] = field(factory=dict)
@@ -42,24 +42,23 @@ class Campaign:
             logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         logger.success(f"Campaign {self.name} created")
 
-    def init_catalog(self):
-        self.catalog = Cats()
 
-    def register_platform(self,platform: create_platform_class(),name:str):
+    def register_platform(self,entity: create_platform_class()):
         """
         Add an platform to the campaign platform dictionary
         Args:
-            platform: platform object to add to campaign
-            name: name of the platform instance
+            entity: platform entity to add to campaign
         Returns:
             platform object stored in the campaign auv dictionary under its id key
 
         """
-        if name in self.platforms:
-            logger.error(f"{name} already exists in {self.name}")
+        if entity.entity_name is None:
+            raise InvalidEntity("Platform entity name cannot be None")
+        if entity.entity_name in self.platforms:
+            logger.error(f"{entity.entity_name} already exists in {self.name}")
             raise PlatformExists
-        self.platforms[name] = platform
-        logger.success(f"{name} successfully registered to {self.name}")
+        self.platforms[entity.entity_name] = entity
+        logger.success(f"{entity.entity_name} successfully registered to {self.name}")
 
     def add_mission(self,
                     mission_name:str,
@@ -142,6 +141,9 @@ class Campaign:
             void: mission objects with searched and downloaded worlds and built interpolators ready for flight/deployments
 
         """
+        logger.info(f"initiating catalog for {self.name}")
+        self.catalog.init_catalog()
+        logger.success(f"successfully initialized catalog for {self.name}")
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
             logger.info(f"building {mission.attrs['mission']}")

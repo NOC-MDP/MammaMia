@@ -143,7 +143,7 @@ def __get_cmems_worlds(key: str, value,world:zarr.Group) -> str:
         logger.info(f"{zarr_f} has not been cached, downloading now")
         copernicusmarine.subset(
             dataset_id=value['data_id'],
-            variables=value["variables"],
+            variables=list(value["variable_alias"].keys()),
             minimum_longitude=cmems.attrs['spatial_extent']['min_lng'],
             maximum_longitude=cmems.attrs['spatial_extent']['max_lng'],
             minimum_latitude=cmems.attrs['spatial_extent']['min_lat'],

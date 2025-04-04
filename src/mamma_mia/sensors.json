@@ -2,9 +2,9 @@
     "sensors": {
         "CTD": [
             {
-                "sensor_serial_number": "mamma_mia",
+                "sensor_serial_number": "mm_ctd",
                 "sensor_name": "MM CTD",
-                "instrument_type": "water temperature sensor",
+                "instrument_type": "CTD",
                 "sensor_manufacturer": "Mamma Mia",
                 "model_name": "Mamma Mia CTD",
                 "sensor_model": "Mamma Mia CTD",
@@ -19,7 +19,7 @@
             {
                 "sensor_serial_number": "9099",
                 "sensor_name": "SBE Glider Payload CTD 9099",
-                "instrument_type": "water temperature sensor",
+                "instrument_type": "CTD",
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
@@ -34,7 +34,7 @@
             {
                 "sensor_serial_number": "9100",
                 "sensor_name": "SBE Glider Payload CTD 9100",
-                "instrument_type": "water temperature sensor",
+                "instrument_type": "CTD",
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
@@ -79,7 +79,7 @@
         ],
         "ADCP": [
             {
-                "sensor_serial_number": "mamma_mia",
+                "sensor_serial_number": "mm_adcp",
                 "sensor_name": "MM ADCP",
                 "instrument_type": "water current sensor",
                 "sensor_manufacturer": "Mamma Mia",

@@ -221,6 +221,24 @@ class Mission(zarr.Group):
         for i in range(trajectory.latitude.__len__()):
             trajectory.latitude[i] = self.__convert_to_decimal(trajectory.latitude[i])
 
+        seconds_into_flight = (trajectory["time"] - trajectory["time"][0]) / np.timedelta64(1, 's')
+        # calculate changes in depth to determine platform behaviour
+        dz = np.gradient(trajectory["depth"], seconds_into_flight)
+        # TODO set these dynamically based on the platform
+        ascent_thresh = 0.05  # m/s, adjust based on your system
+        descent_thresh = -0.05  # m/s
+        near_surface_thresh = 1
+        # Using dz and set thresholds, create an event graph for the platform
+        event = np.full_like(trajectory["depth"], 'hovering', dtype="S8")
+        # Diving: dz < descent_thresh
+        event[dz > descent_thresh] = 'diving'
+        # Climbing: dz > ascent_thresh
+        event[dz < ascent_thresh] = 'climbing'
+        # Surfaced / Near surface: depth < threshold and nearly zero vertical speed
+        surfaced_mask = (trajectory["depth"][:] < near_surface_thresh) & (np.abs(dz) < ascent_thresh)
+        event[surfaced_mask] = 'surfaced'
+        trajectory.array(name="behaviour", data=event,dtype="S8")
+
         # write geospatial meta data
         self.attrs["geospatial_bounds_crs"] = crs
         self.attrs["geospatial_bounds_vertical_crs"] = vertical_crs
@@ -374,6 +392,7 @@ class Mission(zarr.Group):
             "roll": roll,
             "time": np.array(self.trajectory["time"], dtype='datetime64'),
         }
+
         sample_rate = 1
         for key in self.payload.array_keys():
             for k1, v1 in self.platform.attrs["sensors"].items():
@@ -405,6 +424,7 @@ class Mission(zarr.Group):
 
             # Convert time to seconds from the start
             seconds_into_mission = (resampled_flight["time"] - resampled_flight["time"][0]) / np.timedelta64(1, 's')
+
 
             # Ensure they have the same length
             try:

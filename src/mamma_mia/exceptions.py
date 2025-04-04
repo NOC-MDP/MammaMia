@@ -51,5 +51,9 @@ class InvalidSensorRate(Exception):
 
 class InvalidSensorBehaviour(Exception):
     pass
+
 class DataloggerNotFound(Exception):
+    pass
+
+class InvalidEntity(Exception):
     pass

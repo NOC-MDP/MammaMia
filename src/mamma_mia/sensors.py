@@ -6,10 +6,13 @@ from pathlib import Path
 import os
 import copy
 import sys
-from mamma_mia.parameters import parameter_inventory,Parameter,TimeParameter
+
+
+from mamma_mia.parameters import Parameter,TimeParameter, ParameterInventory
 from mamma_mia.exceptions import InvalidParameter, InvalidSensorRate
 from mamma_mia.log import log_filter
 
+parameter_inventory = ParameterInventory()
 
 def create_sensor_class(frozen_mode=False):
     base_decorator = frozen if frozen_mode else define
@@ -34,9 +37,9 @@ def create_sensor_class(frozen_mode=False):
         def __attrs_post_init__(self):
             # convert all parameter strings/keys to parameter objects
             for parameter_key in self.parameters.keys():
-                self._process_parameters(parameter_key, parameter_inventory)
+                self._process_parameters(parameter_key,parameter_inventory)
 
-        def _process_parameters(self, parameter_key, parameters2:parameter_inventory):
+        def _process_parameters(self, parameter_key, parameters2:ParameterInventory):
             parameter = None
             for k1 in parameters2.__attrs_attrs__:  # Iterate over attrs fields
                 sub_obj = getattr(parameters2, k1.name)  # Get the field's value
@@ -53,7 +56,8 @@ def create_sensor_class(frozen_mode=False):
             if not isinstance(parameter, (Parameter, TimeParameter)):  # Runtime type check
                 raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
             self.parameters[parameter.parameter_name] = parameter
-            logger.info(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
+            # TODO this log entry ends up being printed alot, it is probably useful sometimes but need to reduce its verbosity
+            #logger.info(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
 
         if not frozen_mode:
             def __attrs_post_init__(self):
@@ -73,10 +77,7 @@ def create_sensor_class(frozen_mode=False):
 
 @frozen
 class SensorInventory:
-    _CTD: dict = field(factory=dict)
-    _ADCP: dict = field(factory=dict)
-    _radiometers: dict = field(factory=dict)
-    _dataloggers: dict = field(factory=dict)
+    entries: dict[str,create_sensor_class(frozen_mode=True)] = field(factory=dict)
 
     def __attrs_post_init__(self):
         logger.remove()
@@ -86,114 +87,91 @@ class SensorInventory:
             sens = json.load(f)
 
         for sensor_type, sensors2 in sens["sensors"].items():
-            self._process_sensor(sensor_type, sensors2)
+            self._process_sensor(sensors2)
         logger.log("COMPLETED","successfully created sensor inventory")
 
-    def _process_sensor(self, sensor_type, sensors2):
-        sensor_dict = self._get_sensor_dict(sensor_type)
-
+    def _process_sensor(self, sensors2):
         for sensor in sensors2:
-            sensor_ref = sensor.get("sensor_serial_number")
+            sensor_ref = sensor.get("sensor_name")
             if not sensor_ref:
-                logger.error("Sensor entry missing 'sensor_serial_number', skipping")
+                logger.error("Sensor entry missing 'sensor_name', skipping")
                 continue
 
-            if sensor_ref in sensor_dict:
+            if sensor_ref in self.entries:
                 logger.warning(f"Sensor '{sensor_ref}' already exists, skipping")
                 continue
 
             try:
-                sensor_dict[sensor_ref] = structure(sensor,create_sensor_class(frozen_mode=True))
+                self.entries[sensor_ref] = structure(sensor,create_sensor_class(frozen_mode=True))
             except TypeError as e:
                 logger.error(f"Error initializing sensor {sensor_ref}: {e}")
                 raise ValueError(f"{sensor_ref} is not a valid sensor")
 
-    def get_sensor(self, sensor_type: str, sensor_ref: str):
-        """Returns a deep copy of a sensor (prevents direct modification)."""
-        sensor_dict = self._get_sensor_dict(sensor_type)
-        if sensor_ref not in sensor_dict:
-            raise KeyError(f"Sensor '{sensor_ref}' not found in {sensor_type}.")
-        return copy.deepcopy(sensor_dict[sensor_ref])
+    def get_sensor(self, sensor_ref: str):
+        """
+        Returns a deep copy of a sensor (prevents direct modification).
+        sensor_ref: string referencing a sensors name or serial number
 
-    def create_entity(self,entity_name:str, sensor_type: str, sensor_ref: str):
+        """
+        for sensor in self.entries.values():
+            if sensor_ref == sensor.sensor_name or sensor_ref == sensor.sensor_serial_number:
+                return copy.deepcopy(sensor)
+        raise KeyError(f"Sensor '{sensor_ref}' not found in sensor inventory.")
+
+
+    def create_entity(self,entity_name:str, sensor_ref: str):
         """
         creates a mutable sensor entity
         Args:
             entity_name:
-            sensor_type:
-            sensor_ref:
+            sensor_ref: can be sensor name or serial number
 
         Returns:
 
         """
-        sensor_dict = self._get_sensor_dict(sensor_type)
-        if sensor_ref not in sensor_dict:
-            raise KeyError(f"Sensor '{sensor_ref}' not found in {sensor_type}.")
-        sensor_unstruct = unstructure(sensor_dict[sensor_ref])
-        created_sensor = structure(sensor_unstruct,create_sensor_class(frozen_mode=False))
-        created_sensor.entity_name = entity_name
-        logger.success(f"successfully created sensor entity {entity_name} of type {sensor_type}")
-        return created_sensor
+        for sensor in self.entries.values():
+            if sensor_ref == sensor.sensor_name or sensor_ref == sensor.sensor_serial_number:
+                sensor_unstruct = unstructure(sensor)
+                created_sensor = structure(sensor_unstruct, create_sensor_class(frozen_mode=False))
+                created_sensor.entity_name = entity_name
+                logger.success(
+                    f"successfully created sensor entity {created_sensor.entity_name} of type {created_sensor.instrument_type}")
+                return created_sensor
 
-    def add_sensor(self, sensor_type: str, sensor: create_sensor_class(frozen_mode=True)):
+        raise KeyError(f"Sensor '{sensor_ref}' not found in sensor inventory.")
+
+
+    def add_sensor(self, sensor: create_sensor_class(frozen_mode=True)):
         """Adds a new sensor. Raises an error if the sensor already exists."""
-        sensor_dict = self._get_sensor_dict(sensor_type)
         sensor_name = sensor.sensor_name or sensor.sensor_serial_number
         if not sensor_name:
             raise ValueError("Sensor entry missing 'sensor_name' or 'sensor_serial_number'")
-        if sensor_name in sensor_dict:
+        if sensor_name in self.entries:
             raise ValueError(f"Sensor '{sensor_name}' already exists and cannot be modified.")
 
-        sensor_dict[sensor_name] = sensor
+        self.entries[sensor_name] = sensor
 
-    def remove_sensor(self, sensor_type: str, sensor_name: str):
+    def remove_sensor(self, sensor_name: str):
         """Removes a sensor from the catalog."""
-        sensor_dict = self._get_sensor_dict(sensor_type)
-        if sensor_name not in sensor_dict:
-            raise KeyError(f"Sensor '{sensor_name}' not found in {sensor_type}.")
-        del sensor_dict[sensor_name]
+        if sensor_name not in self.entries:
+            raise KeyError(f"Sensor '{sensor_name}' not found in sensor inventory.")
+        del self.entries[sensor_name]
 
-    def list_sensors(self, sensor_type: str):
+    def list_sensors(self):
         """Lists all sensor names in the specified category (CTD, radiometers, dataloggers)."""
-        return list(self._get_sensor_dict(sensor_type).values())
+        return list(self.entries.keys())
 
-    def _get_sensor_dict(self, sensor_type: str):
-        """Helper function to get the correct sensor dictionary."""
-        match sensor_type:
-            case "CTD":
-                return self._CTD
-            case "ADCP":
-                return self._ADCP
-            case "radiometers":
-                return self._radiometers
-            case "dataloggers":
-                return self._dataloggers
-            case "all":
-                return {"CTD":1, "radiometers":2, "dataloggers":3}
-            case _:
-                raise ValueError(
-                    f"Invalid sensor type '{sensor_type}'. Must be 'CTD', 'radiometers', or 'dataloggers'.")
-
-    def list_compatible_sensors(self, platform_serial_number: str, sensor_type: str = None):
+    def list_compatible_sensors(self, platform_serial_number: str) -> list:
         """
         Returns a list of compatible sensors for a given platform type
         Args:
             platform_serial_number:
-            sensor_type: string denoting the sensor type, if not specified, all compatible sensors are returned
-
         Returns:
 
         """
         sensors_compatible = []
-        if sensor_type is None:
-            sensor_types = self._get_sensor_dict(sensor_type="all")
-        else:
-            sensor_types = [sensor_type]
-        for sensor_type in sensor_types:
-            sensors2 = self._get_sensor_dict(sensor_type)
-            for key, sensor in sensors2.items():
-                if platform_serial_number in sensor.platform_compatibility:
-                    sensors_compatible.append(sensor)
+        for key, sensor in self.entries.items():
+            if platform_serial_number in sensor.platform_compatibility:
+                sensors_compatible.append(sensor)
         return sensors_compatible
 
-sensor_inventory = SensorInventory()

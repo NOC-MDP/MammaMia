@@ -3,7 +3,7 @@ import zarr
 from loguru import logger
 import numpy as np
 import sys
-from mamma_mia.sensors import sensor_inventory
+from mamma_mia.sensors import SensorInventory
 from mamma_mia.catalog import Cats
 from mamma_mia.find_worlds import Worlds
 from mamma_mia.get_worlds import get_worlds
@@ -138,6 +138,7 @@ class RealityWorld(zarr.Group):
         real_grp = self.create_group("reality")
         # create cats
         cats = Cats()
+        sensor_inventory = SensorInventory()
         ctd = sensor_inventory.create_entity(entity_name="ctd", sensor_type="CTD", sensor_ref="mamma_mia")
         adcp = sensor_inventory.create_entity(entity_name="adcp", sensor_type="ADCP", sensor_ref="mamma_mia")
 

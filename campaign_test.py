@@ -1,6 +1,10 @@
-from mamma_mia import platform_inventory, sensor_inventory
 from mamma_mia import Campaign
 from mamma_mia import Creator, Publisher, Contributor
+from mamma_mia import Inventory
+
+print(Inventory.list_inventory_groups())# list platforms
+print(f"Available platform types: {Inventory.list_platform_types()}")
+print(f"Available platforms of type slocum: {Inventory.list_platforms(platform_type='slocum')}")
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
@@ -13,36 +17,32 @@ print(f"sources available: {campaign.catalog.get_sources_list()}")
 campaign.catalog.set_priority(source="MSM",priority=3)
 print(f"sources available: {campaign.catalog.get_sources_list()}")
 
-# list platforms
-print(f"Available platform types: {platform_inventory.list_platform_types()}")
-print(f"Available platforms of type glider: {platform_inventory.list_platforms(platform_type='glider')}")
+
 
 # create platform entity (mutable)
-Churchill_withCTD = platform_inventory.create_entity(entity_name="Churchill_withCTD",platform="Churchill",platform_type="glider")
+Churchill_withCTD = Inventory.create_platform_entity(entity_name="Churchill_withCTD",platform="Churchill")
 
-# list compatible sensors for entity
+print(f"sensor types: {Inventory.list_sensor_types()}")
+
+# list compatible sensors for entity of type CTD
 availableCTD = Churchill_withCTD.list_compatible_sensors(sensor_type="CTD")
 #print the sensor names and serial numbers
-for sensor in availableCTD:
-    print(f"sensor: {sensor.sensor_name}")
-    print(f"serial number: {sensor.sensor_serial_number}")
-availableRadiometers = Churchill_withCTD.list_compatible_sensors(sensor_type="radiometers")
-for sensor in availableRadiometers:
-    print(f"sensor: {sensor.sensor_name}")
-    print(f"serial number: {sensor.sensor_serial_number}")
+print(availableCTD)
+availableSensors = Churchill_withCTD.list_compatible_sensors()
+print(availableSensors)
 
 # create sensor entity (mutable)
-glider_CTD = sensor_inventory.create_entity(entity_name="ctd_for_churchill",sensor_type="CTD",sensor_ref="9100")
+glider_CTD = Inventory.create_sensor_entity(entity_name="ctd_for_churchill",sensor_ref=availableCTD["CTD"][0]["serial_number"])
 glider_CTD.update_sample_rate(sample_rate=10)
 # register sensor to platform
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
 
 # create new entity of same platform this one doesn't have a CTD
-Churchill_noCTD = platform_inventory.create_entity(entity_name="Churchill_noCTD",platform="Churchill",platform_type="glider")
+Churchill_noCTD = Inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
 
 # register platforms to the campaign for use in missions
-campaign.register_platform(platform=Churchill_noCTD,name="Churchill_noCTD")
-campaign.register_platform(platform=Churchill_withCTD,name="Churchill_withCTD")
+campaign.register_platform(entity=Churchill_noCTD)
+campaign.register_platform(entity=Churchill_withCTD)
 
 # for metadata purposes a creator can be specified
 creator = Creator(email="thopri@noc.ac.uk",

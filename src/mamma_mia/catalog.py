@@ -47,7 +47,7 @@ class Cats:
     overwrite: bool = False
     sources: dict = {"CMEMS": 1, "MSM": 2}
 
-    def __attrs_post_init__(self):
+    def init_catalog(self):
         self.cmems_cat = copernicusmarine.describe(contains=[], include_datasets=True,
                                                    overwrite_metadata_cache=self.overwrite)
         self.msm_cat = intake.open_catalog(self.cat_path)

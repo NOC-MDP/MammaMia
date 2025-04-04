@@ -101,7 +101,6 @@ class ParameterInventory:
         else:
             raise KeyError(f"Parameter '{parameter_name}' not found in '{parameter_type}'")
 
-parameter_inventory = ParameterInventory()
 
 
 # TEMP_DOXY = Parameter(
