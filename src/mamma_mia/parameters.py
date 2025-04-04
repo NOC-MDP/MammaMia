@@ -18,6 +18,7 @@ class TimeParameter:
     valid_max: float
     calendar: str
     fill_value: float
+    alias: list[str]
 
 
 @frozen
@@ -30,9 +31,11 @@ class Parameter:
     seadatanet_unit_of_measure: str
     source_name: str
     ancillary_variables: str
+    alias: list[str]
     fill_value: float = 99999.0
     valid_max: float = None
     valid_min: float = None
+
 
 
 @frozen

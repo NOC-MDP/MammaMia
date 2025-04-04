@@ -9,7 +9,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/CNDCST01/",
                 "seadatanet_unit_of_measure": "SDN:P06::UECA",
                 "source_name": "sci_water_cond",
-                "ancillary_variables": "CNDC_QC"
+                "ancillary_variables": "CNDC_QC",
+                "alias": ["salinity", "so"]
             },
             {
                 "parameter_name": "PRES",
@@ -19,7 +20,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/PRESPR01/",
                 "seadatanet_unit_of_measure": "SDN:P06::UPDB",
                 "source_name": "sci_water_pressure",
-                "ancillary_variables": "PRES_QC"
+                "ancillary_variables": "PRES_QC",
+                "alias": ["pres"]
             },
             {
                 "parameter_name": "TEMP",
@@ -29,7 +31,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/TEMPST01/",
                 "seadatanet_unit_of_measure": "SDN:P06::UPAA",
                 "source_name": "sci_water_temp",
-                "ancillary_variables": "TEMP_QC"
+                "ancillary_variables": "TEMP_QC",
+                "alias": ["temperature", "thetao"]
             },
             {
                 "parameter_name": "CHLA",
@@ -39,7 +42,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/CPHLPR01/",
                 "seadatanet_unit_of_measure": "SDN:P06::UMMC",
                 "source_name": "sci_flbbcd_chlor_units",
-                "ancillary_variables": "CHLA_QC"
+                "ancillary_variables": "CHLA_QC",
+                "alias": ["chlorophyll"]
             },
             {
                 "parameter_name": "CDOM",
@@ -49,7 +53,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/CCOMD002/",
                 "seadatanet_unit_of_measure": "SDN:P06::UPPB",
                 "source_name": "sci_flbbcd_cdom_units",
-                "ancillary_variables": "CDOM_QC"
+                "ancillary_variables": "CDOM_QC",
+                "alias": ["DOM"]
             },
             {
                 "parameter_name": "BBP700",
@@ -59,7 +64,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/BB117NIR/",
                 "seadatanet_unit_of_measure": "SDN:P06::UUUU",
                 "source_name": "sci_flbbcd_bb_units",
-                "ancillary_variables": "BBP700_QC"
+                "ancillary_variables": "BBP700_QC",
+                "alias": ["backscatter"]
             }
         ],
         "navigation": [
@@ -71,7 +77,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/AHSFZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::ULAA",
                 "source_name":"m_altitude",
-                "ancillary_variables":"ALTITUDE_QC"
+                "ancillary_variables":"ALTITUDE_QC",
+                "alias": ["elevation"]
             },
             {
                 "parameter_name": "LATITUDE",
@@ -81,7 +88,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::DEGN",
                 "source_name":"m_lat",
-                "ancillary_variables":"LATITUDE_QC"
+                "ancillary_variables":"LATITUDE_QC",
+                "alias": ["lat"]
             },
             {
                 "parameter_name": "LATITUDE_GPS",
@@ -91,7 +99,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATGP01/",
                 "seadatanet_unit_of_measure":"SDN:P06::DEGN",
                 "source_name":"m_gps_lat",
-                "ancillary_variables":"LATITUDE_GPS_QC"
+                "ancillary_variables":"LATITUDE_GPS_QC",
+                "alias": []
             },
             {
                 "parameter_name": "LONGITUDE",
@@ -101,7 +110,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALONZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::DEGE",
                 "source_name":"m_lon",
-                "ancillary_variables":"LONGITUDE_GPS"
+                "ancillary_variables":"LONGITUDE_GPS",
+                "alias": []
             },
             {
                 "parameter_name": "LONGITUDE_GPS",
@@ -111,7 +121,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALONGP01/",
                 "seadatanet_unit_of_measure":"SDN:P06::DEGE",
                 "source_name":"m_gps_lon",
-                "ancillary_variables":"LONGITUDE_GPS"
+                "ancillary_variables":"LONGITUDE_GPS",
+                "alias": []
             },
                         {
                 "parameter_name": "WATERCURRENTS_U",
@@ -121,7 +132,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/LCEWZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UVAA",
                 "source_name":"m_final_water_vx",
-                "ancillary_variables":"WATERCURRENTS_U_QC"
+                "ancillary_variables":"WATERCURRENTS_U_QC",
+                "alias": ["uo"]
             },
             {
                 "parameter_name": "WATERCURRENTS_W",
@@ -131,7 +143,8 @@
                 "seadatanet_parameter": "",
                 "seadatanet_unit_of_measure":"",
                 "source_name":"",
-                "ancillary_variables":"WATERCURRENTS_W_QC"
+                "ancillary_variables":"WATERCURRENTS_W_QC",
+                "alias": ["wo"]
             },
             {
                 "parameter_name": "WATERCURRENTS_V",
@@ -141,7 +154,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/LCNSZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UVAA",
                 "source_name":"m_final_water_vy",
-                "ancillary_variables":"WATERCURRENTS_V_QC"
+                "ancillary_variables":"WATERCURRENTS_V_QC",
+                "alias": ["vo"]
             },
             {
                 "parameter_name": "GLIDER_PITCH",
@@ -151,7 +165,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/PTCHFG01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
                 "source_name":"m_pitch",
-                "ancillary_variables":"GLIDER_PITCH_QC"
+                "ancillary_variables":"GLIDER_PITCH_QC",
+                "alias": ["pitch"]
             },
             {
                 "parameter_name": "GLIDER_ROLL",
@@ -161,7 +176,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ROLLFG01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
                 "source_name":"m_roll",
-                "ancillary_variables":"GLIDER_ROLL_QC"
+                "ancillary_variables":"GLIDER_ROLL_QC",
+                "alias": ["roll"]
             },
             {
                 "parameter_name": "GLIDER_DEPTH",
@@ -171,7 +187,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ADEPZZ01/",
                 "seadatanet_unit_of_measure":"SDN:P06::ULAA",
                 "source_name":"m_depth",
-                "ancillary_variables":"GLIDER_DEPTH_QC"
+                "ancillary_variables":"GLIDER_DEPTH_QC",
+                "alias": ["depth"]
             },
             {
                 "parameter_name": "ALAPT01",
@@ -181,7 +198,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATPT01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
                 "source_name":"Latitude",
-                "ancillary_variables":"ALAPT01_QC"
+                "ancillary_variables":"ALAPT01_QC",
+                "alias": ["alr_latitude"]
             },
             {
                 "parameter_name": "ADEPPT01",
@@ -191,7 +209,8 @@
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ADEPPT01/",
                 "seadatanet_unit_of_measure":"SDN:P06::ULAA",
                 "source_name":"Depth",
-                "ancillary_variables":"ALAPT01_QC"
+                "ancillary_variables":"ALAPT01_QC",
+                "alias": ["alr_depth"]
             }
         ],
         "time": [
@@ -203,7 +222,8 @@
                 "valid_min": 1000000000,
                 "valid_max": 4000000000,
                 "calendar": "gregorian",
-                "fill_value":-1.0
+                "fill_value":-1.0,
+                "alias": ["time"]
             },
                         {
                 "parameter_name": "TIME_GPS",
@@ -213,7 +233,8 @@
                 "valid_min": 1000000000,
                 "valid_max": 4000000000,
                 "calendar": "gregorian",
-                "fill_value":-1.0
+                "fill_value":-1.0,
+                "alias": []
             }
         ]
     }
