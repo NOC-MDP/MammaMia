@@ -40,9 +40,7 @@ class Parameter:
 
 @frozen
 class ParameterInventory:
-    _environmental: dict[str, Parameter] = field(factory=dict)
-    _navigation: dict[str, Parameter] = field(factory=dict)
-    _time: dict[str, TimeParameter] = field(factory=dict)
+    _entries: dict[str,Parameter|TimeParameter] = field(factory=dict)
 
     def __attrs_post_init__(self):
         logger.remove()
@@ -57,11 +55,9 @@ class ParameterInventory:
         logger.log("COMPLETED","Successfully created parameter inventory")
 
     def _process_parameters(self, parameter_type, parameters2):
-        param_dict = self._get_parameter_dict(parameter_type)
-
         for parameter in parameters2:
             try:
-                param_dict[parameter["parameter_name"]] = (
+                self._entries[parameter["parameter_name"]] = (
                     structure(parameter,TimeParameter) if parameter_type == "time" else structure(parameter,Parameter)
                 )
             except TypeError as e:
@@ -69,40 +65,24 @@ class ParameterInventory:
                 raise ValueError(f"{parameter['parameter_name']} is not a valid {parameter_type} parameter")
             logger.info(f"parameter {parameter['parameter_name']} registered successfully")
 
-    def _get_parameter_dict(self, parameter_type):
-        match parameter_type:
-            case "environmental":
-                return self._environmental
-            case "navigation":
-                return self._navigation
-            case "time":
-                return self._time
-            case "all":
-                return ["environmental", "navigation", "time"]
-            case _:
-                raise ValueError(f"Unknown parameter type {parameter_type}")
-
-    def get_parameter(self, parameter_type: str, parameter_name: str):
+    def get_parameter(self,parameter_name: str):
         """Returns a copy of the requested parameter to prevent modification."""
-        param_dict = self._get_parameter_dict(parameter_type)
-        if parameter_name in param_dict:
-            return copy.deepcopy(param_dict[parameter_name])
-        raise KeyError(f"Parameter '{parameter_name}' not found in '{parameter_type}'")
+        if parameter_name in self._entries:
+            return copy.deepcopy(self._entries[parameter_name])
+        raise KeyError(f"Parameter '{parameter_name}' not found in parameter inventory")
 
-    def add_parameter(self, parameter_type: str, parameter: Parameter | TimeParameter):
+    def add_parameter(self,parameter: Parameter | TimeParameter):
         """Adds a new parameter, preventing modifications to existing ones."""
-        param_dict = self._get_parameter_dict(parameter_type)
-        if parameter.parameter_name in param_dict:
+        if parameter.parameter_name in self._entries:
             raise AttributeError(f"Parameter '{parameter.parameter_name}' already exists and cannot be modified.")
-        param_dict[parameter.parameter_name] = parameter
+        self._entries[parameter.parameter_name] = parameter
 
-    def remove_parameter(self, parameter_type: str, parameter_name: str):
+    def remove_parameter(self,parameter_name: str):
         """Removes a parameter from the catalog."""
-        param_dict = self._get_parameter_dict(parameter_type)
-        if parameter_name in param_dict:
-            del param_dict[parameter_name]
+        if parameter_name in self._entries:
+            del self._entries[parameter_name]
         else:
-            raise KeyError(f"Parameter '{parameter_name}' not found in '{parameter_type}'")
+            raise KeyError(f"Parameter '{parameter_name}' not found in parameter inventory")
 
 
 

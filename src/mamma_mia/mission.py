@@ -1,3 +1,4 @@
+from datetime import datetime
 import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
@@ -13,7 +14,7 @@ from mamma_mia.find_worlds import Worlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing, DataloggerNotFound
 from scipy.interpolate import interp1d
-from datetime import datetime
+
 
 
 @define

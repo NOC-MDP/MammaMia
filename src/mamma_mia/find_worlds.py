@@ -1,7 +1,6 @@
 from mamma_mia.catalog import Cats,cmems_alias,model_field_alias,field_rank_map
 from mamma_mia.exceptions import UnknownModelField
 from loguru import logger
-from datetime import datetime
 import numpy as np
 import zarr
 from attrs import frozen, field
