@@ -1,5 +1,6 @@
 from attrs import frozen,field,define
 import zarr
+from cattr import unstructure
 from loguru import logger
 import numpy as np
 import sys
@@ -138,9 +139,10 @@ class RealityWorld(zarr.Group):
         real_grp = self.create_group("reality")
         # create cats
         cats = Cats()
+        cats.init_catalog()
         sensor_inventory = SensorInventory()
-        ctd = sensor_inventory.create_entity(entity_name="ctd", sensor_type="CTD", sensor_ref="mamma_mia")
-        adcp = sensor_inventory.create_entity(entity_name="adcp", sensor_type="ADCP", sensor_ref="mamma_mia")
+        ctd = sensor_inventory.create_entity(entity_name="ctd", sensor_ref="mm_ctd")
+        adcp = sensor_inventory.create_entity(entity_name="adcp", sensor_ref="mm_adcp")
 
         for name,sensor in adcp.parameters.items():
             real_grp.empty(name=name,shape=1,dtype=np.float64)
@@ -148,7 +150,7 @@ class RealityWorld(zarr.Group):
             real_grp.empty(name=name,shape=1,dtype=np.float64)
         matched_worlds = Worlds()
         matched_worlds.search_worlds(cat=cats,extent=extent_excess,payload=self.reality)
-        self.world.attrs.update({"matched_worlds": matched_worlds})
+        self.world.attrs.update({"matched_worlds": unstructure(matched_worlds)})
         zarr_stores = get_worlds(cat=cats, world=self.world)
         self.world.attrs.update({"zarr_stores": zarr_stores})
         logger.success("reality world created successfully")
@@ -180,7 +182,7 @@ class RealityWorld(zarr.Group):
 
         if np.isnan(self.reality["WATERCURRENTS_U"][0]):
             if point.depth >= 0.5:
-                logger.error(f"U component velocity is NaN, depth {point.depth} is non zero and locatino is lat: {point.latitude} lng: {point.longitude}")
+                logger.error(f"U component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             u_velocity = 0.0
         else:

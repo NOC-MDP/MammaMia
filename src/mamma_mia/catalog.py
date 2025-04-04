@@ -20,10 +20,10 @@ cmems_alias = {
 # Aliases used to map model field type to CMEMS dataset name
 model_field_alias = {"monthly_means": ["P1M-m"],
                      "daily_means": ["P1D-m"],
-                     "6_hours_instant": ["PT6H-i"]
+                     "6_hours_instant": ["PT6H-i"],
                      }
 # set preferred order of model field data
-field_rank_order = ["6_hours_instant", "daily_means", "monthly_means"]
+field_rank_order = ["6_hours_instant", "daily_means","monthly_means"]
 field_rank_map = {key: i for i, key in enumerate(field_rank_order)}
 
 @define

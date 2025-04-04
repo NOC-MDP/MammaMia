@@ -154,6 +154,8 @@
                     "GLIDER_PITCH": 1,
                     "GLIDER_ROLL":1,
                     "GLIDER_DEPTH": 1,
+                    "WATERCURRENTS_U": 1,
+                    "WATERCURRENTS_V": 1,
                     "TIME": 1
                 },
                 "platform_compatibility": ["unit_398"]
