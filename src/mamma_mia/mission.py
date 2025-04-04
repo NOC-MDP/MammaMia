@@ -394,6 +394,7 @@ class Mission(zarr.Group):
         }
 
         sample_rate = 1
+        navigation_keys = []
         for key in self.payload.array_keys():
             for k1, v1 in self.platform.attrs["sensors"].items():
                 if key in self.platform.attrs["sensors"][k1]["parameters"].keys():
@@ -401,6 +402,8 @@ class Mission(zarr.Group):
                     # if a sample rate has not been explicitly set use the max rate of the sensor
                     if sample_rate == -999:
                         sample_rate = self.platform.attrs["sensors"][k1]["max_sample_rate"]
+                if self.platform.attrs["sensors"][k1]["instrument_type"] == "data loggers":
+                    navigation_keys = list(self.platform.attrs["sensors"][k1]["parameters"].keys())
 
             resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
             # subset flight to only what is needed for interpolation (position rather than orientation)
@@ -433,18 +436,30 @@ class Mission(zarr.Group):
                 logger.error("track and time arrays must have same length")
                 raise Exception
 
-            events = self.trajectory["behaviour"][:].astype(str)
-            event_idx_for_payload = np.searchsorted(flight["time"], resampled_flight["time"],side="right") -1
-            event_idx_for_payload = np.clip(event_idx_for_payload, 0, flight["time"].__len__()-1)
-            event_at_payload = events[event_idx_for_payload]
-            event_mask =np.isin(event_at_payload, self.platform.attrs["sensor_behaviour"])
-            n = len(track[event_mask])
-            # Update the first n elements of the Zarr array
-            self.payload[key][0, :n] = seconds_into_mission[event_mask]
-            self.payload[key][1, :n] = track[event_mask]
+            n = len(track)
 
-            # Trim the Zarr array to the new length
-            self.payload[key].resize((2, n))
+            apply_events = True
+            if key in navigation_keys:
+                apply_events = False
+
+            if apply_events:
+                # adjust sampling based on platform behaviour, e.g. only retain upcast or downcasts etc.
+                events = self.trajectory["behaviour"][:].astype(str)
+                event_idx_for_payload = np.searchsorted(flight["time"], resampled_flight["time"],side="right") -1
+                event_idx_for_payload = np.clip(event_idx_for_payload, 0, flight["time"].__len__()-1)
+                event_at_payload = events[event_idx_for_payload]
+                event_mask =np.isin(event_at_payload, self.platform.attrs["sensor_behaviour"])
+                n = len(track[event_mask])
+                # Update the first n elements of the Zarr array
+                self.payload[key][0, :n] = seconds_into_mission[event_mask]
+                self.payload[key][1, :n] = track[event_mask]
+                # Trim the Zarr array to the new length
+                self.payload[key].resize((2, n))
+            else:
+                self.payload[key][0, :n] = seconds_into_mission
+                self.payload[key][1, :n] = track
+                # Trim the Zarr array to the new length
+                self.payload[key].resize((2, n))
 
         logger.success(f"{self.attrs['mission']} flown successfully")
 
