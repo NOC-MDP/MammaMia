@@ -1,20 +1,65 @@
-from mamma_mia.catalog import Cats,cmems_alias,model_field_alias,field_rank_map
-from mamma_mia.exceptions import UnknownModelField
+from mamma_mia.catalog import Cats,cmems_alias
 from loguru import logger
 import numpy as np
 import zarr
 from attrs import frozen, field
+from enum import Enum
 
+class WorldType(Enum):
+    model = "mod"
+    observation = "obs"
+    @classmethod
+    def from_string(cls,enum_string:str) -> "WorldType":
+        for member in cls:
+            if member.value == enum_string:
+                logger.info(f"setting world type {member.name}")
+                return member
+        raise ValueError(f"unknown world type {enum_string}")
+
+class SourceType(Enum):
+    cmems = "cmems"
+    msm = "msm"
+    @classmethod
+    def from_string(cls,enum_string:str) -> "SourceType":
+        for member in cls:
+            if member.value == enum_string:
+                logger.info(f"setting source {member.name}")
+                return member
+        raise ValueError(f"unknown source {enum_string}")
+
+class FieldType(Enum):
+    six_hour_instant = ("PT6H-i",1)
+    daily_mean = ("P1D-m",2)
+    monthly_mean = ("P1M-m",3)
+    @classmethod
+    def from_string(cls,enum_string:str) -> "FieldType":
+        for member in cls:
+            if member.value[0] == enum_string:
+                logger.info(f"setting field type {member.name}")
+                return member
+        raise ValueError(f"unknown field type {enum_string}")
+
+# TODO figure out why only domains that work are global
+class DomainType(Enum):
+    globe = "glo"
+    #arctic = "arc"
+    @classmethod
+    def from_string(cls,enum_string:str) -> "DomainType":
+        for member in cls:
+            if member.value == enum_string:
+                logger.info(f"setting domain type {member.name}")
+                return member
+        raise ValueError(f"unknown domain type {enum_string}")
 
 @frozen
 class MatchedWorld:
     data_id: str
-    source: str
-    world_type: str
-    domain: str
+    source: SourceType
+    world_type: WorldType
+    domain: DomainType
     dataset_name: str
     resolution: str
-    field_type: str
+    field_type: FieldType
     variable_alias: dict
 
     def __attrs_post_init__(self):
@@ -105,36 +150,31 @@ class Worlds:
                                     if "myint" in parts:
                                         continue
 
-                                    field_type = parts[-1]
-                                    # find the field type alias
-                                    field_type_alias = None
-                                    for k3, v3 in model_field_alias.items():
-                                        if field_type in v3:
-                                            field_type_alias = k3
-                                            break
-                                    if field_type_alias is None:
-                                        #raise UnknownModelField(f"field type {field_type} is not supported")
-                                        logger.warning(f"Field type {field_type} not is currently supported, skipping this dataset")
+                                    try:
+                                        field_type = FieldType.from_string(enum_string=parts[-1])
+                                    except ValueError:
+                                        logger.warning(f"{parts[-1]} is not a supported field type")
                                         continue
                                     world_id = "_".join(parts[:-1])
-                                    # TODO figure out why regional models don't work with the interpolator?
-                                    if parts[2] != "glo":
+                                    try:
+                                        domain_type = DomainType.from_string(enum_string=parts[2])
+                                    except ValueError:
                                         logger.warning(f"domain {parts[2]} not supported, skipping this dataset")
                                         continue
                                     logger.success(f"found a match in {dataset['dataset_id']} for {key}")
                                     # TODO validation to ensure that the parts of the parsed string are valid fields.
                                     new_world = MatchedWorld(
                                         data_id = dataset["dataset_id"],
-                                        source=parts[0],
-                                        world_type=parts[1],
-                                        domain=parts[2],
+                                        source=SourceType.from_string(enum_string=parts[0]),
+                                        world_type=WorldType.from_string(enum_string=parts[1]),
+                                        domain=domain_type,
                                         dataset_name=parts[3],
                                         resolution=parts[5],
-                                        field_type=field_type_alias,
+                                        field_type=field_type,
                                         variable_alias={variables[m]["short_name"]:key}
                                     )
                                     if world_id in self.entries:
-                                        if field_rank_map[self.entries[world_id].field_type] > field_rank_map[new_world.field_type]:
+                                        if self.entries[world_id].field_type.value[1] > new_world.field_type.value[1]:
                                             # get any existing variables
                                             existing_vars = self.entries[world_id].variable_alias
                                             self.entries[world_id] = new_world
@@ -143,12 +183,14 @@ class Worlds:
                                                 if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
                                                     self.entries[world_id].variable_alias[key5] = var5
                                         else:
-                                            logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type_alias}")
+                                            logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type.name}")
                                             if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
                                                 self.entries[world_id].variable_alias[variables[m]["short_name"]] = key
                                     else:
                                         logger.info(f"creating new matched world {dataset['dataset_id']} for key {key}")
                                         self.entries[world_id] = new_world
+
+
 
 
 #
