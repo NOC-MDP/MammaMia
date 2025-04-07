@@ -9,7 +9,7 @@ from os import sep
 import sys
 from attrs import define, field
 from mamma_mia.log import log_filter
-from mamma_mia.catalog import Cats, cmems_alias
+from mamma_mia.catalog import Cats
 
 @define
 class Campaign:
@@ -204,7 +204,7 @@ class Campaign:
         logger.success(f"zarr group {self.name} successfully created")
 
         for key1, mission in self.missions.items():
-            mission.create_dim_map(cmems_alias=cmems_alias,msm_cat=self.catalog.msm_cat)
+            mission.create_dim_map(msm_cat=self.catalog.msm_cat)
             logger.info(f"creating zarr group for mission {mission.attrs['mission']}")
             camp.create_group(mission.attrs['mission'])
             logger.info(f"exporting {mission.attrs['mission']}")

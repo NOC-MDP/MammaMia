@@ -12,6 +12,7 @@ from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.find_worlds import Worlds
 from mamma_mia.get_worlds import get_worlds
+from mamma_mia.inventory import inventory
 from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing, DataloggerNotFound
 from scipy.interpolate import interp1d
 
@@ -683,12 +684,11 @@ class Mission(zarr.Group):
         fig.update_layout(title=title, scene=scene)
         fig.show()
 
-    def export(self, cmems_alias, msm_cat, store: zarr.DirectoryStore = None):
+    def export(self, msm_cat, store: zarr.DirectoryStore = None):
         """
         Exports mission to a zarr directory store
         Args:
             store: path to save mission zarr group too.
-            cmems_alias:
             msm_cat:
 
         Returns:
@@ -700,7 +700,7 @@ class Mission(zarr.Group):
             export_store = store
         logger.info(f"exporting mission {self.attrs['mission']} to {export_store}")
         zarr.copy_store(self.store, export_store)
-        self.create_dim_map(cmems_alias=cmems_alias, msm_cat=msm_cat)
+        self.create_dim_map(msm_cat=msm_cat)
         self.add_array_dimensions(group=self, dim_map=self.world.attrs['dim_map'])
         zarr.consolidate_metadata(export_store)
         logger.success(f"successfully exported {self.attrs['mission']}")
@@ -729,12 +729,11 @@ class Mission(zarr.Group):
         decimal_format = degrees + minutes / 60.
         return decimal_format * sign
 
-    def create_dim_map(self, cmems_alias, msm_cat):
+    def create_dim_map(self, msm_cat):
         """
         Creates a dimension mapping dictionary and updates the relevant attribute in the world group. This attribute is
         required to enable Xarray to read the zarr groups of the campaign object.
         Args:
-            cmems_alias: dictionary of cmems aliases
             msm_cat: msm intake catalog
 
         Returns:
@@ -771,7 +770,12 @@ class Mission(zarr.Group):
             split_key = k4.split('_')
             for k5, v5 in v4.items():
                 if split_key[0] == "cmems":
-                    if [k5] in cmems_alias.values():
+                    # TODO a much better job than this hacky mess...
+                    aliases  = []
+                    for val in inventory.parameters.entries.values():
+                        for alias in val.alias:
+                            aliases.append(alias)
+                    if [k5] in aliases:
                         dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time', 'depth', 'latitude', 'longitude']
                 elif split_key[0] == "msm":
                     msm_metadata = msm_cat[k4].describe()['metadata']

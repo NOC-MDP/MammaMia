@@ -1,11 +1,15 @@
-from mamma_mia.catalog import Cats,cmems_alias
+from mamma_mia.catalog import Cats
 from loguru import logger
 import numpy as np
 import zarr
 from attrs import frozen, field
 from enum import Enum
+from mamma_mia.inventory import inventory
 
 class WorldType(Enum):
+    """
+    World type enumeration: this determines if a world is derived from a model or observations
+    """
     model = "mod"
     observation = "obs"
     @classmethod
@@ -21,6 +25,9 @@ class WorldType(Enum):
                 raise ValueError(f"unknown world type {enum_string}")
 
 class SourceType(Enum):
+    """
+    Source type enumeration: this determines where worlds are sourced from
+    """
     cmems = "cmems"
     msm = "msm"
     @classmethod
@@ -37,6 +44,9 @@ class SourceType(Enum):
 
 
 class FieldType(Enum):
+    """
+    Field type enumeration: this determines what field type the world is made up of
+    """
     six_hour_instant = "PT6H-i"
     daily_mean = "P1D-m"
     monthly_mean = "P1M-m"
@@ -54,28 +64,41 @@ class FieldType(Enum):
 
 @frozen
 class FieldTypeWithRank:
+    """
+    Field type with ranking: This class wraps the FieldType enum, ranking determines which world MM will use as a preference.
+    If the from_string method is used MM will favour higher temporal and instantaneous fields. If from string and rank method
+    is used then the user can set a specific rank (lower is better).
+    """
     field_type: FieldType
     rank: int
     @classmethod
-    def from_string(cls,enum_string:str, rank:int=None) -> "FieldTypeWithRank":
+    def from_string(cls,enum_string:str) -> "FieldTypeWithRank":
         match enum_string:
             case "PT6H-i":
-                if rank is None:
-                    rank = 1
+                return cls(field_type=FieldType.six_hour_instant, rank=1)
+            case "P1D-m":
+                return cls(field_type=FieldType.daily_mean, rank=2)
+            case "P1M-m":
+                return cls(field_type=FieldType.monthly_mean, rank=3)
+            case _:
+                raise ValueError(f"unknown field type {enum_string}")
+    @classmethod
+    def from_string_and_rank(cls, enum_string:str,rank:int) -> "FieldTypeWithRank":
+        match enum_string:
+            case "PT6H-i":
                 return cls(field_type=FieldType.six_hour_instant, rank=rank)
             case "P1D-m":
-                if rank is None:
-                    rank = 2
                 return cls(field_type=FieldType.daily_mean, rank=rank)
             case "P1M-m":
-                if rank is None:
-                    rank = 3
                 return cls(field_type=FieldType.monthly_mean, rank=rank)
             case _:
                 raise ValueError(f"unknown field type {enum_string}")
 
 # TODO figure out why only domains that work are global
 class DomainType(Enum):
+    """
+    Domain type enumeration: sets the domain of the world.
+    """
     globe = "glo"
     #arctic = "arc"
     @classmethod
@@ -89,6 +112,10 @@ class DomainType(Enum):
 
 @frozen
 class MatchedWorld:
+    """
+    MatchedWorld class: this is created when a world is matched containing parameters allowing it to be downloaded from its
+    source
+    """
     data_id: str
     source: SourceType
     world_type: WorldType
@@ -104,6 +131,9 @@ class MatchedWorld:
 
 @frozen
 class Worlds:
+    """
+    Worlds class: contains a dictionary of matched worlds and the methods used to find them
+    """
     entries: dict[str,MatchedWorld] = field(factory=dict)
 
     def search_worlds(self, cat:Cats, payload:zarr.Group,extent:dict):
@@ -141,10 +171,10 @@ class Worlds:
                     variables = dataset["versions"][0]["parts"][0]["services"][k]["variables"]
                     # check each variable
                     for m in range(len(variables)):
-                        if key not in cmems_alias:
+                        if key not in inventory.parameters.entries.keys():
                             #logger.warning(f"variable {key} not in alias file")
                             continue
-                        if variables[m]["short_name"] in cmems_alias[key]:
+                        if variables[m]["short_name"] in inventory.parameters.entries[key].alias:
                             # if trajectory spatial extent is within variable data
                             if (variables[m]["bbox"][0] < extent["min_lng"] and
                                     variables[m]["bbox"][1] < extent["min_lat"]
@@ -185,20 +215,22 @@ class Worlds:
                                     # skip any interim datasets
                                     if "myint" in parts:
                                         continue
-
+                                    # check to see if field type is supported by MM
                                     try:
                                         field_type = FieldTypeWithRank.from_string(enum_string=parts[-1])
                                     except ValueError:
                                         logger.warning(f"{parts[-1]} is not a supported field type")
                                         continue
                                     world_id = "_".join(parts[:-1])
+                                    # check to see if domain type is supported by MM
                                     try:
                                         domain_type = DomainType.from_string(enum_string=parts[2])
                                     except ValueError:
                                         logger.warning(f"domain {parts[2]} not supported, skipping this dataset")
                                         continue
+                                    # after all that PHEW! we can add to matched entries
                                     logger.success(f"found a match in {dataset['dataset_id']} for {key}")
-                                    # TODO validation to ensure that the parts of the parsed string are valid fields.
+                                    # TODO validation on remaining fields if appropriate, e.g. do we need to validate resolution?
                                     new_world = MatchedWorld(
                                         data_id = dataset["dataset_id"],
                                         source=SourceType.from_string(enum_string=parts[0]),
@@ -209,7 +241,11 @@ class Worlds:
                                         field_type=field_type,
                                         variable_alias={variables[m]["short_name"]:key}
                                     )
+                                    # create a new world entry based on existing entries ranking and variables.
+                                    # NOTE this assumes that all variables of a dataset exist across all field types.
+                                    # TODO check that the above assumption is true
                                     if world_id in self.entries:
+                                        # if the rank of existing world is higher (and therefore not as good) replace
                                         if self.entries[world_id].field_type.rank > new_world.field_type.rank:
                                             # get any existing variables
                                             existing_vars = self.entries[world_id].variable_alias
@@ -219,10 +255,12 @@ class Worlds:
                                                 if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
                                                     self.entries[world_id].variable_alias[key5] = var5
                                         else:
+                                            # if ranking is not better than just update with the variable name
                                             logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type.field_type.name}")
                                             if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
                                                 self.entries[world_id].variable_alias[variables[m]["short_name"]] = key
                                     else:
+                                        # world doesn't exist yet so just add as a complete entry
                                         logger.info(f"creating new matched world {dataset['dataset_id']} for key {key}")
                                         self.entries[world_id] = new_world
 

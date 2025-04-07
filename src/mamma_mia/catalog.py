@@ -3,19 +3,6 @@ import intake
 import copernicusmarine
 from loguru import logger
 
-# TODO move this to the parameter json file to a field called world_aliases
-# Aliases used to map CMEMS variable names to Mamma Mia parameter names
-cmems_alias = {
-    "nitrate": ["no3"],
-    "phosphate": ["po4"],
-    "silicate": ["si"],
-    "TEMP": ["thetao"],
-    "CNDC": ["so"],
-    "PRES": ["pres"],
-    "WATERCURRENTS_U": ["uo"],
-    "WATERCURRENTS_V": ["vo"],
-    "WATERCURRENTS_W": ["wo"]
-}
 
 @define
 class Cats:
