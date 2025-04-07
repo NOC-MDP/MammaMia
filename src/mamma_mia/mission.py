@@ -553,6 +553,7 @@ class Mission(zarr.Group):
             "zaxis_title": "depth",
         }
         # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
+        # TODO basically the payload needs to be able to handle parameters aliases
         x = np.interp(self.payload[initial_parameter][0, :], self.payload["LONGITUDE"][0, :],
                       self.payload["LONGITUDE"][1, :])
         y = np.interp(self.payload[initial_parameter][0, :], self.payload["LATITUDE"][0, :],

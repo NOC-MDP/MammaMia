@@ -113,9 +113,16 @@ class Worlds:
                                             field_type_alias = k3
                                             break
                                     if field_type_alias is None:
-                                        raise UnknownModelField(f"field type {field_type} is not supported")
+                                        #raise UnknownModelField(f"field type {field_type} is not supported")
+                                        logger.warning(f"Field type {field_type} not is currently supported, skipping this dataset")
+                                        continue
                                     world_id = "_".join(parts[:-1])
+                                    # TODO figure out why regional models don't work with the interpolator?
+                                    if parts[2] != "glo":
+                                        logger.warning(f"domain {parts[2]} not supported, skipping this dataset")
+                                        continue
                                     logger.success(f"found a match in {dataset['dataset_id']} for {key}")
+                                    # TODO validation to ensure that the parts of the parsed string are valid fields.
                                     new_world = MatchedWorld(
                                         data_id = dataset["dataset_id"],
                                         source=parts[0],
