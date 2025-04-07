@@ -10,34 +10,69 @@ class WorldType(Enum):
     observation = "obs"
     @classmethod
     def from_string(cls,enum_string:str) -> "WorldType":
-        for member in cls:
-            if member.value == enum_string:
-                logger.info(f"setting world type {member.name}")
-                return member
-        raise ValueError(f"unknown world type {enum_string}")
+        match enum_string:
+            case "mod":
+                logger.info("setting world type to model")
+                return WorldType.model
+            case "obs":
+                logger.info("setting world type to observation")
+                return WorldType.observation
+            case _:
+                raise ValueError(f"unknown world type {enum_string}")
 
 class SourceType(Enum):
     cmems = "cmems"
     msm = "msm"
     @classmethod
     def from_string(cls,enum_string:str) -> "SourceType":
-        for member in cls:
-            if member.value == enum_string:
-                logger.info(f"setting source {member.name}")
-                return member
-        raise ValueError(f"unknown source {enum_string}")
+        match enum_string:
+            case "cmems":
+                logger.info("setting source type to cmems")
+                return SourceType.cmems
+            case "msm":
+                logger.info("setting source type to msm")
+                return SourceType.msm
+            case _:
+                raise ValueError(f"unknown source type {enum_string}")
+
 
 class FieldType(Enum):
-    six_hour_instant = ("PT6H-i",1)
-    daily_mean = ("P1D-m",2)
-    monthly_mean = ("P1M-m",3)
+    six_hour_instant = "PT6H-i"
+    daily_mean = "P1D-m"
+    monthly_mean = "P1M-m"
     @classmethod
     def from_string(cls,enum_string:str) -> "FieldType":
-        for member in cls:
-            if member.value[0] == enum_string:
-                logger.info(f"setting field type {member.name}")
-                return member
-        raise ValueError(f"unknown field type {enum_string}")
+        match enum_string:
+            case "PT6H-i":
+                return FieldType.six_hour_instant
+            case "P1D-m":
+                return FieldType.daily_mean
+            case "P1M-m":
+                return FieldType.monthly_mean
+            case _:
+                raise ValueError(f"unknown field type {enum_string}")
+
+@frozen
+class FieldTypeWithRank:
+    field_type: FieldType
+    rank: int
+    @classmethod
+    def from_string(cls,enum_string:str, rank:int=None) -> "FieldTypeWithRank":
+        match enum_string:
+            case "PT6H-i":
+                if rank is None:
+                    rank = 1
+                return cls(field_type=FieldType.six_hour_instant, rank=rank)
+            case "P1D-m":
+                if rank is None:
+                    rank = 2
+                return cls(field_type=FieldType.daily_mean, rank=rank)
+            case "P1M-m":
+                if rank is None:
+                    rank = 3
+                return cls(field_type=FieldType.monthly_mean, rank=rank)
+            case _:
+                raise ValueError(f"unknown field type {enum_string}")
 
 # TODO figure out why only domains that work are global
 class DomainType(Enum):
@@ -45,11 +80,12 @@ class DomainType(Enum):
     #arctic = "arc"
     @classmethod
     def from_string(cls,enum_string:str) -> "DomainType":
-        for member in cls:
-            if member.value == enum_string:
-                logger.info(f"setting domain type {member.name}")
-                return member
-        raise ValueError(f"unknown domain type {enum_string}")
+        match enum_string:
+            case "glo":
+                logger.info("setting domain type to glo")
+                return DomainType.globe
+            case _:
+                raise ValueError(f"unknown domain type {enum_string}")
 
 @frozen
 class MatchedWorld:
@@ -59,7 +95,7 @@ class MatchedWorld:
     domain: DomainType
     dataset_name: str
     resolution: str
-    field_type: FieldType
+    field_type: FieldTypeWithRank
     variable_alias: dict
 
     def __attrs_post_init__(self):
@@ -151,7 +187,7 @@ class Worlds:
                                         continue
 
                                     try:
-                                        field_type = FieldType.from_string(enum_string=parts[-1])
+                                        field_type = FieldTypeWithRank.from_string(enum_string=parts[-1])
                                     except ValueError:
                                         logger.warning(f"{parts[-1]} is not a supported field type")
                                         continue
@@ -174,7 +210,7 @@ class Worlds:
                                         variable_alias={variables[m]["short_name"]:key}
                                     )
                                     if world_id in self.entries:
-                                        if self.entries[world_id].field_type.value[1] > new_world.field_type.value[1]:
+                                        if self.entries[world_id].field_type.rank > new_world.field_type.rank:
                                             # get any existing variables
                                             existing_vars = self.entries[world_id].variable_alias
                                             self.entries[world_id] = new_world
@@ -183,7 +219,7 @@ class Worlds:
                                                 if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
                                                     self.entries[world_id].variable_alias[key5] = var5
                                         else:
-                                            logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type.name}")
+                                            logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type.field_type.name}")
                                             if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
                                                 self.entries[world_id].variable_alias[variables[m]["short_name"]] = key
                                     else:
