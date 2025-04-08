@@ -120,8 +120,10 @@
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "max_sample_rate": 1,
                 "parameters": {
-                    "ALAPT01": 1,
-                    "ADEPPT01": 1
+                    "ALATPT01": 1,
+                    "ALONPT01": 1,
+                    "ADEPPT01": 1,
+                    "TIME": 1
                 },
                 "platform_compatibility": ["ALR_4"]
             },
@@ -134,7 +136,7 @@
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "max_sample_rate": 1,
                 "parameters": {
-                    "ALAPT01": 1,
+                    "ALATPT01": 1,
                     "ADEPPT01": 1
                 },
                 "platform_compatibility": ["ALR_6"]

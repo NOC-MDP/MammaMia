@@ -16,8 +16,8 @@ print(f"sensor info: {inventory.get_sensor_info(sensor_ref='SBE Glider Payload C
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
-campaign = Campaign(name="SE_Greenland_Aug_2024",
-                    description="single slocum glider deployment off South East Greenland",
+campaign = Campaign(name="RAPID array virtual mooring",
+                    description="single slocum glider deployment at a RAPID mooring",
                     verbose=True
                     )
 
@@ -45,9 +45,11 @@ Churchill_withCTD.sensor_behaviour = SensorBehavior.Upcast
 # create new entity of same platform this one doesn't have a CTD
 Churchill_noCTD = inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
 
+ALR4 = inventory.create_platform_entity(entity_name="ALR4",platform="ALR_4")
+
 # register platforms to the campaign for use in missions
-campaign.register_platform(entity=Churchill_noCTD)
 campaign.register_platform(entity=Churchill_withCTD)
+campaign.register_platform(entity=ALR4)
 
 # for metadata purposes a creator can be specified
 creator = Creator(email="thopri@noc.ac.uk",
@@ -70,10 +72,10 @@ contributor = Contributor(email="thopri@noc.ac.uk",
 
 # # add mission
 campaign.add_mission(mission_name="SEG24_01",
-                     title="Churchill with CTD deployment off South East Greenland in August 2024",
+                     title="Churchill with CTD deployment at RAPID array mooring eb1l2n",
                      summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
                      platform_name="Churchill_withCTD",
-                     trajectory_path="comet-mm1.nc",
+                     trajectory_path="eb1l2n-spiral.nc",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor)

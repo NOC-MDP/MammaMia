@@ -191,15 +191,26 @@
                 "alias": ["depth"]
             },
             {
-                "parameter_name": "ALAPT01",
+                "parameter_name": "ALATPT01",
                 "standard_name": "latitude_north",
                 "unit_of_measure": "UAAA",
                 "parameter_definition": "Latitude north of measurement platform in the water body by estimation using best available on-board navigation system and algorithm",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALATPT01/",
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
-                "source_name":"Latitude",
+                "source_name":"ALATPT01",
                 "ancillary_variables":"ALAPT01_QC",
                 "alias": ["alr_latitude"]
+            },
+            {
+                "parameter_name": "ALONPT01",
+                "standard_name": "longitude_east",
+                "unit_of_measure": "UAAA",
+                "parameter_definition": "Longitude east of measurement platform in the water body by estimation using best available on-board navigation system and algorithm",
+                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ALONPT01/",
+                "seadatanet_unit_of_measure":"SDN:P06::UAAA",
+                "source_name":"ALONPT01",
+                "ancillary_variables":"ALONPT01_QC",
+                "alias": ["alr_longitude"]
             },
             {
                 "parameter_name": "ADEPPT01",
@@ -208,7 +219,7 @@
                 "parameter_definition": "Depth (spatial coordinate) relative to water surface in the water body by estimation using best available on-board navigation system and algorithm",
                 "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/ADEPPT01/",
                 "seadatanet_unit_of_measure":"SDN:P06::ULAA",
-                "source_name":"Depth",
+                "source_name":"ADEPPT01",
                 "ancillary_variables":"ALAPT01_QC",
                 "alias": ["alr_depth"]
             }
@@ -223,7 +234,7 @@
                 "valid_max": 4000000000,
                 "calendar": "gregorian",
                 "fill_value":-1.0,
-                "alias": ["time"]
+                "alias": ["TIME"]
             },
                         {
                 "parameter_name": "TIME_GPS",

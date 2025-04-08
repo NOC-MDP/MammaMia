@@ -6,8 +6,6 @@ from pathlib import Path
 import os
 import copy
 import sys
-
-
 from mamma_mia.parameters import Parameter,TimeParameter, ParameterInventory
 from mamma_mia.exceptions import InvalidParameter, InvalidSensorRate
 from mamma_mia.log import log_filter

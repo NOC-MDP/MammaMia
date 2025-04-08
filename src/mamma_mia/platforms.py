@@ -15,7 +15,7 @@ sensor_inventory = SensorInventory()
 class SensorBehavior(Enum):
     Upcast = ["climbing"]
     Downcast = ["diving"]
-    Constant = ["climbing", "diving"]
+    Constant = ["climbing", "diving","hovering","surfaced"]
 
 # Factory function to create a platform class
 def create_platform_class(frozen_mode=False):
