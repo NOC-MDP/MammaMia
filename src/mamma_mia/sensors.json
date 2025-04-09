@@ -123,7 +123,7 @@
                     "ALATPT01": 1,
                     "ALONPT01": 1,
                     "ADEPPT01": 1,
-                    "TIME": 1
+                    "ATIMPT01": 1
                 },
                 "platform_compatibility": ["ALR_4"]
             },

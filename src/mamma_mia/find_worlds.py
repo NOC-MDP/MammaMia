@@ -175,6 +175,7 @@ class Worlds:
                             #logger.warning(f"variable {key} not in alias file")
                             continue
                         if variables[m]["short_name"] in inventory.parameters.entries[key].alias:
+                            # TODO add in a NAN check here in case extent has nans rather than values
                             # if trajectory spatial extent is within variable data
                             if (variables[m]["bbox"][0] < extent["min_lng"] and
                                     variables[m]["bbox"][1] < extent["min_lat"]

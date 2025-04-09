@@ -179,12 +179,22 @@ class Mission(zarr.Group):
 
         # create trajectory group from input simulated trajectory and sensor/parameter metadata
         ds = xr.open_dataset(trajectory_path)
+        # filter out any NaNs
+        latitude = ds[navigation["latitude"]][~np.isnan(ds[navigation["latitude"]])]
+        longitude = ds[navigation["longitude"]][~np.isnan(ds[navigation["longitude"]])]
+        depth = ds[navigation["depth"]][~np.isnan(ds[navigation["depth"]])]
+        # as time doesn't tend to have NaNs' filter based on latitude NaN's
+        time  = ds[navigation["time"]][~np.isnan(ds[navigation["latitude"]])]
+
+        if latitude.size != depth.size or longitude.size != depth.size or latitude.size != longitude.size:
+            raise Exception("NaN filtering resulted in different sized navigation parameters")
+
         trajectory = self.create_group("trajectory")
         try:
-            trajectory.array(name="latitude", data=np.array(ds[navigation["latitude"]]))
-            trajectory.array(name="longitude", data=np.array(ds[navigation["longitude"]]))
-            trajectory.array(name="depth", data=np.array(ds[navigation["depth"]]))
-            trajectory.array(name="time", data=np.array(ds[navigation["time"]], dtype='datetime64'))
+            trajectory.array(name="latitude", data=np.array(latitude))
+            trajectory.array(name="longitude", data=np.array(longitude))
+            trajectory.array(name="depth", data=np.array(depth))
+            trajectory.array(name="time", data=np.array(time, dtype='datetime64'))
         except KeyError as e:
             logger.error(f"Critical parameter for trajectory missing: {e}")
             raise CriticalParameterMissing
@@ -277,14 +287,14 @@ class Mission(zarr.Group):
         # create empty world group
         worlds = self.create_group("world")
         extent = {
-            "max_lat": np.around(np.max(trajectory.latitude), 2) + excess_space,
-            "min_lat": np.around(np.min(trajectory.latitude), 2) - excess_space,
-            "max_lng": np.around(np.max(trajectory.longitude), 2) + excess_space,
-            "min_lng": np.around(np.min(trajectory.longitude), 2) - excess_space,
+            "max_lat": np.around(np.nanmax(trajectory.latitude), 2) + excess_space,
+            "min_lat": np.around(np.nanmin(trajectory.latitude), 2) - excess_space,
+            "max_lng": np.around(np.nanmax(trajectory.longitude), 2) + excess_space,
+            "min_lng": np.around(np.nanmin(trajectory.longitude), 2) - excess_space,
             # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
             "start_time": np.datetime_as_string(trajectory.time[0] - np.timedelta64(30, 'D'), unit="D"),
             "end_time": np.datetime_as_string(trajectory.time[-1] + np.timedelta64(30, 'D'), unit="D"),
-            "max_depth": np.around(np.max(trajectory.depth), 2) + extra_depth,
+            "max_depth": np.around(np.nanmax(trajectory.depth), 2) + extra_depth,
         }
         worlds.attrs["extent"] = extent
         worlds.attrs["catalog_priorities"] = {"msm": msm_priority, "cmems": cmems_priority}
@@ -303,7 +313,7 @@ class Mission(zarr.Group):
                 # Don't create a payload array for any time parameters since seconds for each sensor sample are stored in each payload array
                 if "TIME" in name2:
                     continue
-                payload.empty(name=name2, shape=(2, mission_total_time_seconds.astype(int)), dtype=np.float64)
+                payload.empty(name=name2, shape=(2, mission_total_time_seconds.astype(int)+1), dtype=np.float64)
 
     def find_parameter_key(self, parameter: str, instrument_type: str = "data loggers") -> str:
         sensor_key = None
@@ -397,6 +407,16 @@ class Mission(zarr.Group):
 
         sample_rate = 1
         navigation_keys = []
+        navigation_alias = {}
+        # get navigation keys and any aliases that relate to them
+        for k1, v1 in self.platform.attrs["sensors"].items():
+            if self.platform.attrs["sensors"][k1]["instrument_type"] == "data loggers":
+                navigation_keys = list(self.platform.attrs["sensors"][k1]["parameters"].keys())
+                for k2, parameter in self.platform.attrs["sensors"][k1]["parameters"].items():
+                    for nav_key in navigation_keys:
+                        if nav_key == parameter["parameter_name"]:
+                            navigation_alias[nav_key] = parameter["alias"]
+
         for key in self.payload.array_keys():
             for k1, v1 in self.platform.attrs["sensors"].items():
                 if key in self.platform.attrs["sensors"][k1]["parameters"].keys():
@@ -404,8 +424,7 @@ class Mission(zarr.Group):
                     # if a sample rate has not been explicitly set use the max rate of the sensor
                     if sample_rate == -999:
                         sample_rate = self.platform.attrs["sensors"][k1]["max_sample_rate"]
-                if self.platform.attrs["sensors"][k1]["instrument_type"] == "data loggers":
-                    navigation_keys = list(self.platform.attrs["sensors"][k1]["parameters"].keys())
+
 
             resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
             # subset flight to only what is needed for interpolation (position rather than orientation)
@@ -415,8 +434,15 @@ class Mission(zarr.Group):
                 track = interpolator.interpolator[key].quadrivariate(flight_subset)
             except KeyError:
                 track = None
+                # see if parameter is a datalogger one and get from resampled flight directly
+                # get aliases incase key doesn't match
+                try:
+                    aliases = navigation_alias[key]
+                except KeyError:
+                    logger.warning(f"no navigation aliases found for {key}")
+                    aliases = {}
                 for key2 in resampled_flight.keys():
-                    if key2 in key.lower() or key2 in key:
+                    if key2 in key.lower() or key2 in key or key2 in aliases:
                         track = resampled_flight[key2]
                 if track is None:
                     logger.warning(f"no interpolator found for parameter {key} removing from payload")

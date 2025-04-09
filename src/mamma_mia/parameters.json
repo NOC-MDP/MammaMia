@@ -199,7 +199,7 @@
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
                 "source_name":"ALATPT01",
                 "ancillary_variables":"ALAPT01_QC",
-                "alias": ["alr_latitude"]
+                "alias": ["latitude"]
             },
             {
                 "parameter_name": "ALONPT01",
@@ -210,7 +210,7 @@
                 "seadatanet_unit_of_measure":"SDN:P06::UAAA",
                 "source_name":"ALONPT01",
                 "ancillary_variables":"ALONPT01_QC",
-                "alias": ["alr_longitude"]
+                "alias": ["longitude"]
             },
             {
                 "parameter_name": "ADEPPT01",
@@ -221,7 +221,7 @@
                 "seadatanet_unit_of_measure":"SDN:P06::ULAA",
                 "source_name":"ADEPPT01",
                 "ancillary_variables":"ALAPT01_QC",
-                "alias": ["alr_depth"]
+                "alias": ["depth"]
             }
         ],
         "time": [
@@ -236,7 +236,18 @@
                 "fill_value":-1.0,
                 "alias": ["TIME"]
             },
-                        {
+            {
+                "parameter_name": "ATIMPT01",
+                "long_name": "time of measurement and gps location",
+                "units": "seconds since 1970-01-01 00:00:00Z",
+                "standard_name": "TIME",
+                "valid_min": 1000000000,
+                "valid_max": 4000000000,
+                "calendar": "gregorian",
+                "fill_value":-1.0,
+                "alias": ["time"]
+            },
+            {
                 "parameter_name": "TIME_GPS",
                 "long_name": "time of each gps location",
                 "units": "seconds since 1970-01-01 00:00:00Z",
