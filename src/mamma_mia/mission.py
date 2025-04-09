@@ -228,10 +228,13 @@ class Mission(zarr.Group):
 
         # TODO this most likely will only be needed for specific simulator inputs.
         # convert from glider format to decimal degrees
-        for i in range(trajectory.longitude.__len__()):
-            trajectory.longitude[i] = self.__convert_to_decimal(trajectory.longitude[i])
-        for i in range(trajectory.latitude.__len__()):
-            trajectory.latitude[i] = self.__convert_to_decimal(trajectory.latitude[i])
+        if platform.platform_type == "slocum":
+            logger.info(f"Platform requires NEMA coordinate conversion")
+            for i in range(trajectory.longitude.__len__()):
+                trajectory.longitude[i] = self.__convert_to_decimal(trajectory.longitude[i])
+            for i in range(trajectory.latitude.__len__()):
+                trajectory.latitude[i] = self.__convert_to_decimal(trajectory.latitude[i])
+            logger.success(f"Successfully converted from NEMA coordinates to decimal degrees")
 
         seconds_into_flight = (trajectory["time"] - trajectory["time"][0]) / np.timedelta64(1, 's')
         # calculate changes in depth to determine platform behaviour
@@ -535,7 +538,7 @@ class Mission(zarr.Group):
 
         return new_flight
 
-    def show_payload(self):
+    def show_payload(self,parameter:str = None):
         """
         Creates an interactive plot of the AUV trajectory with the given parameters data mapped onto it using the
         specified colour map.
@@ -546,128 +549,186 @@ class Mission(zarr.Group):
         # Example parameters for the dropdown
         # Example parameters and their expected value ranges (cmin and cmax)
         parameters = {}
-        for key in  self.payload.array_keys():
-            parameters[key] = {"cmin": np.nanmin(self.payload[key][1, :]),
-                              "cmax": np.nanmax(self.payload[key][1, :])
-                              }
-        # List of available color scales for the user to choose from
-        colour_scales = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
+        if parameter is None:
 
-        # Initial setup: first parameter and color scale
-        initial_parameter = next(iter(self.payload.array_keys()))
-        initial_colour_scale = "Jet"
+            for key in  self.payload.array_keys():
+                parameters[key] = {"cmin": np.nanmin(self.payload[key][1, :]),
+                                  "cmax": np.nanmax(self.payload[key][1, :])
+                                  }
+            # List of available color scales for the user to choose from
+            colour_scales = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
 
-        marker = {
-            "size": 2,
-            "color": np.array(self.payload[initial_parameter][1, :]),  # Ensuring its serializable
-            "colorscale": initial_colour_scale,
-            "cmin": parameters[initial_parameter]["cmin"],  # Set the minimum value for the color scale
-            "cmax": parameters[initial_parameter]["cmax"],  # Set the maximum value for the color scale
-            "opacity": 0.8,
-            "colorbar": {"thickness": 40}
-        }
+            # Initial setup: first parameter and color scale
+            initial_parameter = next(iter(self.payload.array_keys()))
+            initial_colour_scale = "Jet"
 
-        title = {
-            "text": f"Glider Payload: {initial_parameter}",
-            "font": {"size": 30},
-            "automargin": True,
-            "yref": "paper"
-        }
-
-        scene = {
-            "xaxis_title": "longitude",
-            "yaxis_title": "latitude",
-            "zaxis_title": "depth",
-        }
-        # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
-        # TODO basically the payload needs to be able to handle parameters aliases
-        x = np.interp(self.payload[initial_parameter][0, :], self.payload["LONGITUDE"][0, :],
-                      self.payload["LONGITUDE"][1, :])
-        y = np.interp(self.payload[initial_parameter][0, :], self.payload["LATITUDE"][0, :],
-                      self.payload["LATITUDE"][1, :])
-        z = np.interp(self.payload[initial_parameter][0, :], self.payload["GLIDER_DEPTH"][0, :],
-                      self.payload["GLIDER_DEPTH"][1, :])
-        # Create the initial figure
-        fig = go.Figure(data=[
-            go.Scatter3d(
-                x=x,
-                y=y,
-                z=z,
-                mode='markers',
-                marker=marker
-            )
-        ])
-
-        # Update the scene and layout
-        fig.update_scenes(zaxis_autorange="reversed")
-        fig.update_layout(title=title, scene=scene)
-        # TODO fix the interaction between colour scales and parameters colour scale is not maintained when changing parameter
-        # TODO it will always default to Jet colourscale
-        # Define the dropdown for parameter selection
-        parameter_dropdown = [
-            {
-                "args": [
-                    {"x": [np.interp(self.payload[parameter][0, :], self.payload["LONGITUDE"][0, :],self.payload["LONGITUDE"][1, :])],  # Update x-coordinates
-                     "y": [np.interp(self.payload[parameter][0, :], self.payload["LATITUDE"][0, :],self.payload["LATITUDE"][1, :])],  # Update y-coordinates
-                     "z": [np.interp(self.payload[parameter][0, :], self.payload["GLIDER_DEPTH"][0, :],self.payload["GLIDER_DEPTH"][1, :])],
-                     "marker.color": [np.array(self.payload[parameter][1, :])],
-                     # Update the color for the new parameter
-                     "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
-                     "marker.cmax": parameters[parameter]["cmax"],  # Set cmax for the new parameter
-                     "marker.colorscale": initial_colour_scale},  # Keep the initial color scale (can be updated below)
-                    {"title.text": f"Glider Payload: {parameter}"}  # Update the title to reflect the new parameter
-                ],
-                "label": parameter,
-                "method": "update"
+            marker = {
+                "size": 2,
+                "color": np.array(self.payload[initial_parameter][1, :]),  # Ensuring its serializable
+                "colorscale": initial_colour_scale,
+                "cmin": parameters[initial_parameter]["cmin"],  # Set the minimum value for the color scale
+                "cmax": parameters[initial_parameter]["cmax"],  # Set the maximum value for the color scale
+                "opacity": 0.8,
+                "colorbar": {"thickness": 40}
             }
-            for parameter in parameters
-        ]
 
-        # Define the dropdown for color scale selection
-        color_scale_dropdown = [
-            {
-                "args": [
-                    {"marker.colorscale": colour_scale}  # Update the color scale for the current parameter
-                ],
-                "label": colour_scale,
-                "method": "restyle"
+            title = {
+                "text": f"Glider Payload: {initial_parameter}",
+                "font": {"size": 30},
+                "automargin": True,
+                "yref": "paper"
             }
-            for colour_scale in colour_scales
-        ]
-        # Create text boxes for user to input cmin and cmax
-        fig.update_layout(
-            annotations=[
-                # Add labels for dropdowns
-                dict(text="Sensor:", x=0.05, y=1.2, showarrow=False, xref="paper", yref="paper", font=dict(size=14)),
-                dict(text="Color Scale:", x=0.05, y=1.15, showarrow=False, xref="paper", yref="paper",
-                     font=dict(size=14))
-            ]
-        )
 
-        # Add both dropdowns to the layout
-        fig.update_layout(
-            updatemenus=[
+            scene = {
+                "xaxis_title": "longitude",
+                "yaxis_title": "latitude",
+                "zaxis_title": "depth",
+            }
+            # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
+            # TODO basically the payload needs to be able to handle parameters aliases
+            x = np.interp(self.payload[initial_parameter][0, :], self.payload["LONGITUDE"][0, :],
+                          self.payload["LONGITUDE"][1, :])
+            y = np.interp(self.payload[initial_parameter][0, :], self.payload["LATITUDE"][0, :],
+                          self.payload["LATITUDE"][1, :])
+            z = np.interp(self.payload[initial_parameter][0, :], self.payload["GLIDER_DEPTH"][0, :],
+                          self.payload["GLIDER_DEPTH"][1, :])
+            # Create the initial figure
+            fig = go.Figure(data=[
+                go.Scatter3d(
+                    x=x,
+                    y=y,
+                    z=z,
+                    mode='markers',
+                    marker=marker
+                )
+            ])
+
+            # Update the scene and layout
+            fig.update_scenes(zaxis_autorange="reversed")
+            fig.update_layout(title=title, scene=scene)
+            # TODO fix the interaction between colour scales and parameters colour scale is not maintained when changing parameter
+            # TODO it will always default to Jet colourscale
+            # Define the dropdown for parameter selection
+            parameter_dropdown = [
                 {
-                    "buttons": parameter_dropdown,
-                    "direction": "down",
-                    "showactive": True,
-                    "x": 0.10,  # Adjust position for the parameter dropdown
-                    "xanchor": "left",
-                    "y": 1.20,
-                    "yanchor": "top"
-                },
-                {
-                    "buttons": color_scale_dropdown,
-                    "direction": "down",
-                    "showactive": True,
-                    "x": 0.10,  # Adjust position for the color scale dropdown
-                    "xanchor": "left",
-                    "y": 1.15,
-                    "yanchor": "top"
+                    "args": [
+                        {"x": [np.interp(self.payload[parameter][0, :], self.payload["LONGITUDE"][0, :],self.payload["LONGITUDE"][1, :])],  # Update x-coordinates
+                         "y": [np.interp(self.payload[parameter][0, :], self.payload["LATITUDE"][0, :],self.payload["LATITUDE"][1, :])],  # Update y-coordinates
+                         "z": [np.interp(self.payload[parameter][0, :], self.payload["GLIDER_DEPTH"][0, :],self.payload["GLIDER_DEPTH"][1, :])],
+                         "marker.color": [np.array(self.payload[parameter][1, :])],
+                         # Update the color for the new parameter
+                         "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
+                         "marker.cmax": parameters[parameter]["cmax"],  # Set cmax for the new parameter
+                         "marker.colorscale": initial_colour_scale},  # Keep the initial color scale (can be updated below)
+                        {"title.text": f"Glider Payload: {parameter}"}  # Update the title to reflect the new parameter
+                    ],
+                    "label": parameter,
+                    "method": "update"
                 }
+                for parameter in parameters
             ]
-        )
+
+            # Define the dropdown for color scale selection
+            color_scale_dropdown = [
+                {
+                    "args": [
+                        {"marker.colorscale": colour_scale}  # Update the color scale for the current parameter
+                    ],
+                    "label": colour_scale,
+                    "method": "restyle"
+                }
+                for colour_scale in colour_scales
+            ]
+            # Create text boxes for user to input cmin and cmax
+            fig.update_layout(
+                annotations=[
+                    # Add labels for dropdowns
+                    dict(text="Sensor:", x=0.05, y=1.2, showarrow=False, xref="paper", yref="paper", font=dict(size=14)),
+                    dict(text="Color Scale:", x=0.05, y=1.15, showarrow=False, xref="paper", yref="paper",
+                         font=dict(size=14))
+                ]
+            )
+
+            # Add both dropdowns to the layout
+            fig.update_layout(
+                updatemenus=[
+                    {
+                        "buttons": parameter_dropdown,
+                        "direction": "down",
+                        "showactive": True,
+                        "x": 0.10,  # Adjust position for the parameter dropdown
+                        "xanchor": "left",
+                        "y": 1.20,
+                        "yanchor": "top"
+                    },
+                    {
+                        "buttons": color_scale_dropdown,
+                        "direction": "down",
+                        "showactive": True,
+                        "x": 0.10,  # Adjust position for the color scale dropdown
+                        "xanchor": "left",
+                        "y": 1.15,
+                        "yanchor": "top"
+                    }
+                ]
+            )
+        else:
+
+            parameters[parameter] = {"cmin": np.nanmin(self.payload[parameter][1, :]),
+                               "cmax": np.nanmax(self.payload[parameter][1, :])
+                               }
+
+            # List of available color scales for the user to choose from
+            colour_scales = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
+
+            # Initial setup: first parameter and color scale
+            initial_colour_scale = "Jet"
+
+            marker = {
+                "size": 2,
+                "color": np.array(self.payload[parameter][1, :]),  # Ensuring its serializable
+                "colorscale": initial_colour_scale,
+                "cmin": parameters[parameter]["cmin"],  # Set the minimum value for the color scale
+                "cmax": parameters[parameter]["cmax"],  # Set the maximum value for the color scale
+                "opacity": 0.8,
+                "colorbar": {"thickness": 40}
+            }
+
+            title = {
+                "text": f"ALR Payload: {parameter}",
+                "font": {"size": 30},
+                "automargin": True,
+                "yref": "paper"
+            }
+
+            scene = {
+                "xaxis_title": "longitude",
+                "yaxis_title": "latitude",
+                "zaxis_title": "depth",
+            }
+            # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
+            # TODO basically the payload needs to be able to handle parameters aliases
+            x = np.interp(self.payload[parameter][0, :], self.payload["ALONPT01"][0, :],
+                          self.payload["ALONPT01"][1, :])
+            y = np.interp(self.payload[parameter][0, :], self.payload["ALATPT01"][0, :],
+                          self.payload["ALATPT01"][1, :])
+            z = np.interp(self.payload[parameter][0, :], self.payload["ADEPPT01"][0, :],
+                          self.payload["ADEPPT01"][1, :])
+            # Create the initial figure
+            fig = go.Figure(data=[
+                go.Scatter3d(
+                    x=x,
+                    y=y,
+                    z=z,
+                    mode='markers',
+                    marker=marker
+                )
+            ])
+            # Update the scene and layout
+            fig.update_scenes(zaxis_autorange="reversed")
+            fig.update_layout(title=title, scene=scene)
         fig.show()
+
         logger.success(f"successfully plotted payloads")
 
     def plot_trajectory(self, colour_scale: str = 'Viridis', ):
