@@ -111,7 +111,7 @@ class Campaign:
         except KeyError:
             raise UnknownPlatform
 
-        mission = Mission(mission=mission_name,
+        mission = Mission.from_campaign(mission=mission_name,
                           title=title,
                           summary=summary,
                           platform=platform_n,
@@ -119,8 +119,6 @@ class Campaign:
                           creator=creator,
                           publisher=publisher,
                           contributor=contributor,
-                          store=store,
-                          overwrite=overwrite,
                           excess_space=excess_space,
                           extra_depth=extra_depth,
                           msm_priority=msm_priority,
@@ -129,9 +127,9 @@ class Campaign:
                           vertical_crs = vertical_crs,
                           )
         interpolator = Interpolators()
-        self.missions[mission.attrs['mission']] = mission
-        self.interpolators[mission.attrs['mission']] = interpolator
-        logger.success(f"successfully added mission {mission.attrs['mission']} to campaign {self.name}")
+        self.missions[mission.attrs.mission] = mission
+        self.interpolators[mission.attrs.mission] = interpolator
+        logger.success(f"successfully added mission {mission.attrs.mission} to campaign {self.name}")
 
     def build_missions(self) -> None:
         """
@@ -146,12 +144,12 @@ class Campaign:
         logger.success(f"successfully initialized catalog for {self.name}")
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
-            logger.info(f"building {mission.attrs['mission']}")
+            logger.info(f"building {mission.attrs.mission}")
             mission.build_mission(cat=self.catalog)
-            logger.success(f"successfully built {mission.attrs['mission']}")
+            logger.success(f"successfully built {mission.attrs.mission}")
         for key, interpol in self.interpolators.items():
             logger.info(f"building interpolators for {key}")
-            interpol.build(worlds=self.missions[key]["world"],mission=key)
+            interpol.build(worlds=self.missions[key].worlds,mission=key)
             logger.success(f"successfully built interpolators for {key}")
 
     def enable_interpolator_cache(self) -> None:
@@ -173,8 +171,8 @@ class Campaign:
         """
         logger.info(f"running {self.name}")
         for mission in self.missions.values():
-            logger.info(f"flying {mission.attrs['mission']}")
-            mission.fly(self.interpolators[mission.attrs['mission']])
+            logger.info(f"flying {mission.attrs.mission}")
+            mission.fly(self.interpolators[mission.attrs.mission])
         logger.success(f"{self.name} finished successfully")
 
     def export(self,overwrite=True,export_path=None) -> None:

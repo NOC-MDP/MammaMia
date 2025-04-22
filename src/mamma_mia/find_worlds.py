@@ -1,10 +1,11 @@
 from mamma_mia.catalog import Cats
 from loguru import logger
 import numpy as np
-import zarr
 from attrs import frozen, field
 from enum import Enum
 from mamma_mia.inventory import inventory
+
+
 
 class WorldType(Enum):
     """
@@ -136,11 +137,11 @@ class Worlds:
     """
     entries: dict[str,MatchedWorld] = field(factory=dict)
 
-    def search_worlds(self, cat:Cats, payload:zarr.Group,extent:dict):
-        for key in payload.array_keys():
+    def search_worlds(self, cat:Cats, payload:dict[str,np.ndarray],extent):
+        for key in payload.keys():
             self.__find_cmems_worlds(cat=cat,key=key,extent=extent)
 
-    def __find_cmems_worlds(self,key: str ,cat :Cats,extent:dict) -> None:
+    def __find_cmems_worlds(self,key: str ,cat :Cats,extent) -> None:
         """
         Traverses CMEMS catalog and find products/datasets that match the glider sensors and
         the trajectory spatial and temporal extent.
@@ -177,10 +178,10 @@ class Worlds:
                         if variables[m]["short_name"] in inventory.parameters.entries[key].alias:
                             # TODO add in a NAN check here in case extent has nans rather than values
                             # if trajectory spatial extent is within variable data
-                            if (variables[m]["bbox"][0] < extent["min_lng"] and
-                                    variables[m]["bbox"][1] < extent["min_lat"]
-                                    and variables[m]["bbox"][2] > extent["max_lng"] and
-                                    variables[m]["bbox"][3] > extent["max_lat"]):
+                            if (variables[m]["bbox"][0] < extent.lon_min and
+                                    variables[m]["bbox"][1] < extent.lat_min
+                                    and variables[m]["bbox"][2] > extent.lon_max and
+                                    variables[m]["bbox"][3] > extent.lat_max):
                                 depth_len = 0
                                 # get length of depth dimension
                                 for coord in variables[m]['coordinates']:
@@ -206,9 +207,9 @@ class Worlds:
                                     end = variables[m]["coordinates"][n]["maximum_value"]
                                     #step = variables[m]["coordinates"][n]["step"]
                                 # convert trajectory datetimes into timestamps to be able to compare with CMEMS catalog
-                                start_traj = float((np.datetime64(extent["start_time"]) - np.datetime64(
+                                start_traj = float((np.datetime64(extent.time_start) - np.datetime64(
                                     '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
-                                end_traj = float((np.datetime64(extent["end_time"]) - np.datetime64(
+                                end_traj = float((np.datetime64(extent.time_end) - np.datetime64(
                                     '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
                                 # check if trajectory temporal extent is within variable data
                                 if start_traj > start and end_traj < end:

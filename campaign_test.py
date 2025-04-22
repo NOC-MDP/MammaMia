@@ -41,7 +41,7 @@ glider_CTD.update_sample_rate(sample_rate=10)
 # register sensor to platform
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
 # change sensor sampling to upcast only
-Churchill_withCTD.sensor_behaviour = SensorBehavior.Upcast
+#Churchill_withCTD.sensor_behaviour = SensorBehavior.Upcast
 # create new entity of same platform this one doesn't have a CTD
 Churchill_noCTD = inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
 
@@ -83,14 +83,14 @@ campaign.add_mission(mission_name="RAD24_01",
                      publisher=publisher,
                      contributor=contributor)
 
-campaign.add_mission(mission_name="RAD24_02",
-                     title="Example ALR4 deployment",
-                     summary="single ALR4 deployment, trajectory from BIOCARBON for ALR4 649 used",
-                     platform_name="ALR4",
-                     trajectory_path="ALR_4_649_R.nc",
-                     creator=creator,
-                     publisher=publisher,
-                     contributor=contributor)
+# campaign.add_mission(mission_name="RAD24_02",
+#                      title="Example ALR4 deployment",
+#                      summary="single ALR4 deployment, trajectory from BIOCARBON for ALR4 649 used",
+#                      platform_name="ALR4",
+#                      trajectory_path="ALR_4_649_R.nc",
+#                      creator=creator,
+#                      publisher=publisher,
+#                      contributor=contributor)
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
 #campaign.enable_interpolator_cache()
@@ -104,11 +104,9 @@ campaign.run()
 # visualise the results
 # colourmap options are here https://plotly.com/python/builtin-colorscales/
 campaign.missions["RAD24_01"].plot_trajectory()
-campaign.missions["RAD24_02"].plot_trajectory()
+#campaign.missions["RAD24_02"].plot_trajectory()
 campaign.missions["RAD24_01"].show_payload()
-campaign.missions["RAD24_02"].show_payload(parameter="TEMP")
-# export the campaign
-campaign.export()
-campaign.missions["RAD24_01"].export_to_nc()
+# campaign.missions["RAD24_02"].show_payload(parameter="TEMP")
+
 print("the end")
 
