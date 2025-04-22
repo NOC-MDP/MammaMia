@@ -538,7 +538,7 @@ class Mission(zarr.Group):
 
         return new_flight
 
-    def show_payload(self,parameter:str = None):
+    def show_payload(self,parameter:str = None,in_app=False):
         """
         Creates an interactive plot of the AUV trajectory with the given parameters data mapped onto it using the
         specified colour map.
@@ -727,8 +727,10 @@ class Mission(zarr.Group):
             # Update the scene and layout
             fig.update_scenes(zaxis_autorange="reversed")
             fig.update_layout(title=title, scene=scene)
-        fig.show()
-
+        if not in_app:
+            fig.show()
+        else:
+            return fig
         logger.success(f"successfully plotted payloads")
 
     def plot_trajectory(self, colour_scale: str = 'Viridis', ):
