@@ -1,8 +1,11 @@
+import os
 from datetime import datetime
 import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
 from attrs import define, frozen
+from cattr import unstructure
+
 from mamma_mia import create_platform_class
 from mamma_mia import create_sensor_class
 import uuid
@@ -12,10 +15,9 @@ from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.find_worlds import Worlds as Worlds2
 from mamma_mia.get_worlds import get_worlds
-from mamma_mia.inventory import inventory
-from mamma_mia.exceptions import UnknownSourceKey, CriticalParameterMissing, DataloggerNotFound
+from mamma_mia.exceptions import CriticalParameterMissing
 from scipy.interpolate import interp1d
-
+import inspect
 
 @frozen
 class Publisher:
@@ -871,27 +873,53 @@ class Mission:
         fig.update_layout(title=title, scene=scene)
         fig.show()
 
-    def export(self, msm_cat, store: zarr.DirectoryStore = None):
+    def export_as_zarr(self, out_dir:str = None):
         """
         Exports mission to a zarr directory store
         Args:
+            out_dir:
             store: path to save mission zarr group too.
             msm_cat:
 
         Returns:
             void: zarr group is saved to directory store
         """
-        pass
-        # if store is None:
-        #     export_store = zarr.DirectoryStore(f"{self.attrs.mission}.zarr")
-        # else:
-        #     export_store = store
-        # logger.info(f"exporting mission {self.attrs.mission} to {export_store}")
-        # zarr.copy_store(self.store, export_store)
+        if out_dir is None:
+            out_dir = os.getcwd()
+        # create store and root group
+        store = zarr.storage.DirectoryStore(f"{out_dir}/{self.attrs.mission}.zarr")
+        mission = zarr.group(store=store,overwrite=True)
+        # create subgroups
+        payload = mission.create_group("payload")
+        platform = mission.create_group("platform")
+        trajectory = mission.create_group("trajectory")
+        world = mission.create_group("world")
+        # write mission attributes
+        mission.attrs.update(unstructure(self.attrs))
+        mission.attrs.update(unstructure(self.geospatial_attrs))
+
+        # write platform attributes
+        platform.attrs.update(unstructure(self.platform))
+        # write trajectory arrays
+        trajectory.array(name="latitude",data=self.trajectory.latitude)
+        trajectory.array(name="longitude",data=self.trajectory.longitude)
+        trajectory.array(name="depth",data=self.trajectory.depth)
+        trajectory.array(name="time",data=self.trajectory.time)
+        trajectory.array(name="pitch",data=self.trajectory.pitch)
+        trajectory.array(name="roll",data=self.trajectory.roll)
+        trajectory.array(name="yaw",data=self.trajectory.yaw)
+        trajectory.array(name='behaviour',data=self.trajectory.behaviour)
+
+        # write payload arrays
+        for pload in self.payload.keys():
+            payload.array(name=pload,data=self.payload[pload])
+
+        world.attrs.update(unstructure(self.worlds.attributes))
+
         # self.create_dim_map(msm_cat=msm_cat)
         # self.add_array_dimensions(group=self, dim_map=self.world.attrs['dim_map'])
-        # zarr.consolidate_metadata(export_store)
-        # logger.success(f"successfully exported {self.attrs['mission']}")
+        zarr.consolidate_metadata(store)
+        logger.success(f"successfully exported {self.attrs.mission}")
 
     def export_to_nc(self, outname=None):
         pass
@@ -928,6 +956,7 @@ class Mission:
         Returns:
             void: updates the dim_map attribute of the world zarr group
         """
+        pass
         # example dim map that needs to generated
         # dim_map = {
         #     f"{mission.attrs['name']}/reality/nitrate": ['time'],
@@ -950,32 +979,32 @@ class Mission:
         # }
         # TODO need to figure out how to dynamically set the dimensions in the mapping attribute as these could change
         # TODO Also ideally need to do the other variables in the world datasets e.g. time, depth etc
-        dim_map = {}
-        for k2, v2 in self.payload.items():
-            dim_map[f"{self.attrs['mission']}/payload/{k2}"] = ['time']
-        for k3, v3 in self.trajectory.items():
-            dim_map[f"{self.attrs['mission']}/trajectory/{k3}"] = ['time']
-        for k4, v4 in self.world.items():
-            split_key = k4.split('_')
-            for k5, v5 in v4.items():
-                if split_key[0] == "cmems":
-                    # TODO a much better job than this hacky mess...
-                    aliases = []
-                    for val in inventory.parameters.entries.values():
-                        for alias in val.alias:
-                            aliases.append(alias)
-                    if [k5] in aliases:
-                        dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time', 'depth', 'latitude', 'longitude']
-                elif split_key[0] == "msm":
-                    msm_metadata = msm_cat[k4].describe()['metadata']
-                    msm_alias = msm_metadata.get('aliases', [])
-                    if k5 in msm_alias.keys():
-                        dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time_counter', 'deptht', 'latitude',
-                                                                               'longitude']
-                else:
-                    logger.error(f"unknown model source key {k5}")
-                    raise UnknownSourceKey
-        self.world.attrs.update({"dim_map": dim_map})
+        # dim_map = {}
+        # for k2, v2 in self.payload.items():
+        #     dim_map[f"{self.attrs['mission']}/payload/{k2}"] = ['time']
+        # for k3, v3 in self.trajectory.items():
+        #     dim_map[f"{self.attrs['mission']}/trajectory/{k3}"] = ['time']
+        # for k4, v4 in self.world.items():
+        #     split_key = k4.split('_')
+        #     for k5, v5 in v4.items():
+        #         if split_key[0] == "cmems":
+        #             # TODO a much better job than this hacky mess...
+        #             aliases = []
+        #             for val in inventory.parameters.entries.values():
+        #                 for alias in val.alias:
+        #                     aliases.append(alias)
+        #             if [k5] in aliases:
+        #                 dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time', 'depth', 'latitude', 'longitude']
+        #         elif split_key[0] == "msm":
+        #             msm_metadata = msm_cat[k4].describe()['metadata']
+        #             msm_alias = msm_metadata.get('aliases', [])
+        #             if k5 in msm_alias.keys():
+        #                 dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time_counter', 'deptht', 'latitude',
+        #                                                                        'longitude']
+        #         else:
+        #             logger.error(f"unknown model source key {k5}")
+        #             raise UnknownSourceKey
+        # self.world.attrs.update({"dim_map": dim_map})
 
     def add_array_dimensions(self, group, dim_map, path=""):
         """

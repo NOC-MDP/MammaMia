@@ -103,10 +103,10 @@ campaign.run()
 
 # visualise the results
 # colourmap options are here https://plotly.com/python/builtin-colorscales/
-campaign.missions["RAD24_01"].plot_trajectory()
+#campaign.missions["RAD24_01"].plot_trajectory()
 #campaign.missions["RAD24_02"].plot_trajectory()
-campaign.missions["RAD24_01"].show_payload()
+#campaign.missions["RAD24_01"].show_payload()
 # campaign.missions["RAD24_02"].show_payload(parameter="TEMP")
-
+campaign.missions["RAD24_01"].export_as_zarr()
 print("the end")
 
