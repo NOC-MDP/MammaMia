@@ -184,13 +184,13 @@ class Campaign:
             void: Campaign object is exported to zarr store. NOTE: interpolators and catalogs cannot be exported.
 
         """
+        campaign_name = self.name.replace(" ","_")
         logger.info(f"exporting {self.name}")
-
         if export_path is None:
-            logger.info(f"creating zarr store at {self.name}.zarr")
-            export_path = f"{self.name}.zarr"
+            logger.info(f"creating zarr store at {campaign_name}.zarr")
+            export_path = f"{campaign_name}.zarr"
         else:
-            logger.info(f"exporting zarr store at {export_path}{sep}{self.name}.zarr")
+            logger.info(f"exporting zarr store at {export_path}{sep}{campaign_name}.zarr")
         store = zarr.DirectoryStore(f"{export_path}")
         logger.info(f"creating zarr group {self.name} in store")
         camp = zarr.group(store=store,overwrite=overwrite)

@@ -83,14 +83,14 @@ campaign.add_mission(mission_name="RAD24_01",
                      publisher=publisher,
                      contributor=contributor)
 
-# campaign.add_mission(mission_name="RAD24_02",
-#                      title="Example ALR4 deployment",
-#                      summary="single ALR4 deployment, trajectory from BIOCARBON for ALR4 649 used",
-#                      platform_name="ALR4",
-#                      trajectory_path="ALR_4_649_R.nc",
-#                      creator=creator,
-#                      publisher=publisher,
-#                      contributor=contributor)
+campaign.add_mission(mission_name="RAD24_02",
+                     title="Example ALR4 deployment",
+                     summary="single ALR4 deployment, trajectory from BIOCARBON for ALR4 649 used",
+                     platform_name="ALR4",
+                     trajectory_path="ALR_4_649_R.nc",
+                     creator=creator,
+                     publisher=publisher,
+                     contributor=contributor)
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
 #campaign.enable_interpolator_cache()
@@ -103,10 +103,10 @@ campaign.run()
 
 # visualise the results
 # colourmap options are here https://plotly.com/python/builtin-colorscales/
-#campaign.missions["RAD24_01"].plot_trajectory()
-#campaign.missions["RAD24_02"].plot_trajectory()
-#campaign.missions["RAD24_01"].show_payload()
-# campaign.missions["RAD24_02"].show_payload(parameter="TEMP")
+campaign.missions["RAD24_01"].plot_trajectory()
+campaign.missions["RAD24_02"].plot_trajectory()
+campaign.missions["RAD24_01"].show_payload()
+campaign.missions["RAD24_02"].show_payload(parameter="TEMP")
 campaign.export()
 print("the end")
 

@@ -407,8 +407,8 @@ class Mission:
         for name, sensor in platform.sensors.items():
             for name2, parameter in sensor.parameters.items():
                 # Don't create a payload array for any time parameters since seconds for each sensor sample are stored in each payload array
-                # TODO fix this so that time aliases are checked not just hardcoded
-                if "TIME" in name2:
+                # TODO fix this so that time parameter aliases are checked not just hardcoded
+                if name2 in ["time","ATIMPT01"]:
                     continue
                 payload[name2] = np.empty(shape=(2, mission_total_time_seconds.astype(int) + 1), dtype=np.float64)
         return cls(platform=platform,
@@ -887,7 +887,8 @@ class Mission:
         if out_dir is None:
             out_dir = os.getcwd()
 
-        # if store is provied assume it contains the campaign and add the mission group to it, otherwise just create the zarr group
+        # if store is provided assume it contains the campaign and add the mission group to it,
+        # otherwise just create a store and create the mission group in it
         if store is None:
             store = zarr.storage.DirectoryStore(f"{out_dir}/{self.attrs.mission}.zarr")
             mission = zarr.group(store=store,overwrite=True)
