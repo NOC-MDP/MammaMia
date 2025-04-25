@@ -895,8 +895,9 @@ class Mission:
         trajectory = mission.create_group("trajectory")
         world = mission.create_group("world")
         # write mission attributes
-        mission.attrs.update(unstructure(self.attrs))
-        mission.attrs.update(unstructure(self.geospatial_attrs))
+        mission.attrs.update({"mission_attributes":unstructure(self.attrs)})
+        mission.attrs.update({"geospatial_attributes":unstructure(self.geospatial_attrs)})
+        mission.attrs.update({"navigation_keys":unstructure(self.navigation_keys)})
 
         # write platform attributes
         platform.attrs.update(unstructure(self.platform))
