@@ -914,7 +914,12 @@ class Mission:
         for pload in self.payload.keys():
             payload.array(name=pload,data=self.payload[pload])
 
+        # update world attributes
         world.attrs.update(unstructure(self.worlds.attributes))
+        # write world data
+        for key, value in self.worlds.worlds.items():
+            world.create_group(name=key)
+            zarr.convenience.copy_all(value,world[key])
 
         # self.create_dim_map(msm_cat=msm_cat)
         # self.add_array_dimensions(group=self, dim_map=self.world.attrs['dim_map'])
