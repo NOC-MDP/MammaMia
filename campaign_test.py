@@ -107,6 +107,6 @@ campaign.run()
 #campaign.missions["RAD24_02"].plot_trajectory()
 #campaign.missions["RAD24_01"].show_payload()
 # campaign.missions["RAD24_02"].show_payload(parameter="TEMP")
-campaign.missions["RAD24_01"].export_as_zarr()
+campaign.export()
 print("the end")
 

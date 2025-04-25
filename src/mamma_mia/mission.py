@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import xarray as xr
 from attrs import define, frozen
 from cattr import unstructure
+from zarr import open_group
 
 from mamma_mia import create_platform_class
 from mamma_mia import create_sensor_class
@@ -873,27 +874,34 @@ class Mission:
         fig.update_layout(title=title, scene=scene)
         fig.show()
 
-    def export_as_zarr(self, out_dir:str = None):
+    def export_as_zarr(self, out_dir:str = None, store:zarr.storage.Store= None):
         """
         Exports mission to a zarr directory store
         Args:
+            store:
             out_dir:
-            store: path to save mission zarr group too.
-            msm_cat:
 
         Returns:
             void: zarr group is saved to directory store
         """
         if out_dir is None:
             out_dir = os.getcwd()
-        # create store and root group
-        store = zarr.storage.DirectoryStore(f"{out_dir}/{self.attrs.mission}.zarr")
-        mission = zarr.group(store=store,overwrite=True)
+
+        # if store is provied assume it contains the campaign and add the mission group to it, otherwise just create the zarr group
+        if store is None:
+            store = zarr.storage.DirectoryStore(f"{out_dir}/{self.attrs.mission}.zarr")
+            mission = zarr.group(store=store,overwrite=True)
+        else:
+            campaign = open_group(store=store)
+            mission = campaign.create_group(f"{self.attrs.mission}",overwrite=True)
+
+
         # create subgroups
         payload = mission.create_group("payload")
         platform = mission.create_group("platform")
         trajectory = mission.create_group("trajectory")
         world = mission.create_group("world")
+
         # write mission attributes
         mission.attrs.update({"mission_attributes":unstructure(self.attrs)})
         mission.attrs.update({"geospatial_attributes":unstructure(self.geospatial_attrs)})
@@ -901,6 +909,7 @@ class Mission:
 
         # write platform attributes
         platform.attrs.update(unstructure(self.platform))
+
         # write trajectory arrays
         trajectory.array(name="latitude",data=self.trajectory.latitude)
         trajectory.array(name="longitude",data=self.trajectory.longitude)

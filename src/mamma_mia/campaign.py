@@ -66,8 +66,6 @@ class Campaign:
                     title:str,
                     platform_name:str,
                     trajectory_path:str,
-                    store=None,
-                    overwrite=False,
                     excess_space: int = 0.5,
                     extra_depth: int = 100,
                     msm_priority: int = 2,
@@ -202,13 +200,13 @@ class Campaign:
         logger.success(f"zarr group {self.name} successfully created")
 
         for key1, mission in self.missions.items():
-            mission.create_dim_map(msm_cat=self.catalog.msm_cat)
-            logger.info(f"creating zarr group for mission {mission.attrs['mission']}")
-            camp.create_group(mission.attrs['mission'])
-            logger.info(f"exporting {mission.attrs['mission']}")
-            zarr.copy_all(source=mission,dest=camp[mission.attrs['mission']])
-            mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
-            logger.success(f"successfully exported {mission.attrs['mission']}")
+            #mission.create_dim_map(msm_cat=self.catalog.msm_cat)
+            logger.info(f"creating zarr group for mission {mission.attrs.mission}")
+            camp.create_group(mission.attrs.mission)
+            logger.info(f"exporting {mission.attrs.mission}")
+            mission.export_as_zarr(store=store)
+            #mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
+            logger.success(f"successfully exported {mission.attrs.mission}")
         logger.info(f"consolidating metadata for {export_path}")
         # TODO fix the consilidate meta data warning that happens here
         zarr.consolidate_metadata(store=store)
