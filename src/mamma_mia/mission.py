@@ -404,6 +404,7 @@ class Mission:
         for name, sensor in platform.sensors.items():
             for name2, parameter in sensor.parameters.items():
                 # Don't create a payload array for any time parameters since seconds for each sensor sample are stored in each payload array
+                # TODO fix this so that time aliases are checked not just hardcoded
                 if "TIME" in name2:
                     continue
                 payload[name2] = np.empty(shape=(2, mission_total_time_seconds.astype(int) + 1), dtype=np.float64)
@@ -568,19 +569,16 @@ class Mission:
                 event_idx_for_payload = np.searchsorted(flight["time"], resampled_flight["time"], side="right") - 1
                 event_idx_for_payload = np.clip(event_idx_for_payload, 0, flight["time"].__len__() - 1)
                 event_at_payload = events[event_idx_for_payload]
-                event_mask = np.isin(event_at_payload, self.platform.sensor_behaviour)
+                event_mask = np.isin(event_at_payload, self.platform.sensor_behaviour.value)
                 n = len(track[event_mask])
-                # Update the first n elements of the Zarr array
                 self.payload[key][0, :n] = seconds_into_mission[event_mask]
                 self.payload[key][1, :n] = track[event_mask]
-                # Trim the Zarr array to the new length
-                self.payload[key] = np.resize(self.payload[key],(2,n))
+                self.payload[key] = self.payload[key][:, :n]
 
             else:
                 self.payload[key][0, :n] = seconds_into_mission
                 self.payload[key][1, :n] = track
-                # Trim the Zarr array to the new length
-                self.payload[key] = np.resize(self.payload[key],(2,n))
+                self.payload[key] = self.payload[key][:, :n]
 
         for marked_key in marked_keys:
             logger.info(f"removing marked {marked_key} from payload")
