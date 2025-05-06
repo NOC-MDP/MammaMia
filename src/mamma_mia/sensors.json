@@ -87,9 +87,8 @@
                 "sensor_model": "Mamma Mia ADCP",
                 "max_sample_rate": -999,
                 "parameters": {
-                    "WATERCURRENTS_U": 5,
-                    "WATERCURRENTS_V": 5,
-                    "WATERCURRENTS_W": 5
+                    "WCUR_X": 5,
+                    "WCUR_Y": 5
                 },
                 "platform_compatibility": ["mm"]
             }
@@ -120,26 +119,9 @@
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "max_sample_rate": 10,
                 "parameters": {
-                    "ALATPT01": 1,
-                    "ALONPT01": 1,
-                    "ADEPPT01": 1,
-                    "ATIMPT01": 1
+                    "LAT": 1
                 },
                 "platform_compatibility": ["ALR_4"]
-            },
-            {
-                "sensor_serial_number": "ALR_6",
-                "sensor_name": "ALR data logger v2 ALR_6",
-                "instrument_type": "data loggers",
-                "sensor_manufacturer": "National Oceanography Centre",
-                "model_name": "Autosub Long Range v2 {ALR} data logger",
-                "sensor_model": "Autosub Long Range v2 {ALR} data logger",
-                "max_sample_rate": 1,
-                "parameters": {
-                    "ALATPT01": 1,
-                    "ADEPPT01": 1
-                },
-                "platform_compatibility": ["ALR_6"]
             },
             {
                 "sensor_serial_number": "unit_398",
@@ -150,14 +132,14 @@
                 "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
                 "max_sample_rate": 1,
                 "parameters": {
-                    "LATITUDE": 1,
-                    "LONGITUDE": 1,
+                    "LAT": 1,
+                    "LON": 1,
                     "ALTITUDE": 1,
-                    "GLIDER_PITCH": 1,
-                    "GLIDER_ROLL":1,
-                    "GLIDER_DEPTH": 1,
-                    "WATERCURRENTS_U": 1,
-                    "WATERCURRENTS_V": 1,
+                    "PITCH": 1,
+                    "ROLL":1,
+                    "DEPTH": 1,
+                    "WCUR_X": 1,
+                    "WCUR_Y": 1,
                     "TIME": 1
                 },
                 "platform_compatibility": ["unit_398"]
@@ -171,12 +153,12 @@
                 "sensor_model": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
                 "max_sample_rate": 1,
                 "parameters": {
-                    "LATITUDE": 1,
-                    "LONGITUDE": 1,
+                    "LAT": 1,
+                    "LON": 1,
                     "ALTITUDE": 1,
-                    "GLIDER_PITCH": 1,
-                    "GLIDER_ROLL":1,
-                    "GLIDER_DEPTH": 1,
+                    "PITCH": 1,
+                    "ROLL":1,
+                    "DEPTH": 1,
                     "TIME": 1
                 },
                 "platform_compatibility": ["unit_887"]

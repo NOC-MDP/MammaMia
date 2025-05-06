@@ -6,7 +6,7 @@ from pathlib import Path
 import os
 import copy
 import sys
-from mamma_mia.parameters import Parameter,TimeParameter, ParameterInventory
+from mamma_mia.parameters import Parameter, ParameterInventory
 from mamma_mia.exceptions import InvalidParameter, InvalidSensorRate
 from mamma_mia.log import log_filter
 
@@ -51,9 +51,9 @@ def create_sensor_class(frozen_mode=False):
 
         def register_parameter(self, parameter: Parameter):
             # TODO add validation or checking here e.g. is it the right sensor type for the platform?
-            if not isinstance(parameter, (Parameter, TimeParameter)):  # Runtime type check
+            if not isinstance(parameter, Parameter):  # Runtime type check
                 raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
-            self.parameters[parameter.parameter_name] = parameter
+            self.parameters[parameter.parameter_id] = parameter
             # TODO this log entry ends up being printed alot, it is probably useful sometimes but need to reduce its verbosity
             #logger.info(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
 

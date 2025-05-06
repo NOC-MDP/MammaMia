@@ -1,10 +1,12 @@
+import os
+
 from mamma_mia.catalog import Cats
 from loguru import logger
 import numpy as np
 from attrs import frozen, field
 from enum import Enum
 from mamma_mia.inventory import inventory
-
+import xarray as xr
 
 
 class WorldType(Enum):
@@ -31,6 +33,7 @@ class SourceType(Enum):
     """
     cmems = "cmems"
     msm = "msm"
+    local = "location"
     @classmethod
     def from_string(cls,enum_string:str) -> "SourceType":
         match enum_string:
@@ -40,6 +43,9 @@ class SourceType(Enum):
             case "msm":
                 logger.info("setting source type to msm")
                 return SourceType.msm
+            case "local":
+                logger.info("setting source type to local")
+                return SourceType.local
             case _:
                 raise ValueError(f"unknown source type {enum_string}")
 
@@ -137,9 +143,31 @@ class Worlds:
     """
     entries: dict[str,MatchedWorld] = field(factory=dict)
 
-    def search_worlds(self, cat:Cats, payload:dict[str,np.ndarray],extent):
+    def search_worlds(self, cat:Cats, payload:dict[str,np.ndarray],extent,source:SourceType=SourceType.cmems,local_dir = None):
         for key in payload.keys():
-            self.__find_cmems_worlds(cat=cat,key=key,extent=extent)
+            match source:
+                case SourceType.cmems:
+                    self.__find_cmems_worlds(cat=cat, key=key, extent=extent)
+                case SourceType.local:
+                    if local_dir is None:
+                        local_dir = os.getcwd()
+                        logger.info(f"using local directory {local_dir}")
+                    self.__find_local_worlds(extent=extent,key=key,local_dir=local_dir)
+                case _:
+                    raise ValueError(f"unknown source type {source.value}")
+
+
+    def __find_local_worlds(self,key:str,extent,local_dir:str) -> None:
+        logger.info(f"searching local directory {local_dir}")
+        for dirpath, _, filenames in os.walk(local_dir):
+            for filename in filenames:
+                if filename.endswith('.nc'):
+                    nc_path = os.path.join(dirpath, filename)
+                    ds = xr.open_dataset(nc_path)
+                    for key2, var in ds.variables.items():
+                        if key2 not in ds.coords.variables.keys():
+                            if var.attrs.values() in inventory.parameters.entries[key].alternate_labels:
+                                print(var.attrs)
 
     def __find_cmems_worlds(self,key: str ,cat :Cats,extent) -> None:
         """
@@ -175,7 +203,7 @@ class Worlds:
                         if key not in inventory.parameters.entries.keys():
                             #logger.warning(f"variable {key} not in alias file")
                             continue
-                        if variables[m]["short_name"] in inventory.parameters.entries[key].alias:
+                        if variables[m]["short_name"] in inventory.parameters.entries[key].source_names:
                             # TODO add in a NAN check here in case extent has nans rather than values
                             # if trajectory spatial extent is within variable data
                             if (variables[m]["bbox"][0] < extent.lon_min and

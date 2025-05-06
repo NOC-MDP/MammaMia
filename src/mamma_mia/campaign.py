@@ -89,8 +89,6 @@ class Campaign:
             mission_name: name of the mission
             title: title of the mission
             trajectory_path: path to auv trajectory netcdf
-            store: specify zarr store (Directory etc) default is memory store
-            overwrite: overwrite an existing mission store, default is false
             excess_space: amount of excess space to add to model/world download in decimal degrees, default is 0.5
             extra_depth: amount of excess depth to add to model/world download in metres, default is 100
             msm_priority: priority value for msm world sources (higher values have greater priority)

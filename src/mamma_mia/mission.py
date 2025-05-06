@@ -14,11 +14,10 @@ from loguru import logger
 import zarr
 from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.find_worlds import Worlds as Worlds2
+from mamma_mia.find_worlds import Worlds as Worlds2, SourceType
 from mamma_mia.get_worlds import get_worlds
-from mamma_mia.exceptions import CriticalParameterMissing
+from mamma_mia.exceptions import CriticalParameterMissing,NoValidSource
 from scipy.interpolate import interp1d
-import inspect
 
 @frozen
 class Publisher:
@@ -68,13 +67,13 @@ class Creator:
 
 @define
 class NavigationKeys:
-    latitude: str
-    longitude: str
-    depth: str
-    time: str
-    pitch: str
-    roll: str
-    yaw: str
+    latitude: list[str]
+    longitude: list[str]
+    depth: list[str]
+    time: list[str]
+    pitch: list[str]
+    roll: list[str]
+    yaw: list[str]
 
     @classmethod
     def from_datalogger(cls, datalogger: create_sensor_class(frozen_mode=True), platform_attrs):
@@ -83,21 +82,24 @@ class NavigationKeys:
             "longitude": None,
             "depth": None,
             "time": None,
-            "pitch": None,
-            "roll": None,
-            "yaw": None,
+            # as the below is optional, they should not be None as this causes issues with exporting
+            "pitch": "",
+            "roll": "",
+            "yaw": "",
         }
 
         for parameter_key, parameter in datalogger.parameters.items():
-            combined_string = f"{parameter.parameter_name} {parameter.standard_name}".lower()
-            ds_key = cls.find_parameter_key(parameter=parameter_key, platform_attrs=platform_attrs)
+            combined_string = f"{parameter.parameter_id} {parameter.standard_name}".lower()
+            ds_keys = cls.find_parameter_keys(parameter=parameter_key, platform_attrs=platform_attrs)
 
             for key, nav_name in nav_keys.items():
                 if key in combined_string:
-                    nav_keys[key] = ds_key
+                    nav_keys[key] = ds_keys
 
         if nav_keys["latitude"] is None or nav_keys["longitude"] is None or nav_keys["depth"] is None or nav_keys["time"] is None:
             raise CriticalParameterMissing("missing critical navigation parameter")
+
+
 
         return cls(latitude=nav_keys["latitude"],
                    longitude=nav_keys["longitude"],
@@ -109,24 +111,16 @@ class NavigationKeys:
                    )
 
     @staticmethod
-    def find_parameter_key(parameter: str, platform_attrs, instrument_type: str = "data loggers") -> str:
+    def find_parameter_keys(parameter: str, platform_attrs, instrument_type: str = "data loggers") -> list[str]:
         sensor_key = None
-        parameter_key = None
         for key in platform_attrs.sensors.keys():
             if platform_attrs.sensors[key].instrument_type == instrument_type:
                 sensor_key = key
                 break
-        try:
-            parameter_key = platform_attrs.sensors[sensor_key].parameters[parameter].source_name
-        except AttributeError:
-            for key in platform_attrs.sensors[sensor_key].parameters.keys():
-                if key.startswith(parameter) or key.endswith(parameter):
-                    try:
-                        parameter_key = platform_attrs.sensors[sensor_key].parameters[key].source_name
-                    except AttributeError:
-                        parameter_key = platform_attrs.sensors[sensor_key].parameters[key].standard_name
 
-        return parameter_key
+        parameter_keys = platform_attrs.sensors[sensor_key].parameters[parameter].source_names
+
+        return parameter_keys
 
 
 @frozen
@@ -195,44 +189,45 @@ class Trajectory:
         Returns:
 
         """
-        latitude = ds[navigation_keys.latitude][~np.isnan(ds[navigation_keys.latitude])]
-        longitude = ds[navigation_keys.longitude][~np.isnan(ds[navigation_keys.longitude])]
-        depth = ds[navigation_keys.depth][~np.isnan(ds[navigation_keys.depth])]
+        latitude = cls.__add_source(ds=ds, source_keys=navigation_keys.latitude)
+        longitude =cls.__add_source(ds=ds, source_keys=navigation_keys.longitude)
+        depth = cls.__add_source(ds=ds, source_keys=navigation_keys.depth)
         # as time doesn't tend to have NaNs' filter based on latitude NaN's
-        time = ds[navigation_keys.time][~np.isnan(ds[navigation_keys.latitude])]
+        #time = ds[navigation_keys.time][~np.isnan(ds[navigation_keys.latitude])]
+        time = cls.__add_source(ds=ds, source_keys=navigation_keys.time)
 
         if latitude.size != depth.size or longitude.size != depth.size or latitude.size != longitude.size:
             raise Exception("NaN filtering resulted in different sized navigation parameters")
 
         try:
             if navigation_keys.pitch is not None:
-                pitch = ds[navigation_keys.pitch]
+                pitch = cls.__add_source(ds=ds, source_keys=navigation_keys.pitch)
             else:
                 logger.warning(f"Optional parameter pitch not specified in datalogger")
                 pitch = np.zeros_like(depth)
-        except KeyError:
+        except NoValidSource:
             logger.warning(
                 f"Optional pitch parameter for trajectory not found in simulated data: No variable named '{navigation_keys.pitch}'")
             pitch = np.zeros_like(depth)
 
         try:
             if navigation_keys.yaw is not None:
-                yaw = ds[navigation_keys.yaw]
+                yaw = cls.__add_source(ds=ds, source_keys=navigation_keys.yaw)
             else:
                 logger.warning(f"Optional parameter yaw not specified in datalogger")
                 yaw = np.zeros_like(depth)
-        except KeyError:
+        except NoValidSource:
             logger.warning(
                 f"Optional yaw parameter for trajectory not found in simulated data: No variable named '{navigation_keys.yaw}'")
             yaw = np.zeros_like(depth)
 
         try:
             if navigation_keys.roll is not None:
-                roll = ds[navigation_keys.roll]
+                roll = cls.__add_source(ds=ds, source_keys=navigation_keys.roll)
             else:
                 logger.warning(f"Optional parameter roll not specified in datalogger")
                 roll = np.zeros_like(depth)
-        except KeyError:
+        except NoValidSource:
             logger.warning(
                 f"Optional roll parameter for trajectory not found in simulated data: No variable named '{navigation_keys.roll}'")
             roll = np.zeros_like(depth)
@@ -263,6 +258,19 @@ class Trajectory:
                    behaviour=np.array(event, dtype="S8"),
                    time=np.array(time, dtype=np.datetime64),
                    )
+
+    @staticmethod
+    def __add_source(ds: xr.Dataset, source_keys: list[str]):
+        source = None
+        for key in source_keys:
+            try:
+                source = ds[key][~np.isnan(ds[key])]
+                break
+            except KeyError:
+                pass
+        if source is None:
+            raise NoValidSource("no valid source name found")
+        return source
 
 @frozen
 class WorldExtent:
@@ -378,8 +386,8 @@ class Mission:
                                            f"{np.max(trajectory.longitude)},"
                                            f"{np.min(trajectory.latitude)},"
                                            f"{np.max(trajectory.latitude)},))"),
-            time_coverage_end=np.datetime_as_string(trajectory.time[-1], unit="s"),
-            time_coverage_start=np.datetime_as_string(trajectory.time[0], unit="s"),
+            time_coverage_end=str(np.datetime_as_string(trajectory.time[-1], unit="s")),
+            time_coverage_start=str(np.datetime_as_string(trajectory.time[0], unit="s")),
             featureType="Trajectory"
         )
 
@@ -467,7 +475,9 @@ class Mission:
 
         """
         matched_worlds = Worlds2()
-        matched_worlds.search_worlds(cat=cat, payload=self.payload, extent=self.worlds.attributes.extent)
+        source = SourceType.from_string("cmems")
+        local_dir = "rapid_data"
+        matched_worlds.search_worlds(cat=cat, payload=self.payload, extent=self.worlds.attributes.extent,source=source,local_dir=local_dir)
         self.worlds.attributes.matched_worlds = matched_worlds.entries
         data_stores = get_worlds(cat=cat, worlds=self.worlds)
         self.worlds.stores = data_stores
@@ -516,8 +526,8 @@ class Mission:
                 navigation_keys = list(self.platform.sensors[k1].parameters.keys())
                 for k2, parameter in self.platform.sensors[k1].parameters.items():
                     for nav_key in navigation_keys:
-                        if nav_key == parameter.parameter_name:
-                            navigation_alias[nav_key] = parameter.alias
+                        if nav_key == parameter.parameter_id:
+                            navigation_alias[nav_key] = parameter.alternate_labels
         marked_keys = []
         for key in self.payload.keys():
             for k1, v1 in self.platform.sensors.items():
@@ -541,9 +551,10 @@ class Mission:
                     aliases = navigation_alias[key]
                 except KeyError:
                     logger.warning(f"no navigation aliases found for {key}")
-                    aliases = {}
+                    aliases = []
+                aliases_casef = [alias.casefold() for alias in aliases]
                 for key2 in resampled_flight.keys():
-                    if key2 in key.lower() or key2 in key or key2 in aliases:
+                    if key2 in key.casefold() or key2 in aliases_casef:
                         track = resampled_flight[key2]
                 if track is None:
                     logger.warning(f"no interpolator found for parameter {key} marking parameter for removal from payload")
@@ -682,12 +693,12 @@ class Mission:
             }
             # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
             # TODO basically the payload needs to be able to handle parameters aliases
-            x = np.interp(self.payload[initial_parameter][0, :], self.payload["LONGITUDE"][0, :],
-                          self.payload["LONGITUDE"][1, :])
-            y = np.interp(self.payload[initial_parameter][0, :], self.payload["LATITUDE"][0, :],
-                          self.payload["LATITUDE"][1, :])
-            z = np.interp(self.payload[initial_parameter][0, :], self.payload["GLIDER_DEPTH"][0, :],
-                          self.payload["GLIDER_DEPTH"][1, :])
+            x = np.interp(self.payload[initial_parameter][0, :], self.payload["LON"][0, :],
+                          self.payload["LON"][1, :])
+            y = np.interp(self.payload[initial_parameter][0, :], self.payload["LAT"][0, :],
+                          self.payload["LAT"][1, :])
+            z = np.interp(self.payload[initial_parameter][0, :], self.payload["DEPTH"][0, :],
+                          self.payload["DEPTH"][1, :])
             # Create the initial figure
             fig = go.Figure(data=[
                 go.Scatter3d(
@@ -708,12 +719,12 @@ class Mission:
             parameter_dropdown = [
                 {
                     "args": [
-                        {"x": [np.interp(self.payload[parameter][0, :], self.payload["LONGITUDE"][0, :],
-                                         self.payload["LONGITUDE"][1, :])],  # Update x-coordinates
-                         "y": [np.interp(self.payload[parameter][0, :], self.payload["LATITUDE"][0, :],
-                                         self.payload["LATITUDE"][1, :])],  # Update y-coordinates
-                         "z": [np.interp(self.payload[parameter][0, :], self.payload["GLIDER_DEPTH"][0, :],
-                                         self.payload["GLIDER_DEPTH"][1, :])],
+                        {"x": [np.interp(self.payload[parameter][0, :], self.payload["LON"][0, :],
+                                         self.payload["LON"][1, :])],  # Update x-coordinates
+                         "y": [np.interp(self.payload[parameter][0, :], self.payload["LAT"][0, :],
+                                         self.payload["LAT"][1, :])],  # Update y-coordinates
+                         "z": [np.interp(self.payload[parameter][0, :], self.payload["DEPTH"][0, :],
+                                         self.payload["DEPTH"][1, :])],
                          "marker.color": [np.array(self.payload[parameter][1, :])],
                          # Update the color for the new parameter
                          "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
@@ -948,19 +959,19 @@ class Mission:
         # ds.to_netcdf(f"{name}.nc")
         # logger.success(f"successfully exported {self.attrs['mission']} as netcdf file")
 
-    # From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
-    # Lucas Merckelbach
-    @staticmethod
-    def __convert_to_decimal(x):
-        """
-        Converts a latitude or longitude in NMEA format to decimal degrees
-        """
-        sign = np.sign(x)
-        x_abs = np.abs(x)
-        degrees = np.floor(x_abs / 100.)
-        minutes = x_abs - degrees * 100
-        decimal_format = degrees + minutes / 60.
-        return decimal_format * sign
+    # # From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
+    # # Lucas Merckelbach
+    # @staticmethod
+    # def __convert_to_decimal(x):
+    #     """
+    #     Converts a latitude or longitude in NMEA format to decimal degrees
+    #     """
+    #     sign = np.sign(x)
+    #     x_abs = np.abs(x)
+    #     degrees = np.floor(x_abs / 100.)
+    #     minutes = x_abs - degrees * 100
+    #     decimal_format = degrees + minutes / 60.
+    #     return decimal_format * sign
 
     def create_dim_map(self, msm_cat):
         """
