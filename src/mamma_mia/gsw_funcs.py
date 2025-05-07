@@ -32,8 +32,8 @@ def convert_tsp(practical_salinity:np.ndarray,
 
     conductivity = gsw.C_from_SP(SP=practical_salinity,t=insitu_temperature,p=pressure)
 
-    return {"insitu_temperature":insitu_temperature,
-            "conductivity":conductivity,
-            "pressure":pressure
+    return {"TEMP":insitu_temperature,
+            "CNDC":conductivity,
+            "PRES":pressure
             }
 

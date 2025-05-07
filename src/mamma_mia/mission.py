@@ -610,38 +610,38 @@ class Mission:
             logger.info(f"removing marked {marked_key} from payload")
             del self.payload[marked_key]
 
+        # convert any relevent parameters to insitu types
         for k1, v1 in self.platform.sensors.items():
             if "CNDC" in self.platform.sensors[k1].parameters.keys():
-                sample_rate = self.platform.sensors[k1].sample_rate
-                # if a sample rate has not been explicitly set use the max rate of the sensor
-                if sample_rate == -999:
-                    sample_rate = self.platform.sensors[k1].max_sample_rate
+                self.__convert_parameter(k1=k1,flight=flight,parameter="CNDC")
 
-        # create temp resampled flight based on CNDC sample rate to provide required values to convert model parameters
-        # to insitu ones.
-        # TODO this assumes that CNDC and temperature have the same sample rates which is currently how it would work
-        # TODO since CNDC and TEMP are part of a CTD sensor but it may not always if a different sensor is configured
-        resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
-        logger.info(f"converting payload to insitu parameters")
-        converted = convert_tsp(practical_salinity=self.payload["CNDC"][1,:],
-                                potential_temperature=self.payload["TEMP"][1,:],
-                                depth=resampled_flight["depth"],
-                                latitude=resampled_flight["latitude"],
-                                longitude=resampled_flight["longitude"],)
-        logger.success(f"converted payload to insitu parameters successfully")
-        logger.info("updating payload with new parameters")
-        self.payload["CNDC"][1,:] = converted["conductivity"]
-        self.payload["TEMP"][1,:] = converted["insitu_temperature"]
-        # Use temperature time steps to populate pressures timesteps
-        # TODO this again assumes that pressure is logged at the same interval as temperature (which is fine for CTD sensors)
-        # TODO but may not always be the case
-        # Need to trim the pressure array to match what temperature and salinity was sampled too.
-        # This uses the size from salinity and values from temp to ensure both are there and the same size. (Sorry!)
-        n = self.payload["CNDC"][0,:].__len__()
-        self.payload["PRES"][0,:n] = self.payload["TEMP"][0,:]
-        self.payload["PRES"][1,:n] = converted["pressure"]
+            if "TEMP" in self.platform.sensors[k1].parameters.keys():
+                self.__convert_parameter(k1=k1,flight=flight,parameter="TEMP")
+
+            if "PRES" in self.platform.sensors[k1].parameters.keys():
+                self.__convert_parameter(k1=k1,flight=flight,parameter="PRES")
 
         logger.success(f"{self.attrs.mission} flown successfully")
+
+    def __convert_parameter(self,k1:str,flight:dict,parameter:str):
+        sample_rate = self.platform.sensors[k1].sample_rate
+        # if a sample rate has not been explicitly set use the max rate of the sensor
+        if sample_rate == -999:
+            sample_rate = self.platform.sensors[k1].max_sample_rate
+        logger.info(f"converting {parameter} from model type to glider type")
+        resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
+        converted = convert_tsp(practical_salinity=self.payload["CNDC"][1, :],
+                                potential_temperature=self.payload["TEMP"][1, :],
+                                depth=resampled_flight["depth"],
+                                latitude=resampled_flight["latitude"],
+                                longitude=resampled_flight["longitude"], )
+        if parameter == "PRES":
+            n = self.payload["TEMP"][0, :].__len__()
+            self.payload["PRES"][0, :n] = self.payload["TEMP"][0, :]
+            self.payload["PRES"][1, :n] = converted[parameter]
+        else:
+            self.payload[parameter][1, :] = converted[parameter]
+        logger.success(f"converted {parameter} successfully")
 
     @staticmethod
     def _resample_flight(flight, new_interval_seconds):
