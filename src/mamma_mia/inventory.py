@@ -93,7 +93,7 @@ class InventoryClass:
         """
         parameters = []
         for parameter in self.parameters.entries.values():
-            parameters.append(parameter.parameter_name)
+            parameters.append(parameter.parameter_id)
         return parameters
 
     def list_parameter_aliases(self):
@@ -104,12 +104,12 @@ class InventoryClass:
         """
         parameter_aliases = {}
         for parameter in self.parameters.entries.values():
-            parameter_aliases[parameter.parameter_name] = parameter.alias
+            parameter_aliases[parameter.parameter_id] = parameter.alternate_labels
         return parameter_aliases
 
     def get_parameter_info(self,parameter_ref:str):
         for parameter in self.parameters.entries.values():
-            if parameter_ref == parameter.parameter_name or parameter_ref in parameter.alias:
+            if parameter_ref == parameter.parameter_id or parameter_ref in parameter.alternate_labels:
                 return parameter
 
     def create_platform_entity(self,entity_name: str, platform: str):

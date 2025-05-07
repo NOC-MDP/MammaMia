@@ -66,8 +66,6 @@ class Campaign:
                     title:str,
                     platform_name:str,
                     trajectory_path:str,
-                    store=None,
-                    overwrite=False,
                     excess_space: int = 0.5,
                     extra_depth: int = 100,
                     msm_priority: int = 2,
@@ -91,8 +89,6 @@ class Campaign:
             mission_name: name of the mission
             title: title of the mission
             trajectory_path: path to auv trajectory netcdf
-            store: specify zarr store (Directory etc) default is memory store
-            overwrite: overwrite an existing mission store, default is false
             excess_space: amount of excess space to add to model/world download in decimal degrees, default is 0.5
             extra_depth: amount of excess depth to add to model/world download in metres, default is 100
             msm_priority: priority value for msm world sources (higher values have greater priority)
@@ -111,7 +107,7 @@ class Campaign:
         except KeyError:
             raise UnknownPlatform
 
-        mission = Mission(mission=mission_name,
+        mission = Mission.from_campaign(mission=mission_name,
                           title=title,
                           summary=summary,
                           platform=platform_n,
@@ -119,8 +115,6 @@ class Campaign:
                           creator=creator,
                           publisher=publisher,
                           contributor=contributor,
-                          store=store,
-                          overwrite=overwrite,
                           excess_space=excess_space,
                           extra_depth=extra_depth,
                           msm_priority=msm_priority,
@@ -129,9 +123,9 @@ class Campaign:
                           vertical_crs = vertical_crs,
                           )
         interpolator = Interpolators()
-        self.missions[mission.attrs['mission']] = mission
-        self.interpolators[mission.attrs['mission']] = interpolator
-        logger.success(f"successfully added mission {mission.attrs['mission']} to campaign {self.name}")
+        self.missions[mission.attrs.mission] = mission
+        self.interpolators[mission.attrs.mission] = interpolator
+        logger.success(f"successfully added mission {mission.attrs.mission} to campaign {self.name}")
 
     def build_missions(self) -> None:
         """
@@ -146,12 +140,12 @@ class Campaign:
         logger.success(f"successfully initialized catalog for {self.name}")
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
-            logger.info(f"building {mission.attrs['mission']}")
+            logger.info(f"building {mission.attrs.mission}")
             mission.build_mission(cat=self.catalog)
-            logger.success(f"successfully built {mission.attrs['mission']}")
+            logger.success(f"successfully built {mission.attrs.mission}")
         for key, interpol in self.interpolators.items():
             logger.info(f"building interpolators for {key}")
-            interpol.build(worlds=self.missions[key]["world"],mission=key)
+            interpol.build(worlds=self.missions[key].worlds,mission=key)
             logger.success(f"successfully built interpolators for {key}")
 
     def enable_interpolator_cache(self) -> None:
@@ -173,8 +167,8 @@ class Campaign:
         """
         logger.info(f"running {self.name}")
         for mission in self.missions.values():
-            logger.info(f"flying {mission.attrs['mission']}")
-            mission.fly(self.interpolators[mission.attrs['mission']])
+            logger.info(f"flying {mission.attrs.mission}")
+            mission.fly(self.interpolators[mission.attrs.mission])
         logger.success(f"{self.name} finished successfully")
 
     def export(self,overwrite=True,export_path=None) -> None:
@@ -188,13 +182,13 @@ class Campaign:
             void: Campaign object is exported to zarr store. NOTE: interpolators and catalogs cannot be exported.
 
         """
+        campaign_name = self.name.replace(" ","_")
         logger.info(f"exporting {self.name}")
-
         if export_path is None:
-            logger.info(f"creating zarr store at {self.name}.zarr")
-            export_path = f"{self.name}.zarr"
+            logger.info(f"creating zarr store at {campaign_name}.zarr")
+            export_path = f"{campaign_name}.zarr"
         else:
-            logger.info(f"exporting zarr store at {export_path}{sep}{self.name}.zarr")
+            logger.info(f"exporting zarr store at {export_path}{sep}{campaign_name}.zarr")
         store = zarr.DirectoryStore(f"{export_path}")
         logger.info(f"creating zarr group {self.name} in store")
         camp = zarr.group(store=store,overwrite=overwrite)
@@ -204,13 +198,13 @@ class Campaign:
         logger.success(f"zarr group {self.name} successfully created")
 
         for key1, mission in self.missions.items():
-            mission.create_dim_map(msm_cat=self.catalog.msm_cat)
-            logger.info(f"creating zarr group for mission {mission.attrs['mission']}")
-            camp.create_group(mission.attrs['mission'])
-            logger.info(f"exporting {mission.attrs['mission']}")
-            zarr.copy_all(source=mission,dest=camp[mission.attrs['mission']])
-            mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
-            logger.success(f"successfully exported {mission.attrs['mission']}")
+            #mission.create_dim_map(msm_cat=self.catalog.msm_cat)
+            logger.info(f"creating zarr group for mission {mission.attrs.mission}")
+            camp.create_group(mission.attrs.mission)
+            logger.info(f"exporting {mission.attrs.mission}")
+            mission.export_as_zarr(store=store)
+            #mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
+            logger.success(f"successfully exported {mission.attrs.mission}")
         logger.info(f"consolidating metadata for {export_path}")
         # TODO fix the consilidate meta data warning that happens here
         zarr.consolidate_metadata(store=store)

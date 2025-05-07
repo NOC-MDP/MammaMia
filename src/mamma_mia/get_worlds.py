@@ -7,12 +7,12 @@ import zarr
 from mamma_mia.exceptions import UnknownSourceKey
 import xarray as xr
 
-def get_worlds(cat: Cats, world:zarr.Group) -> dict:
+def get_worlds(cat: Cats, worlds) -> dict:
     """
     function that will get the worlds/model data as specified in the matched worlds attribute in the provided world zarr group.
     Args:
         cat: initialised Cats object that contains all the source data available to download
-        world: worlds zarr group that contains an updated matched worlds attribute to allow model data to be downloaded
+        worlds:
 
     Returns:
         dict: dictionary containing the locations of the downloaded model data zarr stores. The world zarr group is also
@@ -21,20 +21,21 @@ def get_worlds(cat: Cats, world:zarr.Group) -> dict:
 
     """
     zarr_stores = {}
-    for key, value in world.attrs["matched_worlds"]["entries"].items():
+    for key, value in worlds.attributes.matched_worlds.items():
         split_key = key.split("_")
 
         if split_key[0] == "cmems":
-            zarr_store = __get_cmems_worlds(key=key, value=value,world=world)
+            zarr_store = __get_cmems_worlds(value=value,worlds=worlds)
             zarr_stores[key] = zarr_store
         elif split_key[0] == "msm":
-            zarr_store = __get_msm_worlds(key=key, value=value, catalog=cat,world=world)
-            zarr_stores[key] = zarr_store
+            pass
+        #     zarr_store = __get_msm_worlds(key=key, value=value, catalog=cat,world=world)
+        #     zarr_stores[key] = zarr_store
         else:
             logger.error("unknown model source key")
             raise UnknownSourceKey
         zarr_source = zarr.open(zarr_store, mode='r')
-        zarr.copy_all(source=zarr_source, dest=world[key])
+        worlds.worlds[key] = zarr_source
 
     return zarr_stores
 
@@ -106,7 +107,7 @@ def __get_msm_worlds(key: str, value, catalog: Cats,world:zarr.Group) -> str:
     return zarr_d + zarr_f
 
 
-def __get_cmems_worlds(key: str, value,world:zarr.Group) -> str:
+def __get_cmems_worlds(value,worlds) -> str:
     """
     function that downloads model data from CMEMS, data must match the temporal and spatial extents of the auv, and also
     have the required variables to match the sensor arrays of the auv.
@@ -120,38 +121,30 @@ def __get_cmems_worlds(key: str, value,world:zarr.Group) -> str:
         the downloaded model data.
 
     """
-    vars2 = []
-    # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
-    for k2, v2 in value.items():
-        vars2.append(v2)
-    cmems = world.create_group(key)
-    cmems.attrs["spatial_extent"] = {"max_lng": world.attrs["extent"]["max_lng"],
-                                     "min_lng": world.attrs["extent"]["min_lng"],
-                                     "max_lat": world.attrs["extent"]["max_lat"],
-                                     "min_lat": world.attrs["extent"]["min_lat"],
-                                     "max_depth": world.attrs["extent"]["max_depth"]}
-    cmems.attrs["temporal_extent"] = {"start_time": world.attrs["extent"]["start_time"],
-                                      "end_time": world.attrs["extent"]["end_time"]}
+    # vars2 = []
+    # # pull out the var names that CMEMS needs NOTE not the same as Mamma Mia uses
+    # for k2, v2 in value.items():
+    #     vars2.append(v2)
 
-    zarr_f = (f"{value['data_id']}_{cmems.attrs['spatial_extent']['max_lng']}_{cmems.attrs['spatial_extent']['min_lng']}_"
-              f"{cmems.attrs['spatial_extent']['max_lat']}_{cmems.attrs['spatial_extent']['min_lat']}_"
-              f"{cmems.attrs['spatial_extent']['max_depth']}_{cmems.attrs['temporal_extent']['start_time']}_"
-              f"{cmems.attrs['temporal_extent']['end_time']}.zarr")
+    zarr_f = (f"{value.data_id}_{worlds.attributes.extent.lon_max}_{worlds.attributes.extent.lon_min}_"
+              f"{worlds.attributes.extent.lat_max}_{worlds.attributes.extent.lat_min}_"
+              f"{worlds.attributes.extent.depth_max}_{worlds.attributes.extent.time_start}_"
+              f"{worlds.attributes.extent.time_end}.zarr")
     zarr_d = "copernicus-data/"
     logger.info(f"getting cmems world {zarr_f}")
     if not os.path.isdir(zarr_d + zarr_f):
         logger.info(f"{zarr_f} has not been cached, downloading now")
         copernicusmarine.subset(
-            dataset_id=value['data_id'],
-            variables=list(value["variable_alias"].keys()),
-            minimum_longitude=cmems.attrs['spatial_extent']['min_lng'],
-            maximum_longitude=cmems.attrs['spatial_extent']['max_lng'],
-            minimum_latitude=cmems.attrs['spatial_extent']['min_lat'],
-            maximum_latitude=cmems.attrs['spatial_extent']['max_lat'],
-            start_datetime=str(cmems.attrs['temporal_extent']['start_time']),
-            end_datetime=str(cmems.attrs['temporal_extent']['end_time']),
+            dataset_id=value.data_id,
+            variables=list(value.variable_alias.keys()),
+            minimum_longitude=worlds.attributes.extent.lon_min,
+            maximum_longitude=worlds.attributes.extent.lon_max,
+            minimum_latitude=worlds.attributes.extent.lat_min,
+            maximum_latitude=worlds.attributes.extent.lat_max,
+            start_datetime=str(worlds.attributes.extent.time_start),
+            end_datetime=str(worlds.attributes.extent.time_end),
             minimum_depth=0,
-            maximum_depth=cmems.attrs['spatial_extent']['max_depth'],
+            maximum_depth=worlds.attributes.extent.depth_max,
             output_filename=zarr_f,
             output_directory=zarr_d,
             file_format="zarr",

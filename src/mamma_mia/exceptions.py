@@ -57,3 +57,6 @@ class DataloggerNotFound(Exception):
 
 class InvalidEntity(Exception):
     pass
+
+class NoValidSource(Exception):
+    pass
