@@ -262,6 +262,7 @@ class Worlds:
                                     # after all that PHEW! we can add to matched entries
                                     logger.success(f"found a match in {dataset['dataset_id']} for {key}")
                                     # TODO validation on remaining fields if appropriate, e.g. do we need to validate resolution?
+
                                     new_world = MatchedWorld(
                                         data_id = dataset["dataset_id"],
                                         source=SourceType.from_string(enum_string=parts[0]),
@@ -274,7 +275,7 @@ class Worlds:
                                     )
                                     # create a new world entry based on existing entries ranking and variables.
                                     # NOTE this assumes that all variables of a dataset exist across all field types.
-                                    # TODO check that the above assumption is true
+                                    # TODO check that the assumption in the comment above is true
                                     if world_id in self.entries:
                                         # if the rank of existing world is higher (and therefore not as good) replace
                                         if self.entries[world_id].field_type.rank > new_world.field_type.rank:

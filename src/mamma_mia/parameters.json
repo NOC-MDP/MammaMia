@@ -32,7 +32,7 @@
                 "unit_identifier": "SDN:P06::UPAA",
                 "parameter_definition": "Temperature of the water body by CTD or STD",
                 "alternate_labels": ["TEMP"],
-                "source_names": ["sci_water_temp"]
+                "source_names": ["sci_water_temp","thetao"]
             },
             {
                 "parameter_id": "CHLA",
