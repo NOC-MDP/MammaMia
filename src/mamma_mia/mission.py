@@ -67,6 +67,9 @@ class Creator:
 
 @define
 class NavigationKeys:
+    """
+    stores navigation variable keys for input trajectory datasets
+    """
     latitude: list[str]
     longitude: list[str]
     depth: list[str]
@@ -82,7 +85,7 @@ class NavigationKeys:
             "longitude": None,
             "depth": None,
             "time": None,
-            # as the below is optional, they should not be None as this causes issues with exporting
+            # as the keys below are optional, they should not be None as this causes issues with exporting
             "pitch": "",
             "roll": "",
             "yaw": "",
@@ -98,8 +101,6 @@ class NavigationKeys:
 
         if nav_keys["latitude"] is None or nav_keys["longitude"] is None or nav_keys["depth"] is None or nav_keys["time"] is None:
             raise CriticalParameterMissing("missing critical navigation parameter")
-
-
 
         return cls(latitude=nav_keys["latitude"],
                    longitude=nav_keys["longitude"],
@@ -138,6 +139,7 @@ class MissionAttributes:
     publisher: Publisher
     contributor: Contributor
     standard_name_vocabulary: str
+
 
 @frozen
 class GeospatialAttributes:
@@ -192,8 +194,6 @@ class Trajectory:
         latitude = cls.__add_source(ds=ds, source_keys=navigation_keys.latitude)
         longitude =cls.__add_source(ds=ds, source_keys=navigation_keys.longitude)
         depth = cls.__add_source(ds=ds, source_keys=navigation_keys.depth)
-        # as time doesn't tend to have NaNs' filter based on latitude NaN's
-        #time = ds[navigation_keys.time][~np.isnan(ds[navigation_keys.latitude])]
         time = cls.__add_source(ds=ds, source_keys=navigation_keys.time)
 
         if latitude.size != depth.size or longitude.size != depth.size or latitude.size != longitude.size:
@@ -261,6 +261,15 @@ class Trajectory:
 
     @staticmethod
     def __add_source(ds: xr.Dataset, source_keys: list[str]):
+        """
+        tries each source key and returns first matching source dataset
+        Args:
+            ds:
+            source_keys:
+
+        Returns:
+            input dataset variable
+        """
         source = None
         for key in source_keys:
             try:
@@ -598,6 +607,8 @@ class Mission:
             logger.info(f"removing marked {marked_key} from payload")
             del self.payload[marked_key]
 
+
+
         logger.success(f"{self.attrs.mission} flown successfully")
 
     @staticmethod
@@ -791,7 +802,7 @@ class Mission:
                                      }
 
             # List of available color scales for the user to choose from
-            colour_scales = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
+            #colour_scales = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
 
             # Initial setup: first parameter and color scale
             initial_colour_scale = "Jet"

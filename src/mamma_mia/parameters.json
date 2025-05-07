@@ -1,6 +1,6 @@
 {
     "parameters": {
-        "environmental": [
+        "science": [
             {
                 "parameter_id": "CNDC",
                 "identifier": "SDN:OG1::CNDC",
@@ -35,17 +35,6 @@
                 "source_names": ["sci_water_temp"]
             },
             {
-                "parameter_id": "CFSN0329",
-                "identifier": "SDN:P07::CFSN0329",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0329/",
-                "standard_name": "sea_water_potential_temperature",
-                "unit_of_measure": "Degrees Celsius",
-                "unit_identifier": "SDN:P06::UPAA",
-                "parameter_definition": "Sea water potential temperature is the temperature a parcel of sea water would have if moved adiabatically to sea level pressure.",
-                "alternate_labels": ["potential_temperature"],
-                "source_names": ["thetao"]
-            },
-            {
                 "parameter_id": "CHLA",
                 "identifier": "SDN:OG1::CHLA",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/CHLA/",
@@ -77,6 +66,74 @@
                 "parameter_definition": "Particle backscattering at 700 nanometers",
                 "alternate_labels": ["BBP700"],
                 "source_names": ["sci_flbbcd_bb_units"]
+            }
+        ],
+        "model": [
+            {
+                "parameter_id": "CFSN0329",
+                "identifier": "SDN:P07::CFSN0329",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0329/",
+                "standard_name": "sea_water_potential_temperature",
+                "unit_of_measure": "Degrees Celsius",
+                "unit_identifier": "SDN:P06::UPAA",
+                "parameter_definition": "Sea water potential temperature is the temperature a parcel of sea water would have if moved adiabatically to sea level pressure.",
+                "alternate_labels": ["potential_temperature"],
+                "source_names": ["thetao"]
+            },
+            {
+                "parameter_id": "CFSN0331",
+                "identifier": "SDN:P07::CFSN0331",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0331/",
+                "standard_name": "sea_water_salinity",
+                "unit_of_measure": "Dimensionless",
+                "unit_identifier": "SDN:P06::UUUU",
+                "parameter_definition": "Sea water salinity is the salt content of sea water, often on the Practical Salinity Scale of 1978. However, the unqualified term &amp;apos;salinity&amp;apos; is generic and does not necessarily imply any particular method of calculation. ",
+                "alternate_labels": ["SALINITY"],
+                "source_names": ["so"]
+            },
+            {
+                "parameter_id": "CFSN0650",
+                "identifier": "SDN:P07::CFSN0650",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0650/",
+                "standard_name": "eastward_sea_water_velocity",
+                "unit_of_measure": "Metres per second",
+                "unit_identifier": "SDN:P06::UVAA",
+                "parameter_definition": "A velocity is a vector quantity. 'Eastward' indicates a vector component which is positive when directed eastward (negative westward).",
+                "alternate_labels": ["Eastward ocean current velocity"],
+                "source_names": ["uo"]
+            },
+            {
+                "parameter_id": "CFSN0494",
+                "identifier": "SDN:P07::CFSN0494",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0494/",
+                "standard_name": "northward_sea_water_velocity",
+                "unit_of_measure": "Metres per second",
+                "unit_identifier": "SDN:P06::UVAA",
+                "parameter_definition": "A velocity is a vector quantity. 'Northward' indicates a vector component which is positive when directed northward (negative southward).",
+                "alternate_labels": ["Northward ocean current velocity"],
+                "source_names": ["vo"]
+            },
+            {
+                "parameter_id": "CFSN0600",
+                "identifier": "SDN:P07::CFSN0600",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0600/",
+                "standard_name": "latitude",
+                "unit_of_measure": "Degrees north",
+                "unit_identifier": "SDN:P06::DEGN",
+                "parameter_definition": "Latitude is positive northward; its units of degree_north (or equivalent) indicate this explicitly. ",
+                "alternate_labels": ["Latitude"],
+                "source_names": ["nav_lat"]
+            },
+            {
+                "parameter_id": "CFSN0554",
+                "identifier": "SDN:P07::CFSN0554",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0554/",
+                "standard_name": "longitude",
+                "unit_of_measure": "Degrees east",
+                "unit_identifier": "SDN:P06::DEGE",
+                "parameter_definition": "Longitude is positive eastward; its units of degree_east (or equivalent) indicate this explicitly.",
+                "alternate_labels": ["Longitude"],
+                "source_names": ["nav_lon"]
             }
         ],
         "navigation": [

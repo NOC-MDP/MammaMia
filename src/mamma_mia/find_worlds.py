@@ -157,7 +157,8 @@ class Worlds:
                     raise ValueError(f"unknown source type {source.value}")
 
 
-    def __find_local_worlds(self,key:str,extent,local_dir:str) -> None:
+    @staticmethod
+    def __find_local_worlds(key:str, extent, local_dir:str) -> None:
         logger.info(f"searching local directory {local_dir}")
         for dirpath, _, filenames in os.walk(local_dir):
             for filename in filenames:
@@ -166,7 +167,7 @@ class Worlds:
                     ds = xr.open_dataset(nc_path)
                     for key2, var in ds.variables.items():
                         if key2 not in ds.coords.variables.keys():
-                            if var.attrs.values() in inventory.parameters.entries[key].alternate_labels:
+                            if var.attrs.values() in inventory.parameters.entries[key].source_names:
                                 print(var.attrs)
 
     def __find_cmems_worlds(self,key: str ,cat :Cats,extent) -> None:
