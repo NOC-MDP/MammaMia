@@ -555,6 +555,7 @@ class Mission:
                 track = interpolator.interpolator[key].quadrivariate(flight_subset)
             except KeyError:
                 track = None
+                # pressure is kind of a special case as its not found in the models and is derived from trajectory depth
                 if key == "PRES":
                     continue
                 # see if parameter is a datalogger one and get from resampled flight directly
@@ -610,38 +611,51 @@ class Mission:
             logger.info(f"removing marked {marked_key} from payload")
             del self.payload[marked_key]
 
-        # convert any relevent parameters to insitu types
-        for k1, v1 in self.platform.sensors.items():
-            if "CNDC" in self.platform.sensors[k1].parameters.keys():
-                self.__convert_parameter(k1=k1,flight=flight,parameter="CNDC")
+        #check for any alternative parameters and convert as needed
+        conversion_to_apply = []
+        for world in self.worlds.attributes.matched_worlds.values():
+            for alt_key, alt_parameter in world.alternative_parameter.items():
+                if alt_parameter is not None:
+                    logger.info(f"alternative parameter field is not None, {alt_key} requires conversion from {alt_parameter}")
+                    for k1, v1 in self.platform.sensors.items():
+                        if alt_key in self.platform.sensors[k1].parameters.keys():
+                            conversion_to_apply.append(alt_key)
+                            conversion_to_apply.append(alt_parameter)
 
-            if "TEMP" in self.platform.sensors[k1].parameters.keys():
-                self.__convert_parameter(k1=k1,flight=flight,parameter="TEMP")
-
-            if "PRES" in self.platform.sensors[k1].parameters.keys():
-                self.__convert_parameter(k1=k1,flight=flight,parameter="PRES")
+        self.__convert_parameters(conversion_to_apply,flight=flight)
 
         logger.success(f"{self.attrs.mission} flown successfully")
 
-    def __convert_parameter(self,k1:str,flight:dict,parameter:str):
-        sample_rate = self.platform.sensors[k1].sample_rate
-        # if a sample rate has not been explicitly set use the max rate of the sensor
-        if sample_rate == -999:
-            sample_rate = self.platform.sensors[k1].max_sample_rate
-        logger.info(f"converting {parameter} from model type to glider type")
-        resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
-        converted = convert_tsp(practical_salinity=self.payload["CNDC"][1, :],
-                                potential_temperature=self.payload["TEMP"][1, :],
-                                depth=resampled_flight["depth"],
-                                latitude=resampled_flight["latitude"],
-                                longitude=resampled_flight["longitude"], )
-        if parameter == "PRES":
-            n = self.payload["TEMP"][0, :].__len__()
-            self.payload["PRES"][0, :n] = self.payload["TEMP"][0, :]
-            self.payload["PRES"][1, :n] = converted[parameter]
-        else:
-            self.payload[parameter][1, :] = converted[parameter]
-        logger.success(f"converted {parameter} successfully")
+    def __convert_parameters(self, conversion_to_apply,flight):
+        if "CFSN0329" and "CFSN0331" and "CNDC" and "TEMP" in conversion_to_apply:
+            logger.info("converting potential temperature and practical salinity to insitu temperature and conductivity")
+            for k1, v1 in self.platform.sensors.items():
+                if "CNDC" in self.platform.sensors[k1].parameters.keys():
+                    sample_rate = self.platform.sensors[k1].sample_rate
+                    # if a sample rate has not been explicitly set use the max rate of the sensor
+                    if sample_rate == -999:
+                        sample_rate = self.platform.sensors[k1].max_sample_rate
+                    resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
+                    converted = convert_tsp(practical_salinity=self.payload["CNDC"][1, :],
+                                            potential_temperature=self.payload["TEMP"][1, :],
+                                            depth=resampled_flight["depth"],
+                                            latitude=resampled_flight["latitude"],
+                                            longitude=resampled_flight["longitude"], )
+
+                    self.payload["CNDC"][1, :] = converted["CNDC"]
+                    self.payload["TEMP"][1, :] = converted["TEMP"]
+                    n = self.payload["CNDC"][0, :].__len__()
+                    # TODO this is a bit hidden away, not sure if to make the conversion explicit with pressure or not
+                    # if there is a pressure parameter in the payload, create a payload as a byproduct of the temp sal conversion
+                    try:
+                        logger.info("pressure data now available: creating a pressure payload")
+                        self.payload["PRES"][0,:n] = self.payload["CNDC"][0,:]
+                        self.payload["PRES"][1,:n] = converted["PRES"]
+                        self.payload["PRES"] = self.payload["PRES"][:, :n]
+                        logger.success("Pressure payload created successfully")
+                    except KeyError:
+                        pass
+                    logger.success(f"conversion completed successfully")
 
     @staticmethod
     def _resample_flight(flight, new_interval_seconds):

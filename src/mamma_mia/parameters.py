@@ -17,6 +17,7 @@ class Parameter:
     unit_of_measure: str
     unit_identifier: str
     parameter_definition: str
+    alternate_sources: list[str]
     alternate_labels: list[str]
     source_names: list[str]
 

@@ -129,6 +129,7 @@ class MatchedWorld:
     domain: DomainType
     dataset_name: str
     resolution: str
+    alternative_parameter: dict | None
     field_type: FieldTypeWithRank
     variable_alias: dict
 
@@ -182,6 +183,11 @@ class Worlds:
         Returns:
             matched worlds dictionary containing dataset ids and variable names that reside within it.
         """
+        # if there are any alternative sources built a list of their source names.
+        alternative_sources = inventory.parameters.entries[key].alternate_sources
+        alternative_source_names = {}
+        for src in alternative_sources:
+            alternative_source_names[src] = inventory.parameters.entries[src].source_names
         for k1, v1 in cat.cmems_cat.items():
             logger.info(f"searching cmems {k1}")
             for i in range(len(v1)):
@@ -204,7 +210,14 @@ class Worlds:
                         if key not in inventory.parameters.entries.keys():
                             #logger.warning(f"variable {key} not in alias file")
                             continue
-                        if variables[m]["short_name"] in inventory.parameters.entries[key].source_names:
+                        ## if the variable is not in source names (quite likely) then need to search the alternative source names created above
+                        alternative_parameter = None
+                        for alt_key,alt_src in alternative_source_names.items():
+                            if variables[m]["short_name"] in alt_src:
+                                alternative_parameter = alt_key
+                                break
+                        # check to see if variable matches source names or alterative parameter
+                        if variables[m]["short_name"] in inventory.parameters.entries[key].source_names or alternative_parameter is not None:
                             # TODO add in a NAN check here in case extent has nans rather than values
                             # if trajectory spatial extent is within variable data
                             if (variables[m]["bbox"][0] < extent.lon_min and
@@ -271,7 +284,8 @@ class Worlds:
                                         dataset_name=parts[3],
                                         resolution=parts[5],
                                         field_type=field_type,
-                                        variable_alias={variables[m]["short_name"]:key}
+                                        variable_alias={variables[m]["short_name"]:key},
+                                        alternative_parameter={key:alternative_parameter},
                                     )
                                     # create a new world entry based on existing entries ranking and variables.
                                     # NOTE this assumes that all variables of a dataset exist across all field types.
@@ -281,16 +295,23 @@ class Worlds:
                                         if self.entries[world_id].field_type.rank > new_world.field_type.rank:
                                             # get any existing variables
                                             existing_vars = self.entries[world_id].variable_alias
+                                            # get any existing alternative variables
+                                            existing_alts = self.entries[world_id].alternative_parameter
                                             self.entries[world_id] = new_world
                                             # add new variables if they aren't already present
                                             for key5,var5 in existing_vars.items():
                                                 if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
                                                     self.entries[world_id].variable_alias[key5] = var5
+                                            for key6,var6 in existing_alts.items():
+                                                if variables[m]["short_name"] not in self.entries[world_id].alternative_parameter.keys():
+                                                    self.entries[world_id].alternative_parameter[key6] = var6
                                         else:
                                             # if ranking is not better than just update with the variable name
                                             logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type.field_type.name}")
                                             if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
                                                 self.entries[world_id].variable_alias[variables[m]["short_name"]] = key
+                                            if variables[m]["short_name"] not in self.entries[world_id].alternative_parameter.keys():
+                                                self.entries[world_id].alternative_parameter[key] = alternative_parameter
                                     else:
                                         # world doesn't exist yet so just add as a complete entry
                                         logger.info(f"creating new matched world {dataset['dataset_id']} for key {key}")

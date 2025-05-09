@@ -9,8 +9,9 @@
                 "unit_of_measure": "Siemens per metre",
                 "unit_identifier": "SDN:P06::UECA",
                 "parameter_definition": "Electrical conductivity of the water body by CTD",
-                "alternate_labels": ["CNDC"],
-                "source_names": ["sci_water_cond","so"]
+                "alternate_sources": ["CFSN0331"],
+                "alternate_labels": ["Conductivity"],
+                "source_names": ["sci_water_cond"]
             },
             {
                 "parameter_id": "PRES",
@@ -20,7 +21,8 @@
                 "unit_of_measure": "Decibars",
                 "unit_identifier": " SDN:P06::UPDB",
                 "parameter_definition": "Pressure (spatial co-ordinate) exerted by the water body by profiling pressure sensor and corrected to read zero at sea level",
-                "alternate_labels": ["PRES"],
+                "alternate_sources": ["DEPTH"],
+                "alternate_labels": ["PRESSURE"],
                 "source_names": ["sci_water_pressure"]
             },
             {
@@ -31,8 +33,9 @@
                 "unit_of_measure": "Degrees Celsius",
                 "unit_identifier": "SDN:P06::UPAA",
                 "parameter_definition": "Temperature of the water body by CTD or STD",
-                "alternate_labels": ["TEMP"],
-                "source_names": ["sci_water_temp","thetao"]
+                "alternate_sources": ["CFSN0329"],
+                "alternate_labels": ["TEMPERATURE"],
+                "source_names": ["sci_water_temp"]
             },
             {
                 "parameter_id": "CHLA",
@@ -42,6 +45,7 @@
                 "unit_of_measure": "mg/m3",
                 "unit_identifier": " SDN:P06::UMMC",
                 "parameter_definition": "In-situ fluorometer with either manufacturer, laboratory or sample calibration applied.",
+                "alternate_sources": [""],
                 "alternate_labels": ["CHLA"],
                 "source_names": ["sci_flbbcd_chlor_units"]
             },
@@ -53,6 +57,7 @@
                 "unit_of_measure": "Parts per billion",
                 "unit_identifier": "SDN:P06::UPPB",
                 "parameter_definition": "The quantity of coloured organic compounds in solution in unit volume of any body of water.",
+                "alternate_sources": [""],
                 "alternate_labels": ["CDOM"],
                 "source_names": ["sci_flbbcd_cdom_units"]
             },
@@ -64,6 +69,7 @@
                 "unit_of_measure": "per metre",
                 "unit_identifier": "SDN:P06::UPRM",
                 "parameter_definition": "Particle backscattering at 700 nanometers",
+                "alternate_sources": [""],
                 "alternate_labels": ["BBP700"],
                 "source_names": ["sci_flbbcd_bb_units"]
             }
@@ -77,6 +83,7 @@
                 "unit_of_measure": "Degrees Celsius",
                 "unit_identifier": "SDN:P06::UPAA",
                 "parameter_definition": "Sea water potential temperature is the temperature a parcel of sea water would have if moved adiabatically to sea level pressure.",
+                "alternate_sources": [""],
                 "alternate_labels": ["potential_temperature"],
                 "source_names": ["thetao"]
             },
@@ -88,6 +95,7 @@
                 "unit_of_measure": "Dimensionless",
                 "unit_identifier": "SDN:P06::UUUU",
                 "parameter_definition": "Sea water salinity is the salt content of sea water, often on the Practical Salinity Scale of 1978. However, the unqualified term &amp;apos;salinity&amp;apos; is generic and does not necessarily imply any particular method of calculation. ",
+                "alternate_sources": [""],
                 "alternate_labels": ["SALINITY"],
                 "source_names": ["so"]
             },
@@ -99,6 +107,7 @@
                 "unit_of_measure": "Metres per second",
                 "unit_identifier": "SDN:P06::UVAA",
                 "parameter_definition": "A velocity is a vector quantity. 'Eastward' indicates a vector component which is positive when directed eastward (negative westward).",
+                "alternate_sources": [""],
                 "alternate_labels": ["Eastward ocean current velocity"],
                 "source_names": ["uo"]
             },
@@ -110,6 +119,7 @@
                 "unit_of_measure": "Metres per second",
                 "unit_identifier": "SDN:P06::UVAA",
                 "parameter_definition": "A velocity is a vector quantity. 'Northward' indicates a vector component which is positive when directed northward (negative southward).",
+                "alternate_sources": [""],
                 "alternate_labels": ["Northward ocean current velocity"],
                 "source_names": ["vo"]
             },
@@ -121,6 +131,7 @@
                 "unit_of_measure": "Degrees north",
                 "unit_identifier": "SDN:P06::DEGN",
                 "parameter_definition": "Latitude is positive northward; its units of degree_north (or equivalent) indicate this explicitly. ",
+                "alternate_sources": [""],
                 "alternate_labels": ["Latitude"],
                 "source_names": ["nav_lat"]
             },
@@ -132,6 +143,7 @@
                 "unit_of_measure": "Degrees east",
                 "unit_identifier": "SDN:P06::DEGE",
                 "parameter_definition": "Longitude is positive eastward; its units of degree_east (or equivalent) indicate this explicitly.",
+                "alternate_sources": [""],
                 "alternate_labels": ["Longitude"],
                 "source_names": ["nav_lon"]
             }
@@ -145,7 +157,8 @@
                 "unit_of_measure": "Metres",
                 "unit_identifier": "SDN:P06::ULAA",
                 "parameter_definition": "The vertical distance of a platform above the bed surface of a water body.",
-                "alternate_labels": ["ALTITUDE"],
+                "alternate_sources": [""],
+                "alternate_labels": ["ALT"],
                 "source_names": ["m_altitude"]
             },
             {
@@ -156,6 +169,7 @@
                 "unit_of_measure": "Degrees north",
                 "unit_identifier": "SDN:P06::DEGN",
                 "parameter_definition": "Latitude north",
+                "alternate_sources": [""],
                 "alternate_labels": ["LATITUDE"],
                 "source_names": ["m_lat"]
             },
@@ -167,6 +181,7 @@
                 "unit_of_measure": "Degrees North",
                 "unit_identifier": "SDN:P06::DEGN",
                 "parameter_definition": "Latitude north by unspecified GPS system.",
+                "alternate_sources": [""],
                 "alternate_labels": ["LATITUDE_GPS"],
                 "source_names": ["m_gps_lat"]
             },
@@ -178,6 +193,7 @@
                 "unit_of_measure": "Degrees east",
                 "unit_identifier": "SDN:P06::DEGE",
                 "parameter_definition": "Longitude east",
+                "alternate_sources": [""],
                 "alternate_labels": ["LONGITUDE"],
                 "source_names": ["m_lon"]
             },
@@ -189,6 +205,7 @@
                 "unit_of_measure": "Degrees east",
                 "unit_identifier": "SDN:P06::DEGE",
                 "parameter_definition": "Longitude east by unspecified GPS system.",
+                "alternate_sources": [""],
                 "alternate_labels": ["LONGITUDE_GPS"],
                 "source_names": ["m_gps_lon"]
             },
@@ -200,6 +217,7 @@
                 "unit_of_measure": "Centimetres per second",
                 "unit_identifier": " SDN:P06::UVBB",
                 "parameter_definition": "The depth-averaged current in the x-axis using dead reckoning between two surfacings.",
+                "alternate_sources": [""],
                 "alternate_labels": ["WATERCURRENTS_U"],
                 "source_names": ["m_final_water_vx","uo"]
             },
@@ -211,6 +229,7 @@
                 "unit_of_measure": "",
                 "unit_identifier": "",
                 "parameter_definition": "",
+                "alternate_sources": [""],
                 "alternate_labels": [""],
                 "source_names": [""]
             },
@@ -222,6 +241,7 @@
                 "unit_of_measure": "Centimetres per second",
                 "unit_identifier": "SDN:P06::UVBB",
                 "parameter_definition": "The depth-averaged current in the y-axis using dead reckoning between two surfacings.",
+                "alternate_sources": [""],
                 "alternate_labels": ["WATERCURRENTS_V"],
                 "source_names": ["m_final_water_vy","vo"]
             },
@@ -233,6 +253,7 @@
                 "unit_of_measure": "Degrees",
                 "unit_identifier": "SDN:P06::UAAA",
                 "parameter_definition": "The up/down rotation of a platform relative to it Y axis as measured by an inclinometer.",
+                "alternate_sources": [""],
                 "alternate_labels": ["GLIDER_PITCH"],
                 "source_names": ["m_pitch"]
             },
@@ -244,6 +265,7 @@
                 "unit_of_measure": "Degrees",
                 "unit_identifier": "SDN:P06::UAAA",
                 "parameter_definition": "The tilting rotation of a platform relative to its longitudinal/X axis as measured by an inclinometer.",
+                "alternate_sources": [""],
                 "alternate_labels": ["GLIDER_ROLL"],
                 "source_names": ["m_roll"]
             },
@@ -255,6 +277,7 @@
                 "unit_of_measure": "Metres",
                 "unit_identifier": "SDN:P06::ULAA",
                 "parameter_definition": "Depth below surface of the water body by unknown instrument and correction to zero at sea level using unspecified algorithm.",
+                "alternate_sources": [""],
                 "alternate_labels": ["GLIDER_DEPTH"],
                 "source_names": ["m_depth"]
             }
@@ -268,6 +291,7 @@
                 "unit_of_measure": "Seconds",
                 "unit_identifier": "SDN:P06::UTBB",
                 "parameter_definition": "Time elapsed since 1970-01-01T00:00:00Z.",
+                "alternate_sources": [""],
                 "alternate_labels": ["TIME"],
                 "source_names": ["time"]
             }
