@@ -621,6 +621,7 @@ class Mission:
                         if alt_key in self.platform.sensors[k1].parameters.keys():
                             conversion_to_apply.append(alt_key)
                             conversion_to_apply.append(alt_parameter)
+                            conversion_to_apply.append(" | ")
 
         self.__convert_parameters(conversion_to_apply,flight=flight)
 
@@ -630,22 +631,35 @@ class Mission:
         if "CFSN0329" and "CFSN0331" and "CNDC" and "TEMP" in conversion_to_apply:
             logger.info("converting potential temperature and practical salinity to insitu temperature and conductivity")
             for k1, v1 in self.platform.sensors.items():
-                if "CNDC" in self.platform.sensors[k1].parameters.keys():
+                if "CNDC" in self.platform.sensors[k1].parameters.keys() and "TEMP" in self.platform.sensors[k1].parameters.keys():
                     sample_rate = self.platform.sensors[k1].sample_rate
                     # if a sample rate has not been explicitly set use the max rate of the sensor
                     if sample_rate == -999:
                         sample_rate = self.platform.sensors[k1].max_sample_rate
                     resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
+                    events = self.trajectory.behaviour[:].astype(str)
+                    event_idx_for_payload = np.searchsorted(flight["time"], resampled_flight["time"], side="right") - 1
+                    event_idx_for_payload = np.clip(event_idx_for_payload, 0, flight["time"].__len__() - 1)
+                    event_at_payload = events[event_idx_for_payload]
+                    event_mask = np.isin(event_at_payload, self.platform.sensor_behaviour.value)
+                    n = len(resampled_flight["depth"][event_mask])
+                    masked_depth = resampled_flight["depth"][event_mask]
+                    masked_depth = masked_depth[:n]
+                    masked_lat = resampled_flight["latitude"][event_mask]
+                    masked_lat = masked_lat[:n]
+                    masked_lon = resampled_flight["longitude"][event_mask]
+                    masked_lon = masked_lon[:n]
+
                     converted = convert_tsp(practical_salinity=self.payload["CNDC"][1, :],
                                             potential_temperature=self.payload["TEMP"][1, :],
-                                            depth=resampled_flight["depth"],
-                                            latitude=resampled_flight["latitude"],
-                                            longitude=resampled_flight["longitude"], )
+                                            depth=masked_depth,
+                                            latitude=masked_lat,
+                                            longitude=masked_lon, )
 
                     self.payload["CNDC"][1, :] = converted["CNDC"]
                     self.payload["TEMP"][1, :] = converted["TEMP"]
                     n = self.payload["CNDC"][0, :].__len__()
-                    # TODO this is a bit hidden away, not sure if to make the conversion explicit with pressure or not
+                    # TODO this is not directly configured, not sure if to make the conversion more explicit
                     # if there is a pressure parameter in the payload, create a payload as a byproduct of the temp sal conversion
                     try:
                         logger.info("pressure data now available: creating a pressure payload")
@@ -656,6 +670,9 @@ class Mission:
                     except KeyError:
                         pass
                     logger.success(f"conversion completed successfully")
+        else:
+            logger.warning(f"unknown conversion requested {conversion_to_apply}")
+            raise Exception(f"unable to convert alternative parameters {conversion_to_apply}")
 
     @staticmethod
     def _resample_flight(flight, new_interval_seconds):

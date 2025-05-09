@@ -1,6 +1,7 @@
 from mamma_mia import Campaign
 from mamma_mia import Creator, Publisher, Contributor
 from mamma_mia import inventory
+from mamma_mia import SensorBehavior
 
 
 print(f"Available groups in inventory {inventory.list_inventory_groups()}")
@@ -41,7 +42,7 @@ glider_CTD.update_sample_rate(sample_rate=10)
 # register sensor to platform
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
 # change sensor sampling to upcast only
-#Churchill_withCTD.sensor_behaviour = SensorBehavior.Upcast
+Churchill_withCTD.sensor_behaviour = SensorBehavior.Upcast
 # create new entity of same platform this one doesn't have a CTD
 Churchill_noCTD = inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
 
