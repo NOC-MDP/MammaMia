@@ -485,7 +485,7 @@ class Mission:
 
         """
         matched_worlds = Worlds2()
-        source = SourceType.from_string("cmems")
+        source = SourceType.from_string("local")
         local_dir = "rapid_data"
         matched_worlds.search_worlds(cat=cat, payload=self.payload, extent=self.worlds.attributes.extent,source=source,local_dir=local_dir)
         self.worlds.attributes.matched_worlds = matched_worlds.entries
@@ -623,7 +623,8 @@ class Mission:
                             conversion_to_apply.append(alt_parameter)
                             conversion_to_apply.append(" | ")
 
-        self.__convert_parameters(conversion_to_apply,flight=flight)
+        if conversion_to_apply:
+            self.__convert_parameters(conversion_to_apply,flight=flight)
 
         logger.success(f"{self.attrs.mission} flown successfully")
 
@@ -637,6 +638,7 @@ class Mission:
                     if sample_rate == -999:
                         sample_rate = self.platform.sensors[k1].max_sample_rate
                     resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
+                    # filter the flight based on the set sensor behaviour e.g. up or down casts or constant
                     events = self.trajectory.behaviour[:].astype(str)
                     event_idx_for_payload = np.searchsorted(flight["time"], resampled_flight["time"], side="right") - 1
                     event_idx_for_payload = np.clip(event_idx_for_payload, 0, flight["time"].__len__() - 1)

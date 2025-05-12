@@ -167,9 +167,8 @@ class Worlds:
                     nc_path = os.path.join(dirpath, filename)
                     ds = xr.open_dataset(nc_path)
                     for key2, var in ds.variables.items():
-                        if key2 not in ds.coords.variables.keys():
-                            if var.attrs.values() in inventory.parameters.entries[key].source_names:
-                                print(var.attrs)
+                        if var.attrs.values() in inventory.parameters.entries[key].source_names:
+                            print(var.attrs)
 
     def __find_cmems_worlds(self,key: str ,cat :Cats,extent) -> None:
         """

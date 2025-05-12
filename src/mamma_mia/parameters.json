@@ -171,7 +171,7 @@
                 "parameter_definition": "Latitude north",
                 "alternate_sources": [""],
                 "alternate_labels": ["LATITUDE"],
-                "source_names": ["m_lat"]
+                "source_names": ["m_lat","nav_lat"]
             },
             {
                 "parameter_id": "LAT_GPS",
@@ -195,7 +195,7 @@
                 "parameter_definition": "Longitude east",
                 "alternate_sources": [""],
                 "alternate_labels": ["LONGITUDE"],
-                "source_names": ["m_lon"]
+                "source_names": ["m_lon","nav_lon"]
             },
             {
                 "parameter_id": "LON_GPS",
@@ -294,7 +294,20 @@
                 "alternate_sources": [""],
                 "alternate_labels": ["TIME"],
                 "source_names": ["time"]
+            },
+            {
+                "parameter_id": "ELTXIX01",
+                "identifier": "SDN:P01::ELTXIX01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ELTXIX01/",
+                "standard_name": "Elapsed time relative to 1900-01-01T00:00:00Z",
+                "unit_of_measure": "Seconds",
+                "unit_identifier": "SDN:P06::UTBB",
+                "parameter_definition": "The time that has elapsed between midnight UTC on 01 January 1900 and the timestamped event.",
+                "alternate_sources": [""],
+                "alternate_labels": ["ElTime_1900"],
+                "source_names": ["time_counter"]
             }
+
         ]
     }
 }
