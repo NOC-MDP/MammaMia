@@ -38,7 +38,6 @@ def create_platform_class(frozen_mode=False):
         data_type: str
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
-        sensor_behaviour: SensorBehavior = SensorBehavior.Constant
 
         def list_compatible_sensors(self, sensor_type:str=None) -> dict:
             """

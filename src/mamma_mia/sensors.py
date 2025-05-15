@@ -7,7 +7,7 @@ import os
 import copy
 import sys
 from mamma_mia.parameters import Parameter, ParameterInventory
-from mamma_mia.exceptions import InvalidParameter, InvalidSensorRate
+from mamma_mia.exceptions import InvalidParameter
 from mamma_mia.log import log_filter
 
 parameter_inventory = ParameterInventory()
@@ -26,8 +26,6 @@ def create_sensor_class(frozen_mode=False):
         sensor_manufacturer: str
         model_name: str
         sensor_model: str
-        max_sample_rate: int
-        sample_rate: int = -999
         parameters: dict = field(factory=dict)
         platform_compatibility: list = field(factory=list),
         entity_name: str = ""
@@ -59,16 +57,9 @@ def create_sensor_class(frozen_mode=False):
 
         if not frozen_mode:
             def __attrs_post_init__(self):
-                self.sample_rate = self.max_sample_rate
                 # convert all parameter strings/keys to parameter objects
                 for parameter_key in self.parameters.keys():
                     self._process_parameters(parameter_key, parameter_inventory)
-
-            def update_sample_rate(self, sample_rate: int):
-                if sample_rate < self.max_sample_rate:
-                    logger.error(f"sensor max sample rate is {self.max_sample_rate} unable to set to {sample_rate}")
-                    raise InvalidSensorRate
-                self.sample_rate = sample_rate
 
     return Sensor
 

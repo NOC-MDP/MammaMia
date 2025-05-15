@@ -38,11 +38,8 @@ print(availableSensors)
 
 # create sensor entity (mutable)
 glider_CTD = inventory.create_sensor_entity(entity_name="ctd_for_churchill",sensor_ref=availableCTD["CTD"][0]["serial_number"])
-glider_CTD.update_sample_rate(sample_rate=10)
 # register sensor to platform
 Churchill_withCTD.register_sensor(sensor=glider_CTD)
-# change sensor sampling to upcast only
-Churchill_withCTD.sensor_behaviour = SensorBehavior.Upcast
 # create new entity of same platform this one doesn't have a CTD
 Churchill_noCTD = inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
 
@@ -83,7 +80,7 @@ campaign.add_mission(mission_name="RAD24_01",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="rapid_data")
+                     source_location="CMEMS")
 
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)

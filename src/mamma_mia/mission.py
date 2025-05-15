@@ -14,7 +14,7 @@ from loguru import logger
 import zarr
 from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.find_worlds import Worlds as Worlds2, SourceConfig, SourceType
+from mamma_mia.find_worlds import Worlds as Worlds2, SourceConfig
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import CriticalParameterMissing,NoValidSource
 from scipy.interpolate import interp1d
@@ -141,6 +141,7 @@ class MissionAttributes:
     contributor: Contributor
     standard_name_vocabulary: str
     source_config: SourceConfig
+    mission_time_step: int = 1
 
 
 @frozen
@@ -335,6 +336,7 @@ class Mission:
                       publisher: Publisher = Publisher(),
                       contributor: Contributor = Contributor(),
                       standard_name_vocabulary = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html",
+                      mission_time_step: int = 1,
                       ):
         instruments = []
         for instrument in platform.sensors.values():
@@ -354,6 +356,7 @@ class Mission:
                                       vertical_crs=vertical_crs,
                                       standard_name_vocabulary=standard_name_vocabulary,
                                       source_config=source_config,
+                                      mission_time_step=mission_time_step,
                                       )
 
         # find datalogger
@@ -425,13 +428,14 @@ class Mission:
         payload = {}
         # total mission time in seconds (largest that a payload array could be)
         mission_total_time_seconds = (trajectory.time[-1] - trajectory.time[0]).astype('timedelta64[s]')
+        mission_time_steps = mission_total_time_seconds / mission_time_step
         for name, sensor in platform.sensors.items():
             for name2, parameter in sensor.parameters.items():
                 # Don't create a payload array for any time parameters since seconds for each sensor sample are stored in each payload array
                 # TODO fix this so that time parameter aliases are checked not just hardcoded
                 if name2 in ["time","ATIMPT01"]:
                     continue
-                payload[name2] = np.empty(shape=(2, mission_total_time_seconds.astype(int) + 1), dtype=np.float64)
+                payload[name2] = np.empty(shape=mission_time_steps.astype(int), dtype=np.float64)
         return cls(platform=platform,
                    attrs=attrs,
                    geospatial_attrs=geospatial_attrs,
@@ -528,7 +532,9 @@ class Mission:
             "time": np.array(self.trajectory.time, dtype='datetime64'),
         }
 
-        sample_rate = 1
+        resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=self.attrs.mission_time_step)
+        # subset flight to only what is needed for interpolation (position rather than orientation)
+        flight_subset = {key: resampled_flight[key] for key in ["longitude", "latitude", "depth", "time"]}
         navigation_keys = []
         navigation_alias = {}
         # get navigation keys and any aliases that relate to them
@@ -541,16 +547,6 @@ class Mission:
                             navigation_alias[nav_key] = parameter.alternate_labels
         marked_keys = []
         for key in self.payload.keys():
-            for k1, v1 in self.platform.sensors.items():
-                if key in self.platform.sensors[k1].parameters.keys():
-                    sample_rate = self.platform.sensors[k1].sample_rate
-                    # if a sample rate has not been explicitly set use the max rate of the sensor
-                    if sample_rate == -999:
-                        sample_rate = self.platform.sensors[k1].max_sample_rate
-
-            resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
-            # subset flight to only what is needed for interpolation (position rather than orientation)
-            flight_subset = {key: resampled_flight[key] for key in ["longitude", "latitude", "depth", "time"]}
             try:
                 logger.info(f"flying through {key} world and creating interpolated data for flight")
                 track = interpolator.interpolator[key].quadrivariate(flight_subset)
@@ -574,39 +570,7 @@ class Mission:
                     logger.warning(f"no interpolator found for parameter {key} marking parameter for removal from payload")
                     marked_keys.append(key)
                     continue
-
-            # Convert time to seconds from the start
-            seconds_into_mission = (resampled_flight["time"] - resampled_flight["time"][0]) / np.timedelta64(1, 's')
-
-            # Ensure they have the same length
-            try:
-                assert len(track) == len(seconds_into_mission), "Arrays must have the same length"
-            except AssertionError:
-                logger.error("track and time arrays must have same length")
-                raise Exception
-
-            n = len(track)
-
-            apply_events = True
-            if key in navigation_keys:
-                apply_events = False
-
-            if apply_events:
-                # adjust sampling based on platform behaviour, e.g. only retain upcast or downcasts etc.
-                events = self.trajectory.behaviour[:].astype(str)
-                event_idx_for_payload = np.searchsorted(flight["time"], resampled_flight["time"], side="right") - 1
-                event_idx_for_payload = np.clip(event_idx_for_payload, 0, flight["time"].__len__() - 1)
-                event_at_payload = events[event_idx_for_payload]
-                event_mask = np.isin(event_at_payload, self.platform.sensor_behaviour.value)
-                n = len(track[event_mask])
-                self.payload[key][0, :n] = seconds_into_mission[event_mask]
-                self.payload[key][1, :n] = track[event_mask]
-                self.payload[key] = self.payload[key][:, :n]
-
-            else:
-                self.payload[key][0, :n] = seconds_into_mission
-                self.payload[key][1, :n] = track
-                self.payload[key] = self.payload[key][:, :n]
+            self.payload[key][:] = track
 
         for marked_key in marked_keys:
             logger.info(f"removing marked {marked_key} from payload")
@@ -625,7 +589,7 @@ class Mission:
                             conversion_to_apply.append(" | ")
 
         if conversion_to_apply:
-            self.__convert_parameters(conversion_to_apply,flight=flight)
+            self.__convert_parameters(conversion_to_apply,flight=resampled_flight)
 
         logger.success(f"{self.attrs.mission} flown successfully")
 
@@ -634,41 +598,19 @@ class Mission:
             logger.info("converting potential temperature and practical salinity to insitu temperature and conductivity")
             for k1, v1 in self.platform.sensors.items():
                 if "CNDC" in self.platform.sensors[k1].parameters.keys() and "TEMP" in self.platform.sensors[k1].parameters.keys():
-                    sample_rate = self.platform.sensors[k1].sample_rate
-                    # if a sample rate has not been explicitly set use the max rate of the sensor
-                    if sample_rate == -999:
-                        sample_rate = self.platform.sensors[k1].max_sample_rate
-                    resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=sample_rate)
-                    # filter the flight based on the set sensor behaviour e.g. up or down casts or constant
-                    events = self.trajectory.behaviour[:].astype(str)
-                    event_idx_for_payload = np.searchsorted(flight["time"], resampled_flight["time"], side="right") - 1
-                    event_idx_for_payload = np.clip(event_idx_for_payload, 0, flight["time"].__len__() - 1)
-                    event_at_payload = events[event_idx_for_payload]
-                    event_mask = np.isin(event_at_payload, self.platform.sensor_behaviour.value)
-                    n = len(resampled_flight["depth"][event_mask])
-                    masked_depth = resampled_flight["depth"][event_mask]
-                    masked_depth = masked_depth[:n]
-                    masked_lat = resampled_flight["latitude"][event_mask]
-                    masked_lat = masked_lat[:n]
-                    masked_lon = resampled_flight["longitude"][event_mask]
-                    masked_lon = masked_lon[:n]
+                    converted = convert_tsp(practical_salinity=self.payload["CNDC"][:],
+                                            potential_temperature=self.payload["TEMP"][:],
+                                            depth=flight["depth"],
+                                            latitude=flight["latitude"],
+                                            longitude=flight["longitude"], )
 
-                    converted = convert_tsp(practical_salinity=self.payload["CNDC"][1, :],
-                                            potential_temperature=self.payload["TEMP"][1, :],
-                                            depth=masked_depth,
-                                            latitude=masked_lat,
-                                            longitude=masked_lon, )
-
-                    self.payload["CNDC"][1, :] = converted["CNDC"]
-                    self.payload["TEMP"][1, :] = converted["TEMP"]
-                    n = self.payload["CNDC"][0, :].__len__()
+                    self.payload["CNDC"][:] = converted["CNDC"]
+                    self.payload["TEMP"][:] = converted["TEMP"]
                     # TODO this is not directly configured, not sure if to make the conversion more explicit
                     # if there is a pressure parameter in the payload, create a payload as a byproduct of the temp sal conversion
                     try:
                         logger.info("pressure data now available: creating a pressure payload")
-                        self.payload["PRES"][0,:n] = self.payload["CNDC"][0,:]
-                        self.payload["PRES"][1,:n] = converted["PRES"]
-                        self.payload["PRES"] = self.payload["PRES"][:, :n]
+                        self.payload["PRES"][:] = converted["PRES"]
                         logger.success("Pressure payload created successfully")
                     except KeyError:
                         pass
@@ -735,8 +677,8 @@ class Mission:
         if parameter is None:
             for key,payload in self.payload.items():
 
-                parameters[key] = {"cmin": np.nanmin(payload[1, :]),
-                                   "cmax": np.nanmax(payload[1, :])
+                parameters[key] = {"cmin": np.nanmin(payload[:]),
+                                   "cmax": np.nanmax(payload[:])
                                    }
 
             # List of available color scales for the user to choose from
@@ -748,7 +690,7 @@ class Mission:
 
             marker = {
                 "size": 2,
-                "color": np.array(self.payload[initial_parameter][1, :]),  # Ensuring its serializable
+                "color": np.array(self.payload[initial_parameter][:]),  # Ensuring its serializable
                 "colorscale": initial_colour_scale,
                 "cmin": parameters[initial_parameter]["cmin"],  # Set the minimum value for the color scale
                 "cmax": parameters[initial_parameter]["cmax"],  # Set the maximum value for the color scale
@@ -770,12 +712,9 @@ class Mission:
             }
             # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
             # TODO basically the payload needs to be able to handle parameters aliases
-            x = np.interp(self.payload[initial_parameter][0, :], self.payload["LON"][0, :],
-                          self.payload["LON"][1, :])
-            y = np.interp(self.payload[initial_parameter][0, :], self.payload["LAT"][0, :],
-                          self.payload["LAT"][1, :])
-            z = np.interp(self.payload[initial_parameter][0, :], self.payload["DEPTH"][0, :],
-                          self.payload["DEPTH"][1, :])
+            x =self.payload["LON"][:]
+            y = self.payload["LAT"][:]
+            z = self.payload["DEPTH"][:]
             # Create the initial figure
             fig = go.Figure(data=[
                 go.Scatter3d(
@@ -796,13 +735,10 @@ class Mission:
             parameter_dropdown = [
                 {
                     "args": [
-                        {"x": [np.interp(self.payload[parameter][0, :], self.payload["LON"][0, :],
-                                         self.payload["LON"][1, :])],  # Update x-coordinates
-                         "y": [np.interp(self.payload[parameter][0, :], self.payload["LAT"][0, :],
-                                         self.payload["LAT"][1, :])],  # Update y-coordinates
-                         "z": [np.interp(self.payload[parameter][0, :], self.payload["DEPTH"][0, :],
-                                         self.payload["DEPTH"][1, :])],
-                         "marker.color": [np.array(self.payload[parameter][1, :])],
+                        {"x": [self.payload["LON"][:]],  # Update x-coordinates
+                         "y":[ self.payload["LAT"][:]],  # Update y-coordinates
+                         "z": [self.payload["DEPTH"][:]],
+                         "marker.color": [np.array(self.payload[parameter][:])],
                          # Update the color for the new parameter
                          "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
                          "marker.cmax": parameters[parameter]["cmax"],  # Set cmax for the new parameter
@@ -863,8 +799,8 @@ class Mission:
             )
         else:
 
-            parameters[parameter] = {"cmin": np.nanmin(self.payload[parameter][1, :]),
-                                     "cmax": np.nanmax(self.payload[parameter][1, :])
+            parameters[parameter] = {"cmin": np.nanmin(self.payload[parameter][:]),
+                                     "cmax": np.nanmax(self.payload[parameter][:])
                                      }
 
             # List of available color scales for the user to choose from
@@ -875,7 +811,7 @@ class Mission:
 
             marker = {
                 "size": 2,
-                "color": np.array(self.payload[parameter][1, :]),  # Ensuring its serializable
+                "color": np.array(self.payload[parameter][:]),  # Ensuring its serializable
                 "colorscale": initial_colour_scale,
                 "cmin": parameters[parameter]["cmin"],  # Set the minimum value for the color scale
                 "cmax": parameters[parameter]["cmax"],  # Set the maximum value for the color scale
@@ -897,12 +833,12 @@ class Mission:
             }
             # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
             # TODO basically the payload needs to be able to handle parameters aliases
-            x = np.interp(self.payload[parameter][0, :], self.payload["ALONPT01"][0, :],
-                          self.payload["ALONPT01"][1, :])
-            y = np.interp(self.payload[parameter][0, :], self.payload["ALATPT01"][0, :],
-                          self.payload["ALATPT01"][1, :])
-            z = np.interp(self.payload[parameter][0, :], self.payload["ADEPPT01"][0, :],
-                          self.payload["ADEPPT01"][1, :])
+            x = np.interp(self.payload[parameter][:], self.payload["ALONPT01"][:],
+                          self.payload["ALONPT01"][:])
+            y = np.interp(self.payload[parameter][:], self.payload["ALATPT01"][:],
+                          self.payload["ALATPT01"][:])
+            z = np.interp(self.payload[parameter][:], self.payload["ADEPPT01"][:],
+                          self.payload["ADEPPT01"][:])
             # Create the initial figure
             fig = go.Figure(data=[
                 go.Scatter3d(

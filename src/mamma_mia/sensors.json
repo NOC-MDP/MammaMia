@@ -8,7 +8,6 @@
                 "sensor_manufacturer": "Mamma Mia",
                 "model_name": "Mamma Mia CTD",
                 "sensor_model": "Mamma Mia CTD",
-                "max_sample_rate": -999,
                 "parameters": {
                     "TEMP": 5,
                     "CNDC": 5,
@@ -23,7 +22,6 @@
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
-                "max_sample_rate": 5,
                 "parameters": {
                     "TEMP": 5,
                     "CNDC": 5,
@@ -38,7 +36,6 @@
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
-                "max_sample_rate": 5,
                 "parameters": {
                     "TEMP": 5,
                     "CNDC": 5,
@@ -53,7 +50,6 @@
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
-                "max_sample_rate": 5,
                 "parameters": {
                     "TEMP": 5,
                     "CNDC": 5,
@@ -68,7 +64,6 @@
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
-                "max_sample_rate": 5,
                 "parameters": {
                     "TEMP": 5,
                     "CNDC": 5,
@@ -85,7 +80,6 @@
                 "sensor_manufacturer": "Mamma Mia",
                 "model_name": "Mamma Mia ADCP",
                 "sensor_model": "Mamma Mia ADCP",
-                "max_sample_rate": -999,
                 "parameters": {
                     "WCUR_X": 5,
                     "WCUR_Y": 5
@@ -101,7 +95,6 @@
                 "sensor_manufacturer": "WET Labs",
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
-                "max_sample_rate": 5,
                 "parameters": {
                     "CHLA": 5,
                     "BBP700": 5
@@ -117,7 +110,6 @@
                 "sensor_manufacturer": "National Oceanography Centre",
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
-                "max_sample_rate": 10,
                 "parameters": {
                     "LAT": 1
                 },
@@ -130,7 +122,6 @@
                 "sensor_manufacturer": "Teledyne Webb Research",
                 "model_name": "Slocum G1+G2 Glider Navigation data logger",
                 "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
-                "max_sample_rate": 1,
                 "parameters": {
                     "LAT": 1,
                     "LON": 1,
@@ -151,7 +142,6 @@
                 "sensor_manufacturer": "Teledyne Webb Research",
                 "model_name": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
                 "sensor_model": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
-                "max_sample_rate": 1,
                 "parameters": {
                     "LAT": 1,
                     "LON": 1,
