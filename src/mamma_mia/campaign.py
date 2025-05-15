@@ -140,13 +140,14 @@ class Campaign:
             void: mission objects with searched and downloaded worlds and built interpolators ready for flight/deployments
 
         """
-        logger.success(f"successfully initialized catalog for {self.name}")
+
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
             logger.info(f"building {mission.attrs.mission}")
             if mission.attrs.source_config.source_type != SourceType.LOCAL:
                 logger.info(f"initiating catalog for {self.name}")
                 self.catalog.init_catalog()
+                logger.success(f"successfully initialized catalog for {self.name}")
             mission.build_mission(cat=self.catalog)
             logger.success(f"successfully built {mission.attrs.mission}")
         for key, interpol in self.interpolators.items():

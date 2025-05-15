@@ -1,9 +1,4 @@
 import os
-import types
-
-from typing import Any, Dict, Tuple, Type
-from unittest import case
-
 from mamma_mia.catalog import Cats
 from loguru import logger
 import numpy as np
@@ -42,11 +37,11 @@ class SourceType(Enum):
     @classmethod
     def from_string(cls,enum_string:str) -> "SourceType":
         match enum_string:
-            case "cmems":
+            case "cmems" | "CMEMS":
                 return SourceType.CMEMS
-            case "msm":
+            case "msm" | "MSM":
                 return SourceType.MSM
-            case "local":
+            case "local" | "LOCAL":
                 return SourceType.LOCAL
             case _:
                 raise ValueError(f"unknown source type {enum_string}")
@@ -61,10 +56,12 @@ class SourceConfig:
     @classmethod
     def from_string(cls,src_str:str):
         match src_str:
-            case "cmems" | "CMEMS" | "MSM" | "msm" | "LOCAL" | "local":
-                source_type = SourceType[src_str]
+            case "cmems" | "CMEMS" | "MSM" | "msm":
                 logger.info(f"setting source type to {src_str}")
-                return cls(source_type=source_type)
+                return cls(source_type=SourceType.from_string(src_str))
+            case "local" | "LOCAL":
+                logger.info(f"setting source type to {src_str}")
+                return cls(source_type=SourceType.from_string("LOCAL"),local_dir=os.getcwd())
             case _:
                 if os.path.isdir(src_str):
                     logger.info(f"setting source location to {src_str}")
@@ -147,7 +144,6 @@ class MatchedWorld:
     source
     """
     data_id: str
-    source: SourceType
     world_type: WorldType
     domain: DomainType
     dataset_name: str
@@ -300,7 +296,6 @@ class Worlds:
 
                                     new_world = MatchedWorld(
                                         data_id = dataset["dataset_id"],
-                                        source=SourceType.from_string(enum_string=parts[0]),
                                         world_type=WorldType.from_string(enum_string=parts[1]),
                                         domain=domain_type,
                                         dataset_name=parts[3],
