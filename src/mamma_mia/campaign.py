@@ -2,6 +2,7 @@
 from mamma_mia.mission import Mission, Creator, Contributor, Publisher
 from mamma_mia.interpolator import Interpolators
 from mamma_mia import create_platform_class
+from mamma_mia.find_worlds import SourceType, SourceConfig
 from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform, InvalidEntity
 from loguru import logger
 import zarr
@@ -75,10 +76,13 @@ class Campaign:
                     creator:Creator = Creator(),
                     contributor:Contributor = Contributor(),
                     publisher:Publisher = Publisher(),
+                    source_location: str = "CMEMS",
+
                     ) -> None:
         """
         Function that adds an auv mission to the campaign.
         Args:
+            source_location: what source to use, e.g. CMEMS, MSM or LOCAL, specifc location can be set as a file path
             crs:
             vertical_crs:
             contributor:
@@ -106,7 +110,7 @@ class Campaign:
             platform_n = self.platforms[platform_name]
         except KeyError:
             raise UnknownPlatform
-
+        mission_source = SourceConfig.from_string(source_location)
         mission = Mission.from_campaign(mission=mission_name,
                           title=title,
                           summary=summary,
@@ -121,6 +125,7 @@ class Campaign:
                           cmems_priority=cmems_priority,
                           crs = crs,
                           vertical_crs = vertical_crs,
+                          source_config=mission_source,
                           )
         interpolator = Interpolators()
         self.missions[mission.attrs.mission] = mission
@@ -135,17 +140,18 @@ class Campaign:
             void: mission objects with searched and downloaded worlds and built interpolators ready for flight/deployments
 
         """
-        logger.info(f"initiating catalog for {self.name}")
-        self.catalog.init_catalog()
         logger.success(f"successfully initialized catalog for {self.name}")
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
             logger.info(f"building {mission.attrs.mission}")
+            if mission.attrs.source_config.source_type != SourceType.LOCAL:
+                logger.info(f"initiating catalog for {self.name}")
+                self.catalog.init_catalog()
             mission.build_mission(cat=self.catalog)
             logger.success(f"successfully built {mission.attrs.mission}")
         for key, interpol in self.interpolators.items():
             logger.info(f"building interpolators for {key}")
-            interpol.build(worlds=self.missions[key].worlds,mission=key)
+            interpol.build(worlds=self.missions[key].worlds,mission=key,source_type=self.missions[key].attrs.source_config.source_type)
             logger.success(f"successfully built interpolators for {key}")
 
     def enable_interpolator_cache(self) -> None:

@@ -82,7 +82,8 @@ campaign.add_mission(mission_name="RAD24_01",
                      trajectory_path="eb1l2n-spiral.nc",
                      creator=creator,
                      publisher=publisher,
-                     contributor=contributor)
+                     contributor=contributor,
+                     source_location="CMEMS")
 
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)

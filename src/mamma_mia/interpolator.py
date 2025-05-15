@@ -10,7 +10,7 @@ from loguru import logger
 import xesmf as xe
 import blosc
 from mamma_mia.exceptions import UnknownSourceKey
-
+from mamma_mia.find_worlds import SourceType
 
 
 @dataclass
@@ -18,11 +18,12 @@ class Interpolators:
     interpolator: dict = field(default_factory=dict)
     cache: bool = False
 
-    def build(self,worlds,mission:str) -> ():
+    def build(self,worlds,mission:str,source_type:SourceType) -> ():
         """
         Creates a 4D interpolator for each sensor that allows a world to be interpolated on to a trajectory
 
         Args:
+            source_type:
             mission:
             worlds (zarr.Group): a zarr group containing all the world data that has been downloaded
 
@@ -43,20 +44,20 @@ class Interpolators:
                     logger.info(f"building world for variable {var}")
                     # check priorities of dataset to see if it should update the interpolated world or not
                     if self.check_priorities(key=world_attrs.variable_alias[var],
-                                             source=world_attrs.source.name,
+                                             source=source_type,
                                              worlds=worlds):
                         continue
                     if self.cache:
                         logger.info(f"getting world for variable {var} for source {world_attrs['source']} from cache")
                         imported = self.import_interp(key=world_attrs.variable_alias[var],
-                                                      source=world_attrs.source.name,
+                                                      source_type=source_type,
                                                       mission=mission
                                                       )
                         interpolator_priorities[world_attrs.variable_alias[var]] = world_attrs.catalog_priorities[world_attrs["source"]]
                     else:
                         imported = False
                     if not imported:
-                        if world_attrs.source.name == "msm":
+                        if source_type == SourceType.MSM:
                             pass
                             # # rename time and depth dimensions to be consistent
                             # ds = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
@@ -86,47 +87,47 @@ class Interpolators:
                             #     self.export_interp(key=world_attrs["variable_alias"][var],source="msm",mission=mission)
                             # # create or update priorities of interpolator datasetsc
                             # interpolator_priorities[world_attrs["data_id"]] = worlds.attrs["catalog_priorities"]["msm"]
-                        elif world_attrs.source.name == "cmems":
+                        elif source_type == SourceType.CMEMS:
                             world = xr.open_zarr(store=worlds.stores[key])
                             self.interpolator[world_attrs.variable_alias[var]] = pyinterp.backends.xarray.Grid4D(world[var],geodetic=True)
                             if self.cache:
-                                self.export_interp(key=world_attrs["variable_alias"][var],source="cmems",mission=mission)
+                                self.export_interp(key=world_attrs["variable_alias"][var],source_type=source_type,mission=mission)
                             interpolator_priorities[world_attrs.variable_alias[var]] = catalog_priorities["cmems"]
                         else:
-                            logger.error(f"unknown model source key {world_attrs.source.name}")
+                            logger.error(f"unknown model source {source_type.name}")
                             raise UnknownSourceKey
 
-                        logger.info(f"built {var} from source {world_attrs.source.name} into interpolator: {world_attrs.variable_alias[var]}")
+                        logger.info(f"built {var} from source {source_type.name} into interpolator: {world_attrs.variable_alias[var]}")
         worlds.attributes.interpolator_priorities = interpolator_priorities
         logger.success("interpolators built successfully")
 
-    def import_interp(self,key:str,source: str,mission:str):
+    def import_interp(self,key:str,source_type:SourceType,mission:str):
         if not os.path.isdir(f"interpolator_cache/{mission}"):
             return False
-        import_loc = f"interpolator_cache/{mission}/{source}_{key}.lerp"
+        import_loc = f"interpolator_cache/{mission}/{source_type.value}_{key}.lerp"
         if os.path.exists(import_loc):
             with open(import_loc, 'rb') as f:
                 compressed_pickle = f.read()
             depressed_pickle = blosc.decompress(compressed_pickle)
             self.interpolator[key] = pickle.loads(depressed_pickle)
-            logger.info(f"imported interpolator for {key} from source {source} for {mission}")
+            logger.info(f"imported interpolator for {key} from source {source_type.name} for {mission}")
             return True
         else:
-            logger.info(f"interpolator {key} not found for source {source} for {mission}")
+            logger.info(f"interpolator {key} not found for source {source_type.name} for {mission}")
             return False
 
-    def export_interp(self,key:str,source:str,mission:str):
+    def export_interp(self,key:str,source_type:SourceType,mission:str):
         if not os.path.isdir(f"interpolator_cache/{mission}"):
             os.mkdir(f"interpolator_cache")
             os.mkdir(f"interpolator_cache/{mission}")
         pickled_data = pickle.dumps(self.interpolator[key])
         compressed_pickle = blosc.compress(pickled_data)
-        with open(f"interpolator_cache/{mission}/{source}_{key}.lerp", 'wb') as f:
+        with open(f"interpolator_cache/{mission}/{source_type.value}_{key}.lerp", 'wb') as f:
             f.write(compressed_pickle)
-        logger.info(f"exported interpolator {key} for source {source} for {mission}")
+        logger.info(f"exported interpolator {key} for source {source_type.name} for {mission}")
 
     @staticmethod
-    def check_priorities(key:str, source:str, worlds) -> bool:
+    def check_priorities(key:str, source:SourceType, worlds) -> bool:
         """
         Function to check the priority of data that will be interpolated, if an existing interpolator is already present
         Args:
@@ -138,7 +139,7 @@ class Interpolators:
             bool: determines priority of data to be interpolated, if data is a higher priority then replace
                   interpolator, if of a lower priority then do not replace
         """
-        if source not in ["msm", "cmems"]:
+        if not isinstance(source,SourceType):
             logger.error(f"unknown model source: {source}")
             raise UnknownSourceKey
         if key in worlds.attributes.interpolator_priorities:

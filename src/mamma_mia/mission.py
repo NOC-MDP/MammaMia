@@ -14,7 +14,7 @@ from loguru import logger
 import zarr
 from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.find_worlds import Worlds as Worlds2, SourceType
+from mamma_mia.find_worlds import Worlds as Worlds2, SourceConfig, SourceType
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import CriticalParameterMissing,NoValidSource
 from scipy.interpolate import interp1d
@@ -140,6 +140,7 @@ class MissionAttributes:
     publisher: Publisher
     contributor: Contributor
     standard_name_vocabulary: str
+    source_config: SourceConfig
 
 
 @frozen
@@ -323,6 +324,7 @@ class Mission:
                       title: str,
                       platform: create_platform_class(),
                       trajectory_path: str,
+                      source_config: SourceConfig,
                       excess_space: int = 0.5,
                       extra_depth: int = 100,
                       msm_priority: int = 2,
@@ -332,7 +334,7 @@ class Mission:
                       creator: Creator = Creator(),
                       publisher: Publisher = Publisher(),
                       contributor: Contributor = Contributor(),
-                      standard_name_vocabulary = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html"
+                      standard_name_vocabulary = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html",
                       ):
         instruments = []
         for instrument in platform.sensors.values():
@@ -350,7 +352,8 @@ class Mission:
                                       instruments=instruments,
                                       crs=crs,
                                       vertical_crs=vertical_crs,
-                                      standard_name_vocabulary=standard_name_vocabulary
+                                      standard_name_vocabulary=standard_name_vocabulary,
+                                      source_config=source_config,
                                       )
 
         # find datalogger
@@ -485,9 +488,7 @@ class Mission:
 
         """
         matched_worlds = Worlds2()
-        source = SourceType.from_string("local")
-        local_dir = "rapid_data"
-        matched_worlds.search_worlds(cat=cat, payload=self.payload, extent=self.worlds.attributes.extent,source=source,local_dir=local_dir)
+        matched_worlds.search_worlds(cat=cat, payload=self.payload, extent=self.worlds.attributes.extent,source=self.attrs.source_config)
         self.worlds.attributes.matched_worlds = matched_worlds.entries
         data_stores = get_worlds(cat=cat, worlds=self.worlds)
         self.worlds.stores = data_stores

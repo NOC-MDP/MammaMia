@@ -1,4 +1,8 @@
 import os
+import types
+
+from typing import Any, Dict, Tuple, Type
+from unittest import case
 
 from mamma_mia.catalog import Cats
 from loguru import logger
@@ -27,27 +31,46 @@ class WorldType(Enum):
             case _:
                 raise ValueError(f"unknown world type {enum_string}")
 
+
 class SourceType(Enum):
     """
     Source type enumeration: this determines where worlds are sourced from
     """
-    cmems = "cmems"
-    msm = "msm"
-    local = "location"
+    CMEMS = "cmems"
+    MSM = "msm"
+    LOCAL = "local"
     @classmethod
     def from_string(cls,enum_string:str) -> "SourceType":
         match enum_string:
             case "cmems":
-                logger.info("setting source type to cmems")
-                return SourceType.cmems
+                return SourceType.CMEMS
             case "msm":
-                logger.info("setting source type to msm")
-                return SourceType.msm
+                return SourceType.MSM
             case "local":
-                logger.info("setting source type to local")
-                return SourceType.local
+                return SourceType.LOCAL
             case _:
                 raise ValueError(f"unknown source type {enum_string}")
+
+@frozen
+class SourceConfig:
+    """
+
+    """
+    source_type: SourceType
+    local_dir: str = None
+    @classmethod
+    def from_string(cls,src_str:str):
+        match src_str:
+            case "cmems" | "CMEMS" | "MSM" | "msm" | "LOCAL" | "local":
+                source_type = SourceType[src_str]
+                logger.info(f"setting source type to {src_str}")
+                return cls(source_type=source_type)
+            case _:
+                if os.path.isdir(src_str):
+                    logger.info(f"setting source location to {src_str}")
+                    return cls(source_type=SourceType.LOCAL, local_dir=src_str)
+                else:
+                    raise ValueError(f"{src_str} is not a valid directory or source type")
 
 
 class FieldType(Enum):
@@ -144,18 +167,18 @@ class Worlds:
     """
     entries: dict[str,MatchedWorld] = field(factory=dict)
 
-    def search_worlds(self, cat:Cats, payload:dict[str,np.ndarray],extent,source:SourceType=SourceType.cmems,local_dir = None):
+    def search_worlds(self, cat:Cats, payload:dict[str,np.ndarray],extent,source:SourceConfig):
         for key in payload.keys():
-            match source:
-                case SourceType.cmems:
+            match source.source_type:
+                case SourceType.CMEMS:
                     self.__find_cmems_worlds(cat=cat, key=key, extent=extent)
-                case SourceType.local:
-                    if local_dir is None:
-                        local_dir = os.getcwd()
-                        logger.info(f"using local directory {local_dir}")
-                    self.__find_local_worlds(extent=extent,key=key,local_dir=local_dir)
+                case SourceType.LOCAL:
+                    if SourceConfig.local_dir is None:
+                        SourceConfig.local_dir = os.getcwd()
+                        logger.info(f"using local directory {SourceConfig.local_dir}")
+                    self.__find_local_worlds(extent=extent,key=key,local_dir=source.local_dir)
                 case _:
-                    raise ValueError(f"unknown source type {source.value}")
+                    raise ValueError(f"unknown source type {source.source_type.name}")
 
 
     @staticmethod
