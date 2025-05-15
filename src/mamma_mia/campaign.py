@@ -77,11 +77,13 @@ class Campaign:
                     contributor:Contributor = Contributor(),
                     publisher:Publisher = Publisher(),
                     source_location: str = "CMEMS",
+                    mission_time_step: int = 1
 
                     ) -> None:
         """
         Function that adds an auv mission to the campaign.
         Args:
+            mission_time_step:
             source_location: what source to use, e.g. CMEMS, MSM or LOCAL, specifc location can be set as a file path
             crs:
             vertical_crs:
@@ -126,6 +128,7 @@ class Campaign:
                           crs = crs,
                           vertical_crs = vertical_crs,
                           source_config=mission_source,
+                          mission_time_step=mission_time_step
                           )
         interpolator = Interpolators()
         self.missions[mission.attrs.mission] = mission

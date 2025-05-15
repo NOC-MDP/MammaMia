@@ -9,9 +9,9 @@
                 "model_name": "Mamma Mia CTD",
                 "sensor_model": "Mamma Mia CTD",
                 "parameters": {
-                    "TEMP": 5,
-                    "CNDC": 5,
-                    "PRES": 5
+                    "TEMP": "",
+                    "CNDC": "",
+                    "PRES": ""
                 },
                 "platform_compatibility": ["mm"]
             },
@@ -23,9 +23,9 @@
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "parameters": {
-                    "TEMP": 5,
-                    "CNDC": 5,
-                    "PRES": 5
+                    "TEMP": "",
+                    "CNDC": "",
+                    "PRES": ""
                 },
                 "platform_compatibility": ["unit_397","unit_398"]
             },
@@ -37,9 +37,9 @@
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "parameters": {
-                    "TEMP": 5,
-                    "CNDC": 5,
-                    "PRES": 5
+                    "TEMP": "",
+                    "CNDC": "",
+                    "PRES": ""
                 },
                 "platform_compatibility": ["unit_398","unit_397"]
             },
@@ -51,9 +51,9 @@
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "parameters": {
-                    "TEMP": 5,
-                    "CNDC": 5,
-                    "PRES": 5
+                    "TEMP": "",
+                    "CNDC": "",
+                    "PRES": ""
                 },
                 "platform_compatibility": ["ALR_4","ALR_6"]
             },
@@ -65,9 +65,9 @@
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "parameters": {
-                    "TEMP": 5,
-                    "CNDC": 5,
-                    "PRES": 5
+                    "TEMP": "",
+                    "CNDC": "",
+                    "PRES": ""
                 },
                 "platform_compatibility": ["ALR_6","ALR_4"]
             }
@@ -81,8 +81,8 @@
                 "model_name": "Mamma Mia ADCP",
                 "sensor_model": "Mamma Mia ADCP",
                 "parameters": {
-                    "WCUR_X": 5,
-                    "WCUR_Y": 5
+                    "WCUR_X": "",
+                    "WCUR_Y": ""
                 },
                 "platform_compatibility": ["mm"]
             }
@@ -96,8 +96,8 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": 5,
-                    "BBP700": 5
+                    "CHLA": "",
+                    "BBP700": ""
                 },
                 "platform_compatibility": ["unit_398"]
             }
@@ -111,7 +111,7 @@
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "parameters": {
-                    "LAT": 1
+                    "LAT": ""
                 },
                 "platform_compatibility": ["ALR_4"]
             },
@@ -123,15 +123,15 @@
                 "model_name": "Slocum G1+G2 Glider Navigation data logger",
                 "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
                 "parameters": {
-                    "LAT": 1,
-                    "LON": 1,
-                    "ALTITUDE": 1,
-                    "PITCH": 1,
-                    "ROLL":1,
-                    "DEPTH": 1,
-                    "WCUR_X": 1,
-                    "WCUR_Y": 1,
-                    "TIME": 1
+                    "LAT": "",
+                    "LON": "",
+                    "ALTITUDE": "",
+                    "PITCH": "",
+                    "ROLL":"",
+                    "DEPTH": "",
+                    "WCUR_X": "",
+                    "WCUR_Y": "",
+                    "TIME": ""
                 },
                 "platform_compatibility": ["unit_398"]
             },
@@ -143,13 +143,13 @@
                 "model_name": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
                 "sensor_model": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
                 "parameters": {
-                    "LAT": 1,
-                    "LON": 1,
-                    "ALTITUDE": 1,
-                    "PITCH": 1,
-                    "ROLL":1,
-                    "DEPTH": 1,
-                    "TIME": 1
+                    "LAT": "",
+                    "LON": "",
+                    "ALTITUDE": "",
+                    "PITCH": "",
+                    "ROLL": "",
+                    "DEPTH": "",
+                    "TIME": ""
                 },
                 "platform_compatibility": ["unit_887"]
             }

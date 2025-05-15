@@ -428,14 +428,10 @@ class Mission:
         payload = {}
         # total mission time in seconds (largest that a payload array could be)
         mission_total_time_seconds = (trajectory.time[-1] - trajectory.time[0]).astype('timedelta64[s]')
-        mission_time_steps = mission_total_time_seconds / mission_time_step
+        mission_total_time_steps = np.round(mission_total_time_seconds.astype(int) / mission_time_step).astype(int)
         for name, sensor in platform.sensors.items():
             for name2, parameter in sensor.parameters.items():
-                # Don't create a payload array for any time parameters since seconds for each sensor sample are stored in each payload array
-                # TODO fix this so that time parameter aliases are checked not just hardcoded
-                if name2 in ["time","ATIMPT01"]:
-                    continue
-                payload[name2] = np.empty(shape=mission_time_steps.astype(int), dtype=np.float64)
+                payload[name2] = np.empty(shape=mission_total_time_steps, dtype=np.float64)
         return cls(platform=platform,
                    attrs=attrs,
                    geospatial_attrs=geospatial_attrs,
@@ -535,7 +531,6 @@ class Mission:
         resampled_flight = self._resample_flight(flight=flight, new_interval_seconds=self.attrs.mission_time_step)
         # subset flight to only what is needed for interpolation (position rather than orientation)
         flight_subset = {key: resampled_flight[key] for key in ["longitude", "latitude", "depth", "time"]}
-        navigation_keys = []
         navigation_alias = {}
         # get navigation keys and any aliases that relate to them
         for k1, v1 in self.platform.sensors.items():
@@ -581,7 +576,7 @@ class Mission:
         for world in self.worlds.attributes.matched_worlds.values():
             for alt_key, alt_parameter in world.alternative_parameter.items():
                 if alt_parameter is not None:
-                    logger.info(f"alternative parameter field is not None, {alt_key} requires conversion from {alt_parameter}")
+                    logger.info(f"alternative parameter field in world attributes is not None, {alt_key} requires conversion from {alt_parameter}")
                     for k1, v1 in self.platform.sensors.items():
                         if alt_key in self.platform.sensors[k1].parameters.keys():
                             conversion_to_apply.append(alt_key)

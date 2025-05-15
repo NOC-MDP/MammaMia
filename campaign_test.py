@@ -80,7 +80,8 @@ campaign.add_mission(mission_name="RAD24_01",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="CMEMS")
+                     source_location="CMEMS",
+                     mission_time_step=60)
 
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)

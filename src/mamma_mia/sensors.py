@@ -32,7 +32,7 @@ def create_sensor_class(frozen_mode=False):
 
         def __attrs_post_init__(self):
             # convert all parameter strings/keys to parameter objects
-            for parameter_key in self.parameters.keys():
+            for parameter_key in self.parameters:
                 self._process_parameters(parameter_key,parameter_inventory)
 
         def _process_parameters(self, parameter_key, parameters2:ParameterInventory):
@@ -58,7 +58,7 @@ def create_sensor_class(frozen_mode=False):
         if not frozen_mode:
             def __attrs_post_init__(self):
                 # convert all parameter strings/keys to parameter objects
-                for parameter_key in self.parameters.keys():
+                for parameter_key in self.parameters:
                     self._process_parameters(parameter_key, parameter_inventory)
 
     return Sensor
