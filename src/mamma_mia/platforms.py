@@ -9,6 +9,7 @@ from cattrs import structure, unstructure
 import sys
 from mamma_mia.log import log_filter
 from enum import Enum
+import numpy as np
 
 sensor_inventory = SensorInventory()
 
@@ -18,12 +19,12 @@ class SensorBehavior(Enum):
     Constant = ["climbing", "diving","hovering","surfaced"]
 
 # Factory function to create a platform class
-def create_platform_class(frozen_mode=False):
+def create_platform_attrs(frozen_mode=False):
     base_decorator = frozen if frozen_mode else define
 
     # noinspection PyDataclass
     @base_decorator
-    class Platform:
+    class PlatformAttrs:
         # platform parameters
         nvs_platform_id: str
         platform_type: str
@@ -76,11 +77,16 @@ def create_platform_class(frozen_mode=False):
             logger.success(f"successfully registered sensor {sensor.entity_name} to entity {self.entity_name}")
 
 
-    return Platform
+    return PlatformAttrs
+
+@define
+class Platform:
+    attrs: create_platform_attrs()
+    behaviour: np.ndarray = None
 
 @frozen
 class PlatformInventory:
-    entries: dict[str,create_platform_class(frozen_mode=True)] = field(factory=dict)
+    entries: dict[str,create_platform_attrs(frozen_mode=True)] = field(factory=dict)
 
     def __attrs_post_init__(self):
         # supress logs on import
@@ -120,7 +126,7 @@ class PlatformInventory:
                 if not datalogger:
                     logger.error(f"Datalogger entry missing {serial_number}, skipping")
 
-                self.entries[platform_name] = structure(platform,create_platform_class(frozen_mode=True))
+                self.entries[platform_name] = structure(platform,create_platform_attrs(frozen_mode=True))
                 self.entries[platform_name].register_sensor(sensor=datalogger)
 
             except TypeError as e:
@@ -132,12 +138,12 @@ class PlatformInventory:
         if platform not in self.entries:
             raise KeyError(f"Platform '{platform}' not found in platform inventory.")
         platform_unstruct = unstructure(self.entries[platform])
-        created_platform = structure(platform_unstruct,create_platform_class(frozen_mode=False))
+        created_platform = structure(platform_unstruct,create_platform_attrs(frozen_mode=False))
         created_platform.entity_name = entity_name
         logger.success(f"successfully created entity {created_platform.entity_name} as platform {platform} of type {created_platform.platform_type}")
         return created_platform
 
-    def add_platform(self, platform: create_platform_class(frozen_mode=False)):
+    def add_platform(self, platform: create_platform_attrs(frozen_mode=False)):
         """Adds a new platform. Raises an error if the platform already exists."""
         platform_name = platform.platform_name
         if not platform_name:

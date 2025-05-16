@@ -1,16 +1,16 @@
-from mamma_mia import Extent, Point, Reality
+from mamma_mia import WorldExtent, Point, Reality
 from loguru import logger
 import sys
 print("<=========> starting Mamma Mia Velocity Reality test run <===========>")
 logger.remove()
 logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
-extent = Extent(max_lat=25,
-                min_lat=22,
-                min_lng=-26,
-                max_lng=-22,
-                max_depth=200,
-                start_dt="2024-08-01T00:00:00",
-                end_dt="2024-08-07T00:00:00"
+extent = WorldExtent(lat_max=25,
+                lat_min=22,
+                lon_min=-26,
+                lon_max=-22,
+                depth_max=200,
+                time_start="2024-08-01T00:00:00",
+                time_end="2024-08-07T00:00:00"
                 )
 point = Point(latitude= 23.8,
               longitude=-24.142,
@@ -19,7 +19,7 @@ point = Point(latitude= 23.8,
 
 )
 
-DVR = Reality(extent=extent,verbose=True)
+DVR = Reality.for_glidersim(extent=extent,verbose=True)
 Real = DVR.teleport(point=point)
 print(Real)
 print(">===========< Mamma Mia Velocity Reality test complete >==========<")

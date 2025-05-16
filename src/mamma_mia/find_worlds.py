@@ -6,7 +6,7 @@ from attrs import frozen, field
 from enum import Enum
 from mamma_mia.inventory import inventory
 import xarray as xr
-
+from mamma_mia.worlds import WorldExtent
 
 class WorldType(Enum):
     """
@@ -177,17 +177,39 @@ class Worlds:
                     raise ValueError(f"unknown source type {source.source_type.name}")
 
 
-    @staticmethod
-    def __find_local_worlds(key:str, extent, local_dir:str) -> None:
+    def __find_local_worlds(self,key:str, extent:WorldExtent, local_dir:str) -> None:
         logger.info(f"searching local directory {local_dir}")
         for dirpath, _, filenames in os.walk(local_dir):
             for filename in filenames:
                 if filename.endswith('.nc'):
                     nc_path = os.path.join(dirpath, filename)
                     ds = xr.open_dataset(nc_path)
-                    for key2, var in ds.variables.items():
-                        if var.attrs.values() in inventory.parameters.entries[key].source_names:
+                    for key2, var in ds.data_vars.items():
+                        if key2 in inventory.parameters.entries[key].source_names:
+                            subset = self.__get_subset(ds=ds,extent=extent)
                             print(var.attrs)
+
+    @staticmethod
+    def __get_subset(ds:xr.Dataset, extent:WorldExtent) -> xr.Dataset:
+
+        # Generate spatial mask using nav_lat/nav_lon
+        lat = ds['nav_lat']
+        lon = ds['nav_lon']
+        spatial_mask = (lat >= extent.lat_min) & (lat <= extent.lat_max) & (lon >= extent.lon_min) & (lon <= extent.lon_max)
+
+        # Get bounding indices
+        iy, ix = np.where(spatial_mask)
+        try:
+            ymin, ymax = iy.min(), iy.max()
+            xmin, xmax = ix.min(), ix.max()
+        except ValueError:
+            raise Exception("spatial mask empty, trajectory extent is probably not inside local data source extent")
+
+        # Apply all subsets
+        ds_subset = ds.isel(y=slice(ymin, ymax + 1), x=slice(xmin, xmax + 1)) \
+            .sel(deptht=slice(0, extent.depth_max)) \
+            .sel(time_counter=slice(extent.time_start, extent.time_end))
+        return ds_subset
 
     def __find_cmems_worlds(self,key: str ,cat :Cats,extent) -> None:
         """

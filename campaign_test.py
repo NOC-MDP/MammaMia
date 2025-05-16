@@ -1,7 +1,6 @@
 from mamma_mia import Campaign
 from mamma_mia import Creator, Publisher, Contributor
 from mamma_mia import inventory
-from mamma_mia import SensorBehavior
 
 
 print(f"Available groups in inventory {inventory.list_inventory_groups()}")
@@ -76,11 +75,11 @@ campaign.add_mission(mission_name="RAD24_01",
                      title="Churchill with CTD deployment at RAPID array mooring eb1l2n",
                      summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
                      platform_name="Churchill_withCTD",
-                     trajectory_path="eb1l2n-spiral.nc",
+                     trajectory_path="ebh412-mooring.nc",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="CMEMS",
+                     source_location="rapid_data",
                      mission_time_step=60)
 
 

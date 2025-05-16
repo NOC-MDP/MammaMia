@@ -11,6 +11,7 @@ import xesmf as xe
 import blosc
 from mamma_mia.exceptions import UnknownSourceKey
 from mamma_mia.find_worlds import SourceType
+from mamma_mia.worlds import WorldsConf
 
 
 @dataclass
@@ -18,7 +19,7 @@ class Interpolators:
     interpolator: dict = field(default_factory=dict)
     cache: bool = False
 
-    def build(self,worlds,mission:str,source_type:SourceType) -> ():
+    def build(self,worlds:WorldsConf,mission:str,source_type:SourceType) -> ():
         """
         Creates a 4D interpolator for each sensor that allows a world to be interpolated on to a trajectory
 

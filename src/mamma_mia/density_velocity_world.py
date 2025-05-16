@@ -1,56 +1,19 @@
+from attr import attributes
 from attrs import frozen,field,define
-import zarr
 from cattr import unstructure
 from loguru import logger
 import numpy as np
 import sys
+
+from mamma_mia.mission import Trajectory
 from mamma_mia.sensors import SensorInventory
 from mamma_mia.catalog import Cats
-from mamma_mia.find_worlds import Worlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.exceptions import ValidationFailure, NullDataException
+from mamma_mia.exceptions import NullDataException
 from mamma_mia.log import log_filter
-
-@frozen
-class Extent:
-    """
-    Immutable extent object, used to subset a model data source and download only what is needed for velocity interpolation
-
-    Args:
-        max_lat: maximum latitude required
-        min_lat: minimum latitude required
-        max_lng: maximum longitude required
-        min_lng: minimum longitude required
-        max_depth: maximum depth required
-        start_dt: start datetime in format "2023-01-01T00:00:00Z"
-        end_dt: end datetime in format "2023-01-01T00:00:00Z"
-
-    """
-    max_lat: float
-    min_lat: float
-    max_lng: float
-    min_lng: float
-    max_depth: float
-    start_datetime: np.datetime64 = field(init=False)
-    end_datetime: np.datetime64 = field(init=False)
-    start_dt: str
-    end_dt: str
-
-    def __attrs_post_init__(self):
-        object.__setattr__(self, 'start_datetime', np.datetime64(self.start_dt))
-        object.__setattr__(self, 'end_datetime', np.datetime64(self.end_dt))
-        self._validate()
-
-    def _validate(self):
-        if self.max_lat > 90 or self.max_lat < -90:
-            raise ValidationFailure(f"Maximum Latitude {self.max_lat} failed validation")
-        if self.min_lat > 90 or self.min_lat < -90:
-            raise ValidationFailure(f"Minimum Latitude {self.min_lat} failed validation")
-        if self.max_lng > 180 or self.max_lng < -180:
-            raise ValidationFailure(f"Maximum Longitude {self.max_lng} failed validation")
-        if self.min_lng > 180 or self.min_lng < -180:
-            raise ValidationFailure(f"Minimum Longitude {self.min_lng} failed validation")
+from mamma_mia.find_worlds import SourceType, SourceConfig, Worlds
+from mamma_mia.worlds import WorldsAttributes,WorldsConf,WorldExtent
 
 
 @frozen
@@ -79,7 +42,7 @@ class RealityPt:
     salinity: float
 
 @define
-class RealityWorld(zarr.Group):
+class RealityWorld:
     """
     An velocity world zarr group, based on a mamma mia world class that contains a subset of velocity data ready for interpolation onto points
 
@@ -93,50 +56,39 @@ class RealityWorld(zarr.Group):
         cmems_priority: priority value of CMEMS sources (higher has more priority) default = 1
 
     """
-    extent: Extent
-    store = None
-    overwrite = False
-    excess_space: float = 0.5
-    excess_depth: int = 100
-    msm_priority: int = 2
-    cmems_priority: int = 1
+    world_conf: WorldsConf
+    trajectory: Trajectory
+    reality: dict
+    source: SourceConfig
 
-    def __attrs_post_init__(self):
-        logger.info("creating velocity world")
-        # Create the group using the separate method
-        group = zarr.group(store=self.store, overwrite=self.overwrite)
+    @classmethod
+    def for_glidersim(cls,  extent:WorldExtent,
+                            excess_depth:int=100,
+                            excess_space:float=0.5,
+                            msm_priority:int=2,
+                            cmems_priority:int=1,
+                      ):
+        logger.info("creating reality world")
 
-        # Initialize the base class with the created group attributes
-        super().__init__(store=group.store, path=group.path, read_only=group.read_only, chunk_store=group.chunk_store,
-                         synchronizer=group.synchronizer)
+        trajectory = Trajectory.for_glidersim()
 
-        self.attrs["name"] = "reality_world"
-        self.attrs["description"] = "world to get interpolated reality"
+        extent_excess = WorldExtent(
+            lat_max=np.float64(extent.lat_max + excess_space),
+            lat_min=np.float64(extent.lat_min - excess_space),
+            lon_max=np.float64(extent.lon_max + excess_space),
+            lon_min=np.float64(extent.lon_min - excess_space),
+            time_start=np.datetime_as_string(np.datetime64(extent.time_start) - np.timedelta64(30,'D'),unit="D"),
+            time_end = np.datetime_as_string(np.datetime64(extent.time_end) + np.timedelta64(30,'D'),unit="D"),
+            depth_max=np.float64(extent.depth_max + excess_depth)
+        )
 
-        traj = self.create_group("trajectory")
-        traj.array(name="latitudes",data=np.array(-999.999))
-        traj.array(name="longitudes",data=np.array(-999.999))
-        traj.array(name="depths",data=np.array(-999.999))
-        traj.array(name="datetimes",data=np.array(np.datetime64('1970-01-01'),dtype='datetime64'))
+        attrs = WorldsAttributes(extent=extent_excess,
+                                 catalog_priorities={"msm": msm_priority, "cmems": cmems_priority},
+                                 interpolator_priorities={},
+                                 matched_worlds={})
 
-        worlds = self.create_group("world")
-        extent_excess = {
-            "max_lat": self.extent.max_lat + self.excess_space,
-            "min_lat": self.extent.min_lat - self.excess_space,
-            "max_lng": self.extent.max_lng + self.excess_space,
-            "min_lng": self.extent.min_lng - self.excess_space,
-            # TODO dynamically set the +/- delta on start and end time based on time step of model (need at least two time steps)
-            "start_time": np.datetime_as_string(self.extent.start_datetime - np.timedelta64(30, 'D'), unit="D"),
-            "end_time": np.datetime_as_string(self.extent.end_datetime + np.timedelta64(30, 'D'), unit="D"),
-            "max_depth": self.extent.max_depth + self.excess_depth
-        }
-        worlds.attrs["extent"] = extent_excess
-        worlds.attrs["catalog_priorities"] = {"msm": self.msm_priority, "cmems": self.cmems_priority}
-        worlds.attrs["interpolator_priorities"] = {}
-        worlds.attrs["matched_worlds"] = {}
-        worlds.attrs["zarr_stores"] = {}
+        worlds_conf = WorldsConf(attributes=attrs,worlds={},stores={})
 
-        real_grp = self.create_group("reality")
         # create cats
         cats = Cats()
         cats.init_catalog()
@@ -144,16 +96,24 @@ class RealityWorld(zarr.Group):
         ctd = sensor_inventory.create_entity(entity_name="ctd", sensor_ref="mm_ctd")
         adcp = sensor_inventory.create_entity(entity_name="adcp", sensor_ref="mm_adcp")
 
+        reality = {}
         for name,sensor in adcp.parameters.items():
-            real_grp.empty(name=name,shape=1,dtype=np.float64)
+            reality[name] = np.empty(shape=1,dtype=np.float64)
         for name,sensor in ctd.parameters.items():
-            real_grp.empty(name=name,shape=1,dtype=np.float64)
+            reality[name] = np.empty(shape=1,dtype=np.float64)
+
         matched_worlds = Worlds()
-        matched_worlds.search_worlds(cat=cats,extent=extent_excess,payload=self.reality)
-        self.world.attrs.update({"matched_worlds": unstructure(matched_worlds)})
-        zarr_stores = get_worlds(cat=cats, world=self.world)
-        self.world.attrs.update({"zarr_stores": zarr_stores})
+        source = SourceConfig(source_type=SourceType.from_string("CMEMS"))
+        matched_worlds.search_worlds(cat=cats,extent=extent_excess,payload=reality,source=source)
+        worlds_conf.attributes.matched_worlds = matched_worlds.entries
+        zarr_stores = get_worlds(cat=cats, worlds=worlds_conf)
+        worlds_conf.stores = zarr_stores
         logger.success("reality world created successfully")
+
+        return cls(trajectory=trajectory,
+                    reality=reality,
+                    world_conf=worlds_conf,
+                    source=source,)
 
     def get_reality(self,point:Point,interpolator:Interpolators) -> RealityPt:
         """
@@ -173,36 +133,36 @@ class RealityWorld(zarr.Group):
             "depth": np.array([point.depth],dtype=np.float64),
             "time": np.array([point.datetime], dtype='datetime64'),
         }
-        for key in self.reality.array_keys():
+        for key in self.reality.keys():
             try:
                 self.reality[key] = interpolator.interpolator[key].quadrivariate(location)
             except KeyError:
                 pass
                 #logger.warning(f"no interpolator for {key}")
 
-        if np.isnan(self.reality["WATERCURRENTS_U"][0]):
+        if np.isnan(self.reality["WCUR_X"][0]):
             if point.depth >= 0.5:
                 logger.error(f"U component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             u_velocity = 0.0
         else:
-            u_velocity = self.reality["WATERCURRENTS_U"][0]
+            u_velocity = self.reality["WCUR_X"][0]
 
-        if np.isnan(self.reality["WATERCURRENTS_V"][0]):
+        if np.isnan(self.reality["WCUR_Y"][0]):
             if point.depth >= 0.5:
                 logger.error(f"V component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             v_velocity = 0.0
         else:
-            v_velocity = self.reality["WATERCURRENTS_V"][0]
+            v_velocity = self.reality["WCUR_Y"][0]
 
-        if np.isnan(self.reality["WATERCURRENTS_W"][0]):
-            if point.depth >= 0.5:
-                logger.error(f"W component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
-                raise NullDataException
-            w_velocity = 0.0
-        else:
-            w_velocity = self.reality["WATERCURRENTS_W"][0]
+        # if np.isnan(self.reality["WATERCURRENTS_W"][0]):
+        #     if point.depth >= 0.5:
+        #         logger.error(f"W component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
+        #         raise NullDataException
+        #     w_velocity = 0.0
+        # else:
+        #     w_velocity = self.reality["WATERCURRENTS_W"][0]
 
         if np.isnan(self.reality["TEMP"][0]):
             if point.depth >= 0.5:
@@ -222,7 +182,7 @@ class RealityWorld(zarr.Group):
 
         reality = RealityPt(u_velocity=u_velocity,
                             v_velocity=v_velocity,
-                            w_velocity=w_velocity,
+                            w_velocity=0.0,
                             salinity=salinity,
                             temperature=temperature
                             )
@@ -239,23 +199,28 @@ class Reality:
         extent: Extent object
 
     """
-    extent: Extent
-    world: RealityWorld = field(init=False)
-    interpolators: Interpolators = field(init=False)
+    extent: WorldExtent
+    world: RealityWorld
+    interpolators: Interpolators
     verbose: bool = False
 
-    def __attrs_post_init__(self):
+    @classmethod
+    def for_glidersim(cls,extent: WorldExtent,verbose: bool = False):
         # reset logger
         logger.remove()        # set logger based on requested verbosity
-        if self.verbose:
+        if verbose:
             logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
         else:
             logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         logger.info("creating velocity reality")
-        self.world = RealityWorld(extent=self.extent)
-        self.interpolators = Interpolators()
-        self.interpolators.build(worlds=self.world["world"],mission="DVR")
+        world = RealityWorld.for_glidersim(extent=extent)
+        interpolators = Interpolators()
+        interpolators.build(worlds=world.world_conf,mission="DVR",source_type=world.source.source_type)
         logger.success("reality created successfully")
+        return cls(extent=extent,
+                   world=world,
+                   interpolators=interpolators,
+                   verbose=verbose)
 
     def teleport(self, point: Point) -> RealityPt:
         """

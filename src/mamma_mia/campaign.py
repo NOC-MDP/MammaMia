@@ -1,7 +1,7 @@
 
 from mamma_mia.mission import Mission, Creator, Contributor, Publisher
 from mamma_mia.interpolator import Interpolators
-from mamma_mia import create_platform_class
+from mamma_mia import create_platform_attrs
 from mamma_mia.find_worlds import SourceType, SourceConfig
 from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform, InvalidEntity
 from loguru import logger
@@ -29,7 +29,7 @@ class Campaign:
     name: str
     description: str
     catalog: Cats = Cats()
-    platforms: dict[str,create_platform_class()] = field(factory=dict)
+    platforms: dict[str,create_platform_attrs()] = field(factory=dict)
     missions: dict[str, Mission] = field(factory=dict)
     interpolators: dict[str, Interpolators] = field(factory=dict)
     verbose: bool = False
@@ -44,7 +44,7 @@ class Campaign:
         logger.success(f"Campaign {self.name} created")
 
 
-    def register_platform(self,entity: create_platform_class()):
+    def register_platform(self,entity: create_platform_attrs()):
         """
         Add an platform to the campaign platform dictionary
         Args:
@@ -113,10 +113,10 @@ class Campaign:
         except KeyError:
             raise UnknownPlatform
         mission_source = SourceConfig.from_string(source_location)
-        mission = Mission.from_campaign(mission=mission_name,
+        mission = Mission.for_campaign(mission=mission_name,
                           title=title,
                           summary=summary,
-                          platform=platform_n,
+                          platform_attributes=platform_n,
                           trajectory_path=trajectory_path,
                           creator=creator,
                           publisher=publisher,

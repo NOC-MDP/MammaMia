@@ -7,7 +7,7 @@ from attrs import define, frozen
 from cattr import unstructure
 from zarr import open_group
 
-from mamma_mia import create_platform_class
+from mamma_mia import Platform, create_platform_attrs
 from mamma_mia import create_sensor_class
 import uuid
 from loguru import logger
@@ -19,6 +19,7 @@ from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import CriticalParameterMissing,NoValidSource
 from scipy.interpolate import interp1d
 from mamma_mia.gsw_funcs import convert_tsp
+from mamma_mia.worlds import WorldsConf, WorldExtent, WorldsAttributes
 
 @frozen
 class Publisher:
@@ -181,7 +182,17 @@ class Trajectory:
     pitch: np.ndarray
     roll: np.ndarray
     yaw: np.ndarray
-    behaviour: np.ndarray
+
+    @classmethod
+    def for_glidersim(cls):
+        logger.info("creating empty single point trajectory for glider sim")
+        cls(latitude=np.array(-999.999),
+            longitude=np.array(-999.999),
+            depth=np.array(-999.999),
+            time=np.array(-999.999),
+            roll=np.array(-999.999),
+            yaw=np.array(-999.999),
+            pitch=np.array(-999.999),)
 
     @classmethod
     def from_xarray(cls, ds: xr.Dataset, navigation_keys: NavigationKeys):
@@ -235,22 +246,7 @@ class Trajectory:
                 f"Optional roll parameter for trajectory not found in simulated data: No variable named '{navigation_keys.roll}'")
             roll = np.zeros_like(depth)
 
-        seconds_into_flight = (time - time[0]) / np.timedelta64(1, 's')
-        # calculate changes in depth to determine platform behaviour
-        dz = np.gradient(depth, seconds_into_flight)
-        # TODO set these dynamically based on the platform
-        ascent_thresh = 0.05  # m/s, adjust based on your system
-        descent_thresh = -0.05  # m/s
-        near_surface_thresh = 1
-        # Using dz and set thresholds, create an event graph for the platform
-        event = np.full_like(depth, 'hovering', dtype="S8")
-        # Diving: dz < descent_thresh
-        event[dz > descent_thresh] = 'diving'
-        # Climbing: dz > ascent_thresh
-        event[dz < ascent_thresh] = 'climbing'
-        # Surfaced / Near surface: depth < threshold and nearly zero vertical speed
-        surfaced_mask = (depth[:] < near_surface_thresh) & (np.abs(dz) < ascent_thresh)
-        event[surfaced_mask] = 'surfaced'
+
 
         return cls(latitude=np.array(latitude, dtype=np.float64),
                    longitude=np.array(longitude, dtype=np.float64),
@@ -258,7 +254,6 @@ class Trajectory:
                    pitch=np.array(pitch, dtype=np.float64),
                    roll=np.array(roll, dtype=np.float64),
                    yaw=np.array(yaw, dtype=np.float64),
-                   behaviour=np.array(event, dtype="S8"),
                    time=np.array(time, dtype=np.datetime64),
                    )
 
@@ -284,46 +279,25 @@ class Trajectory:
             raise NoValidSource("no valid source name found")
         return source
 
-@frozen
-class WorldExtent:
-    lat_max: np.float64
-    lat_min: np.float64
-    lon_max: np.float64
-    lon_min: np.float64
-    time_start: str
-    time_end: str
-    depth_max: np.float64
 
-@define
-class WorldsAttributes:
-    extent: WorldExtent
-    catalog_priorities: dict
-    interpolator_priorities: dict
-    matched_worlds: dict
-
-@define
-class Worlds:
-    attributes: WorldsAttributes
-    worlds: dict
-    stores: dict
 
 
 @define
 class Mission:
-    platform: create_platform_class()
+    platform: Platform
     attrs: MissionAttributes
     geospatial_attrs: GeospatialAttributes
     navigation_keys: NavigationKeys
     payload: dict[str, np.ndarray]
-    worlds: Worlds
+    worlds: WorldsConf
     trajectory: Trajectory
 
     @classmethod
-    def from_campaign(cls,
+    def for_campaign(cls,
                       mission: str,
                       summary: str,
                       title: str,
-                      platform: create_platform_class(),
+                      platform_attributes: create_platform_attrs(),
                       trajectory_path: str,
                       source_config: SourceConfig,
                       excess_space: int = 0.5,
@@ -338,8 +312,9 @@ class Mission:
                       standard_name_vocabulary = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html",
                       mission_time_step: int = 1,
                       ):
+        platform = Platform(attrs=platform_attributes,behaviour=np.empty((0,)))
         instruments = []
-        for instrument in platform.sensors.values():
+        for instrument in platform.attrs.sensors.values():
             instruments.append(instrument.sensor_name)
 
         attrs = MissionAttributes(mission=mission,
@@ -361,20 +336,38 @@ class Mission:
 
         # find datalogger
         data_logger_key = None
-        for sensor_key, sensor in platform.sensors.items():
+        for sensor_key, sensor in platform.attrs.sensors.items():
             if sensor.instrument_type == "data loggers":
                 data_logger_key = sensor_key
         if data_logger_key is None:
             raise Exception("No data logger found for this platform")
 
         # generate variable keys for navigation/trajectory variables in input dataset
-        nav_keys = NavigationKeys.from_datalogger(datalogger=platform.sensors[data_logger_key],platform_attrs=platform)
+        nav_keys = NavigationKeys.from_datalogger(datalogger=platform.attrs.sensors[data_logger_key],platform_attrs=platform.attrs)
 
         # generate trajectory
         ds = xr.open_dataset(attrs.trajectory_path)
         trajectory = Trajectory.from_xarray(ds=ds, navigation_keys=nav_keys)
 
-        if platform.platform_type == "slocum":
+        seconds_into_flight = (trajectory.time - trajectory.time[0]) / np.timedelta64(1, 's')
+        # calculate changes in depth to determine platform behaviour
+        dz = np.gradient(trajectory.depth, seconds_into_flight)
+        # TODO set these dynamically based on the platform
+        ascent_thresh = 0.05  # m/s, adjust based on your system
+        descent_thresh = -0.05  # m/s
+        near_surface_thresh = 1
+        # Using dz and set thresholds, create an event graph for the platform
+        event = np.full_like(trajectory.depth, 'hovering', dtype="S8")
+        # Diving: dz < descent_thresh
+        event[dz > descent_thresh] = 'diving'
+        # Climbing: dz > ascent_thresh
+        event[dz < ascent_thresh] = 'climbing'
+        # Surfaced / Near surface: depth < threshold and nearly zero vertical speed
+        surfaced_mask = (trajectory.depth[:] < near_surface_thresh) & (np.abs(dz) < ascent_thresh)
+        event[surfaced_mask] = 'surfaced'
+        platform.behaviour = np.array(event, dtype="S8")
+
+        if platform.attrs.platform_type == "slocum":
             logger.info(f"Platform requires NEMA coordinate conversion")
             for i in range(trajectory.longitude.__len__()):
                 trajectory.longitude[i] = cls.__convert_to_decimal(trajectory.longitude[i])
@@ -387,10 +380,10 @@ class Mission:
             geospatial_bounds_vertical_crs=vertical_crs,
             geospatial_lat_max=np.max(trajectory.latitude),
             geospatial_lat_min=np.min(trajectory.latitude),
-            geospatial_lat_units=cls.get_parameter_units(platform_attrs=platform ,parameter="latitude"),
+            geospatial_lat_units=cls.get_parameter_units(platform_attrs=platform.attrs ,parameter="latitude"),
             geospatial_lon_max=np.max(trajectory.longitude),
             geospatial_lon_min=np.min(trajectory.longitude),
-            geospatial_lon_units=cls.get_parameter_units(platform_attrs=platform,parameter="longitude"),
+            geospatial_lon_units=cls.get_parameter_units(platform_attrs=platform.attrs,parameter="longitude"),
             geospatial_vertical_max= np.max(trajectory.depth),
             geospatial_vertical_min= np.min(trajectory.depth),
             geospatial_vertical_units="m",
@@ -416,7 +409,7 @@ class Mission:
             time_end=str(np.datetime_as_string(trajectory.time[-1] + np.timedelta64(30, 'D'), unit="D")),
             depth_max=np.around(np.nanmax(trajectory.depth), 2) + extra_depth,
         )
-        worlds = Worlds(
+        worlds = WorldsConf(
             attributes=WorldsAttributes(extent=extent,
                                                  catalog_priorities={"msm": msm_priority, "cmems": cmems_priority},
                                                  matched_worlds={},
@@ -429,7 +422,7 @@ class Mission:
         # total mission time in seconds (largest that a payload array could be)
         mission_total_time_seconds = (trajectory.time[-1] - trajectory.time[0]).astype('timedelta64[s]')
         mission_total_time_steps = np.round(mission_total_time_seconds.astype(int) / mission_time_step).astype(int)
-        for name, sensor in platform.sensors.items():
+        for name, sensor in platform.attrs.sensors.items():
             for name2, parameter in sensor.parameters.items():
                 payload[name2] = np.empty(shape=mission_total_time_steps, dtype=np.float64)
         return cls(platform=platform,
@@ -504,7 +497,7 @@ class Mission:
             void: mission object with filled reality arrays of interpolated data, i.e. AUV has flown its
                   mission through the world.
         """
-        logger.info(f"flying {self.attrs.mission} using {self.platform.entity_name}")
+        logger.info(f"flying {self.attrs.mission} using {self.platform.attrs.entity_name}")
         # build orientation arrays, if missing from trajectory replace with zeros
         try:
             pitch = np.array(self.trajectory.pitch)
@@ -533,10 +526,10 @@ class Mission:
         flight_subset = {key: resampled_flight[key] for key in ["longitude", "latitude", "depth", "time"]}
         navigation_alias = {}
         # get navigation keys and any aliases that relate to them
-        for k1, v1 in self.platform.sensors.items():
-            if self.platform.sensors[k1].instrument_type == "data loggers":
-                navigation_keys = list(self.platform.sensors[k1].parameters.keys())
-                for k2, parameter in self.platform.sensors[k1].parameters.items():
+        for k1, v1 in self.platform.attrs.sensors.items():
+            if self.platform.attrs.sensors[k1].instrument_type == "data loggers":
+                navigation_keys = list(self.platform.attrs.sensors[k1].parameters.keys())
+                for k2, parameter in self.platform.attrs.sensors[k1].parameters.items():
                     for nav_key in navigation_keys:
                         if nav_key == parameter.parameter_id:
                             navigation_alias[nav_key] = parameter.alternate_labels
@@ -577,8 +570,8 @@ class Mission:
             for alt_key, alt_parameter in world.alternative_parameter.items():
                 if alt_parameter is not None:
                     logger.info(f"alternative parameter field in world attributes is not None, {alt_key} requires conversion from {alt_parameter}")
-                    for k1, v1 in self.platform.sensors.items():
-                        if alt_key in self.platform.sensors[k1].parameters.keys():
+                    for k1, v1 in self.platform.attrs.sensors.items():
+                        if alt_key in self.platform.attrs.sensors[k1].parameters.keys():
                             conversion_to_apply.append(alt_key)
                             conversion_to_apply.append(alt_parameter)
                             conversion_to_apply.append(" | ")
@@ -591,8 +584,8 @@ class Mission:
     def __convert_parameters(self, conversion_to_apply,flight):
         if "CFSN0329" and "CFSN0331" and "CNDC" and "TEMP" in conversion_to_apply:
             logger.info("converting potential temperature and practical salinity to insitu temperature and conductivity")
-            for k1, v1 in self.platform.sensors.items():
-                if "CNDC" in self.platform.sensors[k1].parameters.keys() and "TEMP" in self.platform.sensors[k1].parameters.keys():
+            for k1, v1 in self.platform.attrs.sensors.items():
+                if "CNDC" in self.platform.attrs.sensors[k1].parameters.keys() and "TEMP" in self.platform.attrs.sensors[k1].parameters.keys():
                     converted = convert_tsp(practical_salinity=self.payload["CNDC"][:],
                                             potential_temperature=self.payload["TEMP"][:],
                                             depth=flight["depth"],
@@ -928,7 +921,10 @@ class Mission:
         mission.attrs.update({"navigation_keys":unstructure(self.navigation_keys)})
 
         # write platform attributes
-        platform.attrs.update(unstructure(self.platform))
+        platform.attrs.update(unstructure(self.platform.attrs))
+
+        # write platform data
+        platform.array(name='behaviour',data=self.platform.behaviour)
 
         # write trajectory arrays
         trajectory.array(name="latitude",data=self.trajectory.latitude)
@@ -938,7 +934,6 @@ class Mission:
         trajectory.array(name="pitch",data=self.trajectory.pitch)
         trajectory.array(name="roll",data=self.trajectory.roll)
         trajectory.array(name="yaw",data=self.trajectory.yaw)
-        trajectory.array(name='behaviour',data=self.trajectory.behaviour)
 
         # write payload arrays
         for pload in self.payload.keys():
