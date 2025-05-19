@@ -411,7 +411,7 @@ class Mission:
         )
         worlds = WorldsConf(
             attributes=WorldsAttributes(extent=extent,
-                                                 catalog_priorities={"msm": msm_priority, "cmems": cmems_priority},
+                                                 catalog_priorities={"msm": msm_priority, "cmems": cmems_priority,"local":3},
                                                  matched_worlds={},
                                                  interpolator_priorities={}
                                                  ),

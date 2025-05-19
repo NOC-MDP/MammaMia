@@ -94,6 +94,34 @@ class Interpolators:
                             if self.cache:
                                 self.export_interp(key=world_attrs["variable_alias"][var],source_type=source_type,mission=mission)
                             interpolator_priorities[world_attrs.variable_alias[var]] = catalog_priorities["cmems"]
+                        elif source_type == SourceType.LOCAL:
+                            ds = xr.open_dataset(worlds.stores[key])
+                            # rename time and depth dimensions to be consistent
+                            ds = ds.rename({"deptht": "depth", "time_counter": "time"})
+                            lat = ds['nav_lat']
+                            lon = ds['nav_lon']
+                            # Define a regular grid with 1D lat/lon arrays
+                            target_lat = np.linspace(lat.min(), lat.max(), 96)
+                            target_lon = np.linspace(lon.min(), lon.max(), 67)
+                            # Create a target grid dataset
+                            target_grid = xr.Dataset({
+                                 'latitude': (['latitude'], target_lat),
+                                 'longitude': (['longitude'], target_lon)
+                             })
+                            # Create a regridder object to go from curvilinear to regular grid
+                            regridder = xe.Regridder(ds, target_grid, method='bilinear',ignore_degenerate=True)
+                            # Regrid the entire dataset
+                            ds_regridded = regridder(ds)
+                            # Add units to latitude and longitude coordinates
+                            ds_regridded['latitude'].attrs['units'] = 'degrees_north'
+                            ds_regridded['longitude'].attrs['units'] = 'degrees_east'
+                            # Convert all float32 variables in the dataset to float64
+                            ds_regridded = ds_regridded.astype('float64')
+                            ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
+                            self.interpolator[world_attrs.variable_alias[var]] = pyinterp.backends.xarray.Grid4D(ds_regridded[var],geodetic=True)
+                            if self.cache:
+                                self.export_interp(key=world_attrs["variable_alias"][var],source_type=source_type,mission=mission)
+                            interpolator_priorities[world_attrs.variable_alias[var]] = catalog_priorities["local"]
                         else:
                             logger.error(f"unknown model source {source_type.name}")
                             raise UnknownSourceKey

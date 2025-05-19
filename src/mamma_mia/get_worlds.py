@@ -1,3 +1,4 @@
+from mamma_mia.worlds import WorldsConf
 from mamma_mia.catalog import Cats
 import numpy as np
 from loguru import logger
@@ -7,7 +8,7 @@ import zarr
 from mamma_mia.exceptions import UnknownSourceKey
 import xarray as xr
 
-def get_worlds(cat: Cats, worlds) -> dict:
+def get_worlds(cat: Cats, worlds:WorldsConf) -> dict:
     """
     function that will get the worlds/model data as specified in the matched worlds attribute in the provided world zarr group.
     Args:
@@ -27,15 +28,22 @@ def get_worlds(cat: Cats, worlds) -> dict:
         if split_key[0] == "cmems":
             zarr_store = __get_cmems_worlds(value=value,worlds=worlds)
             zarr_stores[key] = zarr_store
+            worlds.worlds[key] = zarr.open(zarr_store, mode='r')
         elif split_key[0] == "msm":
             pass
         #     zarr_store = __get_msm_worlds(key=key, value=value, catalog=cat,world=world)
         #     zarr_stores[key] = zarr_store
+        #    worlds.worlds[key] = zarr.open(zarr_store, mode='r')
         else:
-            logger.error("unknown model source key")
-            raise UnknownSourceKey
-        zarr_source = zarr.open(zarr_store, mode='r')
-        worlds.worlds[key] = zarr_source
+            logger.info("unknown split key, assuming local data file")
+            try:
+                zarr_stores[key] = value.local_dir + "/" + value.data_id
+                worlds.worlds[key] = xr.open_dataset(value.local_dir+"/"+value.data_id)
+            except FileNotFoundError:
+                logger.error(f"unknown model source key or local data file {key}")
+                raise UnknownSourceKey
+
+
 
     return zarr_stores
 

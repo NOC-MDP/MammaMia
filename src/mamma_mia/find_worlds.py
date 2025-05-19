@@ -127,6 +127,7 @@ class DomainType(Enum):
     Domain type enumeration: sets the domain of the world.
     """
     globe = "glo"
+    regional = "regional"
     #arctic = "arc"
     @classmethod
     def from_string(cls,enum_string:str) -> "DomainType":
@@ -134,6 +135,9 @@ class DomainType(Enum):
             case "glo":
                 logger.info("setting domain type to glo")
                 return DomainType.globe
+            case "regional":
+                logger.info("setting domain type to regional")
+                return DomainType.regional
             case _:
                 raise ValueError(f"unknown domain type {enum_string}")
 
@@ -151,6 +155,7 @@ class MatchedWorld:
     alternative_parameter: dict | None
     field_type: FieldTypeWithRank
     variable_alias: dict
+    local_dir: str = None
 
     def __attrs_post_init__(self):
         # TODO add some validation here
@@ -178,7 +183,11 @@ class Worlds:
 
 
     def __find_local_worlds(self,key:str, extent:WorldExtent, local_dir:str) -> None:
-        logger.info(f"searching local directory {local_dir}")
+        # if there are any alternative sources built a list of their source names.
+        alternative_sources = inventory.parameters.entries[key].alternate_sources
+        alternative_source_names = {}
+        for src in alternative_sources:
+            alternative_source_names[src] = inventory.parameters.entries[src].source_names
         for dirpath, _, filenames in os.walk(local_dir):
             for filename in filenames:
                 if filename.endswith('.nc'):
@@ -186,30 +195,110 @@ class Worlds:
                     ds = xr.open_dataset(nc_path)
                     for key2, var in ds.data_vars.items():
                         if key2 in inventory.parameters.entries[key].source_names:
-                            subset = self.__get_subset(ds=ds,extent=extent)
-                            print(var.attrs)
+                            ## if the variable is not in source names (quite likely) then need to search the alternative source names created above
+                            alternative_parameter = None
+                            for alt_key, alt_src in alternative_source_names.items():
+                                if key2 in alt_src:
+                                    alternative_parameter = alt_key
+                                    break
+                            if self.__check_subset(ds=ds,extent=extent):
+                                logger.success(f"found a match in {filename} for parameter {key}")
+                                field_type = FieldTypeWithRank.from_string(enum_string="P1D-m")
+                                new_world = MatchedWorld(
+                                    data_id=filename,
+                                    world_type=WorldType.from_string(enum_string="mod"),
+                                    domain=DomainType.from_string(enum_string="regional"),
+                                    dataset_name=filename,
+                                    resolution="",
+                                    field_type=field_type,
+                                    variable_alias={key2: key},
+                                    alternative_parameter={key: alternative_parameter},
+                                    local_dir=local_dir,
+                                )
+                                # create a new world entry based on existing entries ranking and variables.
+                                # NOTE this assumes that all variables of a dataset exist across all field types.
+                                # TODO check that the assumption in the comment above is true
+                                if filename in self.entries:
+                                    # if the rank of existing world is higher (and therefore not as good) replace
+                                    if self.entries[filename].field_type.rank > new_world.field_type.rank:
+                                        # get any existing variables
+                                        existing_vars = self.entries[filename].variable_alias
+                                        # get any existing alternative variables
+                                        existing_alts = self.entries[filename].alternative_parameter
+                                        self.entries[filename] = new_world
+                                        # add new variables if they aren't already present
+                                        for key5, var5 in existing_vars.items():
+                                            if key2 not in self.entries[
+                                                filename].variable_alias.keys():
+                                                self.entries[filename].variable_alias[key5] = var5
+                                        for key6, var6 in existing_alts.items():
+                                            if key2 not in self.entries[
+                                                filename].alternative_parameter.keys():
+                                                self.entries[filename].alternative_parameter[key6] = var6
+                                    else:
+                                        # if ranking is not better than just update with the variable name
+                                        logger.info(
+                                            f"updating {filename} with key {key} for field type {field_type.field_type.name}")
+                                        if key2 not in self.entries[
+                                            filename].variable_alias.keys():
+                                            self.entries[filename].variable_alias[key2] = key
+                                        if key2 not in self.entries[
+                                            filename].alternative_parameter.keys():
+                                            self.entries[filename].alternative_parameter[key] = alternative_parameter
+                                else:
+                                    # world doesn't exist yet so just add as a complete entry
+                                    logger.info(f"creating new matched world {filename} for key {key}")
+                                    self.entries[filename] = new_world
 
     @staticmethod
-    def __get_subset(ds:xr.Dataset, extent:WorldExtent) -> xr.Dataset:
+    def __check_subset(ds:xr.Dataset, extent:WorldExtent, fill_value:int = -1) -> bool:
 
-        # Generate spatial mask using nav_lat/nav_lon
-        lat = ds['nav_lat']
-        lon = ds['nav_lon']
-        spatial_mask = (lat >= extent.lat_min) & (lat <= extent.lat_max) & (lon >= extent.lon_min) & (lon <= extent.lon_max)
+        lat = ds['nav_lat'].values
+        lon = ds['nav_lon'].values
 
-        # Get bounding indices
-        iy, ix = np.where(spatial_mask)
-        try:
-            ymin, ymax = iy.min(), iy.max()
-            xmin, xmax = ix.min(), ix.max()
-        except ValueError:
-            raise Exception("spatial mask empty, trajectory extent is probably not inside local data source extent")
+        # Mask out fill values (e.g., -1) before computing bounds
+        valid_mask = (lat != fill_value) & (lon != fill_value)
+        lat_valid = lat[valid_mask]
+        lon_valid = lon[valid_mask]
 
-        # Apply all subsets
-        ds_subset = ds.isel(y=slice(ymin, ymax + 1), x=slice(xmin, xmax + 1)) \
-            .sel(deptht=slice(0, extent.depth_max)) \
-            .sel(time_counter=slice(extent.time_start, extent.time_end))
-        return ds_subset
+        if lat_valid.size == 0 or lon_valid.size == 0:
+            raise Exception("No valid lat/lon values in dataset.")
+
+        # Get dataset bounds
+        lat_min_ds = float(lat_valid.min())
+        lat_max_ds = float(lat_valid.max())
+        lon_min_ds = float(lon_valid.min())
+        lon_max_ds = float(lon_valid.max())
+
+        # Check if the full extent is covered
+        if (
+                lat_min_ds <= extent.lat_min and
+                lat_max_ds >= extent.lat_max and
+                lon_min_ds <= extent.lon_min and
+                lon_max_ds >= extent.lon_max
+        ):
+            return True
+        else:
+            return False
+
+        # # Generate spatial mask using nav_lat/nav_lon
+        # lat = ds['nav_lat']
+        # lon = ds['nav_lon']
+        # spatial_mask = (lat >= extent.lat_min) & (lat <= extent.lat_max) & (lon >= extent.lon_min) & (lon <= extent.lon_max)
+        #
+        # # Get bounding indices
+        # iy, ix = np.where(spatial_mask)
+        # try:
+        #     ymin, ymax = iy.min(), iy.max()
+        #     xmin, xmax = ix.min(), ix.max()
+        # except ValueError:
+        #     raise Exception("spatial mask empty, trajectory extent is probably not inside local data source extent")
+
+        # # Apply all subsets
+        # ds_subset = ds.isel(y=slice(ymin, ymax + 1), x=slice(xmin, xmax + 1)) \
+        #     .sel(deptht=slice(0, extent.depth_max)) \
+        #     .sel(time_counter=slice(extent.time_start, extent.time_end))
+
 
     def __find_cmems_worlds(self,key: str ,cat :Cats,extent) -> None:
         """
@@ -324,7 +413,7 @@ class Worlds:
                                         resolution=parts[5],
                                         field_type=field_type,
                                         variable_alias={variables[m]["short_name"]:key},
-                                        alternative_parameter={key:alternative_parameter},
+                                        alternative_parameter={key:alternative_parameter}
                                     )
                                     # create a new world entry based on existing entries ranking and variables.
                                     # NOTE this assumes that all variables of a dataset exist across all field types.
