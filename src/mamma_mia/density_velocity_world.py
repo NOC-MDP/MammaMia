@@ -1,10 +1,8 @@
-from attr import attributes
+
 from attrs import frozen,field,define
-from cattr import unstructure
 from loguru import logger
 import numpy as np
 import sys
-
 from mamma_mia.mission import Trajectory
 from mamma_mia.sensors import SensorInventory
 from mamma_mia.catalog import Cats
@@ -12,7 +10,7 @@ from mamma_mia.get_worlds import get_worlds
 from mamma_mia.interpolator import Interpolators
 from mamma_mia.exceptions import NullDataException
 from mamma_mia.log import log_filter
-from mamma_mia.find_worlds import SourceType, SourceConfig, Worlds
+from mamma_mia.find_worlds import SourceType, SourceConfig, FindWorlds
 from mamma_mia.worlds import WorldsAttributes,WorldsConf,WorldExtent
 
 
@@ -47,13 +45,7 @@ class RealityWorld:
     An velocity world zarr group, based on a mamma mia world class that contains a subset of velocity data ready for interpolation onto points
 
     Args:
-        extent: Extent object
-        store: Zarr store to store object in, default: memory store
-        overwrite: if store exists overwrite, default: False
-        excess_space: increase in spatial extent of subset over extent provided, default 0.5 degrees
-        excess_depth: increase in depth of subset over extent provided, default 100 meters
-        msm_priority: priority value of MSM sources (higher has more priority) default = 2
-        cmems_priority: priority value of CMEMS sources (higher has more priority) default = 1
+
 
     """
     world_conf: WorldsConf
@@ -102,11 +94,11 @@ class RealityWorld:
         for name,sensor in ctd.parameters.items():
             reality[name] = np.empty(shape=1,dtype=np.float64)
 
-        matched_worlds = Worlds()
+        matched_worlds = FindWorlds()
         source = SourceConfig(source_type=SourceType.from_string("CMEMS"))
         matched_worlds.search_worlds(cat=cats,extent=extent_excess,payload=reality,source=source)
         worlds_conf.attributes.matched_worlds = matched_worlds.entries
-        zarr_stores = get_worlds(cat=cats, worlds=worlds_conf)
+        zarr_stores = get_worlds(cat=cats, worlds=worlds_conf,source=source)
         worlds_conf.stores = zarr_stores
         logger.success("reality world created successfully")
 

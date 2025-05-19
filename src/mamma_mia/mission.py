@@ -5,8 +5,6 @@ import plotly.graph_objects as go
 import xarray as xr
 from attrs import define, frozen
 from cattr import unstructure
-from zarr import open_group
-
 from mamma_mia import Platform, create_platform_attrs
 from mamma_mia import create_sensor_class
 import uuid
@@ -14,7 +12,8 @@ from loguru import logger
 import zarr
 from mamma_mia.catalog import Cats
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.find_worlds import Worlds as Worlds2, SourceConfig
+from mamma_mia.worlds import SourceConfig
+from mamma_mia.find_worlds import FindWorlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import CriticalParameterMissing,NoValidSource
 from scipy.interpolate import interp1d
@@ -480,7 +479,7 @@ class Mission:
                   and zarr store attributes are updated with the new values (what worlds match sensors and trajectory etc)
 
         """
-        matched_worlds = Worlds2()
+        matched_worlds = FindWorlds()
         matched_worlds.search_worlds(cat=cat, payload=self.payload, extent=self.worlds.attributes.extent,source=self.attrs.source_config)
         self.worlds.attributes.matched_worlds = matched_worlds.entries
         data_stores = get_worlds(cat=cat, worlds=self.worlds,source=self.attrs.source_config)
@@ -905,7 +904,7 @@ class Mission:
             store = zarr.storage.DirectoryStore(f"{out_dir}/{self.attrs.mission}.zarr")
             mission = zarr.group(store=store,overwrite=True)
         else:
-            campaign = open_group(store=store)
+            campaign = zarr.open_group(store=store)
             mission = campaign.create_group(f"{self.attrs.mission}",overwrite=True)
 
 

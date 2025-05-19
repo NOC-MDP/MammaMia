@@ -1,5 +1,4 @@
-from mamma_mia.find_worlds import SourceConfig,SourceType
-from mamma_mia.worlds import WorldsConf
+from mamma_mia.worlds import SourceConfig,SourceType, WorldsConf
 from mamma_mia.catalog import Cats
 import numpy as np
 from loguru import logger
@@ -13,6 +12,7 @@ def get_worlds(cat: Cats, worlds:WorldsConf,source:SourceConfig) -> dict:
     """
     function that will get the worlds/model data as specified in the matched worlds attribute in the provided world zarr group.
     Args:
+        source:
         cat: initialised Cats object that contains all the source data available to download
         worlds:
 
@@ -110,14 +110,13 @@ def __get_msm_worlds(key: str, value, catalog: Cats,world:zarr.Group) -> str:
     return zarr_d + zarr_f
 
 
-def __get_cmems_worlds(value,worlds) -> str:
+def __get_cmems_worlds(value,worlds:WorldsConf) -> str:
     """
     function that downloads model data from CMEMS, data must match the temporal and spatial extents of the auv, and also
     have the required variables to match the sensor arrays of the auv.
     Args:
-        key: model source
         value: object that contains the intake entry of the matched dataset
-        world: zarr group that contains the world attributes and will store the downloaded model data
+        worlds:
 
     Returns:
         string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
@@ -140,14 +139,14 @@ def __get_cmems_worlds(value,worlds) -> str:
         copernicusmarine.subset(
             dataset_id=value.data_id,
             variables=list(value.variable_alias.keys()),
-            minimum_longitude=worlds.attributes.extent.lon_min,
-            maximum_longitude=worlds.attributes.extent.lon_max,
-            minimum_latitude=worlds.attributes.extent.lat_min,
-            maximum_latitude=worlds.attributes.extent.lat_max,
+            minimum_longitude=float(worlds.attributes.extent.lon_min),
+            maximum_longitude=float(worlds.attributes.extent.lon_max),
+            minimum_latitude=float(worlds.attributes.extent.lat_min),
+            maximum_latitude=float(worlds.attributes.extent.lat_max),
             start_datetime=str(worlds.attributes.extent.time_start),
             end_datetime=str(worlds.attributes.extent.time_end),
             minimum_depth=0,
-            maximum_depth=worlds.attributes.extent.depth_max,
+            maximum_depth=float(worlds.attributes.extent.depth_max),
             output_filename=zarr_f,
             output_directory=zarr_d,
             file_format="zarr",
