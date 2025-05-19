@@ -944,7 +944,13 @@ class Mission:
         # write world data
         for key, value in self.worlds.worlds.items():
             world.create_group(name=key)
-            zarr.convenience.copy_all(value,world[key])
+            try:
+                zarr.convenience.copy_all(value,world[key])
+            except AttributeError:
+                logger.warning(f"failed to copy world {key} trying to covert to zarr")
+                value.to_zarr(group=world[key],store=store)
+                logger.success(f"successfully converted world {key} to zarr")
+
 
         # self.create_dim_map(msm_cat=msm_cat)
         # self.add_array_dimensions(group=self, dim_map=self.world.attrs['dim_map'])
