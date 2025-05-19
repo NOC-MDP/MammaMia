@@ -203,11 +203,12 @@ class Worlds:
                                     break
                             if self.__check_subset(ds=ds,extent=extent):
                                 logger.success(f"found a match in {filename} for parameter {key}")
-                                field_type = FieldTypeWithRank.from_string(enum_string="P1D-m")
+                                field_type = self.__estimate_field_interval(ds=ds)
+                                domain_type = self.__estimate_domain_type(ds=ds)
                                 new_world = MatchedWorld(
                                     data_id=filename,
                                     world_type=WorldType.from_string(enum_string="mod"),
-                                    domain=DomainType.from_string(enum_string="regional"),
+                                    domain=domain_type,
                                     dataset_name=filename,
                                     resolution="",
                                     field_type=field_type,
@@ -252,7 +253,16 @@ class Worlds:
 
     @staticmethod
     def __check_subset(ds:xr.Dataset, extent:WorldExtent, fill_value:int = -1) -> bool:
+        """
+        Checks the input dataset to ensure the whole required extent fits within it
+        Args:
+            ds: xarray dataset
+            extent: WorldExtent object
+            fill_value: optional fill value to ignore
 
+        Returns: True if subset is valid, False otherwise
+
+        """
         lat = ds['nav_lat'].values
         lon = ds['nav_lon'].values
 
@@ -281,24 +291,48 @@ class Worlds:
         else:
             return False
 
-        # # Generate spatial mask using nav_lat/nav_lon
-        # lat = ds['nav_lat']
-        # lon = ds['nav_lon']
-        # spatial_mask = (lat >= extent.lat_min) & (lat <= extent.lat_max) & (lon >= extent.lon_min) & (lon <= extent.lon_max)
-        #
-        # # Get bounding indices
-        # iy, ix = np.where(spatial_mask)
-        # try:
-        #     ymin, ymax = iy.min(), iy.max()
-        #     xmin, xmax = ix.min(), ix.max()
-        # except ValueError:
-        #     raise Exception("spatial mask empty, trajectory extent is probably not inside local data source extent")
+    @staticmethod
+    def __estimate_field_interval(ds:xr.Dataset) -> FieldTypeWithRank:
+        """
+        Estimates the field interval of the input data source, by checking the attributes of the first variable
+        for a specific string that denotes its type
 
-        # # Apply all subsets
-        # ds_subset = ds.isel(y=slice(ymin, ymax + 1), x=slice(xmin, xmax + 1)) \
-        #     .sel(deptht=slice(0, extent.depth_max)) \
-        #     .sel(time_counter=slice(extent.time_start, extent.time_end))
+        Args:
+            ds: xarray dataset
 
+        Returns: FieldTypeWithRank of the relevent type
+
+        """
+        # TODO this only checks the first variable and only looks for a specific string so is really not that robust
+        for key,value in ds.data_vars.items():
+            for attrs in value.attrs.values():
+                if "1 d" in attrs:
+                    return FieldTypeWithRank.from_string(enum_string="P1D-m")
+        raise Exception("Field interval check failed")
+
+
+    @staticmethod
+    def __estimate_domain_type(ds:xr.Dataset) -> DomainType:
+        """
+        estimates the domain of the input data source, options include global and regional
+        The estimation is carried out by calculating the extent of the dataset and checking to see if it matches
+        a global extent (absolute tolerance of 10 degrees).
+        Args:
+            ds: xarray dataset to check
+
+        Returns: DomainType of the relevent type
+
+        """
+        # TODO search units of coords and looks for degrees_North to remove hard coding of lat and lon
+        lat = ds["nav_lat"]
+        lon = ds["nav_lon"]
+        if np.isclose(float(np.abs(lat.max()-lat.min())),180.0,atol=10):
+            if np.isclose(float(np.abs(lon.max()-lon.min())), 360.0, atol=10):
+                return DomainType.from_string(enum_string="glo")
+        else:
+            return DomainType.from_string(enum_string="regional")
+
+        raise Exception("Domain type check failed")
 
     def __find_cmems_worlds(self,key: str ,cat :Cats,extent) -> None:
         """

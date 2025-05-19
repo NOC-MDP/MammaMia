@@ -483,7 +483,7 @@ class Mission:
         matched_worlds = Worlds2()
         matched_worlds.search_worlds(cat=cat, payload=self.payload, extent=self.worlds.attributes.extent,source=self.attrs.source_config)
         self.worlds.attributes.matched_worlds = matched_worlds.entries
-        data_stores = get_worlds(cat=cat, worlds=self.worlds)
+        data_stores = get_worlds(cat=cat, worlds=self.worlds,source=self.attrs.source_config)
         self.worlds.stores = data_stores
 
     def fly(self, interpolator: Interpolators):

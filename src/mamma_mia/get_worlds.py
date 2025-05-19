@@ -1,3 +1,4 @@
+from mamma_mia.find_worlds import SourceConfig,SourceType
 from mamma_mia.worlds import WorldsConf
 from mamma_mia.catalog import Cats
 import numpy as np
@@ -8,7 +9,7 @@ import zarr
 from mamma_mia.exceptions import UnknownSourceKey
 import xarray as xr
 
-def get_worlds(cat: Cats, worlds:WorldsConf) -> dict:
+def get_worlds(cat: Cats, worlds:WorldsConf,source:SourceConfig) -> dict:
     """
     function that will get the worlds/model data as specified in the matched worlds attribute in the provided world zarr group.
     Args:
@@ -23,27 +24,21 @@ def get_worlds(cat: Cats, worlds:WorldsConf) -> dict:
     """
     zarr_stores = {}
     for key, value in worlds.attributes.matched_worlds.items():
-        split_key = key.split("_")
-
-        if split_key[0] == "cmems":
+        if source.source_type == SourceType.CMEMS:
             zarr_store = __get_cmems_worlds(value=value,worlds=worlds)
             zarr_stores[key] = zarr_store
             worlds.worlds[key] = zarr.open(zarr_store, mode='r')
-        elif split_key[0] == "msm":
+        elif source.source_type == SourceType.MSM:
             pass
         #     zarr_store = __get_msm_worlds(key=key, value=value, catalog=cat,world=world)
         #     zarr_stores[key] = zarr_store
         #    worlds.worlds[key] = zarr.open(zarr_store, mode='r')
+        elif source.source_type == SourceType.LOCAL:
+            zarr_stores[key] = value.local_dir + "/" + value.data_id
+            worlds.worlds[key] = xr.open_dataset(value.local_dir+"/"+value.data_id)
         else:
-            logger.info("unknown split key, assuming local data file")
-            try:
-                zarr_stores[key] = value.local_dir + "/" + value.data_id
-                worlds.worlds[key] = xr.open_dataset(value.local_dir+"/"+value.data_id)
-            except FileNotFoundError:
-                logger.error(f"unknown model source key or local data file {key}")
-                raise UnknownSourceKey
-
-
+            logger.error(f"unknown model source {source.source_type}")
+            raise UnknownSourceKey
 
     return zarr_stores
 
