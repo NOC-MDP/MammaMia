@@ -6,3 +6,4 @@ from mamma_mia.campaign import Campaign
 from mamma_mia.inventory import inventory
 from mamma_mia.density_velocity_world import RealityWorld,Point,Reality
 from mamma_mia.mission import WorldExtent
+from mamma_mia.run_simulator import MissionBuilder

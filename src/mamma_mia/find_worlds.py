@@ -16,6 +16,17 @@ class FindWorlds:
     entries: dict[str,MatchedWorld] = field(factory=dict)
 
     def search_worlds(self, cat:Cats, payload:dict[str,np.ndarray],extent,source:SourceConfig):
+        """
+        search world wrapper function, this runs the specific find world function for the specifed source configuration
+        Args:
+            cat:
+            payload:
+            extent:
+            source:
+
+        Returns:
+
+        """
         for key in payload.keys():
             match source.source_type:
                 case SourceType.CMEMS:
@@ -30,6 +41,17 @@ class FindWorlds:
 
 
     def __find_local_worlds(self,key:str, extent:WorldExtent, local_dir:str) -> None:
+        """
+        Searches a specified or if not specified the current working directory for netcdf files containing model source
+        data that can be used as input.
+        Args:
+            key:
+            extent:
+            local_dir:
+
+        Returns:
+
+        """
         # if there are any alternative sources built a list of their source names.
         alternative_sources = inventory.parameters.entries[key].alternate_sources
         alternative_source_names = {}
@@ -37,6 +59,7 @@ class FindWorlds:
             alternative_source_names[src] = inventory.parameters.entries[src].source_names
         for dirpath, _, filenames in os.walk(local_dir):
             for filename in filenames:
+                # TODO ideally would handle more options such as zarr
                 if filename.endswith('.nc'):
                     nc_path = os.path.join(dirpath, filename)
                     ds = xr.open_dataset(nc_path)
