@@ -49,7 +49,7 @@ class SpecialSettings:
     glider_gps_acquiretime: float = 100.00
     mission_initialisation_time: float = 400
 
-class ModelBuilder:
+class GliderBuilder:
     @classmethod
     def from_string(cls,model:str) -> glidersim.glidermodels.BaseGliderModel:
         match model:
@@ -64,7 +64,6 @@ class ModelBuilder:
 
 @define
 class MissionBuilder:
-    glider_mission: GliderMission
 
     @classmethod
     def create_mission(cls,
@@ -78,10 +77,12 @@ class MissionBuilder:
                        inital_heading:float,
                        mission_directory:str,
                        mission_start:str = "pickup",
+                       data_dir:str = "data",
                        fp:FlightParameters = FlightParameters(),
-                       bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "MissionBuilder":
-
-        glider = ModelBuilder.from_string(glider_model)
+                       bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> GliderMission:
+        # Tell dbdreader where to get the cache files from
+        glidersim.environments.GliderData.DBDREADER_CACHEDIR = f'{data_dir}{os.sep}cac'
+        glider = GliderBuilder.from_string(glider_model)
         glider.initialise_gliderflightmodel(Cd0=fp.Cd0,
                                                   mg=fp.mg,
                                                   Vg=fp.Vg,
@@ -90,7 +91,7 @@ class MissionBuilder:
                                                   T3=fp.T3)
         env_mod = VelocityRealityModel(glider_name=glider_name,
                                        download_time=24,
-                                       gliders_directory='data',
+                                       gliders_directory=data_dir,
                                        bathymetry_filename=bathy.file_path,
                                        )
         nmea_lon, nmea_lat = latlon.convertToNmea(x=lon_ini, y=lat_ini)
@@ -103,15 +104,15 @@ class MissionBuilder:
         dt = datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S:Z")
         datestr = dt.strftime("%Y%m%d")
         timestr = dt.strftime("%H:%M")
-        conf = glidersim.configuration.Config(missionName=mission_name,  # the mission name to run
+        conf = glidersim.configuration.Config(missionName=mission_name+".mi",  # the mission name to run
                                               description=description,  # descriptive text used in the output file
                                               datestr=datestr,  # start date of simulation
                                               timestr=timestr,  # and time
-                                              lat_ini=nmea_lat,  # 5418.9674,
-                                              lon_ini=nmea_lon,  # 724.5902,     # starting longitude
-                                              mission_directory=mission_directory,
+                                              lat_ini=nmea_lat,
+                                              lon_ini=nmea_lon,  # starting longitude
+                                              mission_directory=f"{data_dir}{os.sep}{mission_directory}",
                                               # where the missions and mafiles directories are found
-                                              output=f"{mission_directory}{os.sep}{mission_name}.nc",
+                                              output=f"{data_dir}{os.sep}{mission_directory}{os.sep}{mission_name}.nc",
                                               # name of output file (pickled files (.pck) can also be used
                                               sensor_settings=unstructure(sensor_settings),
                                               special_settings=unstructure(special_settings),
@@ -119,17 +120,7 @@ class MissionBuilder:
                                               mission_start=mission_start)  # if not set, a new mission is assumed, otherwise it is a continuation of a previous dive.
 
         gm = glidersim.glidersim.GliderMission(conf,verbose=True,glider_model=glider,environment_model=env_mod)
-        return cls(glider_mission=gm)
-
-    def run(self,dt=0.5,CPUcycle=4,maxSimulationTime=1, end_on_surfacing=False, end_on_grounding=False,verbose=True):
-        self.glider_mission.run(dt=dt,
-                                CPUcycle=CPUcycle,
-                                maxSimulationTime=maxSimulationTime,
-                                end_on_surfacing=end_on_surfacing,
-                                end_on_grounding=end_on_grounding,
-                                verbose=verbose)
-    def save(self):
-        self.glider_mission.save()
+        return gm
 
 
 
