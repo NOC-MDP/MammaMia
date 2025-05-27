@@ -581,7 +581,7 @@ class Mission:
         logger.success(f"{self.attrs.mission} flown successfully")
 
     def __convert_parameters(self, conversion_to_apply,flight):
-        if "CFSN0329" and "CFSN0331" and "CNDC" and "TEMP" in conversion_to_apply:
+        if "CFSN0329" and "IADIHDIJ" and "CNDC" and "TEMP" in conversion_to_apply:
             logger.info("converting potential temperature and practical salinity to insitu temperature and conductivity")
             for k1, v1 in self.platform.attrs.sensors.items():
                 if "CNDC" in self.platform.attrs.sensors[k1].parameters.keys() and "TEMP" in self.platform.attrs.sensors[k1].parameters.keys():

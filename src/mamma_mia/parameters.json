@@ -9,7 +9,7 @@
                 "unit_of_measure": "Siemens per metre",
                 "unit_identifier": "SDN:P06::UECA",
                 "parameter_definition": "Electrical conductivity of the water body by CTD",
-                "alternate_sources": ["CFSN0331","JIBGDIEJ"],
+                "alternate_sources": ["JIBGDIEJ","IADIHDIJ"],
                 "alternate_labels": ["Conductivity"],
                 "source_names": ["sci_water_cond"]
             },
@@ -88,15 +88,15 @@
                 "source_names": ["thetao"]
             },
             {
-                "parameter_id": "CFSN0331",
-                "identifier": "SDN:P07::CFSN0331",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0331/",
-                "standard_name": "sea_water_salinity",
+                "parameter_id": "IADIHDIJ",
+                "identifier": "SDN:P07::IADIHDIJ",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/IADIHDIJ/",
+                "standard_name": "sea_water_practical_salinity",
                 "unit_of_measure": "Dimensionless",
                 "unit_identifier": "SDN:P06::UUUU",
-                "parameter_definition": "Sea water salinity is the salt content of sea water, often on the Practical Salinity Scale of 1978. However, the unqualified term &amp;apos;salinity&amp;apos; is generic and does not necessarily imply any particular method of calculation. ",
+                "parameter_definition": "Practical Salinity, S_P, is a determination of the salinity of sea water, based on its electrical conductance. The measured conductance, corrected for temperature and pressure, is compared to the conductance of a standard potassium chloride solution, producing a value on the Practical Salinity Scale of 1978 (PSS-78).",
                 "alternate_sources": [""],
-                "alternate_labels": ["SALINITY"],
+                "alternate_labels": ["practical salinity"],
                 "source_names": ["so"]
             },
             {

@@ -164,13 +164,13 @@ class RealityWorld:
         else:
             potential_temperature = self.reality["CFSN0329"][0]
 
-        if np.isnan(self.reality["CFSN0331"][0]):
+        if np.isnan(self.reality["IADIHDIJ"][0]):
             if point.depth >= 0.5:
                 logger.error(f"salinity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             practical_salinity = 34.5
         else:
-            practical_salinity = self.reality["CFSN0331"][0]
+            practical_salinity = self.reality["IADIHDIJ"][0]
 
         reality = RealityPt(u_velocity=u_velocity,
                             v_velocity=v_velocity,

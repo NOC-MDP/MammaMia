@@ -9,8 +9,8 @@
                 "model_name": "Mamma Mia CTD",
                 "sensor_model": "Mamma Mia CTD",
                 "parameters": {
-                    "CFSN0329": "",
-                    "CFSN0331": ""
+                    "CFSN0329": "potential temperature",
+                    "IADIHDIJ": "practical salinity"
                 },
                 "platform_compatibility": ["mm"]
             },
@@ -22,9 +22,9 @@
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "parameters": {
-                    "TEMP": "",
-                    "CNDC": "",
-                    "PRES": ""
+                    "TEMP": "insitu temperature",
+                    "CNDC": "insitu conductivity",
+                    "PRES": "insitu pressure"
                 },
                 "platform_compatibility": ["unit_397","unit_398"]
             },
@@ -36,9 +36,9 @@
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "parameters": {
-                    "TEMP": "",
-                    "CNDC": "",
-                    "PRES": ""
+                    "TEMP": "insitu temperature",
+                    "CNDC": "insitu conductivity",
+                    "PRES": "insitu pressure"
                 },
                 "platform_compatibility": ["unit_398","unit_397"]
             },
@@ -50,9 +50,9 @@
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "parameters": {
-                    "TEMP": "",
-                    "CNDC": "",
-                    "PRES": ""
+                    "TEMP": "insitu temperature",
+                    "CNDC": "insitu conductivity",
+                    "PRES": "insitu pressure"
                 },
                 "platform_compatibility": ["ALR_4","ALR_6"]
             },
@@ -64,9 +64,9 @@
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "parameters": {
-                    "TEMP": "",
-                    "CNDC": "",
-                    "PRES": ""
+                    "TEMP": "insitu temperature",
+                    "CNDC": "insitu conductivity",
+                    "PRES": "insitu pressure"
                 },
                 "platform_compatibility": ["ALR_6","ALR_4"]
             }
@@ -80,8 +80,8 @@
                 "model_name": "Mamma Mia ADCP",
                 "sensor_model": "Mamma Mia ADCP",
                 "parameters": {
-                    "WCUR_X": "",
-                    "WCUR_Y": ""
+                    "WCUR_X": "x component of velocity",
+                    "WCUR_Y": "y component of velocity"
                 },
                 "platform_compatibility": ["mm"]
             }
@@ -95,8 +95,8 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": "",
-                    "BBP700": ""
+                    "CHLA": "Chlorophyll-A",
+                    "BBP700": "Particle backscattering at 700 nanometers"
                 },
                 "platform_compatibility": ["unit_398"]
             }
@@ -110,7 +110,7 @@
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "parameters": {
-                    "LAT": ""
+                    "LAT": "latitude"
                 },
                 "platform_compatibility": ["ALR_4"]
             },
