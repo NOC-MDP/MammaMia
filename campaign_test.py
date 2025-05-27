@@ -79,7 +79,7 @@ campaign.add_mission(mission_name="RAD24_01",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="CMEMS",
+                     source_location="rapid_data",
                      mission_time_step=60)
 
 

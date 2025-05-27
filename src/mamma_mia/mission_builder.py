@@ -63,11 +63,12 @@ class GliderBuilder:
                 raise Exception(f"Unknown model {model}")
 
 @define
-class MissionBuilder:
+class GliderMissionBuilder:
     glider_mission: GliderMission
 
+
     @classmethod
-    def create_mission(cls,
+    def virtual_mooring(cls,
                        mission_name:str,
                        glider_model:str,
                        glider_name:str,
@@ -76,14 +77,15 @@ class MissionBuilder:
                        lat_ini:float,
                        lon_ini:float,
                        inital_heading:float,
+                       dive_depth:float,
                        mission_directory:str,
-                       mission_start:str = "pickup",
                        data_dir:str = "data",
                        fp:FlightParameters = FlightParameters(),
-                       bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "MissionBuilder":
+                       bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "GliderMissionBuilder":
         """
 
         Args:
+            dive_depth:
             mission_name:
             glider_model:
             glider_name:
@@ -98,7 +100,7 @@ class MissionBuilder:
             fp:
             bathy:
 
-        Returns:
+        Returns: builder class containing a GliderMission object
 
         """
         # Tell dbdreader where to get the cache files from
@@ -137,23 +139,11 @@ class MissionBuilder:
                                               # name of output file (pickled files (.pck) can also be used
                                               sensor_settings=unstructure(sensor_settings),
                                               special_settings=unstructure(special_settings),
-                                              # how much time the glider needs to initialise.
-                                              mission_start=mission_start)  # if not set, a new mission is assumed, otherwise it is a continuation of a previous dive.
+                                              )
 
         gm = glidersim.glidersim.GliderMission(conf,verbose=True,glider_model=glider,environment_model=env_mod)
-        return cls(glider_mission=gm)
 
-
-    def create_virtual_mooring_plan(self,dive_depth:float):
-        """
-        Updates the virtual mooring mission plan with requested depth, location and time
-        Args:
-            number_of_dives:
-            dive_depth:
-
-        Returns:
-
-        """
+        # prepare the mission files for the virtual mooring plan
         if dive_depth > 1000:
             raise Exception(f"no glider model capable of greater than 1000 metre depths")
 
@@ -174,12 +164,17 @@ class MissionBuilder:
             goto = f.readlines()
         for i in range(goto.__len__()):
             if "<end:waypoints>" in goto[i]:
-                new_waypoint = f"{self.glider_mission.gs['m_lat']} {self.glider_mission.gs['m_lon']}\n"
+                new_waypoint = f"{gm.gs['m_lat']} {gm.gs['m_lon']}\n"
                 goto[i - 1] = new_waypoint
                 goto[i - 2] = new_waypoint
                 goto[i - 3] = new_waypoint
         with open("data/RAPID-mooring/mafiles/goto_l10.ma",'w') as f:
             f.writelines(goto)
+
+        return cls(glider_mission=gm)
+
+
+
 
     def run_mission(self,
                     dt=0.5,
@@ -198,7 +193,7 @@ class MissionBuilder:
             end_on_grounding:
             verbose:
 
-        Returns:
+        Returns: None
 
         """
         self.glider_mission.loadmission(verbose=verbose)
@@ -212,7 +207,7 @@ class MissionBuilder:
     def save_mission(self):
         """
 
-        Returns:
+        Returns: none
 
         """
         self.glider_mission.save()

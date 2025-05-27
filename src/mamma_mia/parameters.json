@@ -1,6 +1,6 @@
 {
     "parameters": {
-        "science": [
+        "observation": [
             {
                 "parameter_id": "CNDC",
                 "identifier": "SDN:OG1::CNDC",

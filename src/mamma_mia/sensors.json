@@ -122,8 +122,8 @@
                 "model_name": "Slocum G1+G2 Glider Navigation data logger",
                 "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
                 "parameters": {
-                    "LAT": "",
-                    "LON": "",
+                    "LAT": "latitude",
+                    "LON": "longitude",
                     "ALTITUDE": "",
                     "PITCH": "",
                     "ROLL":"",

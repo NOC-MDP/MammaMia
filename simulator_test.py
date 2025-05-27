@@ -1,6 +1,6 @@
-from mamma_mia import MissionBuilder
+from mamma_mia import GliderMissionBuilder
 
-sim = MissionBuilder.create_mission(
+sim = GliderMissionBuilder.virtual_mooring(
     mission_name="rapid-mooring",
     datetime_str="2023-03-03T12:00:00:Z",
     description="RAPID ARRAY simulation",
@@ -10,9 +10,8 @@ sim = MissionBuilder.create_mission(
     lon_ini=-15.4225,
     glider_name="comet",
     mission_directory="RAPID-mooring",
+    dive_depth=1000
 )
-sim.create_virtual_mooring_plan(dive_depth=1000)
 
-
-sim.run_mission(verbose=True)
+sim.run_mission()
 sim.save_mission()
