@@ -9,9 +9,8 @@
                 "model_name": "Mamma Mia CTD",
                 "sensor_model": "Mamma Mia CTD",
                 "parameters": {
-                    "TEMP": "",
-                    "CNDC": "",
-                    "PRES": ""
+                    "CFSN0329": "",
+                    "CFSN0331": ""
                 },
                 "platform_compatibility": ["mm"]
             },

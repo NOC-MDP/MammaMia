@@ -36,8 +36,8 @@ class RealityPt:
     u_velocity: float
     v_velocity: float
     w_velocity: float
-    temperature: float
-    salinity: float
+    potential_temperature: float
+    practical_salinity: float
 
 @define
 class RealityWorld:
@@ -156,27 +156,27 @@ class RealityWorld:
         # else:
         #     w_velocity = self.reality["WATERCURRENTS_W"][0]
 
-        if np.isnan(self.reality["TEMP"][0]):
+        if np.isnan(self.reality["CFSN0329"][0]):
             if point.depth >= 0.5:
                 logger.error(f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
-            temperature = 15.00
+            potential_temperature = 15.00
         else:
-            temperature = self.reality["TEMP"][0]
+            potential_temperature = self.reality["CFSN0329"][0]
 
-        if np.isnan(self.reality["CNDC"][0]):
+        if np.isnan(self.reality["CFSN0331"][0]):
             if point.depth >= 0.5:
                 logger.error(f"salinity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
-            salinity = 34.5
+            practical_salinity = 34.5
         else:
-            salinity = self.reality["CNDC"][0]
+            practical_salinity = self.reality["CFSN0331"][0]
 
         reality = RealityPt(u_velocity=u_velocity,
                             v_velocity=v_velocity,
                             w_velocity=0.0,
-                            salinity=salinity,
-                            temperature=temperature
+                            practical_salinity=practical_salinity,
+                            potential_temperature=potential_temperature
                             )
         return reality
 

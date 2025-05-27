@@ -1,9 +1,5 @@
 from mamma_mia import WorldExtent, Point, Reality
-from loguru import logger
-import sys
 print("<=========> starting Mamma Mia Velocity Reality test run <===========>")
-logger.remove()
-logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
 extent = WorldExtent(lat_max=25,
                 lat_min=22,
                 lon_min=-26,
