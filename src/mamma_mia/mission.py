@@ -17,7 +17,7 @@ from mamma_mia.find_worlds import FindWorlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import CriticalParameterMissing,NoValidSource
 from scipy.interpolate import interp1d
-from mamma_mia.gsw_funcs import convert_tsp
+from mamma_mia.gsw_funcs import ConvertedTCP
 from mamma_mia.worlds import WorldsConf, WorldExtent, WorldsAttributes
 
 @frozen
@@ -585,19 +585,43 @@ class Mission:
             logger.info("converting potential temperature and practical salinity to insitu temperature and conductivity")
             for k1, v1 in self.platform.attrs.sensors.items():
                 if "CNDC" in self.platform.attrs.sensors[k1].parameters.keys() and "TEMP" in self.platform.attrs.sensors[k1].parameters.keys():
-                    converted = convert_tsp(practical_salinity=self.payload["CNDC"][:],
+                    converted_tsp = ConvertedTCP.from_ps_pt(practical_salinity=self.payload["CNDC"][:],
                                             potential_temperature=self.payload["TEMP"][:],
                                             depth=flight["depth"],
                                             latitude=flight["latitude"],
                                             longitude=flight["longitude"], )
 
-                    self.payload["CNDC"][:] = converted["CNDC"]
-                    self.payload["TEMP"][:] = converted["TEMP"]
+                    self.payload["CNDC"][:] = converted_tsp.CNDC
+                    self.payload["TEMP"][:] = converted_tsp.TEMP
                     # TODO this is not directly configured, not sure if to make the conversion more explicit
                     # if there is a pressure parameter in the payload, create a payload as a byproduct of the temp sal conversion
                     try:
                         logger.info("pressure data now available: creating a pressure payload")
-                        self.payload["PRES"][:] = converted["PRES"]
+                        self.payload["PRES"][:] = converted_tsp.PRES
+                        logger.success("Pressure payload created successfully")
+                    except KeyError:
+                        pass
+                    logger.success(f"conversion completed successfully")
+
+        if "IFEDAFIE" and "JIBGDIEJ" and "CNDC" and "TEMP" in conversion_to_apply:
+            logger.info(
+                "converting conservative temperature and absolute salinity to insitu temperature and conductivity")
+            for k1, v1 in self.platform.attrs.sensors.items():
+                if "CNDC" in self.platform.attrs.sensors[k1].parameters.keys() and "TEMP" in \
+                        self.platform.attrs.sensors[k1].parameters.keys():
+                    converted_tsp = ConvertedTCP.from_as_ct(absolute_salinity=self.payload["CNDC"][:],
+                                                            conservative_temperature=self.payload["TEMP"][:],
+                                                            depth=flight["depth"],
+                                                            latitude=flight["latitude"],
+                                                            longitude=flight["longitude"], )
+
+                    self.payload["CNDC"][:] = converted_tsp.CNDC
+                    self.payload["TEMP"][:] = converted_tsp.TEMP
+                    # TODO this is not directly configured, not sure if to make the conversion more explicit
+                    # if there is a pressure parameter in the payload, create a payload as a byproduct of the temp sal conversion
+                    try:
+                        logger.info("pressure data now available: creating a pressure payload")
+                        self.payload["PRES"][:] = converted_tsp.PRES
                         logger.success("Pressure payload created successfully")
                     except KeyError:
                         pass

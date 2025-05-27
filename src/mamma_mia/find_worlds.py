@@ -64,15 +64,16 @@ class FindWorlds:
                     nc_path = os.path.join(dirpath, filename)
                     ds = xr.open_dataset(nc_path)
                     for key2, var in ds.data_vars.items():
-                        if key2 in inventory.parameters.entries[key].source_names:
-                            ## if the variable is not in source names (quite likely) then need to search the alternative source names created above
-                            alternative_parameter = None
-                            for alt_key, alt_src in alternative_source_names.items():
-                                if key2 in alt_src:
-                                    alternative_parameter = alt_key
-                                    break
-                            if self.__check_subset(ds=ds,extent=extent):
-                                logger.success(f"found a match in {filename} for parameter {key}")
+                        alternative_parameter = None
+                        for alt_key, alt_src in alternative_source_names.items():
+                            if key2 in alt_src:
+                                alternative_parameter = alt_key
+                                break
+                        try:
+                            key_chk = key2 in inventory.parameters.entries[key].source_names or key2 in inventory.parameters.entries[alternative_parameter].source_names
+                        except KeyError:
+                            key_chk = key2 in inventory.parameters.entries[key].source_names
+                        if key_chk:
                                 field_type = self.__estimate_field_interval(ds=ds)
                                 domain_type = self.__estimate_domain_type(ds=ds)
                                 new_world = MatchedWorld(

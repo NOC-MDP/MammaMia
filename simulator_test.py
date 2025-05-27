@@ -11,6 +11,8 @@ sim = MissionBuilder.create_mission(
     glider_name="comet",
     mission_directory="RAPID-mooring",
 )
-sim.loadmission(verbose=True)
-sim.run(dt=0.5,CPUcycle=4,maxSimulationTime=1, end_on_surfacing=False, end_on_grounding=False,verbose=True)
-sim.save()
+sim.create_virtual_mooring_plan(dive_depth=1000)
+
+
+sim.run_mission(verbose=True)
+sim.save_mission()

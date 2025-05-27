@@ -64,6 +64,7 @@ class GliderBuilder:
 
 @define
 class MissionBuilder:
+    glider_mission: GliderMission
 
     @classmethod
     def create_mission(cls,
@@ -79,7 +80,27 @@ class MissionBuilder:
                        mission_start:str = "pickup",
                        data_dir:str = "data",
                        fp:FlightParameters = FlightParameters(),
-                       bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> GliderMission:
+                       bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "MissionBuilder":
+        """
+
+        Args:
+            mission_name:
+            glider_model:
+            glider_name:
+            description:
+            datetime_str:
+            lat_ini:
+            lon_ini:
+            inital_heading:
+            mission_directory:
+            mission_start:
+            data_dir:
+            fp:
+            bathy:
+
+        Returns:
+
+        """
         # Tell dbdreader where to get the cache files from
         glidersim.environments.GliderData.DBDREADER_CACHEDIR = f'{data_dir}{os.sep}cac'
         glider = GliderBuilder.from_string(glider_model)
@@ -120,8 +141,79 @@ class MissionBuilder:
                                               mission_start=mission_start)  # if not set, a new mission is assumed, otherwise it is a continuation of a previous dive.
 
         gm = glidersim.glidersim.GliderMission(conf,verbose=True,glider_model=glider,environment_model=env_mod)
-        return gm
+        return cls(glider_mission=gm)
 
 
+    def create_virtual_mooring_plan(self,dive_depth:float):
+        """
+        Updates the virtual mooring mission plan with requested depth, location and time
+        Args:
+            number_of_dives:
+            dive_depth:
 
+        Returns:
+
+        """
+        if dive_depth > 1000:
+            raise Exception(f"no glider model capable of greater than 1000 metre depths")
+
+        # update depth and number of dives in yo file
+        with open("data/RAPID-mooring/mafiles/yo10.ma",'r') as f:
+            yo = f.readlines()
+        for i in range(yo.__len__()):
+            if "b_arg: d_target_depth(m)" in yo[i]:
+                parts = yo[i].split(" ")
+                parts[-1] = str(dive_depth) +"\n"
+                yo[i] = " ".join(parts)
+
+        with open("data/RAPID-mooring/mafiles/yo10.ma",'w') as f:
+            f.writelines(yo)
+
+        # update waypoints in goto file
+        with open("data/RAPID-mooring/mafiles/goto_l10.ma",'r') as f:
+            goto = f.readlines()
+        for i in range(goto.__len__()):
+            if "<end:waypoints>" in goto[i]:
+                new_waypoint = f"{self.glider_mission.gs['m_lat']} {self.glider_mission.gs['m_lon']}\n"
+                goto[i - 1] = new_waypoint
+                goto[i - 2] = new_waypoint
+                goto[i - 3] = new_waypoint
+        with open("data/RAPID-mooring/mafiles/goto_l10.ma",'w') as f:
+            f.writelines(goto)
+
+    def run_mission(self,
+                    dt=0.5,
+                    CPUcycle=4,
+                    maxSimulationTime=1,
+                    end_on_surfacing=False,
+                    end_on_grounding=False,
+                    verbose:bool=False):
+        """
+
+        Args:
+            dt:
+            CPUcycle:
+            maxSimulationTime:
+            end_on_surfacing:
+            end_on_grounding:
+            verbose:
+
+        Returns:
+
+        """
+        self.glider_mission.loadmission(verbose=verbose)
+        self.glider_mission.run(dt=dt,
+                                CPUcycle=CPUcycle,
+                                maxSimulationTime=maxSimulationTime,
+                                end_on_surfacing=end_on_surfacing,
+                                end_on_grounding=end_on_grounding,
+                                verbose=verbose)
+
+    def save_mission(self):
+        """
+
+        Returns:
+
+        """
+        self.glider_mission.save()
 

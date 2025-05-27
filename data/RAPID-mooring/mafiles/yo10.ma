@@ -3,7 +3,7 @@ behavior_name=Yo
 	b_arg: start_when(enum) 2
 	b_arg: num_half_cycles_to_do(nodim) -1
 	b_arg: end_action(enum) 2
-	b_arg: d_target_depth(m) 1000 #50
+	b_arg: d_target_depth(m) 1000
 	b_arg: d_target_altitude(m) 4
 	b_arg: d_use_pitch(enum) 1 # 1 battpos 3 servo
 	b_arg: d_pitch_value(X) 0.405 # in

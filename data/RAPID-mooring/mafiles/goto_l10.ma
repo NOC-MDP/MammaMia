@@ -10,7 +10,7 @@ b_arg: num_legs_to_run(nodim) -1 # loop
 b_arg: start_when(enum) 0 # BAW_IMMEDIATELY
 b_arg: list_stop_when(enum) 7 # BAW_WHEN_WPT_DIST
 b_arg: initial_wpt(enum) -2 # closest
-b_arg: num_waypoints(nodim) 6
+b_arg: num_waypoints(nodim) 3
 <end:b_arg>
 <start:waypoints>
 #-2408.520 2348.000
@@ -19,7 +19,7 @@ b_arg: num_waypoints(nodim) 6
 #-2408.530 2347.995
 #-2408.530 2348.000
 #-2408.525 2348.005
-2713.35 -1525.35
-2713.35 -1525.35
-2713.35 -1525.35
+2713.5 -1525.35
+2713.5 -1525.35
+2713.5 -1525.35
 <end:waypoints>

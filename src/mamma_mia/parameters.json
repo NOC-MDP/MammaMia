@@ -9,7 +9,7 @@
                 "unit_of_measure": "Siemens per metre",
                 "unit_identifier": "SDN:P06::UECA",
                 "parameter_definition": "Electrical conductivity of the water body by CTD",
-                "alternate_sources": ["CFSN0331"],
+                "alternate_sources": ["CFSN0331","JIBGDIEJ"],
                 "alternate_labels": ["Conductivity"],
                 "source_names": ["sci_water_cond"]
             },
@@ -33,7 +33,7 @@
                 "unit_of_measure": "Degrees Celsius",
                 "unit_identifier": "SDN:P06::UPAA",
                 "parameter_definition": "Temperature of the water body by CTD or STD",
-                "alternate_sources": ["CFSN0329"],
+                "alternate_sources": ["CFSN0329","IFEDAFIE"],
                 "alternate_labels": ["TEMPERATURE"],
                 "source_names": ["sci_water_temp"]
             },
@@ -98,6 +98,30 @@
                 "alternate_sources": [""],
                 "alternate_labels": ["SALINITY"],
                 "source_names": ["so"]
+            },
+            {
+                "parameter_id": "JIBGDIEJ",
+                "identifier": "SDN:P07::JIBGDIEJ",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/JIBGDIEJ/",
+                "standard_name": "sea_water__absolute_salinity",
+                "unit_of_measure": "Dimensionless",
+                "unit_identifier": "SDN:P06::UUUU",
+                "parameter_definition": "Absolute Salinity, S_A, is defined as part of the Thermodynamic Equation of Seawater 2010 (TEOS-10) which was adopted in 2010 by the Intergovernmental Oceanographic Commission (IOC). It is the mass fraction of dissolved material in sea water. ",
+                "alternate_sources": [""],
+                "alternate_labels": ["absolute salinity"],
+                "source_names": ["soce_abs"]
+            },
+            {
+                "parameter_id": "IFEDAFIE",
+                "identifier": "SDN:P07::IFEDAFIE",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/IFEDAFIE/",
+                "standard_name": "sea_water_conservative_temperature",
+                "unit_of_measure": "Degrees Celsius",
+                "unit_identifier": "SDN:P06::UPAA",
+                "parameter_definition": "Conservative Temperature is specific potential enthalpy (which has the standard name sea_water_specific_potential_enthalpy) divided by a fixed value of the specific heat capacity of sea water, namely cp_0 = 3991.86795711963 J kg-1 K-1.",
+                "alternate_sources": [""],
+                "alternate_labels": ["conservative temperature"],
+                "source_names": ["toce_con"]
             },
             {
                 "parameter_id": "CFSN0650",
