@@ -9,6 +9,7 @@ from cattr import unstructure
 import glidersim.glidermodels
 from glidersim.environments import VelocityRealityModel
 from glidersim.glidersim import GliderMission
+import shutil
 
 @frozen
 class FlightParameters:
@@ -101,6 +102,12 @@ class GliderMissionBuilder:
         Returns: builder class containing a GliderMission object
 
         """
+        # create new mission directory using example mission template
+        shutil.copytree(f"example_missions{os.sep}virtual_mooring", f"{data_dir}{os.sep}{mission_directory}", dirs_exist_ok=True)
+        # update mi file name with mission name
+        os.rename(f"{data_dir}{os.sep}{mission_directory}{os.sep}missions{os.sep}virtual-mooring.mi",
+                  f"{data_dir}{os.sep}{mission_directory}{os.sep}missions{os.sep}{mission_name}.mi")
+
         # Tell dbdreader where to get the cache files from
         glidersim.environments.GliderData.DBDREADER_CACHEDIR = f'{data_dir}{os.sep}cac'
         glider = GliderBuilder.from_string(glider_model)
@@ -211,6 +218,11 @@ class GliderMissionBuilder:
         Returns: builder class containing a GliderMission object
 
         """
+        # create new mission directory using example mission template
+        shutil.copytree(f"example_missions{os.sep}waypoints", f"{data_dir}{os.sep}{mission_directory}", dirs_exist_ok=True)
+        # update mi file name with mission name
+        os.rename(f"{data_dir}{os.sep}{mission_directory}{os.sep}missions{os.sep}waypoints.mi",
+                  f"{data_dir}{os.sep}{mission_directory}{os.sep}missions{os.sep}{mission_name}.mi")
         # Tell dbdreader where to get the cache files from
         glidersim.environments.GliderData.DBDREADER_CACHEDIR = f'{data_dir}{os.sep}cac'
         glider = GliderBuilder.from_string(glider_model)

@@ -32,13 +32,13 @@ Nmea_lon,Nmea_lat = latlon.convertToNmea(x=lon,y=lat)
 
 
 # Create a configuration dictionary
-conf = glidersim.configuration.Config('rapid-mooring.mi',                # the mission name to run
+conf = glidersim.configuration.Config('virtual-mooring.mi',                # the mission name to run
                                       description="ebh2",       # descriptive text used in the output file
                                       datestr='20230303',       # start date of simulation
                                       timestr='12:00',          # and time
                                       lat_ini=Nmea_lat,#5418.9674,
                                       lon_ini=Nmea_lon,#724.5902,     # starting longitude
-                                      mission_directory='data/RAPID-mooring',  # where the missions and mafiles directories are found
+                                      mission_directory='data/virtual_mooring',  # where the missions and mafiles directories are found
                                       output='ebh2-mooring.nc',             # name of output file (pickled files (.pck) can also be used
                                       sensor_settings= dict(c_wpt_lat=Nmea_lat,#5418.000,
                                                             c_wpt_lon=Nmea_lon,# 725.800,
