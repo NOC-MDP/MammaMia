@@ -72,6 +72,114 @@
                 "alternate_sources": [""],
                 "alternate_labels": ["BBP700"],
                 "source_names": ["sci_flbbcd_bb_units"]
+            },
+            {
+                "parameter_id": "BETA_BACKSCATTER532",
+                "identifier": "SDN:P01::BVSFO532",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/BVSFO532/",
+                "standard_name": "beta_backscatter_532",
+                "unit_of_measure": "per metre per steradian",
+                "unit_identifier": "SDN:P06::PMSR",
+                "parameter_definition": "The radiant intensity of scattered light from the water body as a function of angle, measured at the specified wavelength by an in-situ optical backscattering instrument. Volume scattering coefficient (Beta) is calculated by subtracting dark counts from the raw counts then multiplying by the manufacturer-supplied calibration scale factor.",
+                "alternate_sources": [""],
+                "alternate_labels": ["VolScattering_Beta_532nm"],
+                "source_names": ["ScatteringBeta532"]
+            },
+            {
+                "parameter_id": "BETA_BACKSCATTER700",
+                "identifier": "SDN:P01::BVSFO700",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/BVSFO700/",
+                "standard_name": "beta_backscatter_700",
+                "unit_of_measure": "per metre per steradian",
+                "unit_identifier": "SDN:P06::PMSR",
+                "parameter_definition": "The radiant intensity of scattered light from the water body as a function of angle, measured at the specified wavelength by an in-situ optical backscattering instrument. Volume scattering coefficient (Beta) is calculated by subtracting dark counts from the raw counts then multiplying by the manufacturer-supplied calibration scale factor.",
+                "alternate_sources": [""],
+                "alternate_labels": ["VolScattering_Beta_700nm"],
+                "source_names": ["ScatteringBeta700"]
+            },
+            {
+                "parameter_id": "FREQUENCY_DOXY",
+                "identifier": "SDN:OG1::FREQDOXY",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/FREQDOXY/",
+                "standard_name": "dissolved_oxygen",
+                "unit_of_measure": "Hertz",
+                "unit_identifier": "SDN:P06::UTHZ",
+                "parameter_definition": "The raw output from a dissolved oxygen sensor such as an SBE43 with output as a frequency related to DO concentration.",
+                "alternate_sources": [""],
+                "alternate_labels": ["FREQDOXY"],
+                "source_names": ["DissolvedOxygen"]
+            },
+            {
+                "parameter_id": "BPHASE_DOXY",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "OXYSAT_DOXY",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "DPHASE_DOXY",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "MOLAR_DOXY",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "RAW_DOWNWELLING_PAR",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "DOWNWELLING_PAR",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
             }
         ],
         "model": [
@@ -186,7 +294,7 @@
                 "source_names": ["m_altitude"]
             },
             {
-                "parameter_id": "LAT",
+                "parameter_id": "LATITUDE",
                 "identifier": "SDN:OG1::LAT",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/LAT/",
                 "standard_name": "Latitude north",
@@ -194,11 +302,11 @@
                 "unit_identifier": "SDN:P06::DEGN",
                 "parameter_definition": "Latitude north",
                 "alternate_sources": [""],
-                "alternate_labels": ["LATITUDE"],
+                "alternate_labels": ["LAT"],
                 "source_names": ["m_lat","nav_lat"]
             },
             {
-                "parameter_id": "LAT_GPS",
+                "parameter_id": "LATITUDE_GPS",
                 "identifier": "SDN:OG1::LAT_GPS",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/LAT_GPS/",
                 "standard_name": "GPS fixed latitude",
@@ -206,11 +314,11 @@
                 "unit_identifier": "SDN:P06::DEGN",
                 "parameter_definition": "Latitude north by unspecified GPS system.",
                 "alternate_sources": [""],
-                "alternate_labels": ["LATITUDE_GPS"],
+                "alternate_labels": ["LAT_GPS"],
                 "source_names": ["m_gps_lat"]
             },
             {
-                "parameter_id": "LON",
+                "parameter_id": "LONGITUDE",
                 "identifier": "SDN:OG1::LON",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/LON/",
                 "standard_name": "Longitude east",
@@ -218,11 +326,11 @@
                 "unit_identifier": "SDN:P06::DEGE",
                 "parameter_definition": "Longitude east",
                 "alternate_sources": [""],
-                "alternate_labels": ["LONGITUDE"],
+                "alternate_labels": ["LON"],
                 "source_names": ["m_lon","nav_lon"]
             },
             {
-                "parameter_id": "LON_GPS",
+                "parameter_id": "LONGITUDE_GPS",
                 "identifier": "SDN:OG1::LON_GPS",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/LON_GPS/",
                 "standard_name": "GPS fixed longitude",
@@ -230,11 +338,11 @@
                 "unit_identifier": "SDN:P06::DEGE",
                 "parameter_definition": "Longitude east by unspecified GPS system.",
                 "alternate_sources": [""],
-                "alternate_labels": ["LONGITUDE_GPS"],
+                "alternate_labels": ["LON_GPS"],
                 "source_names": ["m_gps_lon"]
             },
             {
-                "parameter_id": "WCUR_X",
+                "parameter_id": "WATERCURRENTS_U",
                 "identifier": "SDN:OG1::WCUR_X",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/WCUR_X/",
                 "standard_name": "Eastward current velocity in the water body",
@@ -242,7 +350,7 @@
                 "unit_identifier": " SDN:P06::UVBB",
                 "parameter_definition": "The depth-averaged current in the x-axis using dead reckoning between two surfacings.",
                 "alternate_sources": [""],
-                "alternate_labels": ["WATERCURRENTS_U"],
+                "alternate_labels": ["WCUR_X"],
                 "source_names": ["m_final_water_vx","uo"]
             },
             {
@@ -258,7 +366,7 @@
                 "source_names": [""]
             },
             {
-                "parameter_id": "WCUR_Y",
+                "parameter_id": "WATERCURRENTS_V",
                 "identifier": "SDN:OG1::WCUR_Y",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/WCUR_Y/",
                 "standard_name": "Northward current velocity in the water body",
@@ -266,11 +374,71 @@
                 "unit_identifier": "SDN:P06::UVBB",
                 "parameter_definition": "The depth-averaged current in the y-axis using dead reckoning between two surfacings.",
                 "alternate_sources": [""],
-                "alternate_labels": ["WATERCURRENTS_V"],
+                "alternate_labels": ["WCUR_Y"],
                 "source_names": ["m_final_water_vy","vo"]
             },
             {
-                "parameter_id": "PITCH",
+                "parameter_id": "OIL_VOL",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "WATER_VELOC_FINAL_U",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "WATER_VELOC_FINAL_V",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "PRES_ENG",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "GLIDER_HEADING",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "GLIDER_PITCH",
                 "identifier": "SDN:OG1::PITCH",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/PITCH/",
                 "standard_name": "Orientation (pitch) of measurement platform by inclinometer",
@@ -278,11 +446,11 @@
                 "unit_identifier": "SDN:P06::UAAA",
                 "parameter_definition": "The up/down rotation of a platform relative to it Y axis as measured by an inclinometer.",
                 "alternate_sources": [""],
-                "alternate_labels": ["GLIDER_PITCH"],
+                "alternate_labels": ["PITCH"],
                 "source_names": ["m_pitch"]
             },
             {
-                "parameter_id": "ROLL",
+                "parameter_id": "GLIDER_ROLL",
                 "identifier": "SDN:OG1::ROLL",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/ROLL/",
                 "standard_name": "Orientation (roll angle) of measurement platform by inclinometer",
@@ -290,11 +458,11 @@
                 "unit_identifier": "SDN:P06::UAAA",
                 "parameter_definition": "The tilting rotation of a platform relative to its longitudinal/X axis as measured by an inclinometer.",
                 "alternate_sources": [""],
-                "alternate_labels": ["GLIDER_ROLL"],
+                "alternate_labels": ["ROLL"],
                 "source_names": ["m_roll"]
             },
             {
-                "parameter_id": "DEPTH",
+                "parameter_id": "GLIDER_DEPTH",
                 "identifier": "SDN:OG1::DEPTH",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/DEPTH/",
                 "standard_name": "Depth below sea surface (zero at sea level) of measurement platform",
@@ -302,7 +470,7 @@
                 "unit_identifier": "SDN:P06::ULAA",
                 "parameter_definition": "Depth below surface of the water body by unknown instrument and correction to zero at sea level using unspecified algorithm.",
                 "alternate_sources": [""],
-                "alternate_labels": ["GLIDER_DEPTH"],
+                "alternate_labels": ["DEPTH"],
                 "source_names": ["m_depth"]
             },
             {
@@ -376,6 +544,42 @@
                 "alternate_sources": [""],
                 "alternate_labels": ["BestEstimateOrientPitch","pitch"],
                 "source_names": ["PTCHPT01"]
+            },
+            {
+                "parameter_id": "PTVELX01",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "PTVELY01",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "PTVELZ01",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
             }
         ],
         "time": [
