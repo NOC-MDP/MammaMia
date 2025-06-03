@@ -26,7 +26,7 @@
                     "CNDC": "insitu conductivity",
                     "PRES": "insitu pressure"
                 },
-                "platform_compatibility": ["unit_397","unit_398"]
+                "platform_compatibility": ["G2"]
             },
             {
                 "sensor_serial_number": "9100",
@@ -40,7 +40,35 @@
                     "CNDC": "insitu conductivity",
                     "PRES": "insitu pressure"
                 },
-                "platform_compatibility": ["unit_398","unit_397"]
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "9110",
+                "sensor_name": "SBE Slocum GPCTD 9110",
+                "instrument_type": "CTD",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "parameters": {
+                    "TEMP": "insitu temperature",
+                    "CNDC": "insitu conductivity",
+                    "PRES": "insitu pressure"
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "9140",
+                "sensor_name": "SBE Slocum GPCTD 9140",
+                "instrument_type": "CTD",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
+                "parameters": {
+                    "TEMP": "insitu temperature",
+                    "CNDC": "insitu conductivity",
+                    "PRES": "insitu pressure"
+                },
+                "platform_compatibility": ["G2"]
             },
             {
                 "sensor_serial_number": "0221",
@@ -54,7 +82,7 @@
                     "CNDC": "insitu conductivity",
                     "PRES": "insitu pressure"
                 },
-                "platform_compatibility": ["ALR_4","ALR_6"]
+                "platform_compatibility": ["ALR_1500"]
             },
             {
                 "sensor_serial_number": "0222",
@@ -68,7 +96,7 @@
                     "CNDC": "insitu conductivity",
                     "PRES": "insitu pressure"
                 },
-                "platform_compatibility": ["ALR_6","ALR_4"]
+                "platform_compatibility": ["ALR_1500"]
             }
         ],
         "ADCP": [
@@ -88,6 +116,20 @@
         ],
         "radiometers": [
             {
+                "sensor_serial_number": "1611",
+                "sensor_name": "WET Labs ECO BB2FL-SLC 1611",
+                "instrument_type": "radiometers",
+                "sensor_manufacturer": "WET Labs",
+                "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet BB2FL-SLC scattering fluorescence sensor",
+                "sensor_model": "WETLabs ECO Puck Triplet BB2FL-SLC scattering fluorescence sensor",
+                "parameters": {
+                    "CHLA": "concentration of Chlorophyll-A",
+                    "BETA_BACKSCATTERING532": "optical backscattering at 532 nanometers",
+                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
                 "sensor_serial_number": "3289",
                 "sensor_name": "WET Labs FLBBCD-SLC 3289",
                 "instrument_type": "radiometers",
@@ -95,17 +137,197 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": "Chlorophyll-A",
-                    "BBP700": "Particle backscattering at 700 nanometers"
+                    "CHLA": "concentration of Chlorophyll-A",
+                    "CDOM": "coloured dissolved organic matter",
+                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
                 },
-                "platform_compatibility": ["unit_398"]
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "3325",
+                "sensor_name": "WETLabs FLBBCD-SLC 3325",
+                "instrument_type": "radiometers",
+                "sensor_manufacturer": "WET Labs",
+                "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
+                "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
+                "parameters": {
+                    "CHLA": "concentration of Chlorophyll-A",
+                    "CDOM": "coloured dissolved organic matter",
+                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "3352",
+                "sensor_name": "WETLabs FLBBCD-SLC 3352",
+                "instrument_type": "radiometers",
+                "sensor_manufacturer": "WET Labs",
+                "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
+                "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
+                "parameters": {
+                    "CHLA": "concentration of Chlorophyll-A",
+                    "CDOM": "coloured dissolved organic matter",
+                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "459",
+                "sensor_name": "WET Labs PAR sensor 459",
+                "instrument_type": "radiometers",
+                "sensor_manufacturer": "WET Labs",
+                "model_name": "Photosynthetically Active Radiation sensor",
+                "sensor_model": "Photosynthetically Active Radiation sensor",
+                "parameters": {
+                    "RAW_DOWNWELLING_PAR": "raw counds of instrument output",
+                    "DOWNWELLING_PAR": "Downwelling vector irradiance"
+
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "461",
+                "sensor_name": "WET Labs PAR sensor 461",
+                "instrument_type": "radiometers",
+                "sensor_manufacturer": "WET Labs",
+                "model_name": "Photosynthetically Active Radiation sensor",
+                "sensor_model": "Photosynthetically Active Radiation sensor",
+                "parameters": {
+                    "RAW_DOWNWELLING_PAR": "raw counds of instrument output",
+                    "DOWNWELLING_PAR": "Downwelling vector irradiance"
+
+                },
+                "platform_compatibility": ["G2"]
+            }
+        ],
+        "dissolved_gas": [
+            {
+                "sensor_serial_number": "119",
+                "sensor_name": "Oxygen optode 4831 119",
+                "instrument_type": "dissolved_gas_sensors",
+                "sensor_manufacturer": "Aanderaa",
+                "model_name": "Oxygen optode 4831",
+                "sensor_model": "Oxygen optode 4831",
+                "parameters": {
+                    "PHASE_DOXY": "phase angle of blue light",
+                    "OXYSAT_DOXY": "oxygen saturation",
+                    "DPHASE_DOXY": "phase angle of D",
+                    "MOLAR_DOXY": "oxygen concentration"
+
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "144",
+                "sensor_name": "Oxygen optode 4831 144",
+                "instrument_type": "dissolved_gas_sensors",
+                "sensor_manufacturer": "Aanderaa",
+                "model_name": "Oxygen optode 4831",
+                "sensor_model": "Oxygen optode 4831",
+                "parameters": {
+                    "TEMP_DOXY": "temperature of oxygen determination",
+                    "TPHASE_DOXY": "temperature compensated phase angle of D",
+                    "PHASE_DOXY": "phase angle of blue light",
+                    "OXYSAT_DOXY": "oxygen saturation",
+                    "DPHASE_DOXY": "phase angle of D",
+                    "MOLAR_DOXY": "oxygen concentration"
+
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "143",
+                "sensor_name": "Oxygen optode 4831 143",
+                "instrument_type": "dissolved_gas_sensors",
+                "sensor_manufacturer": "Aanderaa",
+                "model_name": "Oxygen optode 4831",
+                "sensor_model": "Oxygen optode 4831",
+                "parameters": {
+                    "BPHASE_DOXY": "phase angle of blue light",
+                    "OXYSAT_DOXY": "oxygen saturation",
+                    "DPHASE_DOXY": "phase angle of D",
+                    "MOLAR_DOXY": "oxygen concentration"
+
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "286",
+                "sensor_name": "Oxygen optode 4831 286",
+                "instrument_type": "dissolved_gas_sensors",
+                "sensor_manufacturer": "Aanderaa",
+                "model_name": "Oxygen optode 4831",
+                "sensor_model": "Oxygen optode 4831",
+                "parameters": {
+                    "PHASE_DOXY": "phase angle of blue light",
+                    "OXYSAT_DOXY": "oxygen saturation",
+                    "DPHASE_DOXY": "phase angle of D",
+                    "MOLAR_DOXY": "oxygen concentration"
+
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "4513",
+                "sensor_name": "Oxygen optode 4831 119",
+                "instrument_type": "dissolved_gas_sensors",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
+                "sensor_model": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
+                "parameters": {
+                    "FREQUENCY_DOXY": "raw frequency of instrument output"
+                },
+                "platform_compatibility": ["ALR_1500"]
+            },
+            {
+                "sensor_serial_number": "4301",
+                "sensor_name": "SBE 43F oxygen sensor 4301",
+                "instrument_type": "dissolved_gas_sensors",
+                "sensor_manufacturer": "Sea-Bird Scientific",
+                "model_name": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
+                "sensor_model": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
+                "parameters": {
+                    "FREQUENCY_DOXY": "raw frequency of instrument output"
+                },
+                "platform_compatibility": ["ALR_1500"]
+            }
+        ],
+        "optical_backscatter_sensors": [
+            {
+                "sensor_serial_number": "8579",
+                "sensor_name": "WET Labs ECO Triplet FLBBCDRT6K 8579",
+                "instrument_type": "optical_backscatter_sensors",
+                "sensor_manufacturer": "WET Labs",
+                "model_name": "WET Labs {Sea-Bird WETLabs} ECO Triplet FLBBCDRT6K scattering fluorescence sensor",
+                "sensor_model": "WET Labs {Sea-Bird WETLabs} ECO Triplet FLBBCDRT6K scattering fluorescence sensor",
+                "parameters": {
+                    "CHLA": "concentration of Chlorophyll-A",
+                    "CDOM": "coloured dissolved organic matter",
+                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                },
+                "platform_compatibility": ["ALR_1500"]
+            },
+                        {
+                "sensor_serial_number": "8597",
+                "sensor_name": "WET Labs ECO Triplet FLBBCDRT6K 8597",
+                "instrument_type": "optical_backscatter_sensors",
+                "sensor_manufacturer": "WET Labs",
+                "model_name": "WET Labs {Sea-Bird WETLabs} ECO Triplet FLBBCDRT6K scattering fluorescence sensor",
+                "sensor_model": "WET Labs {Sea-Bird WETLabs} ECO Triplet FLBBCDRT6K scattering fluorescence sensor",
+                "parameters": {
+                    "CHLA": "concentration of Chlorophyll-A",
+                    "CDOM": "coloured dissolved organic matter",
+                    "BETA_BACKSCATTERING532": "optical backscattering at 532 nanometers",
+                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                },
+                "platform_compatibility": ["ALR_1500"]
             }
         ],
         "dataloggers": [
             {
                 "sensor_serial_number": "ALR_4",
                 "sensor_name": "ALR v1 data logger ALR_4",
-                "instrument_type": "data loggers",
+                "instrument_type": "data_loggers",
                 "sensor_manufacturer": "National Oceanography Centre",
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
@@ -116,29 +338,141 @@
                     "HEADPT01": "heading",
                     "ROLLPT01": "roll",
                     "PTCHPT01": "pitch",
+                    "PTVELX01": "x axis velocity",
+                    "PTVELY01": "y axis velocity",
+                    "PTVELZ01": "z axis velocity",
                     "TIME": "time"
                 },
-                "platform_compatibility": ["ALR_4"]
+                "platform_compatibility": ["ALR_1500"]
+            },
+            {
+                "sensor_serial_number": "ALR_6",
+                "sensor_name": "ALR data logger v2 ALR_6",
+                "instrument_type": "data_loggers",
+                "sensor_manufacturer": "National Oceanography Centre",
+                "model_name": "Autosub Long Range v2 {ALR} data logger",
+                "sensor_model": "Autosub Long Range v2 {ALR} data logger",
+                "parameters": {
+                    "ALATPT01": "latitude",
+                    "ALONPT01": "longitude",
+                    "ADEPPT01": "depth",
+                    "HEADPT01": "heading",
+                    "ROLLPT01": "roll",
+                    "PTCHPT01": "pitch",
+                    "PTVELX01": "x axis velocity",
+                    "PTVELY01": "y axis velocity",
+                    "PTVELZ01": "z axis velocity",
+                    "TIME": "time"
+                },
+                "platform_compatibility": ["ALR_1500"]
             },
             {
                 "sensor_serial_number": "unit_398",
                 "sensor_name": "Teledyne Slocum G1+G2 unit_398",
-                "instrument_type": "data loggers",
+                "instrument_type": "data_loggers",
                 "sensor_manufacturer": "Teledyne Webb Research",
                 "model_name": "Slocum G1+G2 Glider Navigation data logger",
                 "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
                 "parameters": {
-                    "LAT": "latitude",
-                    "LON": "longitude",
-                    "ALTITUDE": "",
-                    "PITCH": "",
-                    "ROLL":"",
-                    "DEPTH": "",
-                    "WCUR_X": "",
-                    "WCUR_Y": "",
-                    "TIME": ""
+                    "GLIDER_DEPTH": "depth",
+                    "GLIDER_PITCH": "pitch",
+                    "GLIDER_ROLL": "roll",
+                    "OIL_VOL": "volume change of oil",
+                    "WATER_VELOC_FINAL_U": "estimated eastward velocity of water current",
+                    "WATER_VELOC_FINAL_V": "estimated northward velocity of water current",
+                    "PRES_ENG": "pressure exerted by water body",
+                    "GLIDER_HEADING": "horizontal orientation",
+                    "WATERCURRENTS_U": "eastward velocity of water current",
+                    "ALTITUDE": "height relative to sea bed",
+                    "LATITUDE": "latitude",
+                    "LATITUDE_GPS": "latitude measured by GPS system",
+                    "LONGITUDE": "longitude",
+                    "LONGITUDE_GPS": "longitude measured by GPS system",
+                    "WATERCURRENTS_V": "northward velocity of water current"
+
                 },
-                "platform_compatibility": ["unit_398"]
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "unit_397",
+                "sensor_name": "Teledyne G1+G2 data logger 397",
+                "instrument_type": "data_loggers",
+                "sensor_manufacturer": "Teledyne Webb Research",
+                "model_name": "Slocum G1+G2 Glider Navigation data logger",
+                "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
+                "parameters": {
+                    "GLIDER_DEPTH": "depth",
+                    "GLIDER_PITCH": "pitch",
+                    "GLIDER_ROLL": "roll",
+                    "OIL_VOL": "volume change of oil",
+                    "WATER_VELOC_FINAL_U": "estimated eastward velocity of water current",
+                    "WATER_VELOC_FINAL_V": "estimated northward velocity of water current",
+                    "PRES_ENG": "pressure exerted by water body",
+                    "GLIDER_HEADING": "horizontal orientation",
+                    "WATERCURRENTS_U": "eastward velocity of water current",
+                    "ALTITUDE": "height relative to sea bed",
+                    "LATITUDE": "latitude",
+                    "LATITUDE_GPS": "latitude measured by GPS system",
+                    "LONGITUDE": "longitude",
+                    "LONGITUDE_GPS": "longitude measured by GPS system",
+                    "WATERCURRENTS_V": "northward velocity of water current"
+
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "unit_345",
+                "sensor_name": "Slocum G1+G2 Glider unit 345",
+                "instrument_type": "data_loggers",
+                "sensor_manufacturer": "Teledyne Webb Research",
+                "model_name": "Slocum G1+G2 Glider Navigation data logger",
+                "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
+                "parameters": {
+                    "GLIDER_DEPTH": "depth",
+                    "GLIDER_PITCH": "pitch",
+                    "GLIDER_ROLL": "roll",
+                    "OIL_VOL": "volume change of oil",
+                    "WATER_VELOC_FINAL_U": "estimated eastward velocity of water current",
+                    "WATER_VELOC_FINAL_V": "estimated northward velocity of water current",
+                    "PRES_ENG": "pressure exerted by water body",
+                    "GLIDER_HEADING": "horizontal orientation",
+                    "WATERCURRENTS_U": "eastward velocity of water current",
+                    "ALTITUDE": "height relative to sea bed",
+                    "LATITUDE": "latitude",
+                    "LATITUDE_GPS": "latitude measured by GPS system",
+                    "LONGITUDE": "longitude",
+                    "LONGITUDE_GPS": "longitude measured by GPS system",
+                    "WATERCURRENTS_V": "northward velocity of water current"
+
+                },
+                "platform_compatibility": ["G2"]
+            },
+            {
+                "sensor_serial_number": "unit_405",
+                "sensor_name": "Teledyne Slocum G1+G2 unit_405",
+                "instrument_type": "data_loggers",
+                "sensor_manufacturer": "Teledyne Webb Research",
+                "model_name": "Slocum G1+G2 Glider Navigation data logger",
+                "sensor_model": "Slocum G1+G2 Glider Navigation data logger",
+                "parameters": {
+                    "GLIDER_DEPTH": "depth",
+                    "GLIDER_PITCH": "pitch",
+                    "GLIDER_ROLL": "roll",
+                    "OIL_VOL": "volume change of oil",
+                    "WATER_VELOC_FINAL_U": "estimated eastward velocity of water current",
+                    "WATER_VELOC_FINAL_V": "estimated northward velocity of water current",
+                    "PRES_ENG": "pressure exerted by water body",
+                    "GLIDER_HEADING": "horizontal orientation",
+                    "WATERCURRENTS_U": "eastward velocity of water current",
+                    "ALTITUDE": "height relative to sea bed",
+                    "LATITUDE": "latitude",
+                    "LATITUDE_GPS": "latitude measured by GPS system",
+                    "LONGITUDE": "longitude",
+                    "LONGITUDE_GPS": "longitude measured by GPS system",
+                    "WATERCURRENTS_V": "northward velocity of water current"
+
+                },
+                "platform_compatibility": ["G2"]
             },
             {
                 "sensor_serial_number": "unit_887",
@@ -156,7 +490,7 @@
                     "DEPTH": "",
                     "TIME": ""
                 },
-                "platform_compatibility": ["unit_887"]
+                "platform_compatibility": ["G3"]
             }
         ]
     }
