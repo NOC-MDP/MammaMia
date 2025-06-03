@@ -42,14 +42,13 @@ Churchill_withCTD.register_sensor(sensor=glider_CTD)
 # create new entity of same platform this one doesn't have a CTD
 Churchill_noCTD = inventory.create_platform_entity(entity_name="Churchill_noCTD",platform="Churchill")
 
-# ALR4 = inventory.create_platform_entity(entity_name="ALR4",platform="ALR_4")
-# ALR_ctd = inventory.create_sensor_entity(entity_name="ALR_ctd",sensor_ref="0221")
-# ALR_ctd.update_sample_rate(sample_rate=60)
-# ALR4.register_sensor(sensor=ALR_ctd)
+ALR4 = inventory.create_platform_entity(entity_name="ALR4",platform="ALR_4")
+ALR_ctd = inventory.create_sensor_entity(entity_name="ALR_ctd",sensor_ref="0221")
+ALR4.register_sensor(sensor=ALR_ctd)
 
 # register platforms to the campaign for use in missions
 campaign.register_platform(entity=Churchill_withCTD)
-# campaign.register_platform(entity=ALR4)
+campaign.register_platform(entity=ALR4)
 
 # for metadata purposes a creator can be specified
 creator = Creator(email="thopri@noc.ac.uk",
@@ -70,18 +69,29 @@ contributor = Contributor(email="thopri@noc.ac.uk",
                           role_vocab="BODC database",
                           role="Collaborator",)
 
+# # # add mission
+# campaign.add_mission(mission_name="RAD24_01",
+#                      title="Churchill with CTD deployment at RAPID array mooring eb1l2n",
+#                      summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
+#                      platform_name="Churchill_withCTD",
+#                      trajectory_path="data/waypoints/waypoints.nc",
+#                      creator=creator,
+#                      publisher=publisher,
+#                      contributor=contributor,
+#                      source_location="rapid_data",
+#                      mission_time_step=60)
+
 # # add mission
-campaign.add_mission(mission_name="RAD24_01",
-                     title="Churchill with CTD deployment at RAPID array mooring eb1l2n",
-                     summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
-                     platform_name="Churchill_withCTD",
-                     trajectory_path="data/waypoints/waypoints.nc",
+campaign.add_mission(mission_name="RAD24_02",
+                     title="ALR simlulating BIOCARBON mission",
+                     summary="single ALR mission from BIOCARBON",
+                     platform_name="ALR4",
+                     trajectory_path="ALR_4_649_R.nc",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="rapid_data",
+                     source_location="CMEMS",
                      mission_time_step=60)
-
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
 #campaign.enable_interpolator_cache()
@@ -94,10 +104,10 @@ campaign.run()
 
 # visualise the results
 # colourmap options are here https://plotly.com/python/builtin-colorscales/
-campaign.missions["RAD24_01"].plot_trajectory()
-#campaign.missions["RAD24_02"].plot_trajectory()
-campaign.missions["RAD24_01"].show_payload()
-#campaign.missions["RAD24_02"].show_payload(parameter="TEMP")
+#campaign.missions["RAD24_01"].plot_trajectory()
+campaign.missions["RAD24_02"].plot_trajectory()
+#campaign.missions["RAD24_01"].show_payload()
+campaign.missions["RAD24_02"].show_payload()
 campaign.export()
 print("the end")
 

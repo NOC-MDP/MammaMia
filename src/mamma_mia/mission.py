@@ -204,17 +204,30 @@ class Trajectory:
         Returns:
 
         """
-        latitude = cls.__add_source(ds=ds, source_keys=navigation_keys.latitude)
-        longitude =cls.__add_source(ds=ds, source_keys=navigation_keys.longitude)
-        depth = cls.__add_source(ds=ds, source_keys=navigation_keys.depth)
-        time = cls.__add_source(ds=ds, source_keys=navigation_keys.time)
+        # go through navigation keys and find correct variable names
+        vars_to_check =  [x for xs in list(unstructure(navigation_keys).values()) for x in xs]
+        time_dim = max(ds.dims,key=lambda d: ds.sizes[d])
+        vars_to_check = [x for x in vars_to_check if x in ds.variables]
+        # generate NaN mask
+        valid_mask = np.logical_and.reduce([~ds[var].isnull() for var in vars_to_check])
+        # clean dataset
+        ds_clean = ds.isel({time_dim: valid_mask})
+
+        # add data sources
+        # TODO the add data sources used to find correct source key and filter NaNs which is now handled
+        # TODO by the cleaning process above (the add source would only filter the specific source rather than whole dataset)
+        # TODO therefore this is pretty redundant and needs refactoring
+        latitude = cls.__add_source(ds=ds_clean, source_keys=navigation_keys.latitude)
+        longitude =cls.__add_source(ds=ds_clean, source_keys=navigation_keys.longitude)
+        depth = cls.__add_source(ds=ds_clean, source_keys=navigation_keys.depth)
+        time = cls.__add_source(ds=ds_clean, source_keys=navigation_keys.time)
 
         if latitude.size != depth.size or longitude.size != depth.size or latitude.size != longitude.size:
             raise Exception("NaN filtering resulted in different sized navigation parameters")
 
         try:
             if navigation_keys.pitch is not None:
-                pitch = cls.__add_source(ds=ds, source_keys=navigation_keys.pitch)
+                pitch = cls.__add_source(ds=ds_clean, source_keys=navigation_keys.pitch)
             else:
                 logger.warning(f"Optional parameter pitch not specified in datalogger")
                 pitch = np.zeros_like(depth)
@@ -225,7 +238,7 @@ class Trajectory:
 
         try:
             if navigation_keys.yaw is not None:
-                yaw = cls.__add_source(ds=ds, source_keys=navigation_keys.yaw)
+                yaw = cls.__add_source(ds=ds_clean, source_keys=navigation_keys.yaw)
             else:
                 logger.warning(f"Optional parameter yaw not specified in datalogger")
                 yaw = np.zeros_like(depth)
@@ -236,7 +249,7 @@ class Trajectory:
 
         try:
             if navigation_keys.roll is not None:
-                roll = cls.__add_source(ds=ds, source_keys=navigation_keys.roll)
+                roll = cls.__add_source(ds=ds_clean, source_keys=navigation_keys.roll)
             else:
                 logger.warning(f"Optional parameter roll not specified in datalogger")
                 roll = np.zeros_like(depth)
@@ -270,7 +283,7 @@ class Trajectory:
         source = None
         for key in source_keys:
             try:
-                source = ds[key][~np.isnan(ds[key])]
+                source = ds[key]#[~np.isnan(ds[key])]
                 break
             except KeyError:
                 pass
@@ -348,9 +361,9 @@ class Mission:
         ds = xr.open_dataset(attrs.trajectory_path)
         trajectory = Trajectory.from_xarray(ds=ds, navigation_keys=nav_keys)
 
-        seconds_into_flight = (trajectory.time - trajectory.time[0]) / np.timedelta64(1, 's')
+        #seconds_into_flight = (trajectory.time - trajectory.time[0]) / np.timedelta64(1, 's')
         # calculate changes in depth to determine platform behaviour
-        dz = np.gradient(trajectory.depth, seconds_into_flight)
+        dz = np.gradient(trajectory.depth)
         # TODO set these dynamically based on the platform
         ascent_thresh = 0.05  # m/s, adjust based on your system
         descent_thresh = -0.05  # m/s
@@ -581,7 +594,11 @@ class Mission:
         logger.success(f"{self.attrs.mission} flown successfully")
 
     def __convert_parameters(self, conversion_to_apply,flight):
-        if "CFSN0329" and "IADIHDIJ" and "CNDC" and "TEMP" in conversion_to_apply:
+        # differnt parameters set that are required for difference conversions
+        pt_ps_required_parameters = {"CFSN0329", "IADIHDIJ" , "CNDC", "TEMP"}
+        ct_as_required_parameters = {"IFEDAFIE", "JIBGDIEJ", "CNDC", "TEMP"}
+
+        if all(s in conversion_to_apply for s in pt_ps_required_parameters):
             logger.info("converting potential temperature and practical salinity to insitu temperature and conductivity")
             for k1, v1 in self.platform.attrs.sensors.items():
                 if "CNDC" in self.platform.attrs.sensors[k1].parameters.keys() and "TEMP" in self.platform.attrs.sensors[k1].parameters.keys():
@@ -603,7 +620,7 @@ class Mission:
                         pass
                     logger.success(f"conversion completed successfully")
 
-        if "IFEDAFIE" and "JIBGDIEJ" and "CNDC" and "TEMP" in conversion_to_apply:
+        elif all(s in conversion_to_apply for s in ct_as_required_parameters):
             logger.info(
                 "converting conservative temperature and absolute salinity to insitu temperature and conductivity")
             for k1, v1 in self.platform.attrs.sensors.items():
@@ -643,8 +660,7 @@ class Mission:
             dict: A new flight dictionary with resampled data.
         """
         # Convert time to seconds since the first timestamp
-        time_seconds = (flight["time"] - flight["time"][0]) / np.timedelta64(1, 's')
-
+        time_seconds = (flight["time"][:] - flight["time"][0])/np.timedelta64(1,'s')
         # Create new time array with specified interval
         new_time_seconds = np.arange(time_seconds[0], time_seconds[-1], new_interval_seconds)
         new_time = flight["time"][0] + new_time_seconds.astype('timedelta64[s]')
@@ -723,9 +739,9 @@ class Mission:
             }
             # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
             # TODO basically the payload needs to be able to handle parameters aliases
-            x =self.payload["LON"][:]
-            y = self.payload["LAT"][:]
-            z = self.payload["DEPTH"][:]
+            x =self.payload["ALONPT01"][:]
+            y = self.payload["ALATPT01"][:]
+            z = self.payload["ADEPPT01"][:]
             # Create the initial figure
             fig = go.Figure(data=[
                 go.Scatter3d(
@@ -746,9 +762,9 @@ class Mission:
             parameter_dropdown = [
                 {
                     "args": [
-                        {"x": [self.payload["LON"][:]],  # Update x-coordinates
-                         "y":[ self.payload["LAT"][:]],  # Update y-coordinates
-                         "z": [self.payload["DEPTH"][:]],
+                        {"x": [self.payload["ALONPT01"][:]],  # Update x-coordinates
+                         "y":[ self.payload["ALATPT01"][:]],  # Update y-coordinates
+                         "z": [self.payload["ADEPPT01"][:]],
                          "marker.color": [np.array(self.payload[parameter][:])],
                          # Update the color for the new parameter
                          "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter

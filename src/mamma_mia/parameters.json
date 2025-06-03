@@ -304,6 +304,78 @@
                 "alternate_sources": [""],
                 "alternate_labels": ["GLIDER_DEPTH"],
                 "source_names": ["m_depth"]
+            },
+            {
+                "parameter_id": "ALATPT01",
+                "identifier": "SDN:P01::ALATPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ALATPT01/",
+                "standard_name": "best_estimate_latitude",
+                "unit_of_measure": "SDN:P06::UAAA",
+                "unit_identifier": "Degrees",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of the latitudinal position of a platform.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateLat","latitude"],
+                "source_names": ["ALATPT01"]
+            },
+            {
+                "parameter_id": "ALONPT01",
+                "identifier": "SDN:P01::ALONPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ALONPT01/",
+                "standard_name": "best_estimate_longitude",
+                "unit_of_measure": "Degrees",
+                "unit_identifier": "SDN:P06::UAAA",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of the longitudinal position of a platform.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateLon","longitude"],
+                "source_names": ["ALONPT01"]
+            },
+            {
+                "parameter_id": "ADEPPT01",
+                "identifier": "SDN:P01::ADEPPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ADEPPT01/",
+                "standard_name": "depth_below_surface",
+                "unit_of_measure": "Metres",
+                "unit_identifier": "SDN:P06::ULAA",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of the distance of a sensor or sampling point below the sea surface.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateDepBelowSurf","depth"],
+                "source_names": ["ADEPPT01"]
+            },
+            {
+                "parameter_id": "HEADPT01",
+                "identifier": "SDN:P01::HEADPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/HEADPT01/",
+                "standard_name": "best_estimate_yaw",
+                "unit_of_measure": "Degrees True",
+                "unit_identifier": "SDN:P06::UABB",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of a platform's yaw angle.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateOrientYaw","yaw"],
+                "source_names": ["HEADPT01"]
+            },
+            {
+                "parameter_id": "ROLLPT01",
+                "identifier": "SDN:P01::ROLLPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ROLLPT01/",
+                "standard_name": "best_estimate_roll",
+                "unit_of_measure": "Degrees",
+                "unit_identifier": "SDN:P06::UAAA",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of a platform's roll angle.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateOrientRoll","roll"],
+                "source_names": ["ROLLPT01"]
+            },
+            {
+                "parameter_id": "PTCHPT01",
+                "identifier": "SDN:P01::PTCHPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/PTCHPT01/",
+                "standard_name": "best_estimate_pitch",
+                "unit_of_measure": "Degrees",
+                "unit_identifier": "SDN:P06::UAAA",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of a platform's pitch angle.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateOrientPitch","pitch"],
+                "source_names": ["PTCHPT01"]
             }
         ],
         "time": [
@@ -311,13 +383,13 @@
                 "parameter_id": "TIME",
                 "identifier": "SDN:OG1::TIME",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/TIME/",
-                "standard_name": "epoch time (glider)",
+                "standard_name": "time",
                 "unit_of_measure": "Seconds",
                 "unit_identifier": "SDN:P06::UTBB",
                 "parameter_definition": "Time elapsed since 1970-01-01T00:00:00Z.",
                 "alternate_sources": [""],
                 "alternate_labels": ["TIME"],
-                "source_names": ["time"]
+                "source_names": ["time","TIME"]
             },
             {
                 "parameter_id": "ELTXIX01",

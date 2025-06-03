@@ -110,7 +110,13 @@
                 "model_name": "Autosub Long Range v2 {ALR} data logger",
                 "sensor_model": "Autosub Long Range v2 {ALR} data logger",
                 "parameters": {
-                    "LAT": "latitude"
+                    "ALATPT01": "latitude",
+                    "ALONPT01": "longitude",
+                    "ADEPPT01": "depth",
+                    "HEADPT01": "heading",
+                    "ROLLPT01": "roll",
+                    "PTCHPT01": "pitch",
+                    "TIME": "time"
                 },
                 "platform_compatibility": ["ALR_4"]
             },
