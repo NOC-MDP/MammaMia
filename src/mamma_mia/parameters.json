@@ -1,6 +1,6 @@
 {
     "parameters": {
-        "observation": [
+        "insitu": [
             {
                 "parameter_id": "CNDC",
                 "identifier": "SDN:OG1::CNDC",
@@ -21,7 +21,7 @@
                 "unit_of_measure": "Decibars",
                 "unit_identifier": " SDN:P06::UPDB",
                 "parameter_definition": "Pressure (spatial co-ordinate) exerted by the water body by profiling pressure sensor and corrected to read zero at sea level",
-                "alternate_sources": ["DEPTH"],
+                "alternate_sources": [""],
                 "alternate_labels": ["PRESSURE"],
                 "source_names": ["sci_water_pressure"]
             },
@@ -74,7 +74,7 @@
                 "source_names": ["sci_flbbcd_bb_units"]
             },
             {
-                "parameter_id": "BETA_BACKSCATTER532",
+                "parameter_id": "BETA_BACKSCATTERING532",
                 "identifier": "SDN:P01::BVSFO532",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/BVSFO532/",
                 "standard_name": "beta_backscatter_532",
@@ -86,7 +86,7 @@
                 "source_names": ["ScatteringBeta532"]
             },
             {
-                "parameter_id": "BETA_BACKSCATTER700",
+                "parameter_id": "BETA_BACKSCATTERING700",
                 "identifier": "SDN:P01::BVSFO700",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/BVSFO700/",
                 "standard_name": "beta_backscatter_700",
@@ -146,7 +146,7 @@
                 "source_names": [""]
             },
             {
-                "parameter_id": "MOLAR_DOXY",
+                "parameter_id": "TEMP_DOXY",
                 "identifier": "",
                 "vocab_url": "",
                 "standard_name": "",
@@ -156,6 +156,30 @@
                 "alternate_sources": [""],
                 "alternate_labels": [""],
                 "source_names": [""]
+            },
+            {
+                "parameter_id": "TPHASE_DOXY",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "MOLAR_DOXY",
+                "identifier": "SDN:P01::DOXYAAOP",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/DOXYAAOP/",
+                "standard_name": "molar_dissolved_oxygen_concentration",
+                "unit_of_measure": "micromole/l",
+                "unit_identifier": "SDN:P06::UPOX",
+                "parameter_definition": "Concentration of oxygen {O2 CAS 7782-44-7} per unit volume of the water body [dissolved plus reactive particulate phase] by optode",
+                "alternate_sources": ["CF14N29"],
+                "alternate_labels": ["WC_dissO2_optode"],
+                "source_names": ["sci_oxy4_oxygen"]
             },
             {
                 "parameter_id": "RAW_DOWNWELLING_PAR",
@@ -194,6 +218,18 @@
                 "alternate_sources": [""],
                 "alternate_labels": ["potential_temperature"],
                 "source_names": ["thetao"]
+            },
+            {
+                "parameter_id": "CF14N29",
+                "identifier": "SDN:P07::CF14N29",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CF14N29/",
+                "standard_name": "mole_concentration_of_dissolved_molecular_oxygen_in_sea_water",
+                "unit_of_measure": "Millimoles per cubic metre",
+                "unit_identifier": "SDN:P06::MMCM",
+                "parameter_definition": "Mole concentration means number of moles per unit volume, also called \"molarity\", and is used in the construction mole_concentration_of_X_in_Y, where X is a material constituent of Y. A chemical or biological species denoted by X may be described by a single term such as \"nitrogen\" or a phrase such as \"nox_expressed_as_nitrogen\". The chemical formula for molecular oxygen is O2.",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": ["o2"]
             },
             {
                 "parameter_id": "IADIHDIJ",
@@ -291,7 +327,7 @@
                 "parameter_definition": "The vertical distance of a platform above the bed surface of a water body.",
                 "alternate_sources": [""],
                 "alternate_labels": ["ALT"],
-                "source_names": ["m_altitude"]
+                "source_names": ["m_altitude","ALTITUDE"]
             },
             {
                 "parameter_id": "LATITUDE",
@@ -303,7 +339,7 @@
                 "parameter_definition": "Latitude north",
                 "alternate_sources": [""],
                 "alternate_labels": ["LAT"],
-                "source_names": ["m_lat","nav_lat"]
+                "source_names": ["m_lat","nav_lat","LATITUDE"]
             },
             {
                 "parameter_id": "LATITUDE_GPS",
@@ -327,7 +363,7 @@
                 "parameter_definition": "Longitude east",
                 "alternate_sources": [""],
                 "alternate_labels": ["LON"],
-                "source_names": ["m_lon","nav_lon"]
+                "source_names": ["m_lon","nav_lon","LONGITUDE"]
             },
             {
                 "parameter_id": "LONGITUDE_GPS",
@@ -435,7 +471,7 @@
                 "parameter_definition": "",
                 "alternate_sources": [""],
                 "alternate_labels": [""],
-                "source_names": [""]
+                "source_names": ["GLIDER_HEADING"]
             },
             {
                 "parameter_id": "GLIDER_PITCH",
@@ -447,7 +483,7 @@
                 "parameter_definition": "The up/down rotation of a platform relative to it Y axis as measured by an inclinometer.",
                 "alternate_sources": [""],
                 "alternate_labels": ["PITCH"],
-                "source_names": ["m_pitch"]
+                "source_names": ["m_pitch","GLIDER_PITCH"]
             },
             {
                 "parameter_id": "GLIDER_ROLL",
@@ -459,7 +495,7 @@
                 "parameter_definition": "The tilting rotation of a platform relative to its longitudinal/X axis as measured by an inclinometer.",
                 "alternate_sources": [""],
                 "alternate_labels": ["ROLL"],
-                "source_names": ["m_roll"]
+                "source_names": ["m_roll","GLIDER_ROLL"]
             },
             {
                 "parameter_id": "GLIDER_DEPTH",
@@ -471,7 +507,7 @@
                 "parameter_definition": "Depth below surface of the water body by unknown instrument and correction to zero at sea level using unspecified algorithm.",
                 "alternate_sources": [""],
                 "alternate_labels": ["DEPTH"],
-                "source_names": ["m_depth"]
+                "source_names": ["m_depth","GLIDER_DEPTH"]
             },
             {
                 "parameter_id": "ALATPT01",

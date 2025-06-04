@@ -70,7 +70,7 @@ def create_platform_attrs(frozen_mode=False):
             Args:
                 sensor: Sensor class object
             """
-            if self.platform_serial_number not in sensor.platform_compatibility:
+            if self.platform_model_name not in sensor.platform_compatibility:
                 logger.error(f"sensor {sensor.sensor_name} is not compatible with platform {self.platform_type}")
                 raise InvalidSensor
             self.sensors[sensor.sensor_name] = sensor
@@ -121,7 +121,7 @@ class PlatformInventory:
                     logger.error("Platform entry missing 'platform_serial_number', skipping")
                     continue
                 datalogger = sensor_inventory.get_sensor(sensor_ref=serial_number)
-                if datalogger.instrument_type != "data loggers":
+                if datalogger.instrument_type != "data_loggers":
                     raise InvalidSensor(f"invalid instrument type {datalogger.instrument_type}")
                 if not datalogger:
                     logger.error(f"Datalogger entry missing {serial_number}, skipping")

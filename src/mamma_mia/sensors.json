@@ -108,8 +108,8 @@
                 "model_name": "Mamma Mia ADCP",
                 "sensor_model": "Mamma Mia ADCP",
                 "parameters": {
-                    "WCUR_X": "x component of velocity",
-                    "WCUR_Y": "y component of velocity"
+                    "WATERCURRENTS_U": "x component of velocity",
+                    "WATERCURRENTS_V": "y component of velocity"
                 },
                 "platform_compatibility": ["mm"]
             }
@@ -209,7 +209,7 @@
                 "model_name": "Oxygen optode 4831",
                 "sensor_model": "Oxygen optode 4831",
                 "parameters": {
-                    "PHASE_DOXY": "phase angle of blue light",
+                    "BPHASE_DOXY": "phase angle of blue light",
                     "OXYSAT_DOXY": "oxygen saturation",
                     "DPHASE_DOXY": "phase angle of D",
                     "MOLAR_DOXY": "oxygen concentration"
@@ -225,9 +225,7 @@
                 "model_name": "Oxygen optode 4831",
                 "sensor_model": "Oxygen optode 4831",
                 "parameters": {
-                    "TEMP_DOXY": "temperature of oxygen determination",
-                    "TPHASE_DOXY": "temperature compensated phase angle of D",
-                    "PHASE_DOXY": "phase angle of blue light",
+                    "BPHASE_DOXY": "phase angle of blue light",
                     "OXYSAT_DOXY": "oxygen saturation",
                     "DPHASE_DOXY": "phase angle of D",
                     "MOLAR_DOXY": "oxygen concentration"
@@ -259,17 +257,18 @@
                 "model_name": "Oxygen optode 4831",
                 "sensor_model": "Oxygen optode 4831",
                 "parameters": {
-                    "PHASE_DOXY": "phase angle of blue light",
+                    "BPHASE_DOXY": "phase angle of blue light",
                     "OXYSAT_DOXY": "oxygen saturation",
                     "DPHASE_DOXY": "phase angle of D",
-                    "MOLAR_DOXY": "oxygen concentration"
-
+                    "MOLAR_DOXY": "oxygen concentration",
+                    "TEMP_DOXY": "temperature of oxygen determination",
+                    "TPHASE_DOXY": "temperature compensated phase angle of D"
                 },
                 "platform_compatibility": ["G2"]
             },
             {
                 "sensor_serial_number": "4513",
-                "sensor_name": "Oxygen optode 4831 119",
+                "sensor_name": "SBE 43F oxygen sensor 4513",
                 "instrument_type": "dissolved_gas_sensors",
                 "sensor_manufacturer": "Sea-Bird Scientific",
                 "model_name": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
@@ -385,10 +384,9 @@
                     "WATERCURRENTS_U": "eastward velocity of water current",
                     "ALTITUDE": "height relative to sea bed",
                     "LATITUDE": "latitude",
-                    "LATITUDE_GPS": "latitude measured by GPS system",
                     "LONGITUDE": "longitude",
-                    "LONGITUDE_GPS": "longitude measured by GPS system",
-                    "WATERCURRENTS_V": "northward velocity of water current"
+                    "WATERCURRENTS_V": "northward velocity of water current",
+                    "TIME": "time"
 
                 },
                 "platform_compatibility": ["G2"]
@@ -412,10 +410,9 @@
                     "WATERCURRENTS_U": "eastward velocity of water current",
                     "ALTITUDE": "height relative to sea bed",
                     "LATITUDE": "latitude",
-                    "LATITUDE_GPS": "latitude measured by GPS system",
                     "LONGITUDE": "longitude",
-                    "LONGITUDE_GPS": "longitude measured by GPS system",
-                    "WATERCURRENTS_V": "northward velocity of water current"
+                    "WATERCURRENTS_V": "northward velocity of water current",
+                    "TIME": "time"
 
                 },
                 "platform_compatibility": ["G2"]
@@ -439,10 +436,9 @@
                     "WATERCURRENTS_U": "eastward velocity of water current",
                     "ALTITUDE": "height relative to sea bed",
                     "LATITUDE": "latitude",
-                    "LATITUDE_GPS": "latitude measured by GPS system",
                     "LONGITUDE": "longitude",
-                    "LONGITUDE_GPS": "longitude measured by GPS system",
-                    "WATERCURRENTS_V": "northward velocity of water current"
+                    "WATERCURRENTS_V": "northward velocity of water current",
+                    "TIME": "time"
 
                 },
                 "platform_compatibility": ["G2"]
@@ -466,31 +462,12 @@
                     "WATERCURRENTS_U": "eastward velocity of water current",
                     "ALTITUDE": "height relative to sea bed",
                     "LATITUDE": "latitude",
-                    "LATITUDE_GPS": "latitude measured by GPS system",
                     "LONGITUDE": "longitude",
-                    "LONGITUDE_GPS": "longitude measured by GPS system",
-                    "WATERCURRENTS_V": "northward velocity of water current"
+                    "WATERCURRENTS_V": "northward velocity of water current",
+                    "TIME": "time"
 
                 },
                 "platform_compatibility": ["G2"]
-            },
-            {
-                "sensor_serial_number": "unit_887",
-                "sensor_name": "G3S Glider data logger unit_887",
-                "instrument_type": "data loggers",
-                "sensor_manufacturer": "Teledyne Webb Research",
-                "model_name": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
-                "sensor_model": "Teledyne Webb Research Slocum G3S Glider Navigation data logger",
-                "parameters": {
-                    "LAT": "",
-                    "LON": "",
-                    "ALTITUDE": "",
-                    "PITCH": "",
-                    "ROLL": "",
-                    "DEPTH": "",
-                    "TIME": ""
-                },
-                "platform_compatibility": ["G3"]
             }
         ]
     }

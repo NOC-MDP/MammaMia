@@ -113,7 +113,8 @@ class NavigationKeys:
                    )
 
     @staticmethod
-    def find_parameter_keys(parameter: str, platform_attrs, instrument_type: str = "data loggers") -> list[str]:
+    def find_parameter_keys(parameter: str, platform_attrs, instrument_type: str = "data_loggers") -> list[str]:
+        # TODO need to handle the case if sensor_key is None after iterating over sensor keys
         sensor_key = None
         for key in platform_attrs.sensors.keys():
             if platform_attrs.sensors[key].instrument_type == instrument_type:
@@ -207,11 +208,23 @@ class Trajectory:
         # go through navigation keys and find correct variable names
         vars_to_check =  [x for xs in list(unstructure(navigation_keys).values()) for x in xs]
         time_dim = max(ds.dims,key=lambda d: ds.sizes[d])
+        time_len = ds.sizes[time_dim]
         vars_to_check = [x for x in vars_to_check if x in ds.variables]
         # generate NaN mask
         valid_mask = np.logical_and.reduce([~ds[var].isnull() for var in vars_to_check])
         # clean dataset
         ds_clean = ds.isel({time_dim: valid_mask})
+        clean_len = ds_clean.sizes[time_dim]
+        clean_percent = clean_len / time_len
+        if clean_percent < 0.75:
+            logger.warning("cleaned dataset less than 75% of original, will interpolate instead of clean")
+            time_var = ds["TIME"]
+            ds_wo_time = ds.drop_vars('TIME')
+            ds_wo_time = ds_wo_time.drop_vars('TIME_GPS')
+            ds_clean = ds_wo_time.interpolate_na(dim=time_dim)
+            ds_clean["TIME"] = time_var
+            valid_mask = np.logical_and.reduce([~ds_clean[var].isnull() for var in vars_to_check])
+            ds_clean = ds_clean.isel({time_dim: valid_mask})
 
         # add data sources
         # TODO the add data sources used to find correct source key and filter NaNs which is now handled
@@ -288,7 +301,7 @@ class Trajectory:
             except KeyError:
                 pass
         if source is None:
-            raise NoValidSource("no valid source name found")
+            raise NoValidSource
         return source
 
 
@@ -349,7 +362,7 @@ class Mission:
         # find datalogger
         data_logger_key = None
         for sensor_key, sensor in platform.attrs.sensors.items():
-            if sensor.instrument_type == "data loggers":
+            if sensor.instrument_type == "data_loggers":
                 data_logger_key = sensor_key
         if data_logger_key is None:
             raise Exception("No data logger found for this platform")
@@ -433,7 +446,7 @@ class Mission:
         payload = {}
         # total mission time in seconds (largest that a payload array could be)
         mission_total_time_seconds = (trajectory.time[-1] - trajectory.time[0]).astype('timedelta64[s]')
-        mission_total_time_steps = np.round(mission_total_time_seconds.astype(int) / mission_time_step).astype(int)
+        mission_total_time_steps = np.ceil(mission_total_time_seconds.astype(int) / mission_time_step).astype(int)
         for name, sensor in platform.attrs.sensors.items():
             for name2, parameter in sensor.parameters.items():
                 payload[name2] = np.empty(shape=mission_total_time_steps, dtype=np.float64)
@@ -461,7 +474,7 @@ class Mission:
         return decimal_format * sign
 
     @staticmethod
-    def get_parameter_units(platform_attrs,parameter: str, instrument_type: str = "data loggers") -> str:
+    def get_parameter_units(platform_attrs,parameter: str, instrument_type: str = "data_loggers") -> str:
         sensor_key = None
         parameter_units = None
         for key in platform_attrs.sensors.keys():
@@ -539,7 +552,7 @@ class Mission:
         navigation_alias = {}
         # get navigation keys and any aliases that relate to them
         for k1, v1 in self.platform.attrs.sensors.items():
-            if self.platform.attrs.sensors[k1].instrument_type == "data loggers":
+            if self.platform.attrs.sensors[k1].instrument_type == "data_loggers":
                 navigation_keys = list(self.platform.attrs.sensors[k1].parameters.keys())
                 for k2, parameter in self.platform.attrs.sensors[k1].parameters.items():
                     for nav_key in navigation_keys:
