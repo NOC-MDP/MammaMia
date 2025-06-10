@@ -109,7 +109,7 @@ contributor = Contributor(email="thopri@noc.ac.uk",
                           role_vocab="BODC database",
                           role="Collaborator",)
 
-# # # add Churchill mission
+# add Churchill mission currently commented out due to Churchill missing depth data.
 # campaign.add_mission(mission_name="Deployment 647",
 #                      title="Churchill BIO-Carbon deployment",
 #                      summary="Churchill's mission that it undertook during BIO-Carbon",

@@ -132,21 +132,21 @@ class RealityWorld:
                 pass
                 #logger.warning(f"no interpolator for {key}")
 
-        if np.isnan(self.reality["WCUR_X"][0]):
+        if np.isnan(self.reality["WATERCURRENTS_U"][0]):
             if point.depth >= 0.5:
                 logger.error(f"U component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             u_velocity = 0.0
         else:
-            u_velocity = self.reality["WCUR_X"][0]
+            u_velocity = self.reality["WATERCURRENTS_U"][0]
 
-        if np.isnan(self.reality["WCUR_Y"][0]):
+        if np.isnan(self.reality["WATERCURRENTS_V"][0]):
             if point.depth >= 0.5:
                 logger.error(f"V component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             v_velocity = 0.0
         else:
-            v_velocity = self.reality["WCUR_Y"][0]
+            v_velocity = self.reality["WATERCURRENTS_V"][0]
 
         # if np.isnan(self.reality["WATERCURRENTS_W"][0]):
         #     if point.depth >= 0.5:

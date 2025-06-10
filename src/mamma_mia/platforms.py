@@ -50,7 +50,7 @@ def create_platform_attrs(frozen_mode=False):
             sensors = {}
             for sensor in sensor_inventory.entries.values():
                 if sensor_type is not None:
-                    if sensor.instrument_type == sensor_type and self.platform_serial_number in sensor.platform_compatibility:
+                    if sensor.instrument_type == sensor_type and self.platform_model_name in sensor.platform_compatibility:
                         if sensor.instrument_type not in sensors:
                             sensors[sensor.instrument_type] = [{"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number}]
                         else:

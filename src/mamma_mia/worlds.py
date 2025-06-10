@@ -137,13 +137,13 @@ class WorldType(Enum):
 
 @frozen
 class WorldExtent:
-    lat_max: np.float64
-    lat_min: np.float64
-    lon_max: np.float64
-    lon_min: np.float64
+    lat_max: float
+    lat_min: float
+    lon_max: float
+    lon_min: float
     time_start: str
     time_end: str
-    depth_max: np.float64
+    depth_max: float
 
 @define
 class WorldsAttributes:

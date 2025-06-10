@@ -222,23 +222,16 @@ class FindWorlds:
         alternative_source_names = {}
         for src in alternative_sources:
             alternative_source_names[src] = inventory.parameters.entries[src].source_names
-        for k1, v1 in cat.cmems_cat.items():
-            logger.info(f"searching cmems {k1}")
-            for i in range(len(v1)):
-                # ensure it is a numerical model
-                if v1[i]["sources"][0] != "Numerical models":
-                    # logger.warning(f"{v1[i]['sources'][0]} is not a numerical model")
-                    continue
+        for product in cat.cmems_cat.products:
+            #check source is numerical model
+            if "Numerical models" in product.sources:
                 # check each dataset
-                for j in range(len(v1[i]["datasets"])):
-                    dataset = v1[i]["datasets"][j]
+                for dataset in product.datasets:
                     k = None
-                    for k in range(len(dataset["versions"][0]["parts"][0]["services"])):
-                        if dataset["versions"][0]["parts"][0]["services"][k]["service_format"] == "zarr" and \
-                                dataset["versions"][0]["parts"][0]["services"][k]["service_type"][
-                                    "service_name"] == "arco-geo-series":
+                    for k in range(len(dataset.versions[0].parts[0].services)):
+                        if dataset.versions[0].parts[0].services[k].service_format == "zarr":
                             break
-                    variables = dataset["versions"][0]["parts"][0]["services"][k]["variables"]
+                    variables = dataset.versions[0].parts[0].services[k].variables
                     # check each variable
                     for m in range(len(variables)):
                         if key not in inventory.parameters.entries.keys():
@@ -247,40 +240,40 @@ class FindWorlds:
                         ## if the variable is not in source names (quite likely) then need to search the alternative source names created above
                         alternative_parameter = None
                         for alt_key,alt_src in alternative_source_names.items():
-                            if variables[m]["short_name"] in alt_src:
+                            if variables[m].short_name in alt_src:
                                 alternative_parameter = alt_key
                                 break
                         # check to see if variable matches source names or alterative parameter
-                        if variables[m]["short_name"] in inventory.parameters.entries[key].source_names or alternative_parameter is not None:
+                        if variables[m].short_name in inventory.parameters.entries[key].source_names or alternative_parameter is not None:
                             # TODO add in a NAN check here in case extent has nans rather than values
                             # if trajectory spatial extent is within variable data
-                            if (variables[m]["bbox"][0] < extent.lon_min and
-                                    variables[m]["bbox"][1] < extent.lat_min
-                                    and variables[m]["bbox"][2] > extent.lon_max and
-                                    variables[m]["bbox"][3] > extent.lat_max):
+                            if (variables[m].bbox[0] < extent.lon_min and
+                                    variables[m].bbox[1] < extent.lat_min
+                                    and variables[m].bbox[2] > extent.lon_max and
+                                    variables[m].bbox[3] > extent.lat_max):
                                 depth_len = 0
                                 # get length of depth dimension
-                                for coord in variables[m]['coordinates']:
-                                    if coord["coordinates_id"] == "depth":
-                                        depth_len = coord["values"].__len__()
+                                for coord in variables[m].coordinates:
+                                    if coord.coordinate_id == "depth":
+                                        depth_len = coord.values.__len__()
                                 # if depth dimension is single value i.e. 2D then skip dataset
                                 if depth_len == 1:
                                     continue
                                 # find the time coordinate index
                                 n = None
-                                for n in range(len(variables[m]["coordinates"])):
-                                    if variables[m]["coordinates"][n]["coordinates_id"] == "time":
+                                for n in range(len(variables[m].coordinates)):
+                                    if variables[m].coordinates[n].coordinate_id == "time":
                                         break
                                 # get time values either as part of values list or as a specific max and min value
                                 # both are possibilities it seems!
                                 try:
-                                    start = variables[m]["coordinates"][n]["values"][0]
-                                    end = variables[m]["coordinates"][n]["values"][-1]
+                                    start = variables[m].coordinates[n].values[0]
+                                    end = variables[m].coordinates[n].values[-1]
                                     #step = variables[m]["coordinates"][n]["values"][1] - \
                                     #       variables[m]["coordinates"][n]["values"][0]
                                 except TypeError:
-                                    start = variables[m]["coordinates"][n]["minimum_value"]
-                                    end = variables[m]["coordinates"][n]["maximum_value"]
+                                    start = variables[m].coordinates[n].minimum_value
+                                    end = variables[m].coordinates[n].maximum_value
                                     #step = variables[m]["coordinates"][n]["step"]
                                 # convert trajectory datetimes into timestamps to be able to compare with CMEMS catalog
                                 start_traj = float((np.datetime64(extent.time_start) - np.datetime64(
@@ -289,7 +282,7 @@ class FindWorlds:
                                     '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
                                 # check if trajectory temporal extent is within variable data
                                 if start_traj > start and end_traj < end:
-                                    parts = dataset["dataset_id"].split("_")
+                                    parts = dataset.dataset_id.split("_")
                                     # skip any interim datasets
                                     if "myint" in parts:
                                         continue
@@ -307,17 +300,17 @@ class FindWorlds:
                                         logger.warning(f"domain {parts[2]} not supported, skipping this dataset")
                                         continue
                                     # after all that PHEW! we can add to matched entries
-                                    logger.success(f"found a match in {dataset['dataset_id']} for {key}")
+                                    logger.success(f"found a match in {dataset.dataset_id} for {key}")
                                     # TODO validation on remaining fields if appropriate, e.g. do we need to validate resolution?
 
                                     new_world = MatchedWorld(
-                                        data_id = dataset["dataset_id"],
+                                        data_id = dataset.dataset_id,
                                         world_type=WorldType.from_string(enum_string=parts[1]),
                                         domain=domain_type,
                                         dataset_name=parts[3],
                                         resolution=parts[5],
                                         field_type=field_type,
-                                        variable_alias={variables[m]["short_name"]:key},
+                                        variable_alias={variables[m].short_name:key},
                                         alternative_parameter={key:alternative_parameter}
                                     )
                                     # create a new world entry based on existing entries ranking and variables.
@@ -333,21 +326,21 @@ class FindWorlds:
                                             self.entries[world_id] = new_world
                                             # add new variables if they aren't already present
                                             for key5,var5 in existing_vars.items():
-                                                if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
+                                                if variables[m].short_name not in self.entries[world_id].variable_alias.keys():
                                                     self.entries[world_id].variable_alias[key5] = var5
                                             for key6,var6 in existing_alts.items():
-                                                if variables[m]["short_name"] not in self.entries[world_id].alternative_parameter.keys():
+                                                if variables[m].short_name not in self.entries[world_id].alternative_parameter.keys():
                                                     self.entries[world_id].alternative_parameter[key6] = var6
                                         else:
                                             # if ranking is not better than just update with the variable name
-                                            logger.info(f"updating {dataset['dataset_id']} with key {key} for field type {field_type.field_type.name}")
-                                            if variables[m]["short_name"] not in self.entries[world_id].variable_alias.keys():
-                                                self.entries[world_id].variable_alias[variables[m]["short_name"]] = key
-                                            if variables[m]["short_name"] not in self.entries[world_id].alternative_parameter.keys():
+                                            logger.info(f"updating {dataset.dataset_id} with key {key} for field type {field_type.field_type.name}")
+                                            if variables[m].short_name not in self.entries[world_id].variable_alias.keys():
+                                                self.entries[world_id].variable_alias[variables[m].short_name] = key
+                                            if variables[m].short_name not in self.entries[world_id].alternative_parameter.keys():
                                                 self.entries[world_id].alternative_parameter[key] = alternative_parameter
                                     else:
                                         # world doesn't exist yet so just add as a complete entry
-                                        logger.info(f"creating new matched world {dataset['dataset_id']} for key {key}")
+                                        logger.info(f"creating new matched world {dataset.dataset_id} for key {key}")
                                         self.entries[world_id] = new_world
 
 

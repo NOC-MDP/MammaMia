@@ -18,7 +18,7 @@ class Cats:
     Returns:
         Populated Cats object
     """
-    cmems_cat: dict = None
+    cmems_cat: copernicusmarine.CopernicusMarineCatalogue = None
     msm_cat: intake.Catalog = None
     search: str = "Global"
     cat_path: str = "https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml"
@@ -27,8 +27,7 @@ class Cats:
 
     def init_catalog(self):
         if self.cmems_cat is None:
-            self.cmems_cat = copernicusmarine.describe(contains=[], include_datasets=True,
-                                                       overwrite_metadata_cache=self.overwrite)
+            self.cmems_cat = copernicusmarine.describe(contains=[])
         if self.msm_cat is None:
             self.msm_cat = intake.open_catalog(self.cat_path)
 
