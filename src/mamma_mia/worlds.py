@@ -50,14 +50,20 @@ class FieldType(Enum):
     """
     Field type enumeration: this determines what field type the world is made up of
     """
+    one_hour_instant = "PT1H-i"
     six_hour_instant = "PT6H-i"
+    six_hour_mean = "PT6H-m"
     daily_mean = "P1D-m"
     monthly_mean = "P1M-m"
     @classmethod
     def from_string(cls,enum_string:str) -> "FieldType":
         match enum_string:
+            case "PT1H-i":
+                return FieldType.one_hour_instant
             case "PT6H-i":
                 return FieldType.six_hour_instant
+            case "PT6H-m":
+                return FieldType.six_hour_mean
             case "P1D-m":
                 return FieldType.daily_mean
             case "P1M-m":
@@ -77,19 +83,27 @@ class FieldTypeWithRank:
     @classmethod
     def from_string(cls,enum_string:str) -> "FieldTypeWithRank":
         match enum_string:
+            case "PT1H-i":
+                return cls(field_type=FieldType.one_hour_instant, rank=1)
             case "PT6H-i":
-                return cls(field_type=FieldType.six_hour_instant, rank=1)
+                return cls(field_type=FieldType.six_hour_instant, rank=2)
+            case "PT6H-m":
+                return cls(field_type=FieldType.six_hour_mean, rank=3)
             case "P1D-m":
-                return cls(field_type=FieldType.daily_mean, rank=2)
+                return cls(field_type=FieldType.daily_mean, rank=4)
             case "P1M-m":
-                return cls(field_type=FieldType.monthly_mean, rank=3)
+                return cls(field_type=FieldType.monthly_mean, rank=5)
             case _:
                 raise ValueError(f"unknown field type {enum_string}")
     @classmethod
     def from_string_and_rank(cls, enum_string:str,rank:int) -> "FieldTypeWithRank":
         match enum_string:
+            case "PT1H-i":
+                return cls(field_type=FieldType.one_hour_instant, rank=rank)
             case "PT6H-i":
                 return cls(field_type=FieldType.six_hour_instant, rank=rank)
+            case "PT6H-m":
+                return cls(field_type=FieldType.six_hour_mean, rank=rank)
             case "P1D-m":
                 return cls(field_type=FieldType.daily_mean, rank=rank)
             case "P1M-m":
