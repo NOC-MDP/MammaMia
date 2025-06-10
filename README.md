@@ -55,7 +55,7 @@ $ pip install .
 ```
 
 #### Additional installation notes
-PyInterp builds from source in pip and will need some C++ dependencies installing:
+The Mamma Mia dependency, PyInterp builds from source in pip and will need some C++ dependencies installing:
 - g++
 - cmake
 - boost
