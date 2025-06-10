@@ -136,6 +136,7 @@ class WorldType(Enum):
     """
     model = "mod"
     observation = "obs"
+    obs_mob = "obs-mob"
     @classmethod
     def from_string(cls,enum_string:str) -> "WorldType":
         match enum_string:

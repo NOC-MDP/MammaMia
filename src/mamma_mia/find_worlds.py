@@ -256,7 +256,11 @@ class FindWorlds:
                                 # get length of depth dimension
                                 for coord in variables[m].coordinates:
                                     if coord.coordinate_id == "depth":
-                                        depth_len = coord.values.__len__()
+                                        # some multiple sources dataasets don't have any depth values so need to handle None
+                                        try:
+                                            depth_len = coord.values.__len__()
+                                        except AttributeError:
+                                            continue
                                 # if depth dimension is single value i.e. 2D then skip dataset
                                 if depth_len == 1:
                                     continue
@@ -300,13 +304,18 @@ class FindWorlds:
                                     except ValueError:
                                         logger.warning(f"domain {parts[2]} not supported, skipping this dataset")
                                         continue
+                                    # check is world type is supported
+                                    try:
+                                        world_type = WorldType.from_string(enum_string=parts[1])
+                                    except ValueError:
+                                        logger.warning(f"world type {parts[1]} not supported, skipping this dataset")
+                                        continue
                                     # after all that PHEW! we can add to matched entries
                                     logger.success(f"found a match in {dataset.dataset_id} for {key}")
                                     # TODO validation on remaining fields if appropriate, e.g. do we need to validate resolution?
-
                                     new_world = MatchedWorld(
                                         data_id = dataset.dataset_id,
-                                        world_type=WorldType.from_string(enum_string=parts[1]),
+                                        world_type=world_type,
                                         domain=domain_type,
                                         dataset_name=parts[3],
                                         resolution=parts[5],

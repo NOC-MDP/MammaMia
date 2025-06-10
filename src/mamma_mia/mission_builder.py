@@ -10,6 +10,7 @@ import glidersim.glidermodels
 from glidersim.environments import VelocityRealityModel
 from glidersim.glidersim import GliderMission
 import shutil
+from loguru import logger
 
 @frozen
 class FlightParameters:
@@ -80,11 +81,13 @@ class GliderMissionBuilder:
                        dive_depth:float,
                        mission_directory:str,
                        data_dir:str = "data",
+                       spiral:bool = False,
                        fp:FlightParameters = FlightParameters(),
                        bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "GliderMissionBuilder":
         """
 
         Args:
+            spiral:
             dive_depth:
             mission_name:
             glider_model:
@@ -103,7 +106,11 @@ class GliderMissionBuilder:
 
         """
         # create new mission directory using example mission template
-        shutil.copytree(f"example_missions{os.sep}virtual_mooring", f"{data_dir}{os.sep}{mission_directory}", dirs_exist_ok=True)
+        if spiral:
+            shutil.copytree(f"example_missions{os.sep}virtual_mooring_spiral", f"{data_dir}{os.sep}{mission_directory}",
+                            dirs_exist_ok=True)
+        else:
+            shutil.copytree(f"example_missions{os.sep}virtual_mooring", f"{data_dir}{os.sep}{mission_directory}", dirs_exist_ok=True)
         # update mi file name with mission name
         os.rename(f"{data_dir}{os.sep}{mission_directory}{os.sep}missions{os.sep}virtual-mooring.mi",
                   f"{data_dir}{os.sep}{mission_directory}{os.sep}missions{os.sep}{mission_name}.mi")
@@ -331,6 +338,7 @@ class GliderMissionBuilder:
         Returns: None
 
         """
+        logger.info(f"running mission for {self.glider_mission.mission}")
         self.glider_mission.loadmission(verbose=verbose)
         self.glider_mission.run(dt=dt,
                                 CPUcycle=CPUcycle,
@@ -338,6 +346,7 @@ class GliderMissionBuilder:
                                 end_on_surfacing=end_on_surfacing,
                                 end_on_grounding=end_on_grounding,
                                 verbose=verbose)
+        logger.success(f"mission {self.glider_mission.mission} complete")
 
     def save_mission(self):
         """
@@ -345,5 +354,7 @@ class GliderMissionBuilder:
         Returns: none
 
         """
+        logger.info(f"saving mission {self.glider_mission.mission}")
         self.glider_mission.save()
+        logger.success(f"mission {self.glider_mission.mission} saved")
 
