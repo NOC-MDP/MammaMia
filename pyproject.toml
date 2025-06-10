@@ -1,12 +1,30 @@
 [project]
-name = "mamma_mia"
+name = "mamma-mia"
 version = "0.3.0"
 authors = [
   { name="thopri", email="thopri@noc.ac.uk" },
 ]
 description = ""
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = "==3.11.*"
+dependencies = ["loguru==0.7.*",
+                "pyinterp==2024.6.*",
+                "cattrs==24.1.*",
+                "xarray==2024.7.*",
+                "pyyaml==6.0.*",
+                "zarr==2.18.*",
+                "plotly==5.24.*",
+                "intake==2.0.*",
+                "intake-xarray==0.7.*",
+                "copernicusmarine==2.1.*",
+                "xesmf==0.8.*",
+                "s3fs==2024.6.*",
+                "blosc==1.11.*",
+                "gsw==3.6.*",
+                "glidersim@git+https://github.com/NOC-MDP/glidersim",
+                "latlon@git+https://github.com/NOC-MDP/latlon",
+                "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF"
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
