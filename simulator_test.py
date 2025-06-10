@@ -3,7 +3,7 @@ from mamma_mia import GliderMissionBuilder
 virtual_mooring_spiral = GliderMissionBuilder.virtual_mooring(
     mission_name="rapid-mooring_spiral",
     datetime_str="2023-03-03T12:00:00:Z",
-    description="RAPID ARRAY simulation",
+    description="RAPID ARRAY spiral imulation",
     glider_model="DEEP",
     inital_heading=225,
     lat_ini=27.225,
@@ -14,7 +14,7 @@ virtual_mooring_spiral = GliderMissionBuilder.virtual_mooring(
     spiral=True
 )
 
-virtual_mooring_spiral.run_mission(maxSimulationTime=2) # 2 days
+virtual_mooring_spiral.run_mission(maxSimulationTime=2,verbose=True) # 2 days
 virtual_mooring_spiral.save_mission()
 
 # waypoints = GliderMissionBuilder.follow_waypoints(
