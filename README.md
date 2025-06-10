@@ -42,9 +42,9 @@ compatible package manager e.g. conda, miniconda, mamba, miniforge etc.
 Assuming a conda package manager as a virtual env:
 
 ```shell
-$ conda create -n mm python=3.11
+$ conda create -n mm python=3.11 esmpy=8.8 # esmpy is not installable via pip and must be installed before mamma-mia
 ```
-This should create a virtual environment containing python 3.11 which Mamma mia is compatible with
+This should create a virtual environment containing python 3.11 which Mamma mia is compatible with,
 
 ```shell
 $ conda activate mm
