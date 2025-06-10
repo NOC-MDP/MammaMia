@@ -1,4 +1,3 @@
-import numpy as np
 from attrs import frozen, define
 from loguru import logger
 from enum import Enum

@@ -74,6 +74,7 @@ class FindWorlds:
                         except KeyError:
                             key_chk = key2 in inventory.parameters.entries[key].source_names
                         if key_chk:
+                            if self.__check_subset(ds=ds,extent=extent):
                                 field_type = self.__estimate_field_interval(ds=ds)
                                 domain_type = self.__estimate_domain_type(ds=ds)
                                 new_world = MatchedWorld(

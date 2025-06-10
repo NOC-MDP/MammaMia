@@ -752,9 +752,9 @@ class Mission:
             }
             # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
             # TODO basically the payload needs to be able to handle parameters aliases
-            x =self.payload["ALONPT01"][:]
-            y = self.payload["ALATPT01"][:]
-            z = self.payload["ADEPPT01"][:]
+            x =self.payload["LONGITUDE"][:]
+            y = self.payload["LATITUDE"][:]
+            z = self.payload["GLIDER_DEPTH"][:]
             # Create the initial figure
             fig = go.Figure(data=[
                 go.Scatter3d(
@@ -775,9 +775,9 @@ class Mission:
             parameter_dropdown = [
                 {
                     "args": [
-                        {"x": [self.payload["ALONPT01"][:]],  # Update x-coordinates
-                         "y":[ self.payload["ALATPT01"][:]],  # Update y-coordinates
-                         "z": [self.payload["ADEPPT01"][:]],
+                        {"x": [self.payload["LONGITUDE"][:]],  # Update x-coordinates
+                         "y":[ self.payload["LATITUDE"][:]],  # Update y-coordinates
+                         "z": [self.payload["GLIDER_DEPTH"][:]],
                          "marker.color": [np.array(self.payload[parameter][:])],
                          # Update the color for the new parameter
                          "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
@@ -1000,7 +1000,8 @@ class Mission:
                 zarr.convenience.copy_all(value,world[key])
             except AttributeError:
                 logger.warning(f"failed to copy world {key} trying to covert to zarr")
-                value.to_zarr(group=world[key],store=store)
+                del world[key]
+                value.to_zarr(group=f"{world.name}/{key}",store=store)
                 logger.success(f"successfully converted world {key} to zarr")
 
 
