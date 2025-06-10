@@ -14,7 +14,7 @@ virtual_mooring_spiral = GliderMissionBuilder.virtual_mooring(
     spiral=True
 )
 
-virtual_mooring_spiral.run_mission()
+virtual_mooring_spiral.run_mission(maxSimulationTime=2) # 2 days
 virtual_mooring_spiral.save_mission()
 
 # waypoints = GliderMissionBuilder.follow_waypoints(

@@ -750,11 +750,21 @@ class Mission:
                 "yaxis_title": "latitude",
                 "zaxis_title": "depth",
             }
-            # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
-            # TODO basically the payload needs to be able to handle parameters aliases
-            x =self.payload["LONGITUDE"][:]
-            y = self.payload["LATITUDE"][:]
-            z = self.payload["GLIDER_DEPTH"][:]
+            # TODO figure out how to dynamically set these rather than hardcoding platforms
+            if self.platform.attrs.platform_model_name == "G2":
+                latitude = "LATITUDE"
+                longitude = "LONGITUDE"
+                depth = "GLIDER_DEPTH"
+            elif self.platform.attrs.platform_model_name == "ALR_1500":
+                latitude = "ALATPT01"
+                longitude = "ALONPT01"
+                depth = "ADEPPT01"
+            else:
+                raise Exception(f"unsupported platform {self.platform.attrs.platform_model_name} for payload plotting")
+
+            x =self.payload[latitude][:]
+            y = self.payload[longitude][:]
+            z = self.payload[depth][:]
             # Create the initial figure
             fig = go.Figure(data=[
                 go.Scatter3d(
@@ -775,9 +785,9 @@ class Mission:
             parameter_dropdown = [
                 {
                     "args": [
-                        {"x": [self.payload["LONGITUDE"][:]],  # Update x-coordinates
-                         "y":[ self.payload["LATITUDE"][:]],  # Update y-coordinates
-                         "z": [self.payload["GLIDER_DEPTH"][:]],
+                        {"x": [self.payload[longitude][:]],  # Update x-coordinates
+                         "y":[ self.payload[latitude][:]],  # Update y-coordinates
+                         "z": [self.payload[depth][:]],
                          "marker.color": [np.array(self.payload[parameter][:])],
                          # Update the color for the new parameter
                          "marker.cmin": parameters[parameter]["cmin"],  # Set cmin for the new parameter
