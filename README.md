@@ -39,13 +39,12 @@ Mamma mia has a number of dependencies, (numpy pyinterp, xarray, zarr, ploty etc
 compatible package manager e.g. conda, miniconda, mamba, miniforge etc.
 
 ## Installation
-Assuming a conda package manager:
+Assuming a conda package manager as a virtual env:
 
 ```shell
-$ conda env create --file enviroment.yml
+$ conda create -n mm python=3.11
 ```
-This should create a virtual environment containing all of Mamma mias dependencies. Ensure the environment is activated
-before using.
+This should create a virtual environment containing python 3.11 which Mamma mia is compatible with
 
 ```shell
 $ conda activate mm
@@ -56,9 +55,23 @@ $ pip install .
 ```
 
 #### Additional installation notes
-Currently need to install blosc using pip, the conda install of blosc doesn't seem to be recognised by MammaMia
+PyInterp builds from source in pip and will need some C++ dependencies installing:
+- g++
+- cmake
+- boost
+- egien3
+
+These can be installed in Ubuntu:
 ```shell
-$ pip install blosc
+$ sudo apt-get install g++ cmake libeigen3-dev libboost-dev
+```
+or macos with homebrew (may need xcode command tools installing):
+```shell
+$ brew install egien boost cmake g++
+```
+Alternatively install pyinterp using conda as this provides a compiled binary:
+```shell
+$ conda install pyinterp=2024.6
 ```
 
 ### Installing the glider simulator
