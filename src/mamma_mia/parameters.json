@@ -2,213 +2,57 @@
     "parameters": {
         "insitu": [
             {
-                "parameter_id": "CNDC",
-                "identifier": "SDN:OG1::CNDC",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/CNDC/",
-                "standard_name": "Electrical conductivity",
-                "unit_of_measure": "Siemens per metre",
-                "unit_identifier": "SDN:P06::UECA",
-                "parameter_definition": "Electrical conductivity of the water body by CTD",
-                "alternate_sources": ["JIBGDIEJ","IADIHDIJ"],
-                "alternate_labels": ["Conductivity"],
-                "source_names": ["sci_water_cond"]
-            },
-            {
-                "parameter_id": "PRES",
+                "parameter_id": "PRESSURE",
                 "identifier": "SDN:OG1::PRES",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/PRES/",
                 "standard_name": "Sea water pressure, equals 0 at sea-level",
                 "unit_of_measure": "Decibars",
                 "unit_identifier": " SDN:P06::UPDB",
                 "parameter_definition": "Pressure (spatial co-ordinate) exerted by the water body by profiling pressure sensor and corrected to read zero at sea level",
-                "alternate_sources": [""],
+                "alternate_sources": ["GLIDER_DEPTH"],
                 "alternate_labels": ["PRESSURE"],
                 "source_names": ["sci_water_pressure"]
             },
             {
-                "parameter_id": "TEMP",
+                "parameter_id": "INSITU_TEMPERATURE",
                 "identifier": "SDN:OG1::TEMP",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/TEMP/",
                 "standard_name": "Sea temperature in-situ ITS-90 scale",
                 "unit_of_measure": "Degrees Celsius",
                 "unit_identifier": "SDN:P06::UPAA",
                 "parameter_definition": "Temperature of the water body by CTD or STD",
-                "alternate_sources": ["CFSN0329","IFEDAFIE"],
+                "alternate_sources": ["POTENTIAL_TEMPERATURE","CONSERVATIVE_TEMPERATURE"],
                 "alternate_labels": ["TEMPERATURE"],
                 "source_names": ["sci_water_temp"]
             },
             {
-                "parameter_id": "CHLA",
+                "parameter_id": "INSITU_CHLOROPHYLL",
                 "identifier": "SDN:OG1::CHLA",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/CHLA/",
                 "standard_name": "Chlorophyll-A",
                 "unit_of_measure": "mg/m3",
                 "unit_identifier": " SDN:P06::UMMC",
                 "parameter_definition": "In-situ fluorometer with either manufacturer, laboratory or sample calibration applied.",
-                "alternate_sources": [""],
+                "alternate_sources": ["CHLOROPHYLL"],
                 "alternate_labels": ["CHLA"],
                 "source_names": ["sci_flbbcd_chlor_units"]
             },
             {
-                "parameter_id": "CDOM",
-                "identifier": "SDN:OG1::CDOM",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/CDOM/",
-                "standard_name": "Concentration of coloured dissolved organic matter in sea water",
-                "unit_of_measure": "Parts per billion",
-                "unit_identifier": "SDN:P06::UPPB",
-                "parameter_definition": "The quantity of coloured organic compounds in solution in unit volume of any body of water.",
-                "alternate_sources": [""],
-                "alternate_labels": ["CDOM"],
-                "source_names": ["sci_flbbcd_cdom_units"]
-            },
-            {
-                "parameter_id": "BBP700",
-                "identifier": "SDN:OG1::BBP700",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/BBP700/",
-                "standard_name": "Particle backscattering at 700 nanometers",
-                "unit_of_measure": "per metre",
-                "unit_identifier": "SDN:P06::UPRM",
-                "parameter_definition": "Particle backscattering at 700 nanometers",
-                "alternate_sources": [""],
-                "alternate_labels": ["BBP700"],
-                "source_names": ["sci_flbbcd_bb_units"]
-            },
-            {
-                "parameter_id": "BETA_BACKSCATTERING532",
-                "identifier": "SDN:P01::BVSFO532",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/BVSFO532/",
-                "standard_name": "beta_backscatter_532",
-                "unit_of_measure": "per metre per steradian",
-                "unit_identifier": "SDN:P06::PMSR",
-                "parameter_definition": "The radiant intensity of scattered light from the water body as a function of angle, measured at the specified wavelength by an in-situ optical backscattering instrument. Volume scattering coefficient (Beta) is calculated by subtracting dark counts from the raw counts then multiplying by the manufacturer-supplied calibration scale factor.",
-                "alternate_sources": [""],
-                "alternate_labels": ["VolScattering_Beta_532nm"],
-                "source_names": ["ScatteringBeta532"]
-            },
-            {
-                "parameter_id": "BETA_BACKSCATTERING700",
-                "identifier": "SDN:P01::BVSFO700",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/BVSFO700/",
-                "standard_name": "beta_backscatter_700",
-                "unit_of_measure": "per metre per steradian",
-                "unit_identifier": "SDN:P06::PMSR",
-                "parameter_definition": "The radiant intensity of scattered light from the water body as a function of angle, measured at the specified wavelength by an in-situ optical backscattering instrument. Volume scattering coefficient (Beta) is calculated by subtracting dark counts from the raw counts then multiplying by the manufacturer-supplied calibration scale factor.",
-                "alternate_sources": [""],
-                "alternate_labels": ["VolScattering_Beta_700nm"],
-                "source_names": ["ScatteringBeta700"]
-            },
-            {
-                "parameter_id": "FREQUENCY_DOXY",
-                "identifier": "SDN:OG1::FREQDOXY",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/FREQDOXY/",
-                "standard_name": "dissolved_oxygen",
-                "unit_of_measure": "Hertz",
-                "unit_identifier": "SDN:P06::UTHZ",
-                "parameter_definition": "The raw output from a dissolved oxygen sensor such as an SBE43 with output as a frequency related to DO concentration.",
-                "alternate_sources": [""],
-                "alternate_labels": ["FREQDOXY"],
-                "source_names": ["DissolvedOxygen"]
-            },
-            {
-                "parameter_id": "BPHASE_DOXY",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "OXYSAT_DOXY",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "DPHASE_DOXY",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "TEMP_DOXY",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "TPHASE_DOXY",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "MOLAR_DOXY",
+                "parameter_id": "INSITU_DISSOLVED_OXYGEN",
                 "identifier": "SDN:P01::DOXYAAOP",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/DOXYAAOP/",
                 "standard_name": "molar_dissolved_oxygen_concentration",
                 "unit_of_measure": "micromole/l",
                 "unit_identifier": "SDN:P06::UPOX",
                 "parameter_definition": "Concentration of oxygen {O2 CAS 7782-44-7} per unit volume of the water body [dissolved plus reactive particulate phase] by optode",
-                "alternate_sources": ["CF14N29"],
+                "alternate_sources": [""],
                 "alternate_labels": ["WC_dissO2_optode"],
                 "source_names": ["sci_oxy4_oxygen"]
-            },
-            {
-                "parameter_id": "RAW_DOWNWELLING_PAR",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "DOWNWELLING_PAR",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
             }
         ],
         "model": [
             {
-                "parameter_id": "CFSN0329",
+                "parameter_id": "POTENTIAL_TEMPERATURE",
                 "identifier": "SDN:P07::CFSN0329",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0329/",
                 "standard_name": "sea_water_potential_temperature",
@@ -220,7 +64,7 @@
                 "source_names": ["thetao"]
             },
             {
-                "parameter_id": "CF14N29",
+                "parameter_id": "DISSOLVED_OXYGEN",
                 "identifier": "SDN:P07::CF14N29",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CF14N29/",
                 "standard_name": "mole_concentration_of_dissolved_molecular_oxygen_in_sea_water",
@@ -232,19 +76,19 @@
                 "source_names": ["o2"]
             },
             {
-                "parameter_id": "IADIHDIJ",
+                "parameter_id": "PRACTICAL_SALINITY",
                 "identifier": "SDN:P07::IADIHDIJ",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/IADIHDIJ/",
                 "standard_name": "sea_water_practical_salinity",
                 "unit_of_measure": "Dimensionless",
                 "unit_identifier": "SDN:P06::UUUU",
                 "parameter_definition": "Practical Salinity, S_P, is a determination of the salinity of sea water, based on its electrical conductance. The measured conductance, corrected for temperature and pressure, is compared to the conductance of a standard potassium chloride solution, producing a value on the Practical Salinity Scale of 1978 (PSS-78).",
-                "alternate_sources": [""],
+                "alternate_sources": ["ABSOLUTE_SALINITY"],
                 "alternate_labels": ["practical salinity"],
                 "source_names": ["so"]
             },
             {
-                "parameter_id": "JIBGDIEJ",
+                "parameter_id": "ABSOLUTE_SALINITY",
                 "identifier": "SDN:P07::JIBGDIEJ",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/JIBGDIEJ/",
                 "standard_name": "sea_water_absolute_salinity",
@@ -256,7 +100,7 @@
                 "source_names": ["soce_abs"]
             },
             {
-                "parameter_id": "IFEDAFIE",
+                "parameter_id": "CONSERVATIVE_TEMPERATURE",
                 "identifier": "SDN:P07::IFEDAFIE",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/IFEDAFIE/",
                 "standard_name": "sea_water_conservative_temperature",
@@ -268,7 +112,7 @@
                 "source_names": ["toce_con"]
             },
             {
-                "parameter_id": "CFSN0650",
+                "parameter_id": "EAST_CURRENT_VELOCITY",
                 "identifier": "SDN:P07::CFSN0650",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0650/",
                 "standard_name": "eastward_sea_water_velocity",
@@ -280,7 +124,7 @@
                 "source_names": ["uo"]
             },
             {
-                "parameter_id": "CFSN0494",
+                "parameter_id": "NORTH_CURRENT_VELOCITY",
                 "identifier": "SDN:P07::CFSN0494",
                 "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0494/",
                 "standard_name": "northward_sea_water_velocity",
@@ -291,29 +135,17 @@
                 "alternate_labels": ["Northward ocean current velocity"],
                 "source_names": ["vo"]
             },
-            {
-                "parameter_id": "CFSN0600",
-                "identifier": "SDN:P07::CFSN0600",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0600/",
-                "standard_name": "latitude",
-                "unit_of_measure": "Degrees north",
-                "unit_identifier": "SDN:P06::DEGN",
-                "parameter_definition": "Latitude is positive northward; its units of degree_north (or equivalent) indicate this explicitly. ",
+                        {
+                "parameter_id": "CHLOROPHYLL",
+                "identifier": "SDN:P07::CF14N7",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CF14N7/",
+                "standard_name": "mass_concentration_of_chlorophyll_a_in_sea_water",
+                "unit_of_measure": "Kilograms per cubic metre",
+                "unit_identifier": "SDN:P06::UKMC",
+                "parameter_definition": "Mass concentration means mass per unit volume and is used in the construction mass_concentration_of_X_in_Y, where X is a material constituent of Y. A chemical or biological species denoted by X may be described by a single term such as nitrogen or a phrase such as nox_expressed_as_nitrogen. Chlorophylls are the green pigments found in most plants, algae and cyanobacteria; their presence is essential for photosynthesis to take place. There are several different forms of chlorophyll that occur naturally. All contain a chlorin ring (chemical formula C20H16N4) which gives the green pigment and a side chain whose structure varies. The naturally occurring forms of chlorophyll contain between 35 and 55 carbon atoms. Chlorophyll-a is the most commonly occurring form of natural chlorophyll. The chemical formula of chlorophyll-a is C55H72O5N4Mg.",
                 "alternate_sources": [""],
-                "alternate_labels": ["Latitude"],
-                "source_names": ["nav_lat"]
-            },
-            {
-                "parameter_id": "CFSN0554",
-                "identifier": "SDN:P07::CFSN0554",
-                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0554/",
-                "standard_name": "longitude",
-                "unit_of_measure": "Degrees east",
-                "unit_identifier": "SDN:P06::DEGE",
-                "parameter_definition": "Longitude is positive eastward; its units of degree_east (or equivalent) indicate this explicitly.",
-                "alternate_sources": [""],
-                "alternate_labels": ["Longitude"],
-                "source_names": ["nav_lon"]
+                "alternate_labels": [""],
+                "source_names": ["chl"]
             }
         ],
         "navigation": [
@@ -409,57 +241,16 @@
                 "unit_of_measure": "Centimetres per second",
                 "unit_identifier": "SDN:P06::UVBB",
                 "parameter_definition": "The depth-averaged current in the y-axis using dead reckoning between two surfacings.",
-                "alternate_sources": [""],
-                "alternate_labels": ["WCUR_Y"],
-                "source_names": ["m_final_water_vy","vo"]
-            },
-            {
-                "parameter_id": "OIL_VOL",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "WATER_VELOC_FINAL_U",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "WATER_VELOC_FINAL_V",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
-            },
-            {
-                "parameter_id": "PRES_ENG",
-                "identifier": "",
-                "vocab_url": "",
-                "standard_name": "",
-                "unit_of_measure": "",
-                "unit_identifier": "",
-                "parameter_definition": "",
-                "alternate_sources": [""],
-                "alternate_labels": [""],
-                "source_names": [""]
+                "alternate_sources": [
+                    ""
+                ],
+                "alternate_labels": [
+                    "WCUR_Y"
+                ],
+                "source_names": [
+                    "m_final_water_vy",
+                    "vo"
+                ]
             },
             {
                 "parameter_id": "GLIDER_HEADING",

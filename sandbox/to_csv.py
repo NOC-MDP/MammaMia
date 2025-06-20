@@ -4,7 +4,8 @@
 # """
 # from random import random
 #
-import xarray as xr
+import pandas as pd
+import zarr
 import numpy as np
 import laspy
 import matplotlib.pyplot as plt
@@ -12,14 +13,14 @@ import pyproj
 from netCDF4 import Dataset
 from scipy.interpolate import griddata
 
-from to_netcdf import convert_to_decimal
+
 
 # Open the Zarr dataset
-ds = xr.open_zarr("campaign_1.zarr/mission_1/reality")
+ds = zarr.open("../BIO-Carbon.zarr/Deployment 650/payload")
 
 # Function to fix or remove incompatible fill values
 def fix_fill_values(ds):
-    for var_name, var in ds.variables.items():
+    for var in ds.values():
         # Check if _FillValue exists and is incompatible
         if "_FillValue" in var.attrs:
             fill_value = var.attrs["_FillValue"]
@@ -43,7 +44,7 @@ def fix_fill_values(ds):
 
     return ds
 # Apply the fix to the dataset
-ds_fixed = fix_fill_values(ds)
+#ds_fixed = fix_fill_values(ds)
 
 def convert_to_decimal(x):
     """
@@ -69,12 +70,22 @@ def temperature_to_rgb(temp):
     rgb_colors = (rgba_colors[:, :3] * 255).astype(np.uint16)
     return rgb_colors[:, 0], rgb_colors[:, 1], rgb_colors[:, 2]
 
-lat = ds_fixed["latitudes"].values
-lon = ds_fixed["longitudes"].values
-depth = ds_fixed["depths"].values
-pitch = ds_fixed["pitch"].values
-temp = ds_fixed["temperature"].values
-sal = ds_fixed["salinity"].values
+lat = ds["ALATPT01"][:]
+lon = ds["ALONPT01"][:]
+depth = ds["ADEPPT01"][:]
+pitch = ds["PTCHPT01"][:]
+time = ds["TIME"][:]
+
+# Convert to DataFrame for convenience
+df = pd.DataFrame({'time': time, 'pitch': pitch})
+
+# Apply rolling mean
+window_size = 30  # adjust depending on how much smoothing you want
+df['pitch_smoothed'] = df['pitch'].rolling(window=window_size, center=True).mean()
+
+pitch = df['pitch_smoothed']
+temp = ds["TEMP"][:]
+sal = ds["CNDC"][:]
 max_temp = 0
 max_sal = 0
 min_temp = 999
@@ -95,7 +106,7 @@ temp_r,temp_gr,temp_bl = temperature_to_rgb(temp)
 sal_r,sal_g,sal_b = temperature_to_rgb(sal)
 
 import csv
-file_name = "auv_track.csv"
+file_name = "BIO_CARBON_650.csv"
 with open(file_name, 'w', newline='') as csvfile:
     csvwriter = csv.writer(csvfile)
 
@@ -103,7 +114,7 @@ with open(file_name, 'w', newline='') as csvfile:
     csvwriter.writerow(['Row', 'Latitude', 'Longitude', 'Depth','Pitch','Roll','Yaw','Temperature','Red','Green','Blue','Alpha','Salinity','Red2','Green2','Blue2','Alpha2'])
 
     # Generate rows following the pattern
-    for i in range(ds_fixed["datetimes"].__len__()):
+    for i in range(ds["TIME"].__len__()):
         row_id = f"AUV1-TS{i+1}"
 
         x = lon[i]
@@ -115,7 +126,7 @@ with open(file_name, 'w', newline='') as csvfile:
         if np.isnan(pitch[i]):
             p = 0
         else:
-            p = np.rad2deg(pitch[i])
+            p = pitch[i]#np.rad2deg(pitch[i])
 
         yaw = 0
         roll = 0

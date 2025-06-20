@@ -11,4 +11,6 @@ behavior_name=Goto_list
 <start:waypoints>
 -1525.35 2725.5
 -1525.35 2749.5
+-1525.35 2812.2999999999997
+-1525.35 2830.18
 <end:waypoints>

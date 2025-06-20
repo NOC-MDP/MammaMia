@@ -9,8 +9,6 @@ print(f"Available platforms of type slocum: {inventory.list_platforms(platform_t
 print(f"Available parameters: {inventory.list_parameters()}")
 print(f"Available sensor types: {inventory.list_sensor_types()}")
 print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
-print(f"Parameter Info: {inventory.get_parameter_info(parameter_ref='salinity')}")
-print(f"Platform Info: {inventory.get_platform_info(platform_ref='Cheesy')}")
 print(f"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}")
 print(f"sensor info: {inventory.get_sensor_info(sensor_ref='SBE Glider Payload CTD 9099')}")
 
