@@ -63,6 +63,7 @@
                 "alternate_labels": ["potential_temperature"],
                 "source_names": ["thetao"]
             },
+
             {
                 "parameter_id": "DISSOLVED_OXYGEN",
                 "identifier": "SDN:P07::CF14N29",
@@ -146,6 +147,18 @@
                 "alternate_sources": [""],
                 "alternate_labels": [""],
                 "source_names": ["chl"]
+            },
+            {
+                "parameter_id": "DOWNWELLING_RADIATIVE_FLUX",
+                "identifier": "SDN:P07::CFSN0064",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0064/",
+                "standard_name": "volume_attenuation_coefficient_of_downwelling_radiative_flux_in_sea_water",
+                "unit_of_measure": "per metre",
+                "unit_identifier": "SDN:P06::UPRM",
+                "parameter_definition": "Downwelling radiation is radiation from above. It does not mean \"net downward\". The sign convention is that \"upwelling\" is positive upwards and \"downwelling\" is positive downwards. Radiative flux is the sum of shortwave and longwave radiative fluxes. ",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": ["kd"]
             }
         ],
         "navigation": [

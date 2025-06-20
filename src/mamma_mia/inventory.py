@@ -75,14 +75,14 @@ class InventoryClass:
                 sensors.append(sensor.sensor_name)
         return sensors
 
-    def get_sensor_info(self,sensor_ref:str):
+    def get_sensor_info(self,platform_type:str,sensor_type:str):
         """
 
         Returns:
 
         """
         for sensor in self.sensors.entries.values():
-            if sensor.sensor_name == sensor_ref or sensor.sensor_serial_number == sensor_ref:
+            if platform_type in sensor.platform_compatibility and sensor_type == sensor.instrument_type:
                 return sensor
 
     def list_parameters(self):
@@ -114,8 +114,5 @@ class InventoryClass:
 
     def create_platform_entity(self,entity_name: str, platform: str):
         return self.platforms.create_entity(entity_name=entity_name, platform=platform)
-
-    def create_sensor_entity(self,entity_name: str, sensor_ref: str):
-        return self.sensors.create_entity(entity_name=entity_name, sensor_ref=sensor_ref)
 
 inventory = InventoryClass()

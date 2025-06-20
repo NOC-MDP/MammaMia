@@ -19,13 +19,9 @@ def create_sensor_class(frozen_mode=False):
     @base_decorator
     class Sensor:
         # instance parameters
-        sensor_serial_number: str
         sensor_name: str
         # type parameters
         instrument_type: str
-        sensor_manufacturer: str
-        model_name: str
-        sensor_model: str
         parameters: dict = field(factory=dict)
         platform_compatibility: list = field(factory=list),
         entity_name: str = ""
@@ -96,71 +92,7 @@ class SensorInventory:
                 logger.error(f"Error initializing sensor {sensor_ref}: {e}")
                 raise ValueError(f"{sensor_ref} is not a valid sensor")
 
-    def get_sensor(self, sensor_ref: str):
-        """
-        Returns a deep copy of a sensor (prevents direct modification).
-        sensor_ref: string referencing a sensors name or serial number
-
-        """
-        for sensor in self.entries.values():
-            if sensor_ref == sensor.sensor_name or sensor_ref == sensor.sensor_serial_number:
-                return copy.deepcopy(sensor)
-        raise KeyError(f"Sensor '{sensor_ref}' not found in sensor inventory.")
-
-
-    def create_entity(self,entity_name:str, sensor_ref: str):
-        """
-        creates a mutable sensor entity
-        Args:
-            entity_name:
-            sensor_ref: can be sensor name or serial number
-
-        Returns:
-
-        """
-        for sensor in self.entries.values():
-            if sensor_ref == sensor.sensor_name or sensor_ref == sensor.sensor_serial_number:
-                sensor_unstruct = unstructure(sensor)
-                created_sensor = structure(sensor_unstruct, create_sensor_class(frozen_mode=False))
-                created_sensor.entity_name = entity_name
-                logger.success(
-                    f"successfully created sensor entity {created_sensor.entity_name} of type {created_sensor.instrument_type}")
-                return created_sensor
-
-        raise KeyError(f"Sensor '{sensor_ref}' not found in sensor inventory.")
-
-
-    def add_sensor(self, sensor: create_sensor_class(frozen_mode=True)):
-        """Adds a new sensor. Raises an error if the sensor already exists."""
-        sensor_name = sensor.sensor_name or sensor.sensor_serial_number
-        if not sensor_name:
-            raise ValueError("Sensor entry missing 'sensor_name' or 'sensor_serial_number'")
-        if sensor_name in self.entries:
-            raise ValueError(f"Sensor '{sensor_name}' already exists and cannot be modified.")
-
-        self.entries[sensor_name] = sensor
-
-    def remove_sensor(self, sensor_name: str):
-        """Removes a sensor from the catalog."""
-        if sensor_name not in self.entries:
-            raise KeyError(f"Sensor '{sensor_name}' not found in sensor inventory.")
-        del self.entries[sensor_name]
-
     def list_sensors(self):
-        """Lists all sensor names in the specified category (CTD, radiometers, dataloggers)."""
+        """Lists all sensor names"""
         return list(self.entries.keys())
-
-    def list_compatible_sensors(self, platform_serial_number: str) -> list:
-        """
-        Returns a list of compatible sensors for a given platform type
-        Args:
-            platform_serial_number:
-        Returns:
-
-        """
-        sensors_compatible = []
-        for key, sensor in self.entries.items():
-            if platform_serial_number in sensor.platform_compatibility:
-                sensors_compatible.append(sensor)
-        return sensors_compatible
 

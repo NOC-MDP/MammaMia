@@ -392,7 +392,7 @@ class Mission:
         event[surfaced_mask] = 'surfaced'
         platform.behaviour = np.array(event, dtype="S8")
 
-        if platform.attrs.platform_type == "slocum":
+        if platform.attrs.NEMA_coordinate_conversion:
             logger.info(f"Platform requires NEMA coordinate conversion")
             for i in range(trajectory.longitude.__len__()):
                 trajectory.longitude[i] = cls.__convert_to_decimal(trajectory.longitude[i])
@@ -735,16 +735,16 @@ class Mission:
                 "zaxis_title": "depth",
             }
             # TODO figure out how to dynamically set these rather than hardcoding platforms
-            if self.platform.attrs.platform_model_name == "G2":
+            if self.platform.attrs.platform_type == "slocum_G2":
                 latitude = "LATITUDE"
                 longitude = "LONGITUDE"
                 depth = "GLIDER_DEPTH"
-            elif self.platform.attrs.platform_model_name == "ALR_1500":
+            elif self.platform.attrs.platform_type == "ALR_1500":
                 latitude = "ALATPT01"
                 longitude = "ALONPT01"
                 depth = "ADEPPT01"
             else:
-                raise Exception(f"unsupported platform {self.platform.attrs.platform_model_name} for payload plotting")
+                raise Exception(f"unsupported platform {self.platform.attrs.platform_type} for payload plotting")
 
             x =self.payload[latitude][:]
             y = self.payload[longitude][:]

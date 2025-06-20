@@ -1,5 +1,5 @@
 import json
-from mamma_mia.exceptions import InvalidPlatform, InvalidSensor
+from mamma_mia.exceptions import InvalidPlatform
 from mamma_mia.sensors import create_sensor_class, SensorInventory
 import os
 from pathlib import Path
@@ -29,7 +29,6 @@ def create_platform_attrs(frozen_mode=False):
         nvs_platform_id: str
         platform_type: str
         platform_manufacturer: str
-        platform_model_name: str
         # instance parameters
         platform_name: str
         platform_serial_number: str
@@ -37,45 +36,26 @@ def create_platform_attrs(frozen_mode=False):
         platform_family: str
         wmo_platform_code: int
         data_type: str
+        NEMA_coordinate_conversion: bool
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
 
-        def list_compatible_sensors(self, sensor_type:str=None) -> dict:
-            """
-            Returns a list of sensors compatible with a given platform, results can be restricted to a specific sensor type e.g. CTD
-            Args:
-
-            Returns: list containing simplified sensor dicts (contains name and serial number)
-            """
-            sensors = {}
-            for sensor in sensor_inventory.entries.values():
-                if sensor_type is not None:
-                    if sensor.instrument_type == sensor_type and self.platform_model_name in sensor.platform_compatibility:
-                        if sensor.instrument_type not in sensors:
-                            sensors[sensor.instrument_type] = [{"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number}]
-                        else:
-                            sensors[sensor.instrument_type].append({"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number})
-                else:
-                    if self.platform_serial_number in sensor.platform_compatibility:
-                        if sensor.instrument_type not in sensors:
-                            sensors[sensor.instrument_type] = [{"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number}]
-                        else:
-                            sensors[sensor.instrument_type].append({"id":sensor.sensor_name, "serial_number":sensor.sensor_serial_number})
-
-            return sensors
-
-        def register_sensor(self,sensor: create_sensor_class(frozen_mode=True)) -> None:
+        def register_sensor(self,sensor_type:str) -> None:
             """
             registers a sensor to a platform to use in a mission, checking it is a compatible sensor
             Args:
-                sensor: Sensor class object
+                sensor_type: instrument type
             """
-            if self.platform_model_name not in sensor.platform_compatibility:
-                logger.error(f"sensor {sensor.sensor_name} is not compatible with platform {self.platform_type}")
-                raise InvalidSensor
-            self.sensors[sensor.sensor_name] = sensor
-            logger.success(f"successfully registered sensor {sensor.entity_name} to entity {self.entity_name}")
-
+            for sensor in sensor_inventory.entries.values():
+                if sensor.instrument_type == sensor_type and self.platform_type in sensor.platform_compatibility:
+                    sensor_unstruct = unstructure(sensor)
+                    created_sensor = structure(sensor_unstruct, create_sensor_class(frozen_mode=False))
+                    if self.entity_name is not None:
+                        created_sensor.entity_name = f"{self.entity_name}_{sensor.instrument_type}"
+                    else:
+                        created_sensor.entity_name = f"{self.platform_type}_{self.platform_type}_{sensor.instrument_type}"
+                    self.sensors[sensor_type] = created_sensor
+                    logger.success(f"successfully created sensor {sensor_type} on entity {self.entity_name}")
 
     return PlatformAttrs
 
@@ -120,14 +100,10 @@ class PlatformInventory:
                 if not serial_number:
                     logger.error("Platform entry missing 'platform_serial_number', skipping")
                     continue
-                datalogger = sensor_inventory.get_sensor(sensor_ref=serial_number)
-                if datalogger.instrument_type != "data_loggers":
-                    raise InvalidSensor(f"invalid instrument type {datalogger.instrument_type}")
-                if not datalogger:
-                    logger.error(f"Datalogger entry missing {serial_number}, skipping")
 
                 self.entries[platform_name] = structure(platform,create_platform_attrs(frozen_mode=True))
-                self.entries[platform_name].register_sensor(sensor=datalogger)
+                # register datalogger to platform
+                self.entries[platform_name].register_sensor(sensor_type="data_loggers")
 
             except TypeError as e:
                 logger.error(f"Error initializing platform: {e}")
@@ -142,20 +118,3 @@ class PlatformInventory:
         created_platform.entity_name = entity_name
         logger.success(f"successfully created entity {created_platform.entity_name} as platform {platform} of type {created_platform.platform_type}")
         return created_platform
-
-    def add_platform(self, platform: create_platform_attrs(frozen_mode=False)):
-        """Adds a new platform. Raises an error if the platform already exists."""
-        platform_name = platform.platform_name
-        if not platform_name:
-            raise ValueError("Platform entry missing 'platform_name'")
-        if platform_name in self.entries:
-            raise ValueError(f"Platform '{platform_name}' already exists and cannot be modified.")
-        self.entries[platform_name] = platform
-
-    def remove_platform(self, platform_name: str):
-        """Removes a platform from the catalog."""
-
-        if platform_name not in self.entries:
-            raise KeyError(f"Platform '{platform_name}' not found in platform inventory.")
-        del self.entries[platform_name]
-
