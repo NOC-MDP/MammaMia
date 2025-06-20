@@ -626,9 +626,9 @@ class Mission:
                 self.payload["INSITU_TEMPERATURE"][:] = converted_tsp.Temperature
                 self.payload["PRACTICAL_SALINITY"][:] = converted_tsp.Salinity
 
-        elif "POTENTIAL_TEMPERATURE" in what_we_have and "PRACTICAL_SALINITY" in what_we_have:
+        elif "POTENTIAL_TEMPERATURE" in what_we_have:
             # need to convert from PT and PS
-            if "INSITU_TEMPERATURE" in what_we_need and "PRACTICAL_SALINITY" in what_we_need:
+            if "INSITU_TEMPERATURE" in what_we_need:
                 converted_tsp = ConvertedTSP.ps_pt_2_it_ps(practical_salinity=self.payload["PRACTICAL_SALINITY"][:],
                                                         potential_temperature=self.payload["INSITU_TEMPERATURE"][:],
                                                         depth=flight["depth"],
@@ -866,13 +866,20 @@ class Mission:
                 "zaxis_title": "depth",
             }
             # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
-            # TODO basically the payload needs to be able to handle parameters aliases
-            x = np.interp(self.payload[parameter][:], self.payload["ALONPT01"][:],
-                          self.payload["ALONPT01"][:])
-            y = np.interp(self.payload[parameter][:], self.payload["ALATPT01"][:],
-                          self.payload["ALATPT01"][:])
-            z = np.interp(self.payload[parameter][:], self.payload["ADEPPT01"][:],
-                          self.payload["ADEPPT01"][:])
+            if self.platform.attrs.platform_type == "slocum_G2":
+                latitude = "LATITUDE"
+                longitude = "LONGITUDE"
+                depth = "GLIDER_DEPTH"
+            elif self.platform.attrs.platform_type == "ALR_1500":
+                latitude = "ALATPT01"
+                longitude = "ALONPT01"
+                depth = "ADEPPT01"
+            else:
+                raise Exception(f"unsupported platform {self.platform.attrs.platform_type} for payload plotting")
+
+            x =self.payload[latitude][:]
+            y = self.payload[longitude][:]
+            z = self.payload[depth][:]
             # Create the initial figure
             fig = go.Figure(data=[
                 go.Scatter3d(

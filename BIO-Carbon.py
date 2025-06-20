@@ -24,62 +24,31 @@ Cabot = inventory.create_platform_entity(entity_name="Cabot",platform="Cabot")
 ALR4 = inventory.create_platform_entity(entity_name="ALR4",platform="ALR_4")
 ALR6 = inventory.create_platform_entity(entity_name="ALR6",platform="ALR_6")
 
-
-# create CTD sensors
-ChurchillCTD = inventory.create_sensor_entity(entity_name="ctd_for_churchill",sensor_ref="9100")
-NelsonCTD = inventory.create_sensor_entity(entity_name="ctd_for_nelson",sensor_ref="9099")
-DoombarCTD = inventory.create_sensor_entity(entity_name="ctd_for_doombar",sensor_ref="9140")
-CabotCTD = inventory.create_sensor_entity(entity_name="ctd_for_cabobot",sensor_ref="9110")
-ALR4CTD = inventory.create_sensor_entity(entity_name="ctd_for_ALR4",sensor_ref="0221")
-ALR6CTD = inventory.create_sensor_entity(entity_name="ctd_for_ALR6",sensor_ref="0222")
-
-# create florescence sensors
-ChurchillFluor = inventory.create_sensor_entity(entity_name="fluor_for_churchill",sensor_ref="3289")
-NelsonFluor = inventory.create_sensor_entity(entity_name="fluor_for_nelson",sensor_ref="1611")
-DoombarFluor = inventory.create_sensor_entity(entity_name="fluor_for_doombar",sensor_ref="3352")
-ALR4Fluor = inventory.create_sensor_entity(entity_name="fluor_for_ALR4",sensor_ref="8579")
-ALR6Fluor = inventory.create_sensor_entity(entity_name="fluor_for_ALR6",sensor_ref="8597")
-CabotFluor = inventory.create_sensor_entity(entity_name="fluor_for_cabobot",sensor_ref="3325")
-
-# create dissolved gas sensors
-ChurchillDissolvedGas = inventory.create_sensor_entity(entity_name="dissolved_gas_for_churchill",sensor_ref="286")
-NelsonDissolvedGas = inventory.create_sensor_entity(entity_name="dissolved_gas_for_nelson",sensor_ref="144")
-DoombarDissolvedGas = inventory.create_sensor_entity(entity_name="dissolved_gas_for_doombar",sensor_ref="143")
-ALR4DissolvedGas = inventory.create_sensor_entity(entity_name="dissolved_gas_for_ALR4",sensor_ref="4513")
-ALR6DissolvedGas = inventory.create_sensor_entity(entity_name="dissolved_gas_for_ALR6",sensor_ref="4301")
-CabotDissolvedGas = inventory.create_sensor_entity(entity_name="dissolved_gas_for_cabobot",sensor_ref="119")
-
-# create PAR sensors
-ChurchillPAR = inventory.create_sensor_entity(entity_name="par_for_churchill",sensor_ref="461")
-NelsonPAR = inventory.create_sensor_entity(entity_name="par_for_nelson",sensor_ref="459")
-
-
 # register sensors to platform entities
-Churchill.register_sensor(sensor=ChurchillCTD)
-Churchill.register_sensor(sensor=ChurchillFluor)
-Churchill.register_sensor(sensor=ChurchillPAR)
-Churchill.register_sensor(sensor=ChurchillDissolvedGas)
+Churchill.register_sensor(sensor_type="CTD")
+Churchill.register_sensor(sensor_type="radiometers")
+Churchill.register_sensor(sensor_type="dissolved_gas_sensors")
 
-Nelson.register_sensor(sensor=NelsonCTD)
-Nelson.register_sensor(sensor=NelsonFluor)
-Nelson.register_sensor(sensor=NelsonPAR)
-Nelson.register_sensor(sensor=NelsonDissolvedGas)
+Nelson.register_sensor(sensor_type="CTD")
+Nelson.register_sensor(sensor_type="radiometers")
+Nelson.register_sensor(sensor_type="dissolved_gas_sensors")
 
-Doombar.register_sensor(sensor=DoombarCTD)
-Doombar.register_sensor(sensor=DoombarFluor)
-Doombar.register_sensor(sensor=DoombarDissolvedGas)
+Doombar.register_sensor(sensor_type="CTD")
+Doombar.register_sensor(sensor_type="radiometers")
+Doombar.register_sensor(sensor_type="dissolved_gas_sensors")
 
-ALR4.register_sensor(sensor=ALR4CTD)
-ALR4.register_sensor(sensor=ALR4Fluor)
-ALR4.register_sensor(sensor=ALR4DissolvedGas)
+ALR4.register_sensor(sensor_type="CTD")
+ALR4.register_sensor(sensor_type="radiometers")
+ALR4.register_sensor(sensor_type="optical_backscatter_sensors")
 
-ALR6.register_sensor(sensor=ALR6CTD)
-ALR6.register_sensor(sensor=ALR6Fluor)
-ALR6.register_sensor(sensor=ALR6DissolvedGas)
+ALR6.register_sensor(sensor_type="CTD")
+ALR6.register_sensor(sensor_type="radiometers")
+ALR6.register_sensor(sensor_type="optical_backscatter_sensors")
 
-Cabot.register_sensor(sensor=CabotCTD)
-Cabot.register_sensor(sensor=CabotFluor)
-Cabot.register_sensor(sensor=CabotDissolvedGas)
+
+Cabot.register_sensor(sensor_type="CTD")
+Cabot.register_sensor(sensor_type="radiometers")
+Cabot.register_sensor(sensor_type="dissolved_gas_sensors")
 
 
 # register platforms to the campaign for use in missions
@@ -110,7 +79,7 @@ contributor = Contributor(email="thopri@noc.ac.uk",
                           role="Collaborator",)
 
 # add Churchill mission currently commented out due to Churchill missing depth data.
-# campaign.add_mission(mission_name="Deployment 647",
+# campaign.add_mission(mission_name="Deployment_647",
 #                      title="Churchill BIO-Carbon deployment",
 #                      summary="Churchill's mission that it undertook during BIO-Carbon",
 #                      platform_name="Churchill",
@@ -122,7 +91,7 @@ contributor = Contributor(email="thopri@noc.ac.uk",
 #                      mission_time_step=60)
 
 # # add Nelson mission
-campaign.add_mission(mission_name="Deployment 646",
+campaign.add_mission(mission_name="Deployment_646",
                      title="Nelson BIO-Carbon deployment",
                      summary="Nelsons's mission that it undertook during BIO-Carbon",
                      platform_name="Nelson",
@@ -134,7 +103,7 @@ campaign.add_mission(mission_name="Deployment 646",
                      mission_time_step=60)
 
 # # add Doombar mission
-campaign.add_mission(mission_name="Deployment 648",
+campaign.add_mission(mission_name="Deployment_648",
                      title="Doombar BIO-Carbon deployment",
                      summary="Doombar's mission that it undertook during BIO-Carbon",
                      platform_name="Doombar",
@@ -146,7 +115,7 @@ campaign.add_mission(mission_name="Deployment 648",
                      mission_time_step=60)
 
 # # add ALR4 mission
-campaign.add_mission(mission_name="Deployment 649",
+campaign.add_mission(mission_name="Deployment_649",
                      title="ALR4 BIO-Carbon deployment",
                      summary="ALR4's mission that it undertook during BIO-Carbon",
                      platform_name="ALR4",
@@ -158,7 +127,7 @@ campaign.add_mission(mission_name="Deployment 649",
                      mission_time_step=60)
 
 # # add ALR6 mission
-campaign.add_mission(mission_name="Deployment 650",
+campaign.add_mission(mission_name="Deployment_650",
                      title="ALR6 BIO-Carbon deployment",
                      summary="ALR6's mission that it undertook during BIO-Carbon",
                      platform_name="ALR6",
@@ -170,7 +139,7 @@ campaign.add_mission(mission_name="Deployment 650",
                      mission_time_step=60)
 
 # # add Cabot mission
-campaign.add_mission(mission_name="Deployment 645",
+campaign.add_mission(mission_name="Deployment_645",
                      title="Cabot BIO-Carbon deployment",
                      summary="Cabot's mission that it undertook during BIO-Carbon",
                      platform_name="Cabot",
@@ -192,10 +161,7 @@ campaign.build_missions()
 campaign.run()
 
 # visualise the results
-# colourmap options are here https://plotly.com/python/builtin-colorscales/
-#campaign.missions["RAD24_01"].plot_trajectory()
-campaign.missions["Deployment 650"].plot_trajectory()
-#campaign.missions["RAD24_01"].show_payload()
-campaign.missions["Deployment 650"].show_payload()
+campaign.missions["Deployment_646"].plot_trajectory()
+campaign.missions["Deployment_646"].show_payload(parameter="DISSOLVED_OXYGEN")
 campaign.export()
 print("the end")
