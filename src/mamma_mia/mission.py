@@ -17,7 +17,7 @@ from mamma_mia.find_worlds import FindWorlds
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.exceptions import CriticalParameterMissing,NoValidSource
 from scipy.interpolate import interp1d
-from mamma_mia.gsw_funcs import ConvertedTCP
+from mamma_mia.gsw_funcs import ConvertedTSP, ConvertedP
 from mamma_mia.worlds import WorldsConf, WorldExtent, WorldsAttributes
 
 @frozen
@@ -566,23 +566,27 @@ class Mission:
             except KeyError:
                 track = None
                 # pressure is kind of a special case as its not found in the models and is derived from trajectory depth
-                if key == "PRES":
-                    continue
+                if key == "PRESSURE":
+                    logger.info(f"converting depth data into pressure data")
+                    # create pressure from depths and latitudes
+                    track = ConvertedP.d_2_p(depth=resampled_flight["depth"],latitude=resampled_flight["latitude"]).Pressure
+                    logger.success(f"successfully converted depth data into pressure data")
                 # see if parameter is a datalogger one and get from resampled flight directly
                 # get aliases incase key doesn't match
-                try:
-                    aliases = navigation_alias[key]
-                except KeyError:
-                    logger.warning(f"no navigation aliases found for {key}")
-                    aliases = []
-                aliases_casef = [alias.casefold() for alias in aliases]
-                for key2 in resampled_flight.keys():
-                    if key2 in key.casefold() or key2 in aliases_casef:
-                        track = resampled_flight[key2]
-                if track is None:
-                    logger.warning(f"no interpolator found for parameter {key} marking parameter for removal from payload")
-                    marked_keys.append(key)
-                    continue
+                else:
+                    try:
+                        aliases = navigation_alias[key]
+                    except KeyError:
+                        logger.warning(f"no navigation aliases found for {key}")
+                        aliases = []
+                    aliases_casef = [alias.casefold() for alias in aliases]
+                    for key2 in resampled_flight.keys():
+                        if key2 in key.casefold() or key2 in aliases_casef:
+                            track = resampled_flight[key2]
+                    if track is None:
+                        logger.warning(f"no interpolator found for parameter {key} marking parameter for removal from payload")
+                        marked_keys.append(key)
+                        continue
             self.payload[key][:] = track
 
         for marked_key in marked_keys:
@@ -590,16 +594,14 @@ class Mission:
             del self.payload[marked_key]
 
         #check for any alternative parameters and convert as needed
-        conversion_to_apply = []
+        conversion_to_apply = {}
         for world in self.worlds.attributes.matched_worlds.values():
             for alt_key, alt_parameter in world.alternative_parameter.items():
                 if alt_parameter is not None:
                     logger.info(f"alternative parameter field in world attributes is not None, {alt_key} requires conversion from {alt_parameter}")
                     for k1, v1 in self.platform.attrs.sensors.items():
                         if alt_key in self.platform.attrs.sensors[k1].parameters.keys():
-                            conversion_to_apply.append(alt_key)
-                            conversion_to_apply.append(alt_parameter)
-                            conversion_to_apply.append(" | ")
+                            conversion_to_apply[alt_key] = alt_parameter
 
         if conversion_to_apply:
             self.__convert_parameters(conversion_to_apply,flight=resampled_flight)
@@ -607,58 +609,40 @@ class Mission:
         logger.success(f"{self.attrs.mission} flown successfully")
 
     def __convert_parameters(self, conversion_to_apply,flight):
-        # differnt parameters set that are required for difference conversions
-        pt_ps_required_parameters = {"CFSN0329", "IADIHDIJ" , "CNDC", "TEMP"}
-        ct_as_required_parameters = {"IFEDAFIE", "JIBGDIEJ", "CNDC", "TEMP"}
+        # TODO add other conversions here as needed.
+        what_we_have = []
+        what_we_need = []
+        for k1,v1 in conversion_to_apply.items():
+            what_we_have.append(v1)
+            what_we_need.append(k1)
+        if "CONSERVATIVE_TEMPERATURE" in what_we_have and "ABSOLUTE_SALINITY" in what_we_have:
+            # need to convert from CT and AS
+            if "INSITU_TEMPERATURE" in what_we_need and "PRACTICAL_SALINITY" in what_we_need:
+                converted_tsp = ConvertedTSP.as_ct_2_it_ps(absolute_salinity=self.payload["PRACTICAL_SALINITY"][:],
+                                                        conservative_temperature=self.payload["INSITU_TEMPERATURE"][:],
+                                                        depth=flight["depth"],
+                                                        latitude=flight["latitude"],
+                                                        longitude=flight["longitude"], )
+                self.payload["INSITU_TEMPERATURE"][:] = converted_tsp.Temperature
+                self.payload["PRACTICAL_SALINITY"][:] = converted_tsp.Salinity
 
-        if all(s in conversion_to_apply for s in pt_ps_required_parameters):
-            logger.info("converting potential temperature and practical salinity to insitu temperature and conductivity")
-            for k1, v1 in self.platform.attrs.sensors.items():
-                if "CNDC" in self.platform.attrs.sensors[k1].parameters.keys() and "TEMP" in self.platform.attrs.sensors[k1].parameters.keys():
-                    converted_tsp = ConvertedTCP.from_ps_pt(practical_salinity=self.payload["CNDC"][:],
-                                            potential_temperature=self.payload["TEMP"][:],
-                                            depth=flight["depth"],
-                                            latitude=flight["latitude"],
-                                            longitude=flight["longitude"], )
+        elif "POTENTIAL_TEMPERATURE" in what_we_have and "PRACTICAL_SALINITY" in what_we_have:
+            # need to convert from PT and PS
+            if "INSITU_TEMPERATURE" in what_we_need and "PRACTICAL_SALINITY" in what_we_need:
+                converted_tsp = ConvertedTSP.ps_pt_2_it_ps(practical_salinity=self.payload["PRACTICAL_SALINITY"][:],
+                                                        potential_temperature=self.payload["INSITU_TEMPERATURE"][:],
+                                                        depth=flight["depth"],
+                                                        latitude=flight["latitude"],
+                                                        longitude=flight["longitude"], )
 
-                    self.payload["CNDC"][:] = converted_tsp.CNDC
-                    self.payload["TEMP"][:] = converted_tsp.TEMP
-                    # TODO this is not directly configured, not sure if to make the conversion more explicit
-                    # if there is a pressure parameter in the payload, create a payload as a byproduct of the temp sal conversion
-                    try:
-                        logger.info("pressure data now available: creating a pressure payload")
-                        self.payload["PRES"][:] = converted_tsp.PRES
-                        logger.success("Pressure payload created successfully")
-                    except KeyError:
-                        pass
-                    logger.success(f"conversion completed successfully")
+                self.payload["PRACTICAL_SALINITY"][:] = converted_tsp.Salinity
+                self.payload["INSITU_TEMPERATURE"][:] = converted_tsp.Temperature
 
-        elif all(s in conversion_to_apply for s in ct_as_required_parameters):
-            logger.info(
-                "converting conservative temperature and absolute salinity to insitu temperature and conductivity")
-            for k1, v1 in self.platform.attrs.sensors.items():
-                if "CNDC" in self.platform.attrs.sensors[k1].parameters.keys() and "TEMP" in \
-                        self.platform.attrs.sensors[k1].parameters.keys():
-                    converted_tsp = ConvertedTCP.from_as_ct(absolute_salinity=self.payload["CNDC"][:],
-                                                            conservative_temperature=self.payload["TEMP"][:],
-                                                            depth=flight["depth"],
-                                                            latitude=flight["latitude"],
-                                                            longitude=flight["longitude"], )
-
-                    self.payload["CNDC"][:] = converted_tsp.CNDC
-                    self.payload["TEMP"][:] = converted_tsp.TEMP
-                    # TODO this is not directly configured, not sure if to make the conversion more explicit
-                    # if there is a pressure parameter in the payload, create a payload as a byproduct of the temp sal conversion
-                    try:
-                        logger.info("pressure data now available: creating a pressure payload")
-                        self.payload["PRES"][:] = converted_tsp.PRES
-                        logger.success("Pressure payload created successfully")
-                    except KeyError:
-                        pass
-                    logger.success(f"conversion completed successfully")
         else:
             logger.warning(f"unknown conversion requested {conversion_to_apply}")
-            raise Exception(f"unable to convert alternative parameters {conversion_to_apply}")
+            logger.error(f"unable to convert alternative parameters {conversion_to_apply}")
+            return
+        logger.success(f"conversion of {what_we_have} to {what_we_need} successful")
 
     @staticmethod
     def _resample_flight(flight, new_interval_seconds):

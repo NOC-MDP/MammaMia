@@ -9,7 +9,6 @@ import numpy as np
 import laspy
 import matplotlib.pyplot as plt
 import pyproj
-from netCDF4 import Dataset
 from scipy.interpolate import griddata
 
 # Open the Zarr dataset

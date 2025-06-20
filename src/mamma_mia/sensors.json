@@ -9,8 +9,8 @@
                 "model_name": "Mamma Mia CTD",
                 "sensor_model": "Mamma Mia CTD",
                 "parameters": {
-                    "CFSN0329": "potential temperature",
-                    "IADIHDIJ": "practical salinity"
+                    "POTENTIAL_TEMPERATURE": "potential temperature",
+                    "PRACTICAL_SALINITY": "practical salinity"
                 },
                 "platform_compatibility": ["mm"]
             },
@@ -22,9 +22,9 @@
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "parameters": {
-                    "TEMP": "insitu temperature",
-                    "CNDC": "insitu conductivity",
-                    "PRES": "insitu pressure"
+                    "INSITU_TEMPERATURE": "Insitu temperature",
+                    "PRACTICAL_SALINITY": "Practical salinity",
+                    "PRESSURE": "insitu pressure"
                 },
                 "platform_compatibility": ["G2"]
             },
@@ -36,9 +36,9 @@
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "parameters": {
-                    "TEMP": "insitu temperature",
-                    "CNDC": "insitu conductivity",
-                    "PRES": "insitu pressure"
+                    "INSITU_TEMPERATURE": "Insitu temperature",
+                    "PRACTICAL_SALINITY": "Practical salinity",
+                    "PRESSURE": "insitu pressure"
                 },
                 "platform_compatibility": ["G2"]
             },
@@ -50,9 +50,9 @@
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "parameters": {
-                    "TEMP": "insitu temperature",
-                    "CNDC": "insitu conductivity",
-                    "PRES": "insitu pressure"
+                    "INSITU_TEMPERATURE": "Insitu temperature",
+                    "PRACTICAL_SALINITY": "Practical salinity",
+                    "PRESSURE": "insitu pressure"
                 },
                 "platform_compatibility": ["G2"]
             },
@@ -64,9 +64,9 @@
                 "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
                 "parameters": {
-                    "TEMP": "insitu temperature",
-                    "CNDC": "insitu conductivity",
-                    "PRES": "insitu pressure"
+                    "INSITU_TEMPERATURE": "Insitu temperature",
+                    "PRACTICAL_SALINITY": "Practical salinity",
+                    "PRESSURE": "insitu pressure"
                 },
                 "platform_compatibility": ["G2"]
             },
@@ -78,9 +78,9 @@
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "parameters": {
-                    "TEMP": "insitu temperature",
-                    "CNDC": "insitu conductivity",
-                    "PRES": "insitu pressure"
+                    "INSITU_TEMPERATURE": "Insitu temperature",
+                    "PRACTICAL_SALINITY": "Practical salinity",
+                    "PRESSURE": "insitu pressure"
                 },
                 "platform_compatibility": ["ALR_1500"]
             },
@@ -92,9 +92,9 @@
                 "model_name": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "sensor_model": "Sea-Bird SBE 52-MP moored profiler CTD",
                 "parameters": {
-                    "TEMP": "insitu temperature",
-                    "CNDC": "insitu conductivity",
-                    "PRES": "insitu pressure"
+                    "INSITU_TEMPERATURE": "Insitu temperature",
+                    "PRACTICAL_SALINITY": "Practical salinity",
+                    "PRESSURE": "insitu pressure"
                 },
                 "platform_compatibility": ["ALR_1500"]
             }
@@ -123,9 +123,7 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet BB2FL-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet BB2FL-SLC scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": "concentration of Chlorophyll-A",
-                    "BETA_BACKSCATTERING532": "optical backscattering at 532 nanometers",
-                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                    "CHLOROPHYLL": "concentration of Chlorophyll-A"
                 },
                 "platform_compatibility": ["G2"]
             },
@@ -137,9 +135,7 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": "concentration of Chlorophyll-A",
-                    "CDOM": "coloured dissolved organic matter",
-                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                    "CHLOROPHYLL": "concentration of Chlorophyll-A"
                 },
                 "platform_compatibility": ["G2"]
             },
@@ -151,9 +147,7 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": "concentration of Chlorophyll-A",
-                    "CDOM": "coloured dissolved organic matter",
-                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                    "CHLOROPHYLL": "concentration of Chlorophyll-A"
                 },
                 "platform_compatibility": ["G2"]
             },
@@ -165,39 +159,11 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "sensor_model": "WETLabs ECO Puck Triplet FLBBCD-SLC scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": "concentration of Chlorophyll-A",
-                    "CDOM": "coloured dissolved organic matter",
-                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                    "CHLOROPHYLL": "concentration of Chlorophyll-A"
                 },
-                "platform_compatibility": ["G2"]
-            },
-            {
-                "sensor_serial_number": "459",
-                "sensor_name": "WET Labs PAR sensor 459",
-                "instrument_type": "radiometers",
-                "sensor_manufacturer": "WET Labs",
-                "model_name": "Photosynthetically Active Radiation sensor",
-                "sensor_model": "Photosynthetically Active Radiation sensor",
-                "parameters": {
-                    "RAW_DOWNWELLING_PAR": "raw counds of instrument output",
-                    "DOWNWELLING_PAR": "Downwelling vector irradiance"
-
-                },
-                "platform_compatibility": ["G2"]
-            },
-            {
-                "sensor_serial_number": "461",
-                "sensor_name": "WET Labs PAR sensor 461",
-                "instrument_type": "radiometers",
-                "sensor_manufacturer": "WET Labs",
-                "model_name": "Photosynthetically Active Radiation sensor",
-                "sensor_model": "Photosynthetically Active Radiation sensor",
-                "parameters": {
-                    "RAW_DOWNWELLING_PAR": "raw counds of instrument output",
-                    "DOWNWELLING_PAR": "Downwelling vector irradiance"
-
-                },
-                "platform_compatibility": ["G2"]
+                "platform_compatibility": [
+                    "G2"
+                ]
             }
         ],
         "dissolved_gas": [
@@ -209,10 +175,7 @@
                 "model_name": "Oxygen optode 4831",
                 "sensor_model": "Oxygen optode 4831",
                 "parameters": {
-                    "BPHASE_DOXY": "phase angle of blue light",
-                    "OXYSAT_DOXY": "oxygen saturation",
-                    "DPHASE_DOXY": "phase angle of D",
-                    "MOLAR_DOXY": "oxygen concentration"
+
 
                 },
                 "platform_compatibility": ["G2"]
@@ -225,10 +188,7 @@
                 "model_name": "Oxygen optode 4831",
                 "sensor_model": "Oxygen optode 4831",
                 "parameters": {
-                    "BPHASE_DOXY": "phase angle of blue light",
-                    "OXYSAT_DOXY": "oxygen saturation",
-                    "DPHASE_DOXY": "phase angle of D",
-                    "MOLAR_DOXY": "oxygen concentration"
+                    "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
 
                 },
                 "platform_compatibility": ["G2"]
@@ -241,10 +201,7 @@
                 "model_name": "Oxygen optode 4831",
                 "sensor_model": "Oxygen optode 4831",
                 "parameters": {
-                    "BPHASE_DOXY": "phase angle of blue light",
-                    "OXYSAT_DOXY": "oxygen saturation",
-                    "DPHASE_DOXY": "phase angle of D",
-                    "MOLAR_DOXY": "oxygen concentration"
+                    "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
 
                 },
                 "platform_compatibility": ["G2"]
@@ -257,12 +214,7 @@
                 "model_name": "Oxygen optode 4831",
                 "sensor_model": "Oxygen optode 4831",
                 "parameters": {
-                    "BPHASE_DOXY": "phase angle of blue light",
-                    "OXYSAT_DOXY": "oxygen saturation",
-                    "DPHASE_DOXY": "phase angle of D",
-                    "MOLAR_DOXY": "oxygen concentration",
-                    "TEMP_DOXY": "temperature of oxygen determination",
-                    "TPHASE_DOXY": "temperature compensated phase angle of D"
+                    "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
                 },
                 "platform_compatibility": ["G2"]
             },
@@ -274,7 +226,7 @@
                 "model_name": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
                 "sensor_model": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
                 "parameters": {
-                    "FREQUENCY_DOXY": "raw frequency of instrument output"
+                    "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
                 },
                 "platform_compatibility": ["ALR_1500"]
             },
@@ -286,7 +238,7 @@
                 "model_name": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
                 "sensor_model": "Sea-Bird SBE 43F Dissolved Oxygen Sensor",
                 "parameters": {
-                    "FREQUENCY_DOXY": "raw frequency of instrument output"
+                    "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
                 },
                 "platform_compatibility": ["ALR_1500"]
             }
@@ -300,9 +252,7 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Triplet FLBBCDRT6K scattering fluorescence sensor",
                 "sensor_model": "WET Labs {Sea-Bird WETLabs} ECO Triplet FLBBCDRT6K scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": "concentration of Chlorophyll-A",
-                    "CDOM": "coloured dissolved organic matter",
-                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                    "CHLOROPHYLL": "concentration of Chlorophyll-A"
                 },
                 "platform_compatibility": ["ALR_1500"]
             },
@@ -314,10 +264,7 @@
                 "model_name": "WET Labs {Sea-Bird WETLabs} ECO Triplet FLBBCDRT6K scattering fluorescence sensor",
                 "sensor_model": "WET Labs {Sea-Bird WETLabs} ECO Triplet FLBBCDRT6K scattering fluorescence sensor",
                 "parameters": {
-                    "CHLA": "concentration of Chlorophyll-A",
-                    "CDOM": "coloured dissolved organic matter",
-                    "BETA_BACKSCATTERING532": "optical backscattering at 532 nanometers",
-                    "BETA_BACKSCATTERING700": "optical backscattering at 700 nanometers"
+                    "CHLOROPHYLL": "concentration of Chlorophyll-A"
                 },
                 "platform_compatibility": ["ALR_1500"]
             }
@@ -376,10 +323,6 @@
                     "GLIDER_DEPTH": "depth",
                     "GLIDER_PITCH": "pitch",
                     "GLIDER_ROLL": "roll",
-                    "OIL_VOL": "volume change of oil",
-                    "WATER_VELOC_FINAL_U": "estimated eastward velocity of water current",
-                    "WATER_VELOC_FINAL_V": "estimated northward velocity of water current",
-                    "PRES_ENG": "pressure exerted by water body",
                     "GLIDER_HEADING": "horizontal orientation",
                     "WATERCURRENTS_U": "eastward velocity of water current",
                     "ALTITUDE": "height relative to sea bed",
@@ -402,10 +345,6 @@
                     "GLIDER_DEPTH": "depth",
                     "GLIDER_PITCH": "pitch",
                     "GLIDER_ROLL": "roll",
-                    "OIL_VOL": "volume change of oil",
-                    "WATER_VELOC_FINAL_U": "estimated eastward velocity of water current",
-                    "WATER_VELOC_FINAL_V": "estimated northward velocity of water current",
-                    "PRES_ENG": "pressure exerted by water body",
                     "GLIDER_HEADING": "horizontal orientation",
                     "WATERCURRENTS_U": "eastward velocity of water current",
                     "ALTITUDE": "height relative to sea bed",
@@ -428,10 +367,6 @@
                     "GLIDER_DEPTH": "depth",
                     "GLIDER_PITCH": "pitch",
                     "GLIDER_ROLL": "roll",
-                    "OIL_VOL": "volume change of oil",
-                    "WATER_VELOC_FINAL_U": "estimated eastward velocity of water current",
-                    "WATER_VELOC_FINAL_V": "estimated northward velocity of water current",
-                    "PRES_ENG": "pressure exerted by water body",
                     "GLIDER_HEADING": "horizontal orientation",
                     "WATERCURRENTS_U": "eastward velocity of water current",
                     "ALTITUDE": "height relative to sea bed",
@@ -454,10 +389,6 @@
                     "GLIDER_DEPTH": "depth",
                     "GLIDER_PITCH": "pitch",
                     "GLIDER_ROLL": "roll",
-                    "OIL_VOL": "volume change of oil",
-                    "WATER_VELOC_FINAL_U": "estimated eastward velocity of water current",
-                    "WATER_VELOC_FINAL_V": "estimated northward velocity of water current",
-                    "PRES_ENG": "pressure exerted by water body",
                     "GLIDER_HEADING": "horizontal orientation",
                     "WATERCURRENTS_U": "eastward velocity of water current",
                     "ALTITUDE": "height relative to sea bed",

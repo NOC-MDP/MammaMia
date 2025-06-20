@@ -3,13 +3,13 @@ import numpy as np
 from attrs import define
 
 @define
-class ConvertedTCP:
-    TEMP: np.ndarray
-    CNDC: np.ndarray
-    PRES: np.ndarray
+class ConvertedTSP:
+    Temperature: np.ndarray
+    Salinity: np.ndarray
+    Pressure: np.ndarray
 
     @classmethod
-    def from_ps_pt(cls,practical_salinity:np.ndarray,
+    def ps_pt_2_it_ps(cls,practical_salinity:np.ndarray,
                 potential_temperature:np.ndarray,
                 depth:np.ndarray,
                 latitude:np.ndarray,
@@ -18,7 +18,7 @@ class ConvertedTCP:
         """
         converts:
          - potential temperature to insitu temperature
-         - practical salinity to conductivity
+         - practical salinity to practial salinity
          - depth to pressure
         Args:
             practical_salinity:
@@ -39,14 +39,12 @@ class ConvertedTCP:
 
         insitu_temperature = gsw.t_from_CT(SA=abs_salinity,CT=conservative_temperature,p=pressure)
 
-        conductivity = gsw.C_from_SP(SP=practical_salinity,t=insitu_temperature,p=pressure)
-
-        return cls(TEMP=insitu_temperature,
-                   CNDC=conductivity,
-                   PRES=pressure)
+        return cls(Temperature=insitu_temperature,
+                   Salinity=practical_salinity,
+                   Pressure=pressure)
 
     @classmethod
-    def from_as_ct(cls,
+    def as_ct_2_it_ps(cls,
                    absolute_salinity: np.ndarray,
                    conservative_temperature: np.ndarray,
                    depth: np.ndarray,
@@ -55,7 +53,7 @@ class ConvertedTCP:
         """
         converts:
          - conservative temperature to insitu temperature
-         - absolute salinity to conductivity
+         - absolute salinity to practical salinity
          - depth to pressure
         Args:
             conservative_temperature:
@@ -74,8 +72,23 @@ class ConvertedTCP:
 
         practical_salinity = gsw.SP_from_SA(SA=absolute_salinity,p=pressure,lat=latitude,lon=longitude)
 
-        conductivity = gsw.C_from_SP(SP=practical_salinity, t=insitu_temperature, p=pressure)
+        return cls(Temperature=insitu_temperature,
+                   Salinity=practical_salinity,
+                   Pressure=pressure)
+@define
+class ConvertedP:
+    Pressure: np.ndarray
 
-        return cls(TEMP=insitu_temperature,
-                   CNDC=conductivity,
-                   PRES=pressure)
+    @classmethod
+    def d_2_p(cls, depth: np.ndarray,latitude: np.ndarray):
+        """
+        converts: depths to pressures
+        Args:
+            depth:
+            latitude:
+
+        Returns:
+
+        """
+        return cls(Pressure=gsw.p_from_z(z=-depth, lat=latitude))
+
