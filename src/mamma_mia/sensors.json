@@ -18,7 +18,7 @@
                     "PRACTICAL_SALINITY": "Practical salinity",
                     "PRESSURE": "insitu pressure"
                 },
-                "platform_compatibility": ["slocum_G2"]
+                "platform_compatibility": ["slocum_G2","Slocum_G2_Non_NMEA"]
             },
             {
                 "sensor_name": "Autosub Long Range 1500 CTD",
@@ -50,7 +50,7 @@
                     "CHLOROPHYLL": "concentration of Chlorophyll-A",
                     "DOWNWELLING_RADIATIVE_FLUX": "downwelling radiative flux"
                 },
-                "platform_compatibility": ["slocum_G2"]
+                "platform_compatibility": ["Slocum_G2","Slocum_G2_Non_NMEA"]
             }
         ],
         "dissolved_gas": [
@@ -60,7 +60,7 @@
                 "parameters": {
                     "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
                 },
-                "platform_compatibility": ["slocum_G2"]
+                "platform_compatibility": ["Slocum_G2","Slocum_G2_Non_NMEA"]
             },
 
             {
@@ -116,7 +116,7 @@
                     "TIME": "time"
 
                 },
-                "platform_compatibility": ["slocum_G2"]
+                "platform_compatibility": ["Slocum_G2","Slocum_G2_Non_NMEA"]
             }
         ]
     }

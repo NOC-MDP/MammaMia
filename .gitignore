@@ -20,3 +20,4 @@ build
 interpolator_cache
 !img/*.png
 .ipynb_checkpoints
+*.geojson

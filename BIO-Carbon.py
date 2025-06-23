@@ -17,12 +17,12 @@ campaign = Campaign(name="BIO-Carbon",
 
 
 # create platform entities
-Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Churchill")
-Nelson = inventory.create_platform_entity(entity_name="Nelson",platform="Nelson")
-Doombar = inventory.create_platform_entity(entity_name="Doombar",platform="Doombar")
-Cabot = inventory.create_platform_entity(entity_name="Cabot",platform="Cabot")
-ALR4 = inventory.create_platform_entity(entity_name="ALR4",platform="ALR_4")
-ALR6 = inventory.create_platform_entity(entity_name="ALR6",platform="ALR_6")
+Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Slocum_G2_Non_NMEA",serial_number="unit_398")
+Nelson = inventory.create_platform_entity(entity_name="Nelson",platform="Slocum_G2_Non_NMEA",serial_number="unit_397")
+Doombar = inventory.create_platform_entity(entity_name="Doombar",platform="Slocum_G2_Non_NMEA",serial_number="unit_405")
+Cabot = inventory.create_platform_entity(entity_name="Cabot",platform="Slocum_G2_Non_NMEA",serial_number="unit_345")
+ALR4 = inventory.create_platform_entity(entity_name="ALR4",platform="ALR_1500",serial_number="ALR_4")
+ALR6 = inventory.create_platform_entity(entity_name="ALR6",platform="ALR_1500",serial_number="ALR_6")
 
 # register sensors to platform entities
 Churchill.register_sensor(sensor_type="CTD")

@@ -25,17 +25,6 @@ class InventoryClass:
                 platform_types.append(platform.platform_type)
         return platform_types
 
-    def list_platforms(self, platform_type: str = None) -> list:
-        """Lists all platform names in the specified category"""
-        platforms = []
-        for platform in self.platforms.entries.values():
-            if platform_type is not None:
-                if platform.platform_type == platform_type:
-                    platforms.append(platform.platform_name)
-            else:
-                platforms.append(platform.platform_name)
-        return platforms
-
     def get_platform_info(self, platform_ref:str):
         """
 
@@ -112,7 +101,7 @@ class InventoryClass:
             if parameter_ref == parameter.parameter_id or parameter_ref in parameter.alternate_labels:
                 return parameter
 
-    def create_platform_entity(self,entity_name: str, platform: str):
-        return self.platforms.create_entity(entity_name=entity_name, platform=platform)
+    def create_platform_entity(self,entity_name: str, platform:str,serial_number:str) -> PlatformInventory:
+        return self.platforms.create_entity(entity_name=entity_name, platform=platform,serial_number=serial_number)
 
 inventory = InventoryClass()

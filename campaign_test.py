@@ -5,12 +5,11 @@ from mamma_mia import inventory
 
 print(f"Available groups in inventory {inventory.list_inventory_groups()}")
 print(f"Available platform types: {inventory.list_platform_types()}")
-print(f"Available platforms of type slocum_G2: {inventory.list_platforms(platform_type='slocum_G2')}")
 print(f"Available parameters: {inventory.list_parameters()}")
 print(f"Available sensor types: {inventory.list_sensor_types()}")
 print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
 print(f"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}")
-print(f"sensor info: {inventory.get_sensor_info(platform_type='slocum_G2', sensor_type='CTD')}")
+print(f"sensor info: {inventory.get_sensor_info(platform_type='Slocum_G2', sensor_type='CTD')}")
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
@@ -24,7 +23,7 @@ campaign.catalog.set_priority(source="MSM",priority=3)
 print(f"sources available: {campaign.catalog.get_sources_list()}")
 
 # create platform entity (mutable)
-Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Churchill")
+Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Slocum_G2",serial_number="unit_398")
 
 # register sensor to platform
 Churchill.register_sensor(sensor_type="CTD")
