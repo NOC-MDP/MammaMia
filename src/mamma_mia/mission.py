@@ -113,7 +113,7 @@ class NavigationKeys:
                    )
 
     @staticmethod
-    def find_parameter_keys(parameter: str, platform_attrs, instrument_type: str = "data_loggers") -> list[str]:
+    def find_parameter_keys(parameter: str, platform_attrs, instrument_type: str = "data_logger") -> list[str]:
         # TODO need to handle the case if sensor_key is None after iterating over sensor keys
         sensor_key = None
         for key in platform_attrs.sensors.keys():
@@ -362,7 +362,7 @@ class Mission:
         # find datalogger
         data_logger_key = None
         for sensor_key, sensor in platform.attrs.sensors.items():
-            if sensor.instrument_type == "data_loggers":
+            if sensor.instrument_type == "data_logger":
                 data_logger_key = sensor_key
         if data_logger_key is None:
             raise Exception("No data logger found for this platform")
@@ -474,7 +474,7 @@ class Mission:
         return decimal_format * sign
 
     @staticmethod
-    def get_parameter_units(platform_attrs,parameter: str, instrument_type: str = "data_loggers") -> str:
+    def get_parameter_units(platform_attrs,parameter: str, instrument_type: str = "data_logger") -> str:
         sensor_key = None
         parameter_units = None
         for key in platform_attrs.sensors.keys():
@@ -552,7 +552,7 @@ class Mission:
         navigation_alias = {}
         # get navigation keys and any aliases that relate to them
         for k1, v1 in self.platform.attrs.sensors.items():
-            if self.platform.attrs.sensors[k1].instrument_type == "data_loggers":
+            if self.platform.attrs.sensors[k1].instrument_type == "data_logger":
                 navigation_keys = list(self.platform.attrs.sensors[k1].parameters.keys())
                 for k2, parameter in self.platform.attrs.sensors[k1].parameters.items():
                     for nav_key in navigation_keys:
@@ -723,7 +723,7 @@ class Mission:
             }
 
             title = {
-                "text": f"Glider Payload: {initial_parameter}",
+                "text": f"Payload: {initial_parameter}",
                 "font": {"size": 30},
                 "automargin": True,
                 "yref": "paper"
@@ -854,7 +854,7 @@ class Mission:
             }
 
             title = {
-                "text": f"ALR Payload: {parameter}",
+                "text": f"Payload: {parameter}",
                 "font": {"size": 30},
                 "automargin": True,
                 "yref": "paper"
