@@ -26,16 +26,11 @@ def create_platform_attrs(frozen_mode=False):
     @base_decorator
     class PlatformAttrs:
         # platform parameters
-        nvs_platform_id: str
         platform_type: str
         platform_manufacturer: str
         # instance parameters
         platform_name: str
         platform_serial_number: str
-        platform_owner: str
-        platform_family: str
-        wmo_platform_code: int
-        data_type: str
         NEMA_coordinate_conversion: bool
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
@@ -103,7 +98,7 @@ class PlatformInventory:
 
                 self.entries[platform_name] = structure(platform,create_platform_attrs(frozen_mode=True))
                 # register datalogger to platform
-                self.entries[platform_name].register_sensor(sensor_type="data_loggers")
+                self.entries[platform_name].register_sensor(sensor_type="data_logger")
 
             except TypeError as e:
                 logger.error(f"Error initializing platform: {e}")

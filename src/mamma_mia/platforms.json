@@ -2,77 +2,47 @@
     "platforms": {
         "glider": [
             {
-                "nvs_platform_id": "B7600001",
                 "platform_type": "slocum_G2",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "platform_name": "Churchill",
-                "platform_family": "open_ocean_glider",
                 "platform_serial_number": "unit_398",
-                "platform_owner": "NOCS",
-                "wmo_platform_code": 6801573,
-                "data_type": "EGO glider time-series data",
                 "NEMA_coordinate_conversion": true
             },
             {
-                "nvs_platform_id": "B7600001",
                 "platform_type": "slocum_G2",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "platform_name": "Nelson",
-                "platform_family": "coastal_glider",
                 "platform_serial_number": "unit_397",
-                "platform_owner": "NOCS",
-                "wmo_platform_code": 6800945,
-                "data_type": "EGO glider time-series data",
                 "NEMA_coordinate_conversion": true
             },
             {
-                "nvs_platform_id": "B7600001",
                 "platform_type": "slocum_G2",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "platform_name": "Doombar",
-                "platform_family": "open_ocean_glider",
                 "platform_serial_number": "unit_405",
-                "platform_owner": "NOCS",
-                "wmo_platform_code": 6801547,
-                "data_type": "EGO glider time-series data",
                 "NEMA_coordinate_conversion": true
             },
             {
-                "nvs_platform_id": "B7600001",
                 "platform_type": "slocum_G2",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "platform_name": "Cabot",
-                "platform_family": "coastal_glider",
                 "platform_serial_number": "unit_345",
-                "platform_owner": "NOCS",
-                "wmo_platform_code": 6800986,
-                "data_type": "EGO glider time-series data",
                 "NEMA_coordinate_conversion": true
             }
         ],
         "alr": [
             {
-                "nvs_platform_id": "B7600021",
                 "platform_type": "ALR_1500",
                 "platform_manufacturer": "National Oceanography Centre",
                 "platform_name": "ALR_6",
-                "platform_family": "open ocean glider",
                 "platform_serial_number": "ALR_6",
-                "platform_owner": "NOCS",
-                "wmo_platform_code": -999999,
-                "data_type": "EGO glider time-series data",
                 "NEMA_coordinate_conversion": false
             },
-                        {
-                "nvs_platform_id": "B7600021",
+            {
                 "platform_type": "ALR_1500",
                 "platform_manufacturer": "National Oceanography Centre",
                 "platform_name": "ALR_4",
-                "platform_family": "open ocean glider",
                 "platform_serial_number": "ALR_4",
-                "platform_owner": "NOCS",
-                "wmo_platform_code": -999999,
-                "data_type": "EGO glider time-series data",
                 "NEMA_coordinate_conversion": false
             }
         ]

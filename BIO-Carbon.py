@@ -26,29 +26,29 @@ ALR6 = inventory.create_platform_entity(entity_name="ALR6",platform="ALR_6")
 
 # register sensors to platform entities
 Churchill.register_sensor(sensor_type="CTD")
-Churchill.register_sensor(sensor_type="radiometers")
-Churchill.register_sensor(sensor_type="dissolved_gas_sensors")
+Churchill.register_sensor(sensor_type="radiometer")
+Churchill.register_sensor(sensor_type="dissolved_gas")
 
 Nelson.register_sensor(sensor_type="CTD")
-Nelson.register_sensor(sensor_type="radiometers")
-Nelson.register_sensor(sensor_type="dissolved_gas_sensors")
+Nelson.register_sensor(sensor_type="radiometer")
+Nelson.register_sensor(sensor_type="dissolved_gas")
 
 Doombar.register_sensor(sensor_type="CTD")
 Doombar.register_sensor(sensor_type="radiometers")
-Doombar.register_sensor(sensor_type="dissolved_gas_sensors")
+Doombar.register_sensor(sensor_type="dissolved_gas")
 
 ALR4.register_sensor(sensor_type="CTD")
-ALR4.register_sensor(sensor_type="radiometers")
-ALR4.register_sensor(sensor_type="optical_backscatter_sensors")
+ALR4.register_sensor(sensor_type="radiometer")
+ALR4.register_sensor(sensor_type="optical_backscatter")
 
 ALR6.register_sensor(sensor_type="CTD")
-ALR6.register_sensor(sensor_type="radiometers")
-ALR6.register_sensor(sensor_type="optical_backscatter_sensors")
+ALR6.register_sensor(sensor_type="radiometer")
+ALR6.register_sensor(sensor_type="optical_backscatter")
 
 
 Cabot.register_sensor(sensor_type="CTD")
-Cabot.register_sensor(sensor_type="radiometers")
-Cabot.register_sensor(sensor_type="dissolved_gas_sensors")
+Cabot.register_sensor(sensor_type="radiometer")
+Cabot.register_sensor(sensor_type="dissolved_gas")
 
 
 # register platforms to the campaign for use in missions
@@ -162,6 +162,6 @@ campaign.run()
 
 # visualise the results
 campaign.missions["Deployment_646"].plot_trajectory()
-campaign.missions["Deployment_646"].show_payload(parameter="DISSOLVED_OXYGEN")
+campaign.missions["Deployment_646"].show_payload(parameter="DOWNWELLING_RADIATIVE_FLUX")
 campaign.export()
 print("the end")

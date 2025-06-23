@@ -34,7 +34,7 @@
         "ADCP": [
             {
                 "sensor_name": "Generic ADCP",
-                "instrument_type": "water_current_sensor",
+                "instrument_type": "ADCP",
                 "parameters": {
                     "WATERCURRENTS_U": "x component of velocity",
                     "WATERCURRENTS_V": "y component of velocity"
@@ -42,10 +42,10 @@
                 "platform_compatibility": ["mm"]
             }
         ],
-        "radiometers": [
+        "radiometer": [
             {
                 "sensor_name": "Slocum G2 Radiometer",
-                "instrument_type": "radiometers",
+                "instrument_type": "radiometer",
                 "parameters": {
                     "CHLOROPHYLL": "concentration of Chlorophyll-A",
                     "DOWNWELLING_RADIATIVE_FLUX": "downwelling radiative flux"
@@ -56,7 +56,7 @@
         "dissolved_gas": [
             {
                 "sensor_name": "Slocum G2 Dissolved Oxygen",
-                "instrument_type": "dissolved_gas_sensors",
+                "instrument_type": "dissolved_gas",
                 "parameters": {
                     "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
                 },
@@ -65,27 +65,27 @@
 
             {
                 "sensor_name": "Autosub Long Range 1500 dissolved oxygen",
-                "instrument_type": "dissolved_gas_sensors",
+                "instrument_type": "dissolved_gas",
                 "parameters": {
                     "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
                 },
                 "platform_compatibility": ["ALR_1500"]
             }
         ],
-        "optical_backscatter_sensors": [
+        "optical_backscatter": [
             {
                 "sensor_name": "Autosub Long Range 1500 cholropyll sensor",
-                "instrument_type": "optical_backscatter_sensors",
+                "instrument_type": "optical_backscatter",
                 "parameters": {
                     "CHLOROPHYLL": "concentration of Chlorophyll-A"
                 },
                 "platform_compatibility": ["ALR_1500"]
             }
         ],
-        "dataloggers": [
+        "data_logger": [
             {
                 "sensor_name": "Autosub 1500 datalogger",
-                "instrument_type": "data_loggers",
+                "instrument_type": "data_logger",
                 "parameters": {
                     "ALATPT01": "latitude",
                     "ALONPT01": "longitude",
@@ -102,7 +102,7 @@
             },
             {
                 "sensor_name": "Slocum G2 Data logger",
-                "instrument_type": "data_loggers",
+                "instrument_type": "data_logger",
                 "parameters": {
                     "GLIDER_DEPTH": "depth",
                     "GLIDER_PITCH": "pitch",
