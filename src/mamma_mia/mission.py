@@ -735,7 +735,7 @@ class Mission:
                 "zaxis_title": "depth",
             }
             # TODO figure out how to dynamically set these rather than hardcoding platforms
-            if self.platform.attrs.platform_type == "Slocum_G2" or self.platform.attrs.platform_type == "Slocum_G2_Non_NMEA":
+            if self.platform.attrs.platform_type == "Slocum_G2" or self.platform.attrs.platform_type == "Slocum_G2_NonNMEA":
                 latitude = "LATITUDE"
                 longitude = "LONGITUDE"
                 depth = "GLIDER_DEPTH"
@@ -746,8 +746,8 @@ class Mission:
             else:
                 raise Exception(f"unsupported platform {self.platform.attrs.platform_type} for payload plotting")
 
-            x =self.payload[latitude][:]
-            y = self.payload[longitude][:]
+            y =self.payload[latitude][:]
+            x = self.payload[longitude][:]
             z = self.payload[depth][:]
             # Create the initial figure
             fig = go.Figure(data=[
@@ -866,7 +866,7 @@ class Mission:
                 "zaxis_title": "depth",
             }
             # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
-            if self.platform.attrs.platform_type == "Slocum_G2" or self.platform.attrs.platform_type == "Slocum_G2_Non_NMEA":
+            if self.platform.attrs.platform_type == "Slocum_G2" or self.platform.attrs.platform_type == "Slocum_G2_NonNMEA":
                 latitude = "LATITUDE"
                 longitude = "LONGITUDE"
                 depth = "GLIDER_DEPTH"
@@ -877,8 +877,8 @@ class Mission:
             else:
                 raise Exception(f"unsupported platform {self.platform.attrs.platform_type} for payload plotting")
 
-            x =self.payload[latitude][:]
-            y = self.payload[longitude][:]
+            y =self.payload[latitude][:]
+            x = self.payload[longitude][:]
             z = self.payload[depth][:]
             # Create the initial figure
             fig = go.Figure(data=[

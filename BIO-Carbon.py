@@ -16,13 +16,29 @@ campaign = Campaign(name="BIO-Carbon",
                     )
 
 
-# create platform entities
-Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Slocum_G2_Non_NMEA",serial_number="unit_398")
-Nelson = inventory.create_platform_entity(entity_name="Nelson",platform="Slocum_G2_Non_NMEA",serial_number="unit_397")
-Doombar = inventory.create_platform_entity(entity_name="Doombar",platform="Slocum_G2_Non_NMEA",serial_number="unit_405")
-Cabot = inventory.create_platform_entity(entity_name="Cabot",platform="Slocum_G2_Non_NMEA",serial_number="unit_345")
-ALR4 = inventory.create_platform_entity(entity_name="ALR4",platform="ALR_1500",serial_number="ALR_4")
-ALR6 = inventory.create_platform_entity(entity_name="ALR6",platform="ALR_1500",serial_number="ALR_6")
+# create platform entities as the trajectory is from processed output for the gliders NMEA_conversion should be false
+Churchill = inventory.create_platform_entity(entity_name="Churchill",
+                                             platform="Slocum_G2",
+                                             serial_number="unit_398",
+                                             NMEA_conversion=False)
+Nelson = inventory.create_platform_entity(entity_name="Nelson",
+                                          platform="Slocum_G2",
+                                          serial_number="unit_397",
+                                          NMEA_conversion=False)
+Doombar = inventory.create_platform_entity(entity_name="Doombar",
+                                           platform="Slocum_G2",
+                                           serial_number="unit_405",
+                                           NMEA_conversion=False)
+Cabot = inventory.create_platform_entity(entity_name="Cabot",
+                                         platform="Slocum_G2",
+                                         serial_number="unit_345",
+                                         NMEA_conversion=False)
+ALR4 = inventory.create_platform_entity(entity_name="ALR4",
+                                        platform="ALR_1500",
+                                        serial_number="ALR_4")
+ALR6 = inventory.create_platform_entity(entity_name="ALR6",
+                                        platform="ALR_1500",
+                                        serial_number="ALR_6")
 
 # register sensors to platform entities
 Churchill.register_sensor(sensor_type="CTD")

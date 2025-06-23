@@ -44,9 +44,9 @@ def create_platform_attrs(frozen_mode=False):
                     sensor_unstruct = unstructure(sensor)
                     created_sensor = structure(sensor_unstruct, create_sensor_class(frozen_mode=False))
                     if self.entity_name is not None:
-                        created_sensor.entity_name = f"{self.entity_name}_{sensor.instrument_type}"
+                        created_sensor.sensor_name = f"{self.entity_name}_{sensor.instrument_type}"
                     else:
-                        created_sensor.entity_name = f"{self.platform_type}_{self.platform_type}_{sensor.instrument_type}"
+                        created_sensor.sensor_name = f"{self.platform_type}_{self.platform_type}_{sensor.instrument_type}"
                     self.sensors[sensor_type] = created_sensor
                     logger.success(f"successfully created sensor {sensor_type} on entity {self.entity_name}")
 
@@ -95,7 +95,7 @@ class PlatformInventory:
                 logger.error(f"Error initializing platform: {e}")
                 raise InvalidPlatform
 
-    def create_entity(self,entity_name:str, platform: str,serial_number:str):
+    def create_entity(self,entity_name:str, platform: str,serial_number:str,NMEA_conversion:bool=None):
         """Returns a deep copy of a platform (prevents direct modification)."""
         if platform not in self.entries:
             raise KeyError(f"Platform '{platform}' not found in platform inventory.")
@@ -103,6 +103,8 @@ class PlatformInventory:
         created_platform = structure(platform_unstruct,create_platform_attrs(frozen_mode=False))
         created_platform.entity_name = entity_name
         created_platform.serial_number = serial_number
+        if NMEA_conversion is not None:
+            created_platform.NEMA_coordinate_conversion = NMEA_conversion
         # register datalogger to platform
         created_platform.register_sensor(sensor_type="data_logger")
         logger.success(f"successfully created entity {created_platform.entity_name} of type {created_platform.platform_type}")
