@@ -2,47 +2,20 @@
     "platforms": {
         "glider": [
             {
-                "platform_type": "slocum_G2",
+                "platform_type": "Slocum_G2",
                 "platform_manufacturer": "Teledyne Webb Research",
-                "platform_name": "Churchill",
-                "platform_serial_number": "unit_398",
                 "NEMA_coordinate_conversion": true
             },
             {
-                "platform_type": "slocum_G2",
+                "platform_type": "Slocum_G2_Non_NMEA",
                 "platform_manufacturer": "Teledyne Webb Research",
-                "platform_name": "Nelson",
-                "platform_serial_number": "unit_397",
-                "NEMA_coordinate_conversion": true
-            },
-            {
-                "platform_type": "slocum_G2",
-                "platform_manufacturer": "Teledyne Webb Research",
-                "platform_name": "Doombar",
-                "platform_serial_number": "unit_405",
-                "NEMA_coordinate_conversion": true
-            },
-            {
-                "platform_type": "slocum_G2",
-                "platform_manufacturer": "Teledyne Webb Research",
-                "platform_name": "Cabot",
-                "platform_serial_number": "unit_345",
-                "NEMA_coordinate_conversion": true
+                "NEMA_coordinate_conversion": false
             }
         ],
         "alr": [
             {
                 "platform_type": "ALR_1500",
                 "platform_manufacturer": "National Oceanography Centre",
-                "platform_name": "ALR_6",
-                "platform_serial_number": "ALR_6",
-                "NEMA_coordinate_conversion": false
-            },
-            {
-                "platform_type": "ALR_1500",
-                "platform_manufacturer": "National Oceanography Centre",
-                "platform_name": "ALR_4",
-                "platform_serial_number": "ALR_4",
                 "NEMA_coordinate_conversion": false
             }
         ]

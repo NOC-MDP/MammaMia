@@ -28,12 +28,10 @@ def create_platform_attrs(frozen_mode=False):
         # platform parameters
         platform_type: str
         platform_manufacturer: str
-        # instance parameters
-        platform_name: str
-        platform_serial_number: str
         NEMA_coordinate_conversion: bool
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
+        serial_number: str = None
 
         def register_sensor(self,sensor_type:str) -> None:
             """
@@ -87,29 +85,25 @@ class PlatformInventory:
         for platform in platforms2:
             # TODO this is more complicated than just a Invalid platform exception need to handle it better
             try:
-                platform_name = platform.get("platform_name")
-                if not platform_name:
-                    logger.error("Platform entry missing 'platform_name', skipping")
-                    continue
-                serial_number = platform.get("platform_serial_number")
-                if not serial_number:
-                    logger.error("Platform entry missing 'platform_serial_number', skipping")
+                platform_type = platform.get("platform_type")
+                if not platform_type:
+                    logger.error("Platform entry missing 'platform_type', skipping")
                     continue
 
-                self.entries[platform_name] = structure(platform,create_platform_attrs(frozen_mode=True))
-                # register datalogger to platform
-                self.entries[platform_name].register_sensor(sensor_type="data_logger")
-
+                self.entries[platform_type] = structure(platform,create_platform_attrs(frozen_mode=True))
             except TypeError as e:
                 logger.error(f"Error initializing platform: {e}")
                 raise InvalidPlatform
 
-    def create_entity(self,entity_name:str, platform: str):
+    def create_entity(self,entity_name:str, platform: str,serial_number:str):
         """Returns a deep copy of a platform (prevents direct modification)."""
         if platform not in self.entries:
             raise KeyError(f"Platform '{platform}' not found in platform inventory.")
         platform_unstruct = unstructure(self.entries[platform])
         created_platform = structure(platform_unstruct,create_platform_attrs(frozen_mode=False))
         created_platform.entity_name = entity_name
-        logger.success(f"successfully created entity {created_platform.entity_name} as platform {platform} of type {created_platform.platform_type}")
+        created_platform.serial_number = serial_number
+        # register datalogger to platform
+        created_platform.register_sensor(sensor_type="data_logger")
+        logger.success(f"successfully created entity {created_platform.entity_name} of type {created_platform.platform_type}")
         return created_platform
