@@ -5,11 +5,6 @@
                 "platform_type": "Slocum_G2",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "NEMA_coordinate_conversion": true
-            },
-            {
-                "platform_type": "Slocum_G2_Non_NMEA",
-                "platform_manufacturer": "Teledyne Webb Research",
-                "NEMA_coordinate_conversion": false
             }
         ],
         "alr": [

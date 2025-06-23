@@ -4,7 +4,6 @@ from cattrs import structure,unstructure
 from loguru import logger
 from pathlib import Path
 import os
-import copy
 import sys
 from mamma_mia.parameters import Parameter, ParameterInventory
 from mamma_mia.exceptions import InvalidParameter
@@ -19,12 +18,12 @@ def create_sensor_class(frozen_mode=False):
     @base_decorator
     class Sensor:
         # instance parameters
-        sensor_name: str
+        sensor_model: str
         # type parameters
         instrument_type: str
         parameters: dict = field(factory=dict)
         platform_compatibility: list = field(factory=list),
-        entity_name: str = ""
+        sensor_name: str = None
 
         def __attrs_post_init__(self):
             # convert all parameter strings/keys to parameter objects
@@ -77,7 +76,7 @@ class SensorInventory:
 
     def _process_sensor(self, sensors2):
         for sensor in sensors2:
-            sensor_ref = sensor.get("sensor_name")
+            sensor_ref = sensor.get("sensor_model")
             if not sensor_ref:
                 logger.error("Sensor entry missing 'sensor_name', skipping")
                 continue

@@ -101,7 +101,7 @@ class InventoryClass:
             if parameter_ref == parameter.parameter_id or parameter_ref in parameter.alternate_labels:
                 return parameter
 
-    def create_platform_entity(self,entity_name: str, platform:str,serial_number:str) -> PlatformInventory:
-        return self.platforms.create_entity(entity_name=entity_name, platform=platform,serial_number=serial_number)
+    def create_platform_entity(self,entity_name: str, platform:str,serial_number:str,NMEA_conversion:bool=None):
+        return self.platforms.create_entity(entity_name=entity_name, platform=platform,serial_number=serial_number,NMEA_conversion=NMEA_conversion)
 
 inventory = InventoryClass()

@@ -2,7 +2,7 @@
     "sensors": {
         "CTD": [
             {
-                "sensor_name": "Generic CTD",
+                "sensor_model": "Generic CTD",
                 "instrument_type": "CTD",
                 "parameters": {
                     "POTENTIAL_TEMPERATURE": "potential temperature",
@@ -11,17 +11,17 @@
                 "platform_compatibility": ["mm"]
             },
             {
-                "sensor_name": "Slocum Glider G2 CTD",
+                "sensor_model": "Slocum Glider G2 CTD",
                 "instrument_type": "CTD",
                 "parameters": {
                     "INSITU_TEMPERATURE": "Insitu temperature",
                     "PRACTICAL_SALINITY": "Practical salinity",
                     "PRESSURE": "insitu pressure"
                 },
-                "platform_compatibility": ["slocum_G2","Slocum_G2_Non_NMEA"]
+                "platform_compatibility": ["slocum_G2"]
             },
             {
-                "sensor_name": "Autosub Long Range 1500 CTD",
+                "sensor_model": "Autosub Long Range 1500 CTD",
                 "instrument_type": "CTD",
                 "parameters": {
                     "INSITU_TEMPERATURE": "Insitu temperature",
@@ -33,7 +33,7 @@
         ],
         "ADCP": [
             {
-                "sensor_name": "Generic ADCP",
+                "sensor_model": "Generic ADCP",
                 "instrument_type": "ADCP",
                 "parameters": {
                     "WATERCURRENTS_U": "x component of velocity",
@@ -44,27 +44,27 @@
         ],
         "radiometer": [
             {
-                "sensor_name": "Slocum G2 Radiometer",
+                "sensor_model": "Slocum G2 Radiometer",
                 "instrument_type": "radiometer",
                 "parameters": {
                     "CHLOROPHYLL": "concentration of Chlorophyll-A",
                     "DOWNWELLING_RADIATIVE_FLUX": "downwelling radiative flux"
                 },
-                "platform_compatibility": ["Slocum_G2","Slocum_G2_Non_NMEA"]
+                "platform_compatibility": ["Slocum_G2"]
             }
         ],
         "dissolved_gas": [
             {
-                "sensor_name": "Slocum G2 Dissolved Oxygen",
+                "sensor_model": "Slocum G2 Dissolved Oxygen",
                 "instrument_type": "dissolved_gas",
                 "parameters": {
                     "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
                 },
-                "platform_compatibility": ["Slocum_G2","Slocum_G2_Non_NMEA"]
+                "platform_compatibility": ["Slocum_G2"]
             },
 
             {
-                "sensor_name": "Autosub Long Range 1500 dissolved oxygen",
+                "sensor_model": "Autosub Long Range 1500 dissolved oxygen",
                 "instrument_type": "dissolved_gas",
                 "parameters": {
                     "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
@@ -74,7 +74,7 @@
         ],
         "optical_backscatter": [
             {
-                "sensor_name": "Autosub Long Range 1500 cholropyll sensor",
+                "sensor_model": "Autosub Long Range 1500 cholropyll sensor",
                 "instrument_type": "optical_backscatter",
                 "parameters": {
                     "CHLOROPHYLL": "concentration of Chlorophyll-A"
@@ -84,7 +84,7 @@
         ],
         "data_logger": [
             {
-                "sensor_name": "Autosub 1500 datalogger",
+                "sensor_model": "Autosub 1500 datalogger",
                 "instrument_type": "data_logger",
                 "parameters": {
                     "ALATPT01": "latitude",
@@ -101,7 +101,7 @@
                 "platform_compatibility": ["ALR_1500"]
             },
             {
-                "sensor_name": "Slocum G2 Data logger",
+                "sensor_model": "Slocum G2 Data logger",
                 "instrument_type": "data_logger",
                 "parameters": {
                     "GLIDER_DEPTH": "depth",
@@ -116,7 +116,7 @@
                     "TIME": "time"
 
                 },
-                "platform_compatibility": ["Slocum_G2","Slocum_G2_Non_NMEA"]
+                "platform_compatibility": ["Slocum_G2"]
             }
         ]
     }
