@@ -39,6 +39,7 @@ def create_platform_attrs(frozen_mode=False):
             Args:
                 sensor_type: instrument type
             """
+            # TODO this is very dependant on strings exactly matching, ideally a more robust approach is needed.
             for sensor in sensor_inventory.entries.values():
                 if sensor.instrument_type == sensor_type and self.platform_type in sensor.platform_compatibility:
                     sensor_unstruct = unstructure(sensor)
@@ -49,6 +50,9 @@ def create_platform_attrs(frozen_mode=False):
                         created_sensor.sensor_name = f"{self.platform_type}_{self.platform_type}_{sensor.instrument_type}"
                     self.sensors[sensor_type] = created_sensor
                     logger.success(f"successfully created sensor {sensor_type} on entity {self.entity_name}")
+                    return
+            raise Exception(f"sensor type {sensor_type} not found for platform {self.platform_type}")
+
 
     return PlatformAttrs
 
