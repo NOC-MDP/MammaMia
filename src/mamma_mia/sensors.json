@@ -18,7 +18,7 @@
                     "PRACTICAL_SALINITY": "Practical salinity",
                     "PRESSURE": "insitu pressure"
                 },
-                "platform_compatibility": ["slocum_G2"]
+                "platform_compatibility": ["Slocum_G2"]
             },
             {
                 "sensor_model": "Autosub Long Range 1500 CTD",
