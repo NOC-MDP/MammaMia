@@ -19,6 +19,7 @@ from mamma_mia.exceptions import CriticalParameterMissing,NoValidSource
 from scipy.interpolate import interp1d
 from mamma_mia.gsw_funcs import ConvertedTSP, ConvertedP
 from mamma_mia.worlds import WorldsConf, WorldExtent, WorldsAttributes
+from mamma_mia.sim_error import simulate_sensor_error
 
 @frozen
 class Publisher:
@@ -563,6 +564,10 @@ class Mission:
             try:
                 logger.info(f"flying through {key} world and creating interpolated data for flight")
                 track = interpolator.interpolator[key].quadrivariate(flight_subset)
+                # add obs error
+                logger.info(f"applying observation error to parameter {key}")
+                track = simulate_sensor_error(model_t=track,mission_ts=self.attrs.mission_time_step)
+                logger.success("observation error application successful")
             except KeyError:
                 track = None
                 # pressure is kind of a special case as its not found in the models and is derived from trajectory depth
