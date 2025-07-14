@@ -77,12 +77,16 @@ class Campaign:
                     contributor:Contributor = Contributor(),
                     publisher:Publisher = Publisher(),
                     source_location: str = "CMEMS",
-                    mission_time_step: int = 1
+                    mission_time_step: int = 1,
+                    apply_obs_error: bool = False,
+                    standard_name_vocabulary: str = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html",
 
                     ) -> None:
         """
         Function that adds an auv mission to the campaign.
         Args:
+            standard_name_vocabulary:
+            apply_obs_error:
             mission_time_step:
             source_location: what source to use, e.g. CMEMS, MSM or LOCAL, specifc location can be set as a file path
             crs:
@@ -128,7 +132,9 @@ class Campaign:
                           crs = crs,
                           vertical_crs = vertical_crs,
                           source_config=mission_source,
-                          mission_time_step=mission_time_step
+                          mission_time_step=mission_time_step,
+                          apply_obs_error=apply_obs_error,
+                          standard_name_vocabulary=standard_name_vocabulary
                           )
         interpolator = Interpolators()
         self.missions[mission.attrs.mission] = mission
@@ -205,7 +211,7 @@ class Campaign:
         camp.attrs['name'] = self.name
         camp.attrs['description'] = self.description
         #camp.attrs['uuid'] = str(self.uuid)
-        logger.success(f"zarr group {self.name} successfully created")
+        logger.info(f"zarr group {self.name} successfully created")
 
         for key1, mission in self.missions.items():
             #mission.create_dim_map(msm_cat=self.catalog.msm_cat)
@@ -214,7 +220,7 @@ class Campaign:
             logger.info(f"exporting {mission.attrs.mission}")
             mission.export_as_zarr(store=store)
             #mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
-            logger.success(f"successfully exported {mission.attrs.mission}")
+            logger.info(f"successfully exported {mission.attrs.mission}")
         logger.info(f"consolidating metadata for {export_path}")
         # TODO fix the consilidate meta data warning that happens here
         zarr.consolidate_metadata(store=store)

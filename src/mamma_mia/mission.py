@@ -143,7 +143,8 @@ class MissionAttributes:
     contributor: Contributor
     standard_name_vocabulary: str
     source_config: SourceConfig
-    mission_time_step: int = 1
+    mission_time_step: int
+    apply_obs_error: bool
 
 
 @frozen
@@ -326,17 +327,18 @@ class Mission:
                       platform_attributes: create_platform_attrs(),
                       trajectory_path: str,
                       source_config: SourceConfig,
-                      excess_space: int = 0.5,
-                      extra_depth: int = 100,
-                      msm_priority: int = 2,
-                      cmems_priority: int = 1,
-                      crs: str = 'EPSG:4326',
-                      vertical_crs: str = 'EPSG:5831',
-                      creator: Creator = Creator(),
-                      publisher: Publisher = Publisher(),
-                      contributor: Contributor = Contributor(),
-                      standard_name_vocabulary = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html",
-                      mission_time_step: int = 1,
+                      excess_space: int,
+                      extra_depth: int,
+                      msm_priority: int,
+                      cmems_priority: int,
+                      crs: str,
+                      vertical_crs: str,
+                      creator: Creator,
+                      publisher: Publisher,
+                      contributor: Contributor,
+                      standard_name_vocabulary,
+                      mission_time_step: int,
+                      apply_obs_error: bool,
                       ):
         platform = Platform(attrs=platform_attributes,behaviour=np.empty((0,)))
         instruments = []
@@ -358,6 +360,7 @@ class Mission:
                                       standard_name_vocabulary=standard_name_vocabulary,
                                       source_config=source_config,
                                       mission_time_step=mission_time_step,
+                                      apply_obs_error=apply_obs_error
                                       )
 
         # find datalogger
@@ -399,7 +402,7 @@ class Mission:
                 trajectory.longitude[i] = cls.__convert_to_decimal(trajectory.longitude[i])
             for i in range(trajectory.latitude.__len__()):
                 trajectory.latitude[i] = cls.__convert_to_decimal(trajectory.latitude[i])
-            logger.success(f"Successfully converted from NEMA coordinates to decimal degrees")
+            logger.info(f"Successfully converted from NEMA coordinates to decimal degrees")
 
         geospatial_attrs = GeospatialAttributes(
             geospatial_bounds_crs=crs,
@@ -571,7 +574,7 @@ class Mission:
                     logger.info(f"converting depth data into pressure data")
                     # create pressure from depths and latitudes
                     track = ConvertedP.d_2_p(depth=resampled_flight["depth"],latitude=resampled_flight["latitude"]).Pressure
-                    logger.success(f"successfully converted depth data into pressure data")
+                    logger.info(f"successfully converted depth data into pressure data")
                 # see if parameter is a datalogger one and get from resampled flight directly
                 # get aliases incase key doesn't match
                 else:
@@ -589,7 +592,7 @@ class Mission:
                         marked_keys.append(key)
                         continue
             # dont add errors to time
-            if key != "TIME":
+            if key != "TIME" and self.attrs.apply_obs_error:
                 # add obs error
                 logger.info(f"applying observation error to parameter {key}")
                 # TODO need to handle sensor parameter specific values
@@ -606,7 +609,7 @@ class Mission:
                                               m_min=self.platform.attrs.sensors[sensor_key].specification[key]["range"][0],
                                               m_max=self.platform.attrs.sensors[sensor_key].specification[key]["range"][1],
                                               percent_errors=self.platform.attrs.sensors[sensor_key].specification[key]["percent_errors"], )
-                logger.success("observation error application successful")
+                logger.info("observation error application successful")
             self.payload[key][:] = track
 
         for marked_key in marked_keys:
@@ -662,7 +665,7 @@ class Mission:
             logger.warning(f"unknown conversion requested {conversion_to_apply}")
             logger.error(f"unable to convert alternative parameters {conversion_to_apply}")
             return
-        logger.success(f"conversion of {what_we_have} to {what_we_need} successful")
+        logger.info(f"conversion of {what_we_have} to {what_we_need} successful")
 
     @staticmethod
     def _resample_flight(flight, new_interval_seconds):
@@ -917,7 +920,7 @@ class Mission:
             fig.show()
         else:
             return fig
-        logger.success(f"successfully plotted payloads")
+        logger.info(f"successfully plotted payloads")
 
     def plot_trajectory(self, colour_scale: str = 'Viridis', ):
         """
@@ -1023,7 +1026,7 @@ class Mission:
                 logger.warning(f"failed to copy world {key} trying to covert to zarr")
                 del world[key]
                 value.to_zarr(group=f"{world.name}/{key}",store=store)
-                logger.success(f"successfully converted world {key} to zarr")
+                logger.info(f"successfully converted world {key} to zarr")
 
 
         # self.create_dim_map(msm_cat=msm_cat)

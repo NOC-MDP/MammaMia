@@ -8,7 +8,7 @@ logger.level("COMPLETED", COMPLETED_LEVEL, color="<green>")
 
 # Apply a default log filter to include specific levels
 def log_filter(record):
-    return record["level"].name in {"WARNING", "ERROR", "CRITICAL", "COMPLETED"}
+    return record["level"].name in {"WARNING", "ERROR", "CRITICAL", "COMPLETED","SUCCESS"}
 
 # Configure the logger
 logger.remove()

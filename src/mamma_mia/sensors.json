@@ -30,25 +30,25 @@
                 "specification": {
                     "INSITU_TEMPERATURE": {
                         "accuracy": 0.001,
-                        "resolution": 0.0002,
+                        "resolution": 0.001,
                         "drift_per_month": 0.0002,
-                        "range": [-5, 35],
+                        "range": [-5, 42],
                         "percent_errors": false,
                         "meta_data": "insitu temperature"
                     },
                     "PRACTICAL_SALINITY": {
-                        "accuracy": -999.999,
-                        "resolution": -999.999,
-                        "drift_per_month": -999.999,
-                        "range": [-999.999, -999.999],
+                        "accuracy": 0.005,
+                        "resolution": 0.0001,
+                        "drift_per_month": 0.003,
+                        "range": [0, 42],
                         "percent_errors": false,
                         "meta_data": "practical salinity"
                     },
                     "PRESSURE": {
-                        "accuracy": 0.015,
-                        "resolution": 0.001,
-                        "drift_per_month": 0.02,
-                        "range": [0, 10500],
+                        "accuracy": 0.1,
+                        "resolution": 0.002,
+                        "drift_per_month": 0.0042,
+                        "range": [0, 2000],
                         "percent_errors": true,
                         "meta_data": "pressure"
                     }
@@ -60,27 +60,27 @@
                 "instrument_type": "CTD",
                 "specification": {
                     "INSITU_TEMPERATURE": {
-                        "accuracy": -999.999,
-                        "resolution": -999.999,
-                        "drift_per_month": -999.999,
-                        "range": [-999.999, -999.999],
+                        "accuracy": 0.001,
+                        "resolution": 0.001,
+                        "drift_per_month": 0.0002,
+                        "range": [-5, 42],
                         "percent_errors": false,
                         "meta_data": "insitu temperature"
                     },
                     "PRACTICAL_SALINITY": {
-                        "accuracy": -999.999,
-                        "resolution": -999.999,
-                        "drift_per_month": -999.999,
-                        "range": [-999.999, -999.999],
+                        "accuracy": 0.005,
+                        "resolution": 0.0001,
+                        "drift_per_month": 0.003,
+                        "range": [0, 42],
                         "percent_errors": false,
                         "meta_data": "practical salinity"
                     },
                     "PRESSURE": {
-                        "accuracy": -999.999,
-                        "resolution": -999.999,
-                        "drift_per_month": -999.999,
-                        "range": [-999.999, -999.999],
-                        "percent_errors": false,
+                        "accuracy": 0.1,
+                        "resolution": 0.002,
+                        "drift_per_month": 0.0042,
+                        "range": [0, 1000],
+                        "percent_errors": true,
                         "meta_data": "pressure"
                     }
                 },

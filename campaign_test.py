@@ -36,7 +36,8 @@ campaign.add_mission(mission_name="RAD24_01",
                      platform_name="Churchill",
                      trajectory_path="data/RAPID-mooring/rapid-mooring.nc",
                      source_location="rapid_data",
-                     mission_time_step=60)
+                     mission_time_step=60,
+                     apply_obs_error=True)
 
 # Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
 #campaign.enable_interpolator_cache()

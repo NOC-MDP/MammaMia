@@ -128,7 +128,7 @@ class Interpolators:
 
                         logger.info(f"built {var} from source {source_type.name} into interpolator: {world_attrs.variable_alias[var]}")
         worlds.attributes.interpolator_priorities = interpolator_priorities
-        logger.success("interpolators built successfully")
+        logger.info("interpolators built successfully")
 
     def import_interp(self,key:str,source_type:SourceType,mission:str):
         if not os.path.isdir(f"interpolator_cache/{mission}"):
