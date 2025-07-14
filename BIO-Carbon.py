@@ -50,15 +50,15 @@ Nelson.register_sensor(sensor_type="radiometer")
 Nelson.register_sensor(sensor_type="dissolved_gas")
 
 Doombar.register_sensor(sensor_type="CTD")
-Doombar.register_sensor(sensor_type="radiometers")
+Doombar.register_sensor(sensor_type="radiometer")
 Doombar.register_sensor(sensor_type="dissolved_gas")
 
 ALR4.register_sensor(sensor_type="CTD")
-ALR4.register_sensor(sensor_type="radiometer")
+ALR4.register_sensor(sensor_type="dissolved_gas")
 ALR4.register_sensor(sensor_type="optical_backscatter")
 
 ALR6.register_sensor(sensor_type="CTD")
-ALR6.register_sensor(sensor_type="radiometer")
+ALR6.register_sensor(sensor_type="dissolved_gas")
 ALR6.register_sensor(sensor_type="optical_backscatter")
 
 

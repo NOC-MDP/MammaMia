@@ -4,29 +4,85 @@
             {
                 "sensor_model": "Generic CTD",
                 "instrument_type": "CTD",
-                "parameters": {
-                    "POTENTIAL_TEMPERATURE": "potential temperature",
-                    "PRACTICAL_SALINITY": "practical salinity"
+                "specification": {
+                    "POTENTIAL_TEMPERATURE": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "potential temperature"
+                    },
+                    "PRACTICAL_SALINITY": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "practical salinity"
+                    }
                 },
                 "platform_compatibility": ["mm"]
             },
             {
                 "sensor_model": "Slocum Glider G2 CTD",
                 "instrument_type": "CTD",
-                "parameters": {
-                    "INSITU_TEMPERATURE": "Insitu temperature",
-                    "PRACTICAL_SALINITY": "Practical salinity",
-                    "PRESSURE": "insitu pressure"
+                "specification": {
+                    "INSITU_TEMPERATURE": {
+                        "accuracy": 0.001,
+                        "resolution": 0.0002,
+                        "drift_per_month": 0.0002,
+                        "range": [-5, 35],
+                        "percent_errors": false,
+                        "meta_data": "insitu temperature"
+                    },
+                    "PRACTICAL_SALINITY": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "practical salinity"
+                    },
+                    "PRESSURE": {
+                        "accuracy": 0.015,
+                        "resolution": 0.001,
+                        "drift_per_month": 0.02,
+                        "range": [0, 10500],
+                        "percent_errors": true,
+                        "meta_data": "pressure"
+                    }
                 },
                 "platform_compatibility": ["Slocum_G2"]
             },
             {
                 "sensor_model": "Autosub Long Range 1500 CTD",
                 "instrument_type": "CTD",
-                "parameters": {
-                    "INSITU_TEMPERATURE": "Insitu temperature",
-                    "PRACTICAL_SALINITY": "Practical salinity",
-                    "PRESSURE": "insitu pressure"
+                "specification": {
+                    "INSITU_TEMPERATURE": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "insitu temperature"
+                    },
+                    "PRACTICAL_SALINITY": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "practical salinity"
+                    },
+                    "PRESSURE": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "pressure"
+                    }
                 },
                 "platform_compatibility": ["ALR_1500"]
             }
@@ -35,9 +91,23 @@
             {
                 "sensor_model": "Generic ADCP",
                 "instrument_type": "ADCP",
-                "parameters": {
-                    "WATERCURRENTS_U": "x component of velocity",
-                    "WATERCURRENTS_V": "y component of velocity"
+                "specification": {
+                    "WATERCURRENTS_U": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "watercurrents u component"
+                    },
+                    "WATERCURRENTS_V": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "watercurrents v component"
+                    }
                 },
                 "platform_compatibility": ["mm"]
             }
@@ -46,9 +116,23 @@
             {
                 "sensor_model": "Slocum G2 Radiometer",
                 "instrument_type": "radiometer",
-                "parameters": {
-                    "CHLOROPHYLL": "concentration of Chlorophyll-A",
-                    "DOWNWELLING_RADIATIVE_FLUX": "downwelling radiative flux"
+                "specification": {
+                    "CHLOROPHYLL": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "chlorophyll"
+                    },
+                    "DOWNWELLING_RADIATIVE_FLUX": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "downwelling radiative flux"
+                    }
                 },
                 "platform_compatibility": ["Slocum_G2"]
             }
@@ -57,8 +141,15 @@
             {
                 "sensor_model": "Slocum G2 Dissolved Oxygen",
                 "instrument_type": "dissolved_gas",
-                "parameters": {
-                    "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
+                "specification": {
+                    "DISSOLVED_OXYGEN": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "dissolved oxygen"
+                    }
                 },
                 "platform_compatibility": ["Slocum_G2"]
             },
@@ -66,8 +157,15 @@
             {
                 "sensor_model": "Autosub Long Range 1500 dissolved oxygen",
                 "instrument_type": "dissolved_gas",
-                "parameters": {
-                    "DISSOLVED_OXYGEN": "dissolved oxygen concentration"
+                "specification": {
+                    "DISSOLVED_OXYGEN": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "dissolved oxygen"
+                    }
                 },
                 "platform_compatibility": ["ALR_1500"]
             }
@@ -76,8 +174,15 @@
             {
                 "sensor_model": "Autosub Long Range 1500 cholropyll sensor",
                 "instrument_type": "optical_backscatter",
-                "parameters": {
-                    "CHLOROPHYLL": "concentration of Chlorophyll-A"
+                "specification": {
+                    "CHLOROPHYLL": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "chlorophyll"
+                    }
                 },
                 "platform_compatibility": ["ALR_1500"]
             }
@@ -86,34 +191,174 @@
             {
                 "sensor_model": "Autosub 1500 datalogger",
                 "instrument_type": "data_logger",
-                "parameters": {
-                    "ALATPT01": "latitude",
-                    "ALONPT01": "longitude",
-                    "ADEPPT01": "depth",
-                    "HEADPT01": "heading",
-                    "ROLLPT01": "roll",
-                    "PTCHPT01": "pitch",
-                    "PTVELX01": "x axis velocity",
-                    "PTVELY01": "y axis velocity",
-                    "PTVELZ01": "z axis velocity",
-                    "TIME": "time"
+                "specification": {
+                    "ALATPT01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "latitude"
+                    },
+                    "ALONPT01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "longitude"
+                    },
+                    "ADEPPT01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "depth"
+                    },
+                    "HEADPT01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "heading"
+                    },
+                    "ROLLPT01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "roll"
+                    },
+                    "PTCHPT01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "pitch"
+                    },
+                    "PTVELX01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "horizontal velocity"
+                    },
+                    "PTVELY01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "horizontal velocity"
+                    },
+                    "PTVELZ01": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "vertical velocity"
+                    },
+                    "TIME": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "time"
+                    }
                 },
                 "platform_compatibility": ["ALR_1500"]
             },
             {
                 "sensor_model": "Slocum G2 Data logger",
                 "instrument_type": "data_logger",
-                "parameters": {
-                    "GLIDER_DEPTH": "depth",
-                    "GLIDER_PITCH": "pitch",
-                    "GLIDER_ROLL": "roll",
-                    "GLIDER_HEADING": "horizontal orientation",
-                    "WATERCURRENTS_U": "eastward velocity of water current",
-                    "ALTITUDE": "height relative to sea bed",
-                    "LATITUDE": "latitude",
-                    "LONGITUDE": "longitude",
-                    "WATERCURRENTS_V": "northward velocity of water current",
-                    "TIME": "time"
+                "specification": {
+                    "GLIDER_DEPTH": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "glider_depth"
+                    },
+                    "GLIDER_PITCH": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "glider_pitch"
+                    },
+                    "GLIDER_ROLL": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "glider_roll"
+                    },
+                    "GLIDER_HEADING": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "glider_heading"
+                    },
+                    "WATERCURRENTS_U": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "watercurrents_u"
+                    },
+                    "ALTITUDE": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "glider_altitude"
+                    },
+                    "LATITUDE": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "latitude"
+                    },
+                    "LONGITUDE": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "longitude"
+                    },
+                    "WATERCURRENTS_V": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "watercurrents v"
+                    },
+                    "TIME": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "meta_data": "time"
+                    }
 
                 },
                 "platform_compatibility": ["Slocum_G2"]

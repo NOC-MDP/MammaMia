@@ -11,6 +11,15 @@ from mamma_mia.log import log_filter
 
 parameter_inventory = ParameterInventory()
 
+@frozen
+class SensorSpecification:
+    accuracy: float
+    resolution: float
+    drift_per_month: float
+    range: list[float]
+    percent_errors: bool
+    meta_data: Parameter
+
 def create_sensor_class(frozen_mode=False):
     base_decorator = frozen if frozen_mode else define
 
@@ -21,13 +30,13 @@ def create_sensor_class(frozen_mode=False):
         sensor_model: str
         # type parameters
         instrument_type: str
-        parameters: dict = field(factory=dict)
+        specification: dict = field(factory=dict)
         platform_compatibility: list = field(factory=list),
         sensor_name: str = None
 
         def __attrs_post_init__(self):
             # convert all parameter strings/keys to parameter objects
-            for parameter_key in self.parameters:
+            for parameter_key in self.specification:
                 self._process_parameters(parameter_key,parameter_inventory)
 
         def _process_parameters(self, parameter_key, parameters2:ParameterInventory):
@@ -46,14 +55,14 @@ def create_sensor_class(frozen_mode=False):
             # TODO add validation or checking here e.g. is it the right sensor type for the platform?
             if not isinstance(parameter, Parameter):  # Runtime type check
                 raise TypeError(f"Parameter must be an instance of Parameter, or TimeParameter got {type(parameter)}")
-            self.parameters[parameter.parameter_id] = parameter
+            self.specification[parameter.parameter_id]["meta_data"] = parameter
             # TODO this log entry ends up being printed alot, it is probably useful sometimes but need to reduce its verbosity
             #logger.info(f"successfully registered parameter {parameter.parameter_name} to sensor {self.sensor_name}")
 
         if not frozen_mode:
             def __attrs_post_init__(self):
                 # convert all parameter strings/keys to parameter objects
-                for parameter_key in self.parameters:
+                for parameter_key in self.specification:
                     self._process_parameters(parameter_key, parameter_inventory)
 
     return Sensor

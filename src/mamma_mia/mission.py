@@ -93,8 +93,8 @@ class NavigationKeys:
             "yaw": "",
         }
 
-        for parameter_key, parameter in datalogger.parameters.items():
-            combined_string = f"{parameter.parameter_id} {parameter.standard_name}".lower()
+        for parameter_key, specification in datalogger.specification.items():
+            combined_string = f"{specification['meta_data'].parameter_id} {specification['meta_data'].standard_name}".lower()
             ds_keys = cls.find_parameter_keys(parameter=parameter_key, platform_attrs=platform_attrs)
 
             for key, nav_name in nav_keys.items():
@@ -122,7 +122,7 @@ class NavigationKeys:
                 sensor_key = key
                 break
 
-        parameter_keys = platform_attrs.sensors[sensor_key].parameters[parameter].source_names
+        parameter_keys = platform_attrs.sensors[sensor_key].specification[parameter]["meta_data"].source_names
 
         return parameter_keys
 
@@ -449,7 +449,7 @@ class Mission:
         mission_total_time_seconds = (trajectory.time[-1] - trajectory.time[0]).astype('timedelta64[s]')
         mission_total_time_steps = np.ceil(mission_total_time_seconds.astype(int) / mission_time_step).astype(int)
         for name, sensor in platform.attrs.sensors.items():
-            for name2, parameter in sensor.parameters.items():
+            for name2, specification in sensor.specification.items():
                 payload[name2] = np.empty(shape=mission_total_time_steps, dtype=np.float64)
         return cls(platform=platform,
                    attrs=attrs,
@@ -483,15 +483,15 @@ class Mission:
                 sensor_key = key
                 break
         try:
-            parameter_units = platform_attrs.sensors[sensor_key].parameters[parameter].unit_of_measure
+            parameter_units = platform_attrs.sensors[sensor_key].specification[parameter]["meta_data"].unit_of_measure
         except KeyError:
-            for val in platform_attrs.sensors[sensor_key].parameters.values():
+            for val in platform_attrs.sensors[sensor_key].specification.values():
                 try:
-                    if parameter in val.parameter_definition.lower():
-                        parameter_units = val.unit_of_measure
+                    if parameter in val["meta_data"].parameter_definition.lower():
+                        parameter_units = val["meta_data"].unit_of_measure
                 except AttributeError:
-                    if parameter in val.long_name.lower():
-                        parameter_units = val.units
+                    if parameter in val["meta_data"].long_name.lower():
+                        parameter_units = val["meta_data"].units
 
         return parameter_units
 
@@ -554,20 +554,16 @@ class Mission:
         # get navigation keys and any aliases that relate to them
         for k1, v1 in self.platform.attrs.sensors.items():
             if self.platform.attrs.sensors[k1].instrument_type == "data_logger":
-                navigation_keys = list(self.platform.attrs.sensors[k1].parameters.keys())
-                for k2, parameter in self.platform.attrs.sensors[k1].parameters.items():
+                navigation_keys = list(self.platform.attrs.sensors[k1].specification.keys())
+                for k2, parameter in self.platform.attrs.sensors[k1].specification.items():
                     for nav_key in navigation_keys:
-                        if nav_key == parameter.parameter_id:
-                            navigation_alias[nav_key] = parameter.alternate_labels
+                        if nav_key == parameter["meta_data"].parameter_id:
+                            navigation_alias[nav_key] = parameter["meta_data"].alternate_labels
         marked_keys = []
         for key in self.payload.keys():
             try:
                 logger.info(f"flying through {key} world and creating interpolated data for flight")
                 track = interpolator.interpolator[key].quadrivariate(flight_subset)
-                # add obs error
-                logger.info(f"applying observation error to parameter {key}")
-                track = simulate_sensor_error(model_t=track,mission_ts=self.attrs.mission_time_step)
-                logger.success("observation error application successful")
             except KeyError:
                 track = None
                 # pressure is kind of a special case as its not found in the models and is derived from trajectory depth
@@ -592,6 +588,25 @@ class Mission:
                         logger.warning(f"no interpolator found for parameter {key} marking parameter for removal from payload")
                         marked_keys.append(key)
                         continue
+            # dont add errors to time
+            if key != "TIME":
+                # add obs error
+                logger.info(f"applying observation error to parameter {key}")
+                # TODO need to handle sensor parameter specific values
+                # find which sensor has this parameter stored.
+                sensor_key = None
+                for k3, sensor in self.platform.attrs.sensors.items():
+                    if key in sensor.specification.keys():
+                        sensor_key = k3
+                        break
+                track = simulate_sensor_error(model_t=track, mission_ts=self.attrs.mission_time_step,
+                                              accuracy_bias=self.platform.attrs.sensors[sensor_key].specification[key]["accuracy"],
+                                              resolution=self.platform.attrs.sensors[sensor_key].specification[key]["resolution"],
+                                              drift_per_month=self.platform.attrs.sensors[sensor_key].specification[key]["drift_per_month"],
+                                              m_min=self.platform.attrs.sensors[sensor_key].specification[key]["range"][0],
+                                              m_max=self.platform.attrs.sensors[sensor_key].specification[key]["range"][1],
+                                              percent_errors=self.platform.attrs.sensors[sensor_key].specification[key]["percent_errors"], )
+                logger.success("observation error application successful")
             self.payload[key][:] = track
 
         for marked_key in marked_keys:
@@ -605,7 +620,7 @@ class Mission:
                 if alt_parameter is not None:
                     logger.info(f"alternative parameter field in world attributes is not None, {alt_key} requires conversion from {alt_parameter}")
                     for k1, v1 in self.platform.attrs.sensors.items():
-                        if alt_key in self.platform.attrs.sensors[k1].parameters.keys():
+                        if alt_key in self.platform.attrs.sensors[k1].specification.keys():
                             conversion_to_apply[alt_key] = alt_parameter
 
         if conversion_to_apply:
