@@ -49,7 +49,7 @@ def create_platform_attrs(frozen_mode=False):
                     else:
                         created_sensor.sensor_name = f"{self.platform_type}_{self.platform_type}_{sensor.instrument_type}"
                     self.sensors[sensor_type] = created_sensor
-                    logger.success(f"successfully created sensor {sensor_type} on entity {self.entity_name}")
+                    logger.info(f"successfully created sensor {sensor_type} on entity {self.entity_name}")
                     return
             raise Exception(f"sensor type {sensor_type} not found for platform {self.platform_type}")
 
