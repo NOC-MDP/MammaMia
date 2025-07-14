@@ -1,27 +1,34 @@
 
 import numpy as np
+from loguru import logger
 
 def simulate_sensor_error(model_t,
                                 mission_ts,
-                                accuracy_bias=0.001,
-                                resolution=0.0002,
-                                drift_per_month=0.0002,
-                                m_min=-5, m_max=40,
-                                percent_errors=False):
+                                accuracy_bias,
+                                resolution,
+                                drift_per_month,
+                                m_min, m_max,
+                                percent_errors):
     """
     Simulate synthetic temperature observations from model truth.
+    Applies:
+    - bias based on accuracy
+    - noise
+    - drift per month
 
     Parameters:
-    - model_t: array of model "true" temperature values
+    - model_t: array of model "true" sensor values
     - mission_ts: mission time step (seconds)
     - accuracy_bias: max absolute bias error (±value)
     - noise_std: std of random noise (instrumental)
     - resolution: sensor resolution (quantization step)
-    - drift_per_month: long-term drift in °C/month
+    - drift_per_month: long-term drift in unit/month
     - m_min, m_max: valid measurement range
     - percent: if true all error values are % of sensor range
     """
-
+    if accuracy_bias == -999.999 or resolution == -999.999 or drift_per_month == -999.999 or m_min == -999.999 or m_max == -999.999:
+        logger.warning("null values set in sensor specification no obs error applied")
+        return model_t
     model_t = np.asarray(model_t)
     shape = model_t.shape
     range_span = m_max - m_min

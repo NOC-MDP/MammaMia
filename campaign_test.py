@@ -1,5 +1,4 @@
 from mamma_mia import Campaign
-from mamma_mia import Creator, Publisher, Contributor
 from mamma_mia import inventory
 
 
@@ -30,35 +29,12 @@ Churchill.register_sensor(sensor_type="CTD")
 # register platform to the campaign for use in missions
 campaign.register_platform(entity=Churchill)
 
-
-# for metadata purposes a creator can be specified
-creator = Creator(email="thopri@noc.ac.uk",
-                  institution="NOCS",
-                  name="thopri",
-                  creator_type="",
-                  url="noc.ac.uk")
-# and a publisher
-publisher = Publisher(email="glidersbodc@noc.ac.uk",
-                      institution="NOCS",
-                      name="NOCS",
-                      type="DAC",
-                      url="bodc.ac.uk")
-
-# and a contributor
-contributor = Contributor(email="thopri@noc.ac.uk",
-                          name="thopri",
-                          role_vocab="BODC database",
-                          role="Collaborator",)
-
 # # # add mission
 campaign.add_mission(mission_name="RAD24_01",
                      title="Churchill with CTD deployment at RAPID array mooring eb1l2n",
                      summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
                      platform_name="Churchill",
                      trajectory_path="data/RAPID-mooring/rapid-mooring.nc",
-                     creator=creator,
-                     publisher=publisher,
-                     contributor=contributor,
                      source_location="rapid_data",
                      mission_time_step=60)
 
