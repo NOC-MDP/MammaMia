@@ -1,3 +1,14 @@
+# Copyright 2025 National Oceanography Centre
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # This script creates an payload emulation of the BIO-Carbon Deployment
 
 from mamma_mia import Campaign
@@ -16,7 +27,8 @@ campaign = Campaign(name="BIO-Carbon",
                     )
 
 
-# create platform entities as the trajectory is from processed output for the gliders NMEA_conversion should be false
+# create platform entities
+# since the trajectory is from processed output, NMEA_conversion should be false as the conversion has already been applied
 Churchill = inventory.create_platform_entity(entity_name="Churchill",
                                              platform="Slocum_G2",
                                              serial_number="unit_398",

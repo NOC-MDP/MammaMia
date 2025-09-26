@@ -1,6 +1,17 @@
+# Copyright 2025 National Oceanography Centre
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 from attrs import define, field, frozen
-from cattrs import structure,unstructure
+from cattrs import structure
 from loguru import logger
 from pathlib import Path
 import os
@@ -18,7 +29,8 @@ class SensorSpecification:
     drift_per_month: float
     range: list[float]
     percent_errors: bool
-    meta_data: Parameter
+    noise_std: float
+    meta_data: dict[Parameter]
 
 def create_sensor_class(frozen_mode=False):
     base_decorator = frozen if frozen_mode else define
@@ -76,7 +88,7 @@ class SensorInventory:
         logger.remove()
         logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         module_dir = Path(__file__).parent
-        with open(f"{module_dir}{os.sep}sensors.json", "r") as f:
+        with open(f"{module_dir}{os.sep}inventory{os.sep}sensors.json", "r") as f:
             sens = json.load(f)
 
         for sensor_type, sensors2 in sens["sensors"].items():

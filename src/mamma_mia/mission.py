@@ -1,3 +1,14 @@
+# Copyright 2025 National Oceanography Centre
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 from datetime import datetime
 import numpy as np
@@ -608,7 +619,8 @@ class Mission:
                                               drift_per_month=self.platform.attrs.sensors[sensor_key].specification[key]["drift_per_month"],
                                               m_min=self.platform.attrs.sensors[sensor_key].specification[key]["range"][0],
                                               m_max=self.platform.attrs.sensors[sensor_key].specification[key]["range"][1],
-                                              percent_errors=self.platform.attrs.sensors[sensor_key].specification[key]["percent_errors"], )
+                                              percent_errors=self.platform.attrs.sensors[sensor_key].specification[key]["percent_errors"],
+                                              noise_std=self.platform.attrs.sensors[sensor_key].specification[key]["noise_std"],)
                 logger.info("observation error application successful")
             self.payload[key][:] = track
 
