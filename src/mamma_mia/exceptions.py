@@ -1,22 +1,18 @@
-class AUVExists(Exception):
-    pass
+# Copyright 2025 National Oceanography Centre
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 class PlatformExists(Exception):
     pass
 
-class UnknownAUV(Exception):
-    pass
-
 class UnknownPlatform(Exception):
-    pass
-
-class UnknownSensor(Exception):
-    pass
-
-class UnknownParameter(Exception):
-    pass
-
-class UnknownModelField(Exception):
     pass
 
 class MissionExists(Exception):
@@ -34,9 +30,6 @@ class NullDataException(Exception):
 class InvalidPlatform(Exception):
     pass
 
-class InvalidPlatformEntry(Exception):
-    pass
-
 class InvalidSensor(Exception):
     pass
 
@@ -44,15 +37,6 @@ class InvalidParameter(Exception):
     pass
 
 class CriticalParameterMissing(Exception):
-    pass
-
-class InvalidSensorRate(Exception):
-    pass
-
-class InvalidSensorBehaviour(Exception):
-    pass
-
-class DataloggerNotFound(Exception):
     pass
 
 class InvalidEntity(Exception):

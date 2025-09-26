@@ -1,3 +1,13 @@
+# Copyright 2025 National Oceanography Centre
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import numpy as np
 from loguru import logger
@@ -8,7 +18,8 @@ def simulate_sensor_error(model_t,
                                 resolution,
                                 drift_per_month,
                                 m_min, m_max,
-                                percent_errors):
+                                percent_errors,
+                                noise_std):
     """
     Simulate synthetic temperature observations from model truth.
     Applies:
@@ -26,15 +37,12 @@ def simulate_sensor_error(model_t,
     - m_min, m_max: valid measurement range
     - percent: if true all error values are % of sensor range
     """
-    if accuracy_bias == -999.999 or resolution == -999.999 or drift_per_month == -999.999 or m_min == -999.999 or m_max == -999.999:
+    if accuracy_bias == -999.999 or resolution == -999.999 or drift_per_month == -999.999 or m_min == -999.999 or m_max == -999.999 or noise_std == -999.999:
         logger.warning("null values set in sensor specification no obs error applied")
         return model_t
     model_t = np.asarray(model_t)
     shape = model_t.shape
     range_span = m_max - m_min
-    # TODO assess if this is a sensible assumption
-    # assume noise std is half the accuracy
-    noise_std = accuracy_bias/2
 
     if percent_errors:
         accuracy_bias *= range_span

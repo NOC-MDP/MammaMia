@@ -1,3 +1,14 @@
+# Copyright 2025 National Oceanography Centre
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 from mamma_mia.exceptions import InvalidPlatform
 from mamma_mia.sensors import create_sensor_class, SensorInventory
@@ -70,7 +81,7 @@ class PlatformInventory:
         logger.remove()
         logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         module_dir = Path(__file__).parent
-        with open(f"{module_dir}{os.sep}platforms.json", "r") as f:
+        with open(f"{module_dir}{os.sep}inventory{os.sep}platforms.json", "r") as f:
             plats = json.load(f)
 
         for platform_type, platforms2 in plats["platforms"].items():

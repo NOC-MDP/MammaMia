@@ -11,6 +11,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "potential temperature"
                     },
                     "PRACTICAL_SALINITY": {
@@ -19,6 +20,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "practical salinity"
                     }
                 },
@@ -34,6 +36,7 @@
                         "drift_per_month": 0.0002,
                         "range": [-5, 42],
                         "percent_errors": false,
+                        "noise_std": 0.0005,
                         "meta_data": "insitu temperature"
                     },
                     "PRACTICAL_SALINITY": {
@@ -42,6 +45,7 @@
                         "drift_per_month": 0.003,
                         "range": [0, 42],
                         "percent_errors": false,
+                        "noise_std": 0.0025,
                         "meta_data": "practical salinity"
                     },
                     "PRESSURE": {
@@ -50,6 +54,7 @@
                         "drift_per_month": 0.0042,
                         "range": [0, 2000],
                         "percent_errors": true,
+                        "noise_std": 0.0005,
                         "meta_data": "pressure"
                     }
                 },
@@ -65,6 +70,7 @@
                         "drift_per_month": 0.0002,
                         "range": [-5, 42],
                         "percent_errors": false,
+                        "noise_std": 0.0005,
                         "meta_data": "insitu temperature"
                     },
                     "PRACTICAL_SALINITY": {
@@ -73,6 +79,7 @@
                         "drift_per_month": 0.003,
                         "range": [0, 42],
                         "percent_errors": false,
+                        "noise_std": 0.0025,
                         "meta_data": "practical salinity"
                     },
                     "PRESSURE": {
@@ -81,6 +88,7 @@
                         "drift_per_month": 0.0042,
                         "range": [0, 1000],
                         "percent_errors": true,
+                        "noise_std": 0.05,
                         "meta_data": "pressure"
                     }
                 },
@@ -98,6 +106,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "watercurrents u component"
                     },
                     "WATERCURRENTS_V": {
@@ -106,6 +115,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "watercurrents v component"
                     }
                 },
@@ -123,6 +133,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "chlorophyll"
                     },
                     "DOWNWELLING_RADIATIVE_FLUX": {
@@ -131,6 +142,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "downwelling radiative flux"
                     }
                 },
@@ -148,6 +160,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "dissolved oxygen"
                     }
                 },
@@ -164,6 +177,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "dissolved oxygen"
                     }
                 },
@@ -181,6 +195,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "chlorophyll"
                     }
                 },
@@ -198,6 +213,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "latitude"
                     },
                     "ALONPT01": {
@@ -206,6 +222,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "longitude"
                     },
                     "ADEPPT01": {
@@ -214,6 +231,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "depth"
                     },
                     "HEADPT01": {
@@ -222,6 +240,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "heading"
                     },
                     "ROLLPT01": {
@@ -230,6 +249,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "roll"
                     },
                     "PTCHPT01": {
@@ -238,6 +258,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "pitch"
                     },
                     "PTVELX01": {
@@ -246,6 +267,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "horizontal velocity"
                     },
                     "PTVELY01": {
@@ -254,6 +276,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "horizontal velocity"
                     },
                     "PTVELZ01": {
@@ -262,6 +285,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "vertical velocity"
                     },
                     "TIME": {
@@ -285,6 +309,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "glider_depth"
                     },
                     "GLIDER_PITCH": {
@@ -293,6 +318,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "glider_pitch"
                     },
                     "GLIDER_ROLL": {
@@ -301,6 +327,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "glider_roll"
                     },
                     "GLIDER_HEADING": {
@@ -309,6 +336,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "glider_heading"
                     },
                     "WATERCURRENTS_U": {
@@ -317,6 +345,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "watercurrents_u"
                     },
                     "ALTITUDE": {
@@ -333,6 +362,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "latitude"
                     },
                     "LONGITUDE": {
@@ -341,6 +371,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "longitude"
                     },
                     "WATERCURRENTS_V": {
@@ -349,6 +380,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "watercurrents v"
                     },
                     "TIME": {
@@ -357,6 +389,7 @@
                         "drift_per_month": -999.999,
                         "range": [-999.999, -999.999],
                         "percent_errors": false,
+                        "noise_std": -999.999,
                         "meta_data": "time"
                     }
 
