@@ -42,7 +42,7 @@ def create_sensor_class(frozen_mode=False):
         sensor_model: str
         # type parameters
         instrument_type: str
-        specification: dict = field(factory=dict)
+        specification: dict[str,dict]
         platform_compatibility: list = field(factory=list),
         sensor_name: str = None
 

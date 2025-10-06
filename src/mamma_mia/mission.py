@@ -12,6 +12,7 @@
 import os
 from datetime import datetime
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 import xarray as xr
 from attrs import define, frozen
@@ -208,6 +209,96 @@ class Trajectory:
             pitch=np.array(-999.999),)
 
     @classmethod
+    def from_dataframe(cls,df: pd.DataFrame,navigation_keys:NavigationKeys):
+        """
+        creates a trajectory from a dataframe
+        Args:
+            navigation_keys:
+            df: pandas dataframe
+
+        Returns:
+            trajectory object
+
+        """
+        # go through navigation keys and find correct variable names
+        vars_to_check =  [x for xs in list(unstructure(navigation_keys).values()) for x in xs]
+        vars_to_check = [x for x in vars_to_check if x in df.columns]
+        time_len = len(df)
+
+        # valid mask (rows with no NaN in key variables)
+        valid_mask = df[vars_to_check].notna().all(axis=1)
+        df_clean = df.loc[valid_mask]
+        clean_len = len(df_clean)
+        clean_percent = clean_len / time_len
+
+        if clean_percent < 0.75:
+            logger.warning("cleaned dataset less than 75% of original, will interpolate instead of clean")
+            # interpolate missing values for all non-time columns
+            df_wo_time = df.drop(columns=[col for col in ["TIME", "TIME_GPS"] if col in df.columns])
+            df_interp = df_wo_time.interpolate(method="linear", limit_direction="both")
+            # Add back time
+            df_interp["TIME"] = df["TIME"]
+
+            # remove rows that are still NaN in key vars
+            valid_mask = df_interp[vars_to_check].notna().all(axis=1)
+            df_clean = df_interp.loc[valid_mask]
+        # convert to datetime
+        df_clean['TIME'] = pd.to_datetime(df_clean['TIME'], format='%d/%m/%Y %H:%M')
+        # add data sources
+        # TODO the add data sources used to find correct source key and filter NaNs which is now handled
+        # TODO by the cleaning process above (the add source would only filter the specific source rather than whole dataset)
+        # TODO therefore this is pretty redundant and needs refactoring
+        latitude = cls.__add_source(ds=df_clean, source_keys=navigation_keys.latitude)
+        longitude =cls.__add_source(ds=df_clean, source_keys=navigation_keys.longitude)
+        depth = cls.__add_source(ds=df_clean, source_keys=navigation_keys.depth)
+        time = cls.__add_source(ds=df_clean, source_keys=navigation_keys.time)
+
+        if latitude.size != depth.size or longitude.size != depth.size or latitude.size != longitude.size:
+            raise Exception("NaN filtering resulted in different sized navigation parameters")
+
+        try:
+            if navigation_keys.pitch is not None:
+                pitch = cls.__add_source(ds=df_clean, source_keys=navigation_keys.pitch)
+            else:
+                logger.warning(f"Optional parameter pitch not specified in datalogger")
+                pitch = np.zeros_like(depth)
+        except NoValidSource:
+            logger.warning(
+                f"Optional pitch parameter for trajectory not found in simulated data: No variable named '{navigation_keys.pitch}'")
+            pitch = np.zeros_like(depth)
+
+        try:
+            if navigation_keys.yaw is not None:
+                yaw = cls.__add_source(ds=df_clean, source_keys=navigation_keys.yaw)
+            else:
+                logger.warning(f"Optional parameter yaw not specified in datalogger")
+                yaw = np.zeros_like(depth)
+        except NoValidSource:
+            logger.warning(
+                f"Optional yaw parameter for trajectory not found in simulated data: No variable named '{navigation_keys.yaw}'")
+            yaw = np.zeros_like(depth)
+
+        try:
+            if navigation_keys.roll is not None:
+                roll = cls.__add_source(ds=df_clean, source_keys=navigation_keys.roll)
+            else:
+                logger.warning(f"Optional parameter roll not specified in datalogger")
+                roll = np.zeros_like(depth)
+        except NoValidSource:
+            logger.warning(
+                f"Optional roll parameter for trajectory not found in simulated data: No variable named '{navigation_keys.roll}'")
+            roll = np.zeros_like(depth)
+
+        return cls(latitude=np.array(latitude, dtype=np.float64),
+                   longitude=np.array(longitude, dtype=np.float64),
+                   depth=np.array(depth, dtype=np.float64),
+                   pitch=np.array(pitch, dtype=np.float64),
+                   roll=np.array(roll, dtype=np.float64),
+                   yaw=np.array(yaw, dtype=np.float64),
+                   time=np.array(time, dtype=np.datetime64),
+                   )
+
+    @classmethod
     def from_xarray(cls, ds: xr.Dataset, navigation_keys: NavigationKeys):
         """
         Creates a trajectory from an xarray dataset
@@ -296,7 +387,7 @@ class Trajectory:
                    )
 
     @staticmethod
-    def __add_source(ds: xr.Dataset, source_keys: list[str]):
+    def __add_source(ds: xr.Dataset | pd.DataFrame, source_keys: list[str]):
         """
         tries each source key and returns first matching source dataset
         Args:
@@ -386,8 +477,15 @@ class Mission:
         nav_keys = NavigationKeys.from_datalogger(datalogger=platform.attrs.sensors[data_logger_key],platform_attrs=platform.attrs)
 
         # generate trajectory
-        ds = xr.open_dataset(attrs.trajectory_path)
-        trajectory = Trajectory.from_xarray(ds=ds, navigation_keys=nav_keys)
+        if attrs.trajectory_path[-3:] == ".nc":
+            ds = xr.open_dataset(attrs.trajectory_path)
+            trajectory = Trajectory.from_xarray(ds=ds, navigation_keys=nav_keys)
+        elif attrs.trajectory_path[-4:] == ".csv":
+            df = pd.read_csv(attrs.trajectory_path)
+            trajectory = Trajectory.from_dataframe(df=df, navigation_keys=nav_keys)
+        else:
+            raise Exception(f"trajectory file type: {attrs.trajectory_path[-3:]} is not supported")
+
 
         #seconds_into_flight = (trajectory.time - trajectory.time[0]) / np.timedelta64(1, 's')
         # calculate changes in depth to determine platform behaviour
@@ -1018,7 +1116,7 @@ class Mission:
         trajectory.array(name="latitude",data=self.trajectory.latitude)
         trajectory.array(name="longitude",data=self.trajectory.longitude)
         trajectory.array(name="depth",data=self.trajectory.depth)
-        trajectory.array(name="time",data=self.trajectory.time)
+        trajectory.array(name="time",data=self.trajectory.time.astype('datetime64[s]'))
         trajectory.array(name="pitch",data=self.trajectory.pitch)
         trajectory.array(name="roll",data=self.trajectory.roll)
         trajectory.array(name="yaw",data=self.trajectory.yaw)
