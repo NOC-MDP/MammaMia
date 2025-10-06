@@ -32,16 +32,4 @@ campaign.missions["Arctic Visualisation"].plot_trajectory()
 campaign.missions["Arctic Visualisation"].show_payload()
 campaign.export()
 
-import zarr
-import pandas as pd
-
-# Open the Zarr group
-zg = zarr.open_group("/Users/thopri/MammaMia/ALR_arctic_visualisation.zarr/Arctic Visualisation/payload", mode="r")
-
-# Collect all 1D arrays into a DataFrame
-data = {name: zg[name][:] for name in zg.array_keys()}
-
-df = pd.DataFrame(data)
-
-# Save to CSV
-df.to_csv("output.csv", index=False)
+campaign.missions["Arctic Visualisation"].export_payload("output2.csv")
