@@ -243,7 +243,7 @@ class Trajectory:
             valid_mask = df_interp[vars_to_check].notna().all(axis=1)
             df_clean = df_interp.loc[valid_mask]
         # convert to datetime
-        df_clean['TIME'] = pd.to_datetime(df_clean['TIME'], format='%d/%m/%Y %H:%M')
+        df_clean['TIME'] = pd.to_datetime(df_clean['TIME'], format='%d/%m/%Y %H:%M:%S')
         # add data sources
         # TODO the add data sources used to find correct source key and filter NaNs which is now handled
         # TODO by the cleaning process above (the add source would only filter the specific source rather than whole dataset)
@@ -740,6 +740,15 @@ class Mission:
             self.__convert_parameters(conversion_to_apply,flight=resampled_flight)
 
         logger.success(f"{self.attrs.mission} flown successfully")
+
+    def export_payload(self,out_path:str):
+        # Collect all 1D arrays into a DataFrame
+        data = {name: self.payload[name][:] for name in self.payload.keys()}
+
+        df = pd.DataFrame(data)
+
+        # Save to CSV
+        df.to_csv(out_path, index=False)
 
     def __convert_parameters(self, conversion_to_apply,flight):
         # TODO add other conversions here as needed.
