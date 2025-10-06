@@ -215,7 +215,7 @@ class Campaign:
             export_path = f"{campaign_name}.zarr"
         else:
             logger.info(f"exporting zarr store at {export_path}{sep}{campaign_name}.zarr")
-        store = zarr.DirectoryStore(f"{export_path}")
+        store = zarr.storage.LocalStore(f"{export_path}")
         logger.info(f"creating zarr group {self.name} in store")
         camp = zarr.group(store=store,overwrite=overwrite)
         camp.attrs['name'] = self.name
@@ -231,8 +231,5 @@ class Campaign:
             mission.export_as_zarr(store=store)
             #mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
             logger.info(f"successfully exported {mission.attrs.mission}")
-        logger.info(f"consolidating metadata for {export_path}")
-        # TODO fix the consilidate meta data warning that happens here
-        zarr.consolidate_metadata(store=store)
         logger.success(f"successfully exported {self.name}")
 

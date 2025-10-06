@@ -495,7 +495,7 @@ class Mission:
         descent_thresh = -0.05  # m/s
         near_surface_thresh = 1
         # Using dz and set thresholds, create an event graph for the platform
-        event = np.full_like(trajectory.depth, 'hovering', dtype="S8")
+        event = np.full_like(trajectory.depth, 'hovering', dtype="U8")
         # Diving: dz < descent_thresh
         event[dz > descent_thresh] = 'diving'
         # Climbing: dz > ascent_thresh
@@ -503,7 +503,7 @@ class Mission:
         # Surfaced / Near surface: depth < threshold and nearly zero vertical speed
         surfaced_mask = (trajectory.depth[:] < near_surface_thresh) & (np.abs(dz) < ascent_thresh)
         event[surfaced_mask] = 'surfaced'
-        platform.behaviour = np.array(event, dtype="S8")
+        platform.behaviour = np.array(event, dtype="U8")
 
         if platform.attrs.NEMA_coordinate_conversion:
             logger.info(f"Platform requires NEMA coordinate conversion")
@@ -744,9 +744,7 @@ class Mission:
     def export_payload(self,out_path:str):
         # Collect all 1D arrays into a DataFrame
         data = {name: self.payload[name][:] for name in self.payload.keys()}
-
         df = pd.DataFrame(data)
-
         # Save to CSV
         df.to_csv(out_path, index=False)
 
@@ -1081,7 +1079,7 @@ class Mission:
         fig.update_layout(title=title, scene=scene)
         fig.show()
 
-    def export_as_zarr(self, out_dir:str = None, store:zarr.storage.Store= None):
+    def export_as_zarr(self, out_dir:str = None, store:zarr.storage= None):
         """
         Exports mission to a zarr directory store
         Args:
@@ -1097,7 +1095,7 @@ class Mission:
         # if store is provided assume it contains the campaign and add the mission group to it,
         # otherwise just create a store and create the mission group in it
         if store is None:
-            store = zarr.storage.DirectoryStore(f"{out_dir}/{self.attrs.mission}.zarr")
+            store = zarr.storage.LocalStore(f"{out_dir}/{self.attrs.mission}.zarr")
             mission = zarr.group(store=store,overwrite=True)
         else:
             campaign = zarr.open_group(store=store)
@@ -1119,20 +1117,21 @@ class Mission:
         platform.attrs.update(unstructure(self.platform.attrs))
 
         # write platform data
-        platform.array(name='behaviour',data=self.platform.behaviour)
+        platform.create_array(name='behaviour',shape=self.platform.behaviour.__len__(), dtype="string")
+        platform["behaviour"][:] = self.platform.behaviour
 
         # write trajectory arrays
-        trajectory.array(name="latitude",data=self.trajectory.latitude)
-        trajectory.array(name="longitude",data=self.trajectory.longitude)
-        trajectory.array(name="depth",data=self.trajectory.depth)
-        trajectory.array(name="time",data=self.trajectory.time.astype('datetime64[s]'))
-        trajectory.array(name="pitch",data=self.trajectory.pitch)
-        trajectory.array(name="roll",data=self.trajectory.roll)
-        trajectory.array(name="yaw",data=self.trajectory.yaw)
+        trajectory.create_array(name="latitude",data=self.trajectory.latitude)
+        trajectory.create_array(name="longitude",data=self.trajectory.longitude)
+        trajectory.create_array(name="depth",data=self.trajectory.depth)
+        trajectory.create_array(name="time",data=self.trajectory.time.astype('datetime64[s]'))
+        trajectory.create_array(name="pitch",data=self.trajectory.pitch)
+        trajectory.create_array(name="roll",data=self.trajectory.roll)
+        trajectory.create_array(name="yaw",data=self.trajectory.yaw)
 
         # write payload arrays
         for pload in self.payload.keys():
-            payload.array(name=pload,data=self.payload[pload])
+            payload.create_array(name=pload,data=self.payload[pload])
 
         # update world attributes
         world.attrs.update(unstructure(self.worlds.attributes))
@@ -1140,16 +1139,26 @@ class Mission:
         for key, value in self.worlds.worlds.items():
             world.create_group(name=key)
             try:
-                zarr.convenience.copy_all(value,world[key])
+                self.__copy_group(value,world[key])
             except AttributeError:
                 logger.warning(f"failed to copy world {key} trying to covert to zarr")
                 del world[key]
                 value.to_zarr(group=f"{world.name}/{key}",store=store)
                 logger.info(f"successfully converted world {key} to zarr")
 
-
-        # self.create_dim_map(msm_cat=msm_cat)
-        # self.add_array_dimensions(group=self, dim_map=self.world.attrs['dim_map'])
-        zarr.consolidate_metadata(store)
         logger.success(f"successfully exported {self.attrs.mission}")
 
+    def __copy_group(self,src: zarr.Group, dest: zarr.Group):
+
+        # Copy attributes
+        dest.attrs.update(src.attrs.asdict())
+
+        # Copy arrays
+        for name, arr in src.arrays():
+            dest.create_array(name=name, data=arr[:], overwrite=True)
+            dest[name].attrs.update(arr.attrs.asdict())
+
+        # Recurse into subgroups
+        for name, subgrp in src.groups():
+            subdest = dest.create_group(name)
+            self.__copy_group(subgrp, subdest)
