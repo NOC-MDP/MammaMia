@@ -30,9 +30,6 @@ class NullDataException(Exception):
 class InvalidPlatform(Exception):
     pass
 
-class InvalidSensor(Exception):
-    pass
-
 class InvalidParameter(Exception):
     pass
 
