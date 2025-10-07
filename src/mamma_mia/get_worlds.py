@@ -40,10 +40,9 @@ def get_worlds(cat: Cats, worlds:WorldsConf,source:SourceConfig) -> dict:
             zarr_stores[key] = zarr_store
             worlds.worlds[key] = zarr.open(zarr_store, mode='r')
         elif source.source_type == SourceType.MSM:
-            pass
-        #     zarr_store = __get_msm_worlds(key=key, value=value, catalog=cat,world=world)
-        #     zarr_stores[key] = zarr_store
-        #    worlds.worlds[key] = zarr.open(zarr_store, mode='r')
+            zarr_store = __get_msm_worlds(key=key, value=value, catalog=cat,worlds=worlds)
+            zarr_stores[key] = zarr_store
+            worlds.worlds[key] = zarr.open(zarr_store, mode='r')
         elif source.source_type == SourceType.LOCAL:
             zarr_stores[key] = value.local_dir + "/" + value.data_id
             worlds.worlds[key] = xr.open_dataset(value.local_dir+"/"+value.data_id)
@@ -53,14 +52,14 @@ def get_worlds(cat: Cats, worlds:WorldsConf,source:SourceConfig) -> dict:
 
     return zarr_stores
 
-def __get_msm_worlds(key: str, value, catalog: Cats,world:zarr.Group) -> str:
+def __get_msm_worlds(key: str, value, catalog: Cats,worlds:WorldsConf) -> str:
     """
     Function that downloads the msm source model data that matches the required spatial and temporal extents and sensor
     specification of the auv.
     Args:
         key: model source
         value: object that contains the intake entry of the matched dataset
-        world: zarr group that contains the world attributes and will store the downloaded model data
+        worlds:
 
     Returns:
         string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
@@ -69,23 +68,15 @@ def __get_msm_worlds(key: str, value, catalog: Cats,world:zarr.Group) -> str:
     var_str = ""
     vars2 = []
     subsets = []
-    msm = world.create_group(key)
-    msm.attrs["spatial_extent"] = {"max_lng": world.attrs["extent"]["max_lng"],
-                                   "min_lng": world.attrs["extent"]["min_lng"],
-                                   "max_lat": world.attrs["extent"]["max_lat"],
-                                   "min_lat": world.attrs["extent"]["min_lat"],
-                                   "max_depth": world.attrs["extent"]["max_depth"]}
-    msm.attrs["temporal_extent"] = {"start_time": world.attrs["extent"]["start_time"],
-                                    "end_time": world.attrs["extent"]["end_time"]}
 
     for k2, v2 in value.items():
         vars2.append(v2)
         var_str = var_str + str(v2) + "_"
     # TODO add in a min depth parameter? or always assume its the surface?
-    zarr_f = (f"{key}_{var_str}{msm.attrs['spatial_extent']['max_lng']}_{msm.attrs['spatial_extent']['min_lng']}_"
-              f"{msm.attrs['spatial_extent']['max_lat']}_{msm.attrs['spatial_extent']['min_lat']}_"
-              f"{msm.attrs['spatial_extent']['max_depth']}_{msm.attrs['temporal_extent']['start_time']}_"
-              f"{msm.attrs['temporal_extent']['end_time']}.zarr")
+    zarr_f = (f"{value.data_id}_{worlds.attributes.extent.lon_max}_{worlds.attributes.extent.lon_min}_"
+              f"{worlds.attributes.extent.lat_max}_{worlds.attributes.extent.lat_min}_"
+              f"{worlds.attributes.extent.depth_max}_{worlds.attributes.extent.time_start}_"
+              f"{worlds.attributes.extent.time_end}.zarr")
     zarr_d = "msm-data/"
     logger.info(f"getting msm world {zarr_f}")
     if not os.path.isdir(zarr_d + zarr_f):
@@ -99,10 +90,10 @@ def __get_msm_worlds(key: str, value, catalog: Cats,world:zarr.Group) -> str:
             lat_flat = lat.values.flatten()
             lon_flat = lon.values.flatten()
             # Step 2: Calculate the squared Euclidean distance for each point on the grid
-            distance = np.sqrt((lat_flat - msm.attrs['spatial_extent']['max_lat']) ** 2 + (
-                        lon_flat - msm.attrs['spatial_extent']['max_lng']) ** 2)
-            distance2 = np.sqrt((lat_flat - msm.attrs['spatial_extent']['min_lat']) ** 2 + (
-                        lon_flat - msm.attrs['spatial_extent']['min_lng']) ** 2)
+            distance = np.sqrt((lat_flat - worlds.attributes.extent.lat_max) ** 2 + (
+                        lon_flat - worlds.attributes.extent.lon_max) ** 2)
+            distance2 = np.sqrt((lat_flat - worlds.attributes.extent.lat_min) ** 2 + (
+                        lon_flat - worlds.attributes.extent.lon_min) ** 2)
             # Step 3: Find the index of the minimum distance
             min_index = np.argmin(distance)
             min_index2 = np.argmin(distance2)
@@ -112,9 +103,9 @@ def __get_msm_worlds(key: str, value, catalog: Cats,world:zarr.Group) -> str:
             y_index_min, x_index_min = np.unravel_index(min_index2, (y_size, x_size))
             subsets.append(data[var].sel(y=slice(y_index_min, y_index_max),
                                      x=slice(x_index_min, x_index_max),
-                                     deptht=slice(0, msm.attrs['spatial_extent']['max_depth']),
-                                     time_counter=slice(msm.attrs['temporal_extent']['start_time'],
-                                                        msm.attrs['temporal_extent']['end_time'])))
+                                     deptht=slice(0, worlds.attributes.extent.depth_max),
+                                     time_counter=slice(worlds.attributes.extent.time_start,
+                                                        worlds.attributes.extent.time_end)))
         subset = xr.merge(subsets)
         subset.to_zarr(store=zarr_d + zarr_f, safe_chunks=False)
         logger.success(f"{zarr_f} has been cached")

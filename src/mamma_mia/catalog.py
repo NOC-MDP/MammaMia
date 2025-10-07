@@ -10,7 +10,7 @@
 # limitations under the License.
 
 from attrs import define, field
-import intake
+from OceanDataStore import OceanDataCatalog
 import copernicusmarine
 from loguru import logger
 
@@ -30,7 +30,7 @@ class Cats:
         Populated Cats object
     """
     cmems_cat: copernicusmarine.CopernicusMarineCatalogue = None
-    msm_cat: intake.Catalog = None
+    msm_cat: OceanDataCatalog = None
     search: str = "Global"
     cat_path: str = "https://noc-msm-o.s3-ext.jc.rl.ac.uk/mamma-mia/catalog/catalog.yml"
     overwrite: bool = False
@@ -40,7 +40,7 @@ class Cats:
         if self.cmems_cat is None:
             self.cmems_cat = copernicusmarine.describe(contains=[])
         if self.msm_cat is None:
-            self.msm_cat = intake.open_catalog(self.cat_path)
+            self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
 
     def get_sources_list(self):
         """
