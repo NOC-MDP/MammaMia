@@ -10,6 +10,8 @@
 # limitations under the License.
 
 import os
+from datetime import datetime
+
 from mamma_mia.catalog import Cats
 from loguru import logger
 import numpy as np
@@ -47,6 +49,8 @@ class FindWorlds:
                         SourceConfig.local_dir = os.getcwd()
                         logger.info(f"using local directory {SourceConfig.local_dir}")
                     self.__find_local_worlds(extent=extent,key=key,local_dir=source.local_dir)
+                case SourceType.MSM:
+                    self.__find_msm_worlds(cat=cat, key=key, extent=extent)
                 case _:
                     raise ValueError(f"unknown source type {source.source_type.name}")
 
@@ -364,52 +368,46 @@ class FindWorlds:
                                         logger.info(f"creating new matched world {dataset.dataset_id} for key {key}")
                                         self.entries[world_id] = new_world
 
+    def __find_msm_worlds(self,key :str ,cat :Cats,extent:dict) -> None:
+        """
+        function to find models/worlds within the msm source catalog for a given auv extent and sensor specification
+        Args:
+            key: string that represents the variable to find
+            cat: Cats object that contains the catalogs
+            extent: dictionary containing spatial and temporal extents of the auv
 
+        Returns:
+            matched worlds dictionary containing dataset ids and variable names
 
-
-#
-# def __find_msm_worlds(key :str ,cat :Cats ,matched_worlds :dict,extent:dict) -> dict:
-#     """
-#     function to find models/worlds within the msm source catalog for a given auv extent and sensor specification
-#     Args:
-#         key: string that represents the variable to find
-#         cat: Cats object that contains the catalogs
-#         matched_worlds: dictionary of matched worlds that is updated with matched models that are found for each key
-#         extent: dictionary containing spatial and temporal extents of the auv
-#
-#     Returns:
-#         matched worlds dictionary containing dataset ids and variable names
-#
-#     """
-#     for k1 ,v1 in cat.msm_cat.items():
-#         var_key = None
-#         logger.info(f"searching {k1}")
-#         metadata = v1.describe()['metadata']
-#         aliases = metadata.get('aliases', [])
-#         # check if the key is in one of the variables alias dictionaries
-#         for k2 ,v2 in aliases.items():
-#             if key in v2:
-#                 var_key = k2
-#         spatial_extent = metadata.get('spatial_extent', [])
-#         temporal_extent = metadata.get('temporal_extent', [])
-#         start_traj = float((np.datetime64(extent["start_time"]) - np.datetime64(
-#             '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
-#         end_traj = float((np.datetime64(extent["end_time"]) - np.datetime64(
-#             '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
-#         if temporal_extent:
-#             start_datetime = datetime.fromisoformat(temporal_extent[0].replace("Z", "+00:00")).timestamp( ) *1000
-#             end_datetime = datetime.fromisoformat(temporal_extent[1].replace("Z", "+00:00")).timestamp( ) *1000
-#             # Check if the item is within the desired date range and spatial bounds
-#             if (spatial_extent and
-#                     extent["min_lat"] >= spatial_extent[0] and extent["max_lat"] <= spatial_extent[2] and
-#                     extent["min_lng"] >= spatial_extent[1] and extent["max_lng"] <= spatial_extent[3] and
-#                     start_traj >= start_datetime and end_traj <= end_datetime and var_key is not None):
-#                 logger.success(f"found a match in {k1} for {key}")
-#                 if k1 in matched_worlds:
-#                     logger.info(f"updating {k1} with key {key}")
-#                     matched_worlds[k1][key] = var_key
-#                 else:
-#                     logger.info(f"creating new matched world {k1} for key {key}")
-#                     matched_worlds[k1] = {key: var_key}
-#     return matched_worlds
+        """
+        for k1 ,v1 in cat.msm_cat.items():
+            var_key = None
+            logger.info(f"searching {k1}")
+            metadata = v1.describe()['metadata']
+            aliases = metadata.get('aliases', [])
+            # check if the key is in one of the variables alias dictionaries
+            for k2 ,v2 in aliases.items():
+                if key in v2:
+                    var_key = k2
+            spatial_extent = metadata.get('spatial_extent', [])
+            temporal_extent = metadata.get('temporal_extent', [])
+            start_traj = float((np.datetime64(extent["start_time"]) - np.datetime64(
+                '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+            end_traj = float((np.datetime64(extent["end_time"]) - np.datetime64(
+                '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+            if temporal_extent:
+                start_datetime = datetime.fromisoformat(temporal_extent[0].replace("Z", "+00:00")).timestamp( ) *1000
+                end_datetime = datetime.fromisoformat(temporal_extent[1].replace("Z", "+00:00")).timestamp( ) *1000
+                # Check if the item is within the desired date range and spatial bounds
+                if (spatial_extent and
+                        extent["min_lat"] >= spatial_extent[0] and extent["max_lat"] <= spatial_extent[2] and
+                        extent["min_lng"] >= spatial_extent[1] and extent["max_lng"] <= spatial_extent[3] and
+                        start_traj >= start_datetime and end_traj <= end_datetime and var_key is not None):
+                    logger.success(f"found a match in {k1} for {key}")
+                    if k1 in self.entries:
+                        logger.info(f"updating {k1} with key {key}")
+                        self.entries[k1][key] = var_key
+                    else:
+                        logger.info(f"creating new matched world {k1} for key {key}")
+                        self.entries[k1] = {key: var_key}
 
