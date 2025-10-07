@@ -27,7 +27,20 @@ from mamma_mia.worlds import WorldsAttributes,WorldsConf,WorldExtent
 @frozen
 class Point:
     """
-    Immutable point object
+    Immutable point object stores a location in space and time
+
+    Attributes
+    ----------
+    latitude : float, required
+        latitude of the point
+    longitude : float, required
+        longitude of the point
+    depth : float, required
+        depth of the point
+    dt: str, required
+        string representing the datetime of the point
+    datetime, np.datetime64
+        datetime of the point derived from dt string
     """
     latitude: float
     longitude: float
@@ -42,6 +55,19 @@ class Point:
 class RealityPt:
     """
     Immutable vector object, contains U, V and W components of velocity, temperature, salinity at a single point
+
+    Attributes
+    ----------
+    u_velocity : float, required
+        velocity U component
+    v_velocity : float, required
+        velocity V component
+    w_velocity : float, required
+        velocity W component
+    potential_temperature : float, required
+        potential temperature at point
+    practical_salinity : float, required
+        practical salinity at point
     """
     u_velocity: float
     v_velocity: float
@@ -52,11 +78,18 @@ class RealityPt:
 @define
 class RealityWorld:
     """
-    An velocity world zarr group, based on a mamma mia world class that contains a subset of velocity data ready for interpolation onto points
+    World object containing world configuration, trajectory, and source configuration
 
-    Args:
-
-
+    Attributes
+    ----------
+    world_conf: WorldsConf, required
+        world configuration object
+    trajectory: Trajectory, required
+        trajectory object
+    reality: dict, required
+        reality dictionary
+    source: SourceConfig, required
+        source configuration object
     """
     world_conf: WorldsConf
     trajectory: Trajectory
@@ -70,6 +103,18 @@ class RealityWorld:
                             msm_priority:int=2,
                             cmems_priority:int=1,
                       ):
+        """
+        Reality World built for Glider Simulator
+        Args:
+            extent:
+            excess_depth:
+            excess_space:
+            msm_priority:
+            cmems_priority:
+
+        Returns: RealityWorld object for Glider Simulator
+
+        """
         logger.info("creating reality world")
 
         trajectory = Trajectory.for_glidersim()
@@ -95,13 +140,13 @@ class RealityWorld:
         cats = Cats()
         cats.init_catalog()
         sensor_inventory = SensorInventory()
-        ctd = sensor_inventory.create_entity(entity_name="ctd", sensor_ref="mm_ctd")
-        adcp = sensor_inventory.create_entity(entity_name="adcp", sensor_ref="mm_adcp")
+        ctd = sensor_inventory.entries["Generic CTD"]
+        adcp = sensor_inventory.entries["Generic ADCP"]
 
         reality = {}
-        for name,sensor in adcp.parameters.items():
+        for name,sensor in adcp.specification.items():
             reality[name] = np.empty(shape=1,dtype=np.float64)
-        for name,sensor in ctd.parameters.items():
+        for name,sensor in ctd.specification.items():
             reality[name] = np.empty(shape=1,dtype=np.float64)
 
         matched_worlds = FindWorlds()

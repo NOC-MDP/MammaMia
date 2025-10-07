@@ -28,13 +28,22 @@ class Campaign:
     Campaign object, this contains all the missions that auv's are being deployed to undertake. It is the main object
     to interact with Mamma mia.
 
-    Args:
-        name: name of the campaign
-        description: description of the campaign
-
-    Returns:
-        Campaign object with initialised catalog and system generated uuid
-
+    Attributes
+    ----------
+    name : str, required
+        Name of the Campaign.
+    description : str, optional
+        Description/Summary of the Campaign
+    catalog : Cats
+        The Mamma Mia catalog class
+    platforms: dict[str, Platform]
+        A dictionary containing platforms that can be used in missions
+    missions: dict[str, Mission]
+        A dictionary containing missions objects
+    interpolators: dict[str, Interpolator]
+        A dictionary containing interpolators, used to interpolate model data to a platforms trajectory
+    verbose: bool
+        Logging verbosity
     """
     name: str
     description: str
@@ -56,12 +65,19 @@ class Campaign:
 
     def register_platform(self,entity: create_platform_attrs()):
         """
-        Add an platform to the campaign platform dictionary
-        Args:
-            entity: platform entity to add to campaign
-        Returns:
-            platform object stored in the campaign auv dictionary under its id key
+        Register a platform to the campaign platform dictionary
 
+        Parameters
+        -----------
+        entity : PlatformAttributes
+            Platform attributes object
+
+        Raises
+        -------
+        InvalidEntity
+            Platform name must not be None
+        PlatformExists
+            Platform name must not already be registered
         """
         if entity.entity_name is None:
             raise InvalidEntity("Platform entity name cannot be None")
@@ -90,34 +106,55 @@ class Campaign:
                     mission_time_step: int = 1,
                     apply_obs_error: bool = False,
                     standard_name_vocabulary: str = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html",
-
                     ) -> None:
         """
-        Function that adds an auv mission to the campaign.
-        Args:
-            standard_name_vocabulary:
-            apply_obs_error:
-            mission_time_step:
-            source_location: what source to use, e.g. CMEMS, MSM or LOCAL, specifc location can be set as a file path
-            crs:
-            vertical_crs:
-            contributor:
-            publisher:
-            creator:
-            summary: sumary of mission
-            platform_name:
-            mission_name: name of the mission
-            title: title of the mission
-            trajectory_path: path to auv trajectory netcdf
-            excess_space: amount of excess space to add to model/world download in decimal degrees, default is 0.5
-            extra_depth: amount of excess depth to add to model/world download in metres, default is 100
-            msm_priority: priority value for msm world sources (higher values have greater priority)
-            cmems_priority: priority value for cmems world sources (higher values have greater priority)
+        Add an auv mission to the campaign.
+        Parameters
+        ----------
+        summary: str, required
+            summary of mission
+        platform_name: str, required
+            name of the platform to use in the mission
+        mission_name: str, required
+            name of the mission
+        title: str, required
+            title of the mission
+        trajectory_path: str, required
+            path to auv trajectory netcdf/csv file
+        standard_name_vocabulary: str, optional
+            url of standard name vocabulary
+        apply_obs_error: bool, optional
+            apply an observation error to the payload to make more realistic observations
+        mission_time_step: int, optional
+            time step mission will run at, e.g. the output timestep of the payload and flight
+        source_location: str, optional
+            what model source to use, converts to a SourceType
+        crs: str, optional
+            Which CRS to use for geospatial coordinates
+        vertical_crs: str, optional
+            which vertical CRS to use for elevations
+        contributor: Contributor, optional
+            Contributor object
+        publisher: Publisher, optional
+            Publisher object
+        creator: Creator, optional
+            Creator object
+        excess_space: float, optional
+            amount of excess space to add to model/world download in decimal degrees
+        extra_depth: int, optional
+            amount of excess depth to add to model/world download in metres
+        msm_priority: int optional
+            priority value for msm world sources (higher values have greater priority)
+        cmems_priority: int optional
+            priority value for cmems world sources (higher values have greater priority)
 
-        Returns:
-            Campaign object with initialised mission object contained within the missions dictionary. An interpolators object
-            is also initialized and stored in the interpolated dictionary coded with the mission key. (each mission has its own
-            set of interpolators).
+        Raises
+        ------
+        MissionExists
+            Mission name must not already be registered
+        UnknownPlatform
+            Platform must be registered
+
         """
         if mission_name in self.missions:
             logger.error(f"mission {mission_name} already exists")
@@ -153,13 +190,8 @@ class Campaign:
 
     def build_missions(self) -> None:
         """
-        Function that builds the missions contained within the missions dictionary.
-
-        Returns:
-            void: mission objects with searched and downloaded worlds and built interpolators ready for flight/deployments
-
+        Build the missions contained within the missions dictionary.
         """
-
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
             logger.info(f"building {mission.attrs.mission}")
@@ -176,8 +208,7 @@ class Campaign:
 
     def enable_interpolator_cache(self) -> None:
         """
-        enable interpolator cache so generated intepolators are stored on disk
-
+        enable interpolator cache so generated interpolators are stored on disk
         """
         for key, interpol in self.interpolators.items():
             interpol.cache = True
@@ -185,11 +216,7 @@ class Campaign:
 
     def run(self) -> None:
         """
-        Function that runs the missions contained within the missions dictionary.
-        Returns:
-            void: populated reality data arrays in each mission within the mission's dictionary. This emulates each auv
-                  mission deployment.
-
+        Executes the missions as specified within the mission's dictionary.
         """
         logger.info(f"running {self.name}")
         for mission in self.missions.values():
@@ -199,14 +226,14 @@ class Campaign:
 
     def export(self,overwrite=True,export_path=None) -> None:
         """
-        Function that exports the campaign object as an zarr group
-        Args:
-            overwrite: overwrite any existing campaign store
-            export_path: override default location of campaign store export.
+        Exports the campaign object as a zarr group
 
-        Returns:
-            void: Campaign object is exported to zarr store. NOTE: interpolators and catalogs cannot be exported.
-
+        Parameters
+        -----------
+        overwrite: bool, optional
+            overwrite any existing campaign store
+        export_path: str, optional
+            override default location of campaign store export.
         """
         campaign_name = self.name.replace(" ","_")
         logger.info(f"exporting {self.name}")
@@ -224,12 +251,10 @@ class Campaign:
         logger.info(f"zarr group {self.name} successfully created")
 
         for key1, mission in self.missions.items():
-            #mission.create_dim_map(msm_cat=self.catalog.msm_cat)
             logger.info(f"creating zarr group for mission {mission.attrs.mission}")
             camp.create_group(mission.attrs.mission)
             logger.info(f"exporting {mission.attrs.mission}")
             mission.export_as_zarr(store=store)
-            #mission.add_array_dimensions(group=camp,dim_map= mission.world.attrs["dim_map"])
             logger.info(f"successfully exported {mission.attrs.mission}")
         logger.success(f"successfully exported {self.name}")
 
