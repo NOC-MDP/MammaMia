@@ -28,10 +28,6 @@ campaign = Campaign(name="RAPID array virtual mooring",
                     verbose=True
                     )
 
-print(f"sources available: {campaign.catalog.get_sources_list()}")
-campaign.catalog.set_priority(source="MSM",priority=3)
-print(f"sources available: {campaign.catalog.get_sources_list()}")
-
 # create platform entity (mutable)
 Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Slocum_G2",serial_number="unit_398")
 
@@ -46,7 +42,7 @@ campaign.add_mission(mission_name="RAD24_01",
                      summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
                      platform_name="Churchill",
                      trajectory_path="data/RAPID-mooring/rapid-mooring.nc",
-                     source_location="rapid_data",
+                     source_location="CMEMS",
                      mission_time_step=60,
                      apply_obs_error=True)
 

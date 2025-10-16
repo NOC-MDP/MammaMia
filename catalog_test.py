@@ -1,19 +1,51 @@
 from OceanDataStore import OceanDataCatalog
+from mamma_mia import WorldExtent
+from datetime import datetime
 import matplotlib.pyplot as plt
 
+
+
 catalog = OceanDataCatalog(catalog_name="noc-model-stac")
+parameters = ["thetao_con"]
+catalog.search()
 
-catalog.search(collection='noc-npd-era5', standard_name='sea_surface_temperature')
+world_extent = WorldExtent(lon_max=60,
+                           lon_min=-60,
+                           lat_max=40,
+                           lat_min=-40,
+                           depth_max=1000,
+                           time_end="2023-12-31T23:59:59",
+                           time_start="2023-12-31T23:59:59")
+world_start = datetime.strptime(world_extent.time_start,"%Y-%m-%dT%H:%M:%S")
+world_end = datetime.strptime(world_extent.time_end,"%Y-%m-%dT%H:%M:%S")
+match = 0
+matched_items = []
+for item in catalog.Items:
+    if (
+    item.bbox[0] <= world_extent.lon_min and
+    item.bbox[2] >= world_extent.lon_max and
+    item.bbox[1] <= world_extent.lat_min and
+    item.bbox[3] >= world_extent.lat_max and
+    datetime.strptime(item.properties["start_datetime"],"%Y-%m-%dT%H:%M:%SZ") < world_start and
+    datetime.strptime(item.properties["end_datetime"],"%Y-%m-%dT%H:%M:%SZ") > world_end
+    ):
+        print(item.properties["variables"])
+        for parameter in parameters:
+            if parameter in item.properties["variables"]:
 
-print(catalog.Items[0])
+                print(f"found a match for {parameter} item id: {item.id}")
+                matched_items.append(item)
 
-ds = catalog.open_dataset(id=catalog.Items[0].id,
-                          start_datetime='1980-01',
-                          end_datetime='1990-12',
-                          )
+print(f"{matched_items.__len__()} matches found")
+print(catalog.Items)
 
-print(ds)
+# ds = catalog.open_dataset(id="noc-npd-era5/npd-eorca025-era5v1/gn/T5d_4d",
+#                           start_datetime='2023-01',
+#                           end_datetime='2023-02',
+#                           )
 
-ds['tos_con'].mean(dim='time_counter').plot(cmap='RdBu_r')
+# print(ds)
 
-plt.show()
+# ds['thetao_con'].mean(dim='time_counter').plot(cmap='RdBu_r')
+#
+# plt.show()

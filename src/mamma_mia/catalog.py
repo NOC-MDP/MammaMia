@@ -14,6 +14,8 @@ from OceanDataStore import OceanDataCatalog
 import copernicusmarine
 from loguru import logger
 
+from mamma_mia.worlds import SourceType
+
 
 @define
 class Cats:
@@ -23,8 +25,6 @@ class Cats:
 
     Parameters
     ----------
-    search: str, optional
-        overrides the default search term used for CMEMS sources
     overwrite: bool, optional
         overwrites the metadata cache used for CMEMS sources
 
@@ -34,40 +34,26 @@ class Cats:
         cmems catalog class
     msm_cat: OceanDataCatalog
         msm catalog class
-    sources: dict
-        dictionary containing integers that denote a model source priority
     """
     cmems_cat: copernicusmarine.CopernicusMarineCatalogue = None
     msm_cat: OceanDataCatalog = None
-    search: str = "Global"
     overwrite: bool = False
-    sources: dict = {"CMEMS": 1, "MSM": 2}
 
-    def init_catalog(self):
+    def init_catalog(self,source_type: SourceType):
         """
         initialize the catalog class
         """
-        if self.cmems_cat is None:
-            self.cmems_cat = copernicusmarine.describe(contains=[])
-        if self.msm_cat is None:
-            self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
+        logger.info("Initializing catalog")
+        if source_type == SourceType.LOCAL:
+            logger.info("local data source request, skipping catalog initialization")
+        elif source_type == SourceType.CMEMS:
+            logger.info("CMEMS source requested, building catalog")
+            if self.cmems_cat is None:
+                self.cmems_cat = copernicusmarine.describe(contains=[])
+        elif source_type == SourceType.MSM:
+            logger.info("CMEMS source requested, building catalog")
+            if self.msm_cat is None:
+                self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
+                self.msm_cat.search()
+        logger.info("Catalog initialized")
 
-    def get_sources_list(self):
-        """
-        list of model sources that can be downloaded to use within Mamma Mia along with their priority
-
-        """
-        return self.sources
-
-    def set_priority(self, source: str, priority: int):
-        """
-        Sets the priority of a given source
-        Parameters
-        ----------
-        source: str
-            source to update
-        priority: int
-            priority of the source (higher has higher priority)
-        """
-        self.sources[source] = priority
-        logger.success(f"Set priority of {source} to {priority}")
