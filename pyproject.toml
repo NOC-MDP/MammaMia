@@ -34,7 +34,7 @@ dependencies = ["loguru==0.7.*",
 #                "glidersim@git+https://github.com/NOC-MDP/glidersim",
                 "latlon@git+https://github.com/NOC-MDP/latlon",
 #                "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF",
-                "OceanDataStore@git+https://github.com/NOC-MDP/OceanDataStore"
+                "OceanDataStore@git+https://github.com/NOC-MSM/OceanDataStore@v0.1.0"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",

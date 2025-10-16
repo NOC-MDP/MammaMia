@@ -65,6 +65,7 @@ class FieldType(Enum):
     six_hour_mean = "PT6H-m"
     daily_mean = "P1D-m"
     monthly_mean = "P1M-m"
+    annual_mean = "P1A-m"
     @classmethod
     def from_string(cls,enum_string:str) -> "FieldType":
         match enum_string:
@@ -78,6 +79,8 @@ class FieldType(Enum):
                 return FieldType.daily_mean
             case "P1M-m":
                 return FieldType.monthly_mean
+            case "P1A-m" | "annual":
+                return FieldType.annual_mean
             case _:
                 raise ValueError(f"unknown field type {enum_string}")
 
@@ -103,6 +106,8 @@ class FieldTypeWithRank:
                 return cls(field_type=FieldType.daily_mean, rank=4)
             case "P1M-m":
                 return cls(field_type=FieldType.monthly_mean, rank=5)
+            case "P1A-m" | "annual":
+                return cls(field_type=FieldType.annual_mean, rank=6)
             case _:
                 raise ValueError(f"unknown field type {enum_string}")
     @classmethod
@@ -118,6 +123,8 @@ class FieldTypeWithRank:
                 return cls(field_type=FieldType.daily_mean, rank=rank)
             case "P1M-m":
                 return cls(field_type=FieldType.monthly_mean, rank=rank)
+            case "P1A-m" | "annual":
+                return cls(field_type=FieldType.annual_mean, rank=rank)
             case _:
                 raise ValueError(f"unknown field type {enum_string}")
 
@@ -173,7 +180,6 @@ class WorldExtent:
 @define
 class WorldsAttributes:
     extent: WorldExtent
-    catalog_priorities: dict
     interpolator_priorities: dict
     matched_worlds: dict
 

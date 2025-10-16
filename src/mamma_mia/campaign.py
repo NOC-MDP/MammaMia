@@ -95,8 +95,6 @@ class Campaign:
                     trajectory_path:str,
                     excess_space: int = 0.5,
                     extra_depth: int = 100,
-                    msm_priority: int = 2,
-                    cmems_priority: int = 1,
                     crs: str = 'EPSG:4326',
                     vertical_crs: str = 'EPSG:5831',
                     creator:Creator = Creator(),
@@ -143,10 +141,6 @@ class Campaign:
             amount of excess space to add to model/world download in decimal degrees
         extra_depth: int, optional
             amount of excess depth to add to model/world download in metres
-        msm_priority: int optional
-            priority value for msm world sources (higher values have greater priority)
-        cmems_priority: int optional
-            priority value for cmems world sources (higher values have greater priority)
 
         Raises
         ------
@@ -174,8 +168,6 @@ class Campaign:
                           contributor=contributor,
                           excess_space=excess_space,
                           extra_depth=extra_depth,
-                          msm_priority=msm_priority,
-                          cmems_priority=cmems_priority,
                           crs = crs,
                           vertical_crs = vertical_crs,
                           source_config=mission_source,
@@ -195,10 +187,9 @@ class Campaign:
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
             logger.info(f"building {mission.attrs.mission}")
-            if mission.attrs.source_config.source_type != SourceType.LOCAL:
-                logger.info(f"initiating catalog for {self.name}")
-                self.catalog.init_catalog()
-                logger.success(f"successfully initialized catalog for {self.name}")
+
+            self.catalog.init_catalog(source_type=mission.attrs.source_config.source_type)
+
             mission.build_mission(cat=self.catalog)
             logger.success(f"successfully built {mission.attrs.mission}")
         for key, interpol in self.interpolators.items():

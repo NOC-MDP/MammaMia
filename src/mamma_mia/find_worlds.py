@@ -368,7 +368,7 @@ class FindWorlds:
                                         logger.info(f"creating new matched world {dataset.dataset_id} for key {key}")
                                         self.entries[world_id] = new_world
 
-    def __find_msm_worlds(self,key :str ,cat :Cats,extent:dict) -> None:
+    def __find_msm_worlds(self,key :str ,cat :Cats,extent) -> None:
         """
         function to find models/worlds within the msm source catalog for a given auv extent and sensor specification
         Args:
@@ -380,34 +380,99 @@ class FindWorlds:
             matched worlds dictionary containing dataset ids and variable names
 
         """
-        for k1 ,v1 in cat.msm_cat.items():
-            var_key = None
-            logger.info(f"searching {k1}")
-            metadata = v1.describe()['metadata']
-            aliases = metadata.get('aliases', [])
-            # check if the key is in one of the variables alias dictionaries
-            for k2 ,v2 in aliases.items():
-                if key in v2:
-                    var_key = k2
-            spatial_extent = metadata.get('spatial_extent', [])
-            temporal_extent = metadata.get('temporal_extent', [])
-            start_traj = float((np.datetime64(extent["start_time"]) - np.datetime64(
-                '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
-            end_traj = float((np.datetime64(extent["end_time"]) - np.datetime64(
-                '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
-            if temporal_extent:
-                start_datetime = datetime.fromisoformat(temporal_extent[0].replace("Z", "+00:00")).timestamp( ) *1000
-                end_datetime = datetime.fromisoformat(temporal_extent[1].replace("Z", "+00:00")).timestamp( ) *1000
-                # Check if the item is within the desired date range and spatial bounds
-                if (spatial_extent and
-                        extent["min_lat"] >= spatial_extent[0] and extent["max_lat"] <= spatial_extent[2] and
-                        extent["min_lng"] >= spatial_extent[1] and extent["max_lng"] <= spatial_extent[3] and
-                        start_traj >= start_datetime and end_traj <= end_datetime and var_key is not None):
-                    logger.success(f"found a match in {k1} for {key}")
-                    if k1 in self.entries:
-                        logger.info(f"updating {k1} with key {key}")
-                        self.entries[k1][key] = var_key
+        # get source names for key from parameter inventory
+        alternative_sources = inventory.parameters.entries[key].alternate_sources
+        alternative_source_names = {}
+        for src in alternative_sources:
+            alternative_source_names[src] = inventory.parameters.entries[src].source_names
+        # create datetimes from extent strings
+        world_start = datetime.strptime(extent.time_start, "%Y-%m-%dT%H:%M:%S")
+        world_end = datetime.strptime(extent.time_end, "%Y-%m-%dT%H:%M:%S")
+        # for every item in msm catalog
+        for item in cat.msm_cat.Items:
+            # see if the item contains the required temporal and spatial extent
+            if (
+                    item.bbox[0] <= extent.lon_min and
+                    item.bbox[2] >= extent.lon_max and
+                    item.bbox[1] <= extent.lat_min and
+                    item.bbox[3] >= extent.lat_max and
+                    datetime.strptime(item.properties["start_datetime"], "%Y-%m-%dT%H:%M:%SZ") < world_start and
+                    datetime.strptime(item.properties["end_datetime"], "%Y-%m-%dT%H:%M:%SZ") > world_end
+            ):
+                # check to see if item variable is in parameters list
+                variables = item.properties["variables"]
+                # check each variable
+                for variable in variables:
+                    alternative_parameter = None
+                    for alt_key,alt_src in alternative_source_names.items():
+                        if variable in alt_src:
+                            alternative_parameter = alt_key
+                            break
+                    parts = item.id.split("/")
+                    # check to see if field type is supported by MM
+                    try:
+                        field_type = FieldTypeWithRank.from_string(enum_string=item.properties["operation_frequency"])
+                    except ValueError:
+                        logger.warning(f"{item.properties['operation_frequency']} is not a supported field type")
+                        continue
+                    world_id = "_".join(parts[:-1])
+                    # check to see if domain type is supported by MM
+                    try:
+                        if item.bbox == [-180.0, -90.0, 180.0, 90.0]:
+                            domain_type = DomainType.from_string(enum_string="glo")
+                        else:
+                            domain_type = DomainType.from_string(enum_string="regional")
+                    except ValueError as e:
+                        logger.warning(f"domain {e} not supported, skipping this dataset")
+                        continue
+                    # check is world type is supported
+                    try:
+                        world_type = WorldType.from_string(enum_string="mod")
+                    except ValueError as e:
+                        logger.warning(f"world type {e} not supported, skipping this dataset")
+                        continue
+                    # after all that PHEW! we can add to matched entries
+                    logger.success(f"found a match in {item.id} for {key}")
+                    new_world = MatchedWorld(
+                        data_id=item.id,
+                        world_type=world_type,
+                        domain=domain_type,
+                        dataset_name=parts[1],
+                        resolution=parts[1],
+                        field_type=field_type,
+                        variable_alias=item.properties["variable_standard_names"],
+                        alternative_parameter={key:alternative_parameter}
+                    )
+                    # create a new world entry based on existing entries ranking and variables.
+                    # NOTE this assumes that all variables of a dataset exist across all field types.
+                    # TODO check that the assumption in the comment above is true
+                    if world_id in self.entries:
+                        # if the rank of existing world is higher (and therefore not as good) replace
+                        if self.entries[world_id].field_type.rank > new_world.field_type.rank:
+                            # get any existing variables
+                            existing_vars = self.entries[world_id].variable_alias
+                            # get any existing alternative variables
+                            existing_alts = self.entries[world_id].alternative_parameter
+                            self.entries[world_id] = new_world
+                            # add new variables if they aren't already present
+                            for key5, var5 in existing_vars.items():
+                                if variable not in self.entries[world_id].variable_alias.keys():
+                                    self.entries[world_id].variable_alias[key5] = var5
+                            for key6, var6 in existing_alts.items():
+                                if variable not in self.entries[
+                                    world_id].alternative_parameter.keys():
+                                    self.entries[world_id].alternative_parameter[key6] = var6
+                        else:
+                            # if ranking is not better than just update with the variable name
+                            logger.info(
+                                f"updating {item.id} with key {key} for field type {field_type.field_type.name}")
+                            if variable not in self.entries[world_id].variable_alias.keys():
+                                self.entries[world_id].variable_alias[variable] = key
+                            if variable not in self.entries[world_id].alternative_parameter.keys():
+                                self.entries[world_id].alternative_parameter[key] = alternative_parameter
                     else:
-                        logger.info(f"creating new matched world {k1} for key {key}")
-                        self.entries[k1] = {key: var_key}
+                        # world doesn't exist yet so just add as a complete entry
+                        logger.info(f"creating new matched world {item.id} for key {key}")
+                        self.entries[world_id] = new_world
+
 

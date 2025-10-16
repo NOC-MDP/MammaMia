@@ -110,7 +110,7 @@
                 "parameter_definition": "Conservative Temperature is specific potential enthalpy (which has the standard name sea_water_specific_potential_enthalpy) divided by a fixed value of the specific heat capacity of sea water, namely cp_0 = 3991.86795711963 J kg-1 K-1.",
                 "alternate_sources": [""],
                 "alternate_labels": ["conservative temperature"],
-                "source_names": ["toce_con"]
+                "source_names": ["toce_con","thetao_con"]
             },
             {
                 "parameter_id": "EAST_CURRENT_VELOCITY",

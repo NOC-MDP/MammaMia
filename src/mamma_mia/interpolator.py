@@ -44,8 +44,6 @@ class Interpolators:
 
         """
         # for every dataset
-        interpolator_priorities = worlds.attributes.interpolator_priorities
-        catalog_priorities = worlds.attributes.catalog_priorities
         for key in worlds.worlds.keys():
             logger.info(f"building worlds for dataset {key}")
             # for every variable
@@ -65,12 +63,11 @@ class Interpolators:
                                                       source_type=source_type,
                                                       mission=mission
                                                       )
-                        interpolator_priorities[world_attrs.variable_alias[var]] = world_attrs.catalog_priorities[world_attrs["source"]]
                     else:
                         imported = False
                     if not imported:
                         if source_type == SourceType.MSM:
-                            pass
+                            raise Exception("fix this!")
                             # # rename time and depth dimensions to be consistent
                             # ds = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
                             # ds = ds.rename({"deptht": "depth", "time_counter": "time"})
@@ -104,7 +101,6 @@ class Interpolators:
                             self.interpolator[world_attrs.variable_alias[var]] = pyinterp.backends.xarray.Grid4D(world[var],geodetic=True)
                             if self.cache:
                                 self.export_interp(key=world_attrs["variable_alias"][var],source_type=source_type,mission=mission)
-                            interpolator_priorities[world_attrs.variable_alias[var]] = catalog_priorities["cmems"]
                         elif source_type == SourceType.LOCAL:
                             ds = xr.open_dataset(worlds.stores[key])
                             # rename time and depth dimensions to be consistent
@@ -132,13 +128,11 @@ class Interpolators:
                             self.interpolator[world_attrs.variable_alias[var]] = pyinterp.backends.xarray.Grid4D(ds_regridded[var],geodetic=True)
                             if self.cache:
                                 self.export_interp(key=world_attrs["variable_alias"][var],source_type=source_type,mission=mission)
-                            interpolator_priorities[world_attrs.variable_alias[var]] = catalog_priorities["local"]
                         else:
                             logger.error(f"unknown model source {source_type.name}")
                             raise UnknownSourceKey
 
                         logger.info(f"built {var} from source {source_type.name} into interpolator: {world_attrs.variable_alias[var]}")
-        worlds.attributes.interpolator_priorities = interpolator_priorities
         logger.info("interpolators built successfully")
 
     def import_interp(self,key:str,source_type:SourceType,mission:str):

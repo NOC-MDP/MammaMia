@@ -431,8 +431,6 @@ class Mission:
                       source_config: SourceConfig,
                       excess_space: int,
                       extra_depth: int,
-                      msm_priority: int,
-                      cmems_priority: int,
                       crs: str,
                       vertical_crs: str,
                       creator: Creator,
@@ -549,7 +547,6 @@ class Mission:
         )
         worlds = WorldsConf(
             attributes=WorldsAttributes(extent=extent,
-                                                 catalog_priorities={"msm": msm_priority, "cmems": cmems_priority,"local":3},
                                                  matched_worlds={},
                                                  interpolator_priorities={}
                                                  ),
