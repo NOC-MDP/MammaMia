@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 
 catalog = OceanDataCatalog(catalog_name="noc-model-stac")
 parameters = ["thetao_con"]
-catalog.search()
+catalog.search(collection="noc-npd-era5",variable_name=parameters[0])
 
-world_extent = WorldExtent(lon_max=60,
-                           lon_min=-60,
-                           lat_max=40,
-                           lat_min=-40,
-                           depth_max=1000,
+world_extent = WorldExtent(lon_max=-50.0,
+                           lon_min=-60.0,
+                           lat_max=40.0,
+                           lat_min=0.0,
+                           depth_max=1000.0,
                            time_end="2023-12-31T23:59:59",
                            time_start="2023-12-31T23:59:59")
 world_start = datetime.strptime(world_extent.time_start,"%Y-%m-%dT%H:%M:%S")
@@ -29,7 +29,6 @@ for item in catalog.Items:
     datetime.strptime(item.properties["start_datetime"],"%Y-%m-%dT%H:%M:%SZ") < world_start and
     datetime.strptime(item.properties["end_datetime"],"%Y-%m-%dT%H:%M:%SZ") > world_end
     ):
-        print(item.properties["variables"])
         for parameter in parameters:
             if parameter in item.properties["variables"]:
 
@@ -37,14 +36,16 @@ for item in catalog.Items:
                 matched_items.append(item)
 
 print(f"{matched_items.__len__()} matches found")
-print(catalog.Items)
 
-# ds = catalog.open_dataset(id="noc-npd-era5/npd-eorca025-era5v1/gn/T5d_4d",
-#                           start_datetime='2023-01',
-#                           end_datetime='2023-02',
-#                           )
 
-# print(ds)
+ds = catalog.open_dataset(id="noc-npd-era5/npd-eorca025-era5v1/gn/T5d_4d",
+                          start_datetime='2023-01',
+                          end_datetime='2023-02',
+                          bbox=(world_extent.lon_min,world_extent.lat_min,world_extent.lon_max,world_extent.lat_max),
+                          )
+
+print(ds)
+ds.to_zarr(store="noc-npd-era5",mode="w")
 
 # ds['thetao_con'].mean(dim='time_counter').plot(cmap='RdBu_r')
 #

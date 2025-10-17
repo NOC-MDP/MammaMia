@@ -488,18 +488,14 @@ class Mission:
         #seconds_into_flight = (trajectory.time - trajectory.time[0]) / np.timedelta64(1, 's')
         # calculate changes in depth to determine platform behaviour
         dz = np.gradient(trajectory.depth)
-        # TODO set these dynamically based on the platform
-        ascent_thresh = 0.05  # m/s, adjust based on your system
-        descent_thresh = -0.05  # m/s
-        near_surface_thresh = 1
         # Using dz and set thresholds, create an event graph for the platform
         event = np.full_like(trajectory.depth, 'hovering', dtype="U8")
         # Diving: dz < descent_thresh
-        event[dz > descent_thresh] = 'diving'
+        event[dz > platform_attributes.descent_thresh] = 'diving'
         # Climbing: dz > ascent_thresh
-        event[dz < ascent_thresh] = 'climbing'
+        event[dz < platform_attributes.ascent_thresh] = 'climbing'
         # Surfaced / Near surface: depth < threshold and nearly zero vertical speed
-        surfaced_mask = (trajectory.depth[:] < near_surface_thresh) & (np.abs(dz) < ascent_thresh)
+        surfaced_mask = (trajectory.depth[:] < platform_attributes.near_surface_thresh) & (np.abs(dz) < platform_attributes.ascent_thresh)
         event[surfaced_mask] = 'surfaced'
         platform.behaviour = np.array(event, dtype="U8")
 

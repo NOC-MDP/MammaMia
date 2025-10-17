@@ -36,6 +36,14 @@ def create_platform_attrs(frozen_mode=False):
     # noinspection PyDataclass
     @base_decorator
     class PlatformAttrs:
+        """
+        Platform attributes
+
+        Parameters
+        ----------
+        platform type: str required
+
+        """
         # platform parameters
         platform_type: str
         platform_manufacturer: str
@@ -43,6 +51,9 @@ def create_platform_attrs(frozen_mode=False):
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
         entity_name: str = None
         serial_number: str = None
+        ascent_thresh = 0.05  # m/s
+        descent_thresh = -0.05  # m/s
+        near_surface_thresh = 1
 
         def register_sensor(self,sensor_type:str) -> None:
             """
