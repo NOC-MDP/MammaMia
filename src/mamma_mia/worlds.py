@@ -77,7 +77,7 @@ class FieldType(Enum):
                 return FieldType.six_hour_mean
             case "P1D-m":
                 return FieldType.daily_mean
-            case "P1M-m":
+            case "P1M-m" | "monthly":
                 return FieldType.monthly_mean
             case "P1A-m" | "annual":
                 return FieldType.annual_mean
@@ -104,7 +104,7 @@ class FieldTypeWithRank:
                 return cls(field_type=FieldType.six_hour_mean, rank=3)
             case "P1D-m":
                 return cls(field_type=FieldType.daily_mean, rank=4)
-            case "P1M-m":
+            case "P1M-m" | "monthly":
                 return cls(field_type=FieldType.monthly_mean, rank=5)
             case "P1A-m" | "annual":
                 return cls(field_type=FieldType.annual_mean, rank=6)

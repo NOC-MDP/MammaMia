@@ -311,7 +311,7 @@
                 "parameter_definition": "Depth below surface of the water body by unknown instrument and correction to zero at sea level using unspecified algorithm.",
                 "alternate_sources": [""],
                 "alternate_labels": ["DEPTH"],
-                "source_names": ["m_depth","GLIDER_DEPTH"]
+                "source_names": ["m_depth"  ,"GLIDER_DEPTH"]
             },
             {
                 "parameter_id": "ALATPT01",

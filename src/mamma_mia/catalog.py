@@ -48,12 +48,10 @@ class Cats:
             logger.info("local data source request, skipping catalog initialization")
         elif source_type == SourceType.CMEMS:
             logger.info("CMEMS source requested, building catalog")
-            if self.cmems_cat is None:
-                self.cmems_cat = copernicusmarine.describe(contains=[])
+            self.cmems_cat = copernicusmarine.describe(contains=[])
         elif source_type == SourceType.MSM:
-            logger.info("CMEMS source requested, building catalog")
-            if self.msm_cat is None:
-                self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
-                self.msm_cat.search()
+            logger.info("MSM source requested, building catalog")
+            self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
+            self.msm_cat.search()
         logger.info("Catalog initialized")
 

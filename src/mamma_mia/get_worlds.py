@@ -65,49 +65,21 @@ def __get_msm_worlds(key: str, value, catalog: Cats,worlds:WorldsConf) -> str:
         string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
         the downloaded model data.
     """
-    var_str = ""
-    vars2 = []
-    subsets = []
-
-    for k2, v2 in value.items():
-        vars2.append(v2)
-        var_str = var_str + str(v2) + "_"
     # TODO add in a min depth parameter? or always assume its the surface?
     zarr_f = (f"{value.data_id}_{worlds.attributes.extent.lon_max}_{worlds.attributes.extent.lon_min}_"
               f"{worlds.attributes.extent.lat_max}_{worlds.attributes.extent.lat_min}_"
-              f"{worlds.attributes.extent.depth_max}_{worlds.attributes.extent.time_start}_"
-              f"{worlds.attributes.extent.time_end}.zarr")
+              f"{worlds.attributes.extent.time_start}_{worlds.attributes.extent.time_end}.zarr")
     zarr_d = "msm-data/"
     logger.info(f"getting msm world {zarr_f}")
     if not os.path.isdir(zarr_d + zarr_f):
         logger.info(f"{zarr_f} has not been cached, downloading now")
-        for var in vars2:
-            data = catalog.msm_cat[str(key)](var=var,grid="T",frequency="monthly").to_dask()
-            # Assuming ds is your dataset, and lat/lon are 2D arrays with dimensions (y, x)
-            lat = data['nav_lat']  # 2D latitude array (y, x)
-            lon = data['nav_lon']  # 2D longitude array (y, x)
-            # Step 1: Flatten lat/lon arrays and get the x, y indices
-            lat_flat = lat.values.flatten()
-            lon_flat = lon.values.flatten()
-            # Step 2: Calculate the squared Euclidean distance for each point on the grid
-            distance = np.sqrt((lat_flat - worlds.attributes.extent.lat_max) ** 2 + (
-                        lon_flat - worlds.attributes.extent.lon_max) ** 2)
-            distance2 = np.sqrt((lat_flat - worlds.attributes.extent.lat_min) ** 2 + (
-                        lon_flat - worlds.attributes.extent.lon_min) ** 2)
-            # Step 3: Find the index of the minimum distance
-            min_index = np.argmin(distance)
-            min_index2 = np.argmin(distance2)
-            # Step 4: Convert the flattened index back to 2D indices
-            y_size, x_size = lat.shape  # Get the shape of the 2D grid
-            y_index_max, x_index_max = np.unravel_index(min_index, (y_size, x_size))
-            y_index_min, x_index_min = np.unravel_index(min_index2, (y_size, x_size))
-            subsets.append(data[var].sel(y=slice(y_index_min, y_index_max),
-                                     x=slice(x_index_min, x_index_max),
-                                     deptht=slice(0, worlds.attributes.extent.depth_max),
-                                     time_counter=slice(worlds.attributes.extent.time_start,
-                                                        worlds.attributes.extent.time_end)))
-        subset = xr.merge(subsets)
-        subset.to_zarr(store=zarr_d + zarr_f, safe_chunks=False)
+        ds = catalog.msm_cat.open_dataset(id=key,
+                                  start_datetime=worlds.attributes.extent.time_start,
+                                  end_datetime=worlds.attributes.extent.time_end,
+                                  bbox=(worlds.attributes.extent.lon_min, worlds.attributes.extent.lat_min,
+                                        worlds.attributes.extent.lon_max,worlds.attributes.extent.lat_max),
+                                  )
+        ds.drop_encoding().to_zarr(store=zarr_d + zarr_f)
         logger.success(f"{zarr_f} has been cached")
     return zarr_d + zarr_f
 

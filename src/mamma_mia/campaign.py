@@ -187,9 +187,7 @@ class Campaign:
         logger.info(f"building {self.name} missions")
         for mission in self.missions.values():
             logger.info(f"building {mission.attrs.mission}")
-
             self.catalog.init_catalog(source_type=mission.attrs.source_config.source_type)
-
             mission.build_mission(cat=self.catalog)
             logger.success(f"successfully built {mission.attrs.mission}")
         for key, interpol in self.interpolators.items():
