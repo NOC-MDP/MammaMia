@@ -668,7 +668,6 @@ class Mission:
         for key in self.payload.keys():
             try:
                 logger.info(f"flying through {key} world and creating interpolated data for flight")
-                print(interpolator.interpolator.keys())
                 track = interpolator.interpolator[key].quadrivariate(flight_subset)
             except KeyError:
                 track = None

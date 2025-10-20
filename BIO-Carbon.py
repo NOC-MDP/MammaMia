@@ -127,7 +127,7 @@ campaign.add_mission(mission_name="Deployment_646",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="CMEMS",
+                     source_location="MSM",
                      mission_time_step=60)
 
 # # add Doombar mission
@@ -139,7 +139,7 @@ campaign.add_mission(mission_name="Deployment_648",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="CMEMS",
+                     source_location="MSM",
                      mission_time_step=60)
 
 # # add ALR4 mission
@@ -151,7 +151,7 @@ campaign.add_mission(mission_name="Deployment_649",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="CMEMS",
+                     source_location="MSM",
                      mission_time_step=60)
 
 # # add ALR6 mission
@@ -163,7 +163,7 @@ campaign.add_mission(mission_name="Deployment_650",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="CMEMS",
+                     source_location="MSM",
                      mission_time_step=60)
 
 # # add Cabot mission
@@ -175,7 +175,7 @@ campaign.add_mission(mission_name="Deployment_645",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="CMEMS",
+                     source_location="MSM",
                      mission_time_step=60)
 
 
@@ -190,6 +190,6 @@ campaign.run()
 
 # visualise the results
 campaign.missions["Deployment_646"].plot_trajectory()
-campaign.missions["Deployment_646"].show_payload(parameter="DOWNWELLING_RADIATIVE_FLUX")
+campaign.missions["Deployment_646"].show_payload(parameter="INSITU_TEMPERATURE")
 campaign.export()
 print("the end")
