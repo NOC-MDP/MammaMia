@@ -8,11 +8,58 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from unittest import case
 
 from attrs import frozen, define
 from loguru import logger
 from enum import Enum
 import os
+
+class ResolutionType(Enum):
+    """
+    Resolution type enumeration: this determines the world resolution.
+    """
+    QuarterDegree = "eORCA025"
+    OneDegree = "eORCA1"
+    TwelfthDegree = "eORCA12"
+    @classmethod
+    def from_string(cls, string:str) -> "ResolutionType":
+        match string:
+            case "025" | "eorca025":
+                return ResolutionType.QuarterDegree
+            case "1" | "eorca1":
+                return ResolutionType.OneDegree
+            case "12" | "eorca12":
+                return ResolutionType.TwelfthDegree
+            case _:
+                raise ValueError(f"Invalid resolution string: {string}")
+
+@frozen
+class ResolutionTypeWithRank:
+    resolution_type: ResolutionType
+    rank: int
+    @classmethod
+    def from_string(cls,enum_string:str) -> "ResolutionTypeWithRank":
+        match enum_string:
+            case "12" | "eorca12":
+                return cls(resolution_type=ResolutionType.TwelfthDegree, rank=1)
+            case "025" | "eorca025":
+                return cls(resolution_type=ResolutionType.QuarterDegree, rank=2)
+            case "1" | "eorca1":
+                return cls(resolution_type=ResolutionType.OneDegree, rank=3)
+            case _:
+                raise ValueError(f"unknown resolution type {enum_string}")
+    @classmethod
+    def from_string_and_rank(cls, enum_string:str,rank:int) -> "ResolutionTypeWithRank":
+        match enum_string:
+            case "12" | "eorca12":
+                return cls(resolution_type=ResolutionType.TwelfthDegree, rank=rank)
+            case "025" | "eorca025":
+                return cls(resolution_type=ResolutionType.QuarterDegree, rank=rank)
+            case "1" | "eorca1":
+                return cls(resolution_type=ResolutionType.OneDegree, rank=rank)
+            case _:
+                raise ValueError(f"unknown resolution type {enum_string}")
 
 class SourceType(Enum):
     """
@@ -199,7 +246,7 @@ class MatchedWorld:
     world_type: WorldType
     domain: DomainType
     dataset_name: str
-    resolution: str
+    resolution: ResolutionTypeWithRank
     alternative_parameter: dict | None
     field_type: FieldTypeWithRank
     variable_alias: dict
