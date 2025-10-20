@@ -59,7 +59,7 @@
                 "unit_of_measure": "Degrees Celsius",
                 "unit_identifier": "SDN:P06::UPAA",
                 "parameter_definition": "Sea water potential temperature is the temperature a parcel of sea water would have if moved adiabatically to sea level pressure.",
-                "alternate_sources": [""],
+                "alternate_sources": ["CONSERVATIVE_TEMPERATURE"],
                 "alternate_labels": ["potential_temperature"],
                 "source_names": ["thetao"]
             },

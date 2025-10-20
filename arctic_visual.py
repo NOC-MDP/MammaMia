@@ -20,7 +20,7 @@ campaign.add_mission(mission_name="Arctic Visualisation",
                      summary="",
                      platform_name="ALR4",
                      trajectory_path="arctic_vis_traj.csv",
-                     source_location="CMEMS",
+                     source_location="MSM",
                      mission_time_step=60)
 
 # build missions (search datasets, download datasets, build interpolators etc)
