@@ -98,7 +98,7 @@
                 "parameter_definition": "Absolute Salinity, S_A, is defined as part of the Thermodynamic Equation of Seawater 2010 (TEOS-10) which was adopted in 2010 by the Intergovernmental Oceanographic Commission (IOC). It is the mass fraction of dissolved material in sea water. ",
                 "alternate_sources": [""],
                 "alternate_labels": ["absolute salinity"],
-                "source_names": ["soce_abs"]
+                "source_names": ["soce_abs","so_abs"]
             },
             {
                 "parameter_id": "CONSERVATIVE_TEMPERATURE",

@@ -441,7 +441,7 @@ class FindWorlds:
                             dataset_name=parts[1],
                             resolution=parts[1],
                             field_type=field_type,
-                            variable_alias={item.properties["variable_standard_names"][i]:key},
+                            variable_alias={item.properties["variables"][i]:key},
                             alternative_parameter={key:alternative_parameter}
                         )
                         # create a new world entry based on existing entries ranking and variables.
