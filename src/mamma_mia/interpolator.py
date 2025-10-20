@@ -52,11 +52,6 @@ class Interpolators:
                 world_attrs = worlds.attributes.matched_worlds[key]
                 if var in world_attrs.variable_alias.keys():
                     logger.info(f"building world for variable {var}")
-                    # check priorities of dataset to see if it should update the interpolated world or not
-                    if self.check_priorities(key=world_attrs.variable_alias[var],
-                                             source=source_type,
-                                             worlds=worlds):
-                        continue
                     if self.cache:
                         logger.info(f"getting world for variable {var} for source {world_attrs['source']} from cache")
                         imported = self.import_interp(key=world_attrs.variable_alias[var],
@@ -67,35 +62,72 @@ class Interpolators:
                         imported = False
                     if not imported:
                         if source_type == SourceType.MSM:
-                            raise Exception("fix this!")
-                            # # rename time and depth dimensions to be consistent
-                            # ds = xr.open_zarr(store=worlds.attrs["zarr_stores"][key])
-                            # ds = ds.rename({"deptht": "depth", "time_counter": "time"})
-                            # lat = ds['nav_lat']
-                            # lon = ds['nav_lon']
-                            # # Define a regular grid with 1D lat/lon arrays
-                            # target_lat = np.linspace(lat.min(), lat.max(), 96)
-                            # target_lon = np.linspace(lon.min(), lon.max(), 67)
-                            # # Create a target grid dataset
-                            # target_grid = xr.Dataset({
-                            #     'latitude': (['latitude'], target_lat),
-                            #     'longitude': (['longitude'], target_lon)
-                            # })
+                            ds = xr.open_zarr(store=worlds.stores[key])
+                            # check that dimensions of lat and lon are at least larger than 1 as 1 degree models on glider scale deployments
+                            # are often too low a resolution to have multiple grid cells in the mission extent.
+                            if ds['nav_lat'].sizes['x'] == 1:
+                                logger.warning("dataset latitude dimension length = 1, cannot interpolate, likely too low resolution")
+                                continue
+                            if ds['nav_lon'].sizes['x'] == 1:
+                                logger.warning("dataset longitude dimension length = 1, cannot interpolate, likely too low resolution")
+                                continue
+                            if ds['time_counter'].sizes['time_counter'] <= 1:
+                                logger.warning("dataset time dimension length = 1, cannot interpolate, likely too low resolution")
+                                continue
+                            # rename time and depth dimensions to be consistent
+                            # depths can be named t u or v depending on their grid
+                            try:
+                                ds = ds.rename({"deptht": "depth", "time_counter": "time","nav_lon":"lon", "nav_lat":"lat"})
+                            except ValueError:
+                                try:
+                                    ds = ds.rename({"depthu": "depth", "time_counter": "time","nav_lon":"lon", "nav_lat":"lat"})
+                                except ValueError:
+                                    ds = ds.rename({"depthv": "depth", "time_counter": "time","nav_lon":"lon", "nav_lat":"lat"})
+                            lat = ds['lat']
+                            lon = ds['lon']
+
+                            # reduce arrays to get max and min values
+                            latmin = lat.reduce(np.min,dim=['x','y']).values
+                            latmax = lat.reduce(np.max,dim=['x','y']).values
+                            lonmin = lon.reduce(np.min,dim=['x','y']).values
+                            lonmax = lon.reduce(np.max,dim=['x','y']).values
+                            # Define a regular grid with 1D lat/lon arrays
+                            target_lat = np.linspace(latmin, latmax, lat.sizes['y'])
+                            target_lon = np.linspace(lonmin, lonmax, lon.sizes['x'])
+                            # Create a target grid dataset
+                            target_grid = xr.Dataset({
+                                'latitude': (['latitude'], target_lat),
+                                'longitude': (['longitude'], target_lon)
+                            })
+                            # Example: regrid only data variables that depend on lat/lon
+                            data_vars = [v for v in ds.data_vars if {'x', 'y'} <= set(ds[v].dims)]
+                            # Loop and regrid each variable
+                            ds_regridded = xr.Dataset()
+                            for var2 in data_vars:
+                                if 'time' in var2:
+                                    continue
+                                regridder = xe.Regridder(ds[var2], target_grid, method='bilinear',
+                                                         ignore_degenerate=True)
+                                ds_regridded[var2] = regridder(ds[var2])
+                            ds_regridded = ds_regridded.assign_coords(time=ds.time)
+
                             # # Create a regridder object to go from curvilinear to regular grid
                             # regridder = xe.Regridder(ds, target_grid, method='bilinear',ignore_degenerate=True)
                             # # Regrid the entire dataset
                             # ds_regridded = regridder(ds)
-                            # # Add units to latitude and longitude coordinates
-                            # ds_regridded['latitude'].attrs['units'] = 'degrees_north'
-                            # ds_regridded['longitude'].attrs['units'] = 'degrees_east'
-                            # # Convert all float32 variables in the dataset to float64
-                            # ds_regridded = ds_regridded.astype('float64')
-                            # ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
-                            # self.interpolator[world_attrs["data_id"]] = pyinterp.backends.xarray.Grid4D(ds_regridded[var], geodetic=True)
-                            # if self.cache:
-                            #     self.export_interp(key=world_attrs["variable_alias"][var],source="msm",mission=mission)
-                            # # create or update priorities of interpolator datasetsc
-                            # interpolator_priorities[world_attrs["data_id"]] = worlds.attrs["catalog_priorities"]["msm"]
+                            # Add units to latitude and longitude coordinates
+                            ds_regridded['latitude'].attrs['units'] = 'degrees_north'
+                            ds_regridded['longitude'].attrs['units'] = 'degrees_east'
+                            # Convert all float32 variables in the dataset to float64
+                            ds_regridded = ds_regridded.astype('float64')
+                            ds_regridded['time'] = ds_regridded['time'].astype('datetime64[ns]')
+                            try:
+                                self.interpolator[world_attrs.variable_alias[var]] = pyinterp.backends.xarray.Grid4D(ds_regridded[var], geodetic=True)
+                            except KeyError:
+                                logger.warning(f"key {var} not found in world attributes variable aliases")
+                                continue
+                            if self.cache:
+                                self.export_interp(key=world_attrs["variable_alias"][var],source_type=source_type,mission=mission)
                         elif source_type == SourceType.CMEMS:
                             world = xr.open_zarr(store=worlds.stores[key])
                             self.interpolator[world_attrs.variable_alias[var]] = pyinterp.backends.xarray.Grid4D(world[var],geodetic=True)
@@ -108,8 +140,14 @@ class Interpolators:
                             lat = ds['nav_lat']
                             lon = ds['nav_lon']
                             # Define a regular grid with 1D lat/lon arrays
-                            target_lat = np.linspace(lat.min(), lat.max(), 96)
-                            target_lon = np.linspace(lon.min(), lon.max(), 67)
+                            # reduce arrays to get max and min values
+                            latmin = lat.reduce(np.min,dim=['x','y']).values
+                            latmax = lat.reduce(np.max,dim=['x','y']).values
+                            lonmin = lon.reduce(np.min,dim=['x','y']).values
+                            lonmax = lon.reduce(np.max,dim=['x','y']).values
+                            # Define a regular grid with 1D lat/lon arrays
+                            target_lat = np.linspace(latmin, latmax, lat.sizes['y'])
+                            target_lon = np.linspace(lonmin, lonmax, lon.sizes['x'])
                             # Create a target grid dataset
                             target_grid = xr.Dataset({
                                  'latitude': (['latitude'], target_lat),
@@ -159,27 +197,3 @@ class Interpolators:
         with open(f"interpolator_cache/{mission}/{source_type.value}_{key}.lerp", 'wb') as f:
             f.write(compressed_pickle)
         logger.info(f"exported interpolator {key} for source {source_type.name} for {mission}")
-
-    @staticmethod
-    def check_priorities(key:str, source:SourceType, worlds) -> bool:
-        """
-        Function to check the priority of data that will be interpolated, if an existing interpolator is already present
-        Args:
-            key: sensor/data type
-            source: world data source e.g. cmems or msm
-            worlds: zarr group containing all the world data that has been downloaded
-
-        Returns:
-            bool: determines priority of data to be interpolated, if data is a higher priority then replace
-                  interpolator, if of a lower priority then do not replace
-        """
-        if not isinstance(source,SourceType):
-            logger.error(f"unknown model source: {source}")
-            raise UnknownSourceKey
-        if key in worlds.attributes.interpolator_priorities:
-            logger.info(f"reality parameter {key} already exists, checking priority of data source with existing dataset")
-            if  worlds.attributes.interpolator_priorities[key] > worlds.attributes.catalog_priorities["source"]:
-                logger.info(f"data source {source} is a lower priority, skipping world build")
-                return True
-            logger.info(f"data source {source} is a higher priority, updating world build")
-        return False
