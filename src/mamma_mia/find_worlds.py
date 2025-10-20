@@ -18,7 +18,7 @@ import numpy as np
 from attrs import frozen, field
 from mamma_mia.inventory import inventory
 import xarray as xr
-from mamma_mia.worlds import WorldExtent, MatchedWorld, WorldType, FieldTypeWithRank, DomainType, SourceType,SourceConfig
+from mamma_mia.worlds import WorldExtent, MatchedWorld, WorldType, FieldTypeWithRank, DomainType, SourceType,SourceConfig, ResolutionTypeWithRank
 
 
 @frozen
@@ -432,6 +432,12 @@ class FindWorlds:
                         except ValueError as e:
                             logger.warning(f"world type {e} not supported, skipping this dataset")
                             continue
+                        resolution_parts = parts[1].split("-")
+                        try:
+                            resolution = ResolutionTypeWithRank.from_string(enum_string=resolution_parts[1])
+                        except ValueError as e:
+                            logger.warning(f"resolution {e} not supported, skipping this dataset")
+                            continue
                         # after all that PHEW! we can add to matched entries
                         logger.success(f"found a match in {item.id} for {key}")
                         new_world = MatchedWorld(
@@ -439,7 +445,7 @@ class FindWorlds:
                             world_type=world_type,
                             domain=domain_type,
                             dataset_name=parts[1],
-                            resolution=parts[1],
+                            resolution=resolution,
                             field_type=field_type,
                             variable_alias={item.properties["variables"][i]:key},
                             alternative_parameter={key:alternative_parameter}
