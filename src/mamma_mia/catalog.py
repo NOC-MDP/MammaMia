@@ -56,13 +56,7 @@ class Cats:
         elif source_type == SourceType.MSM:
             logger.info("MSM source requested, building catalog")
             cat_file = Path("catalog.json")
-            if self.overwrite:
-                logger.info("overwrite set to true: removing existing catalog")
-                try:
-                    os.remove(cat_file)
-                except FileNotFoundError:
-                    logger.warning("no existing catalog found")
-            if cat_file.is_file():
+            if cat_file.is_file() and not self.overwrite:
                 logger.info("local catalog file found, reading catalog")
                 with open(cat_file, "r") as f:
                     cat = json.load(f)
@@ -72,18 +66,20 @@ class Cats:
                 last_update_local = datetime.strptime(self.msm_cat.Catalog.extra_fields['last_update'],"%Y-%m-%dT%H:%M:%S.%f")
                 if last_update_local < last_update_server:
                     logger.info("local catalog is out of date with server catalog, updating....")
-                    self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
-                    self.msm_cat.search(collection="noc-npd-era5")
-                    cat_file2 = jsonpickle.encode(self.msm_cat)
-                    with open("catalog.json", "w") as f2:
-                        json.dump(cat_file2, f2)
+                    self.__create_local_catalog()
                     logger.info("local catalog updated")
             else:
-                logger.info("local catalog not found, creating new catalog")
-                self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
-                self.msm_cat.search(collection="noc-npd-era5")
-                cat_file2 = jsonpickle.encode(self.msm_cat)
-                with open("catalog.json", "w") as f2:
-                    json.dump(cat_file2, f2)
+                if self.overwrite:
+                    logger.info("catalog overwrite requested, creating new catalog")
+                else:
+                    logger.info("local catalog not found, creating new catalog")
+                self.__create_local_catalog()
+
         logger.info("Catalog initialized")
 
+    def __create_local_catalog(self,file_name="catalog.json"):
+        self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
+        self.msm_cat.search(collection="noc-npd-era5")
+        cat_file2 = jsonpickle.encode(self.msm_cat)
+        with open(file_name, "w") as f2:
+            json.dump(cat_file2, f2)
