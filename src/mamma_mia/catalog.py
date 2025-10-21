@@ -56,11 +56,14 @@ class Cats:
         elif source_type == SourceType.MSM:
             logger.info("MSM source requested, building catalog")
             cat_file = Path("catalog.json")
+            if self.overwrite:
+                logger.info("overwrite set to true: removing existing catalog")
+                try:
+                    os.remove(cat_file)
+                except FileNotFoundError:
+                    logger.warning("no existing catalog found")
             if cat_file.is_file():
                 logger.info("local catalog file found, reading catalog")
-                if self.overwrite:
-                    logger.info("overwriting existing catalog")
-                    os.remove(cat_file)
                 with open(cat_file, "r") as f:
                     cat = json.load(f)
                 self.msm_cat = jsonpickle.decode(cat)
