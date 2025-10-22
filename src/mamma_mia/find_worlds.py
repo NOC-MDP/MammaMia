@@ -8,7 +8,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import copy
 import os
 from datetime import datetime
 
@@ -428,6 +428,7 @@ class FindWorlds:
                             continue
                         # check is world type is supported
                         try:
+                            # TODO this should not be hardcoded, ideally need to locate a suitable field in catalog metadata
                             world_type = WorldType.from_string(enum_string="mod")
                         except ValueError as e:
                             logger.warning(f"world type {e} not supported, skipping this dataset")
@@ -450,9 +451,18 @@ class FindWorlds:
                             variable_alias={item.properties["variables"][i]:key},
                             alternative_parameter={key:alternative_parameter}
                         )
-                        # create a new world entry based on existing entries ranking and variables.
-                        # NOTE this assumes that all variables of a dataset exist across all field types.
-                        # TODO check that the assumption in the comment above is true
+                        # check existing worlds to see if the new one is better and replace if it is
+                        for world_id2,world in self.entries.items():
+                            if new_world.variable_alias == world.variable_alias:
+                                logger.info("found world with same variable alias, will assess which one to keep")
+                                if new_world.field_type.rank < world.field_type.rank or new_world.resolution.rank < world.resolution.rank:
+                                    logger.info("new model is ranked higher, replacing....")
+                                    del self.entries[world_id2]
+                                    self.entries[world_id] = new_world
+                                    logger.info(f"replaced world {world.data_id} with new world {new_world.data_id}")
+                                    break
+
+                        # check each world id to see if an entry needs updating for new variables etc.
                         if world_id in self.entries:
                             # if the rank of existing world is higher (and therefore not as good) replace
                             if self.entries[world_id].field_type.rank > new_world.field_type.rank:
