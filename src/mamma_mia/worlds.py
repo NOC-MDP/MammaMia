@@ -111,6 +111,7 @@ class FieldType(Enum):
     six_hour_instant = "PT6H-i"
     six_hour_mean = "PT6H-m"
     daily_mean = "P1D-m"
+    five_day_mean = "P5D-m"
     monthly_mean = "P1M-m"
     annual_mean = "P1A-m"
     @classmethod
@@ -124,6 +125,8 @@ class FieldType(Enum):
                 return FieldType.six_hour_mean
             case "P1D-m":
                 return FieldType.daily_mean
+            case "P5D-m" | "5-day":
+                return FieldType.five_day_mean
             case "P1M-m" | "monthly":
                 return FieldType.monthly_mean
             case "P1A-m" | "annual":
@@ -151,10 +154,12 @@ class FieldTypeWithRank:
                 return cls(field_type=FieldType.six_hour_mean, rank=3)
             case "P1D-m":
                 return cls(field_type=FieldType.daily_mean, rank=4)
+            case "P5D-m" | "5-day":
+                return cls(field_type=FieldType.five_day_mean, rank=5)
             case "P1M-m" | "monthly":
-                return cls(field_type=FieldType.monthly_mean, rank=5)
+                return cls(field_type=FieldType.monthly_mean, rank=6)
             case "P1A-m" | "annual":
-                return cls(field_type=FieldType.annual_mean, rank=6)
+                return cls(field_type=FieldType.annual_mean, rank=7)
             case _:
                 raise ValueError(f"unknown field type {enum_string}")
     @classmethod
@@ -168,6 +173,8 @@ class FieldTypeWithRank:
                 return cls(field_type=FieldType.six_hour_mean, rank=rank)
             case "P1D-m":
                 return cls(field_type=FieldType.daily_mean, rank=rank)
+            case "P5D-m" | "5-day":
+                return cls(field_type=FieldType.five_day_mean, rank=5)
             case "P1M-m":
                 return cls(field_type=FieldType.monthly_mean, rank=rank)
             case "P1A-m" | "annual":
