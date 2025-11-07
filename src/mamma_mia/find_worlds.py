@@ -307,6 +307,11 @@ class FindWorlds:
                                     parts = dataset.dataset_id.split("_")
                                     # skip any interim datasets
                                     if "myint" in parts:
+                                        logger.debug(f"interim datasets are not supported skipping {dataset.dataset_id}")
+                                        continue
+                                    # skip any multiyear datasets
+                                    if "my" in parts:
+                                        logger.debug(f"multiyear datasets are not supported skipping {dataset.dataset_id}")
                                         continue
                                     # check to see if field type is supported by MM
                                     try:
