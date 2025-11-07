@@ -31,9 +31,9 @@ dependencies = ["loguru==0.7.*",
                 "gsw>=3.6.20",
                 "numpy>=2.2.3",
                 "xesmf@git+https://github.com/pangeo-data/xesmf.git",
-#                "glidersim@git+https://github.com/NOC-MDP/glidersim",
+                "glidersim@git+https://github.com/NOC-MDP/glidersim",
                 "latlon@git+https://github.com/NOC-MDP/latlon",
-#                "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF",
+                "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF",
                 "OceanDataStore@git+https://github.com/NOC-MSM/OceanDataStore@v0.1.0"
 ]
 classifiers = [
