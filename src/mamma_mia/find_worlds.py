@@ -453,10 +453,17 @@ class FindWorlds:
                         )
                         # check existing worlds to see if the new one is better and replace if it is
                         for world_id2,world in self.entries.items():
-                            if new_world.variable_alias == world.variable_alias:
+                            if set(new_world.variable_alias) & set(world.variable_alias):
                                 logger.info("found world with same variable alias, will assess which one to keep")
                                 if new_world.field_type.rank < world.field_type.rank or new_world.resolution.rank < world.resolution.rank:
                                     logger.info("new model is ranked higher, replacing....")
+                                    # update new world with existing variable aliases and alternative parameters
+                                    try:
+                                        new_world.variable_alias.update(self.entries[world_id].variable_alias)
+                                        new_world.alternative_parameter.update(self.entries[world_id].alternative_parameter)
+                                    except KeyError:
+                                        # TODO should
+                                        pass
                                     del self.entries[world_id2]
                                     self.entries[world_id] = new_world
                                     logger.info(f"replaced world {world.data_id} with new world {new_world.data_id}")
