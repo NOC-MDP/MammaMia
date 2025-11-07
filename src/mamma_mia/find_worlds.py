@@ -457,12 +457,14 @@ class FindWorlds:
                                 logger.info("found world with same variable alias, will assess which one to keep")
                                 if new_world.field_type.rank < world.field_type.rank or new_world.resolution.rank < world.resolution.rank:
                                     logger.info("new model is ranked higher, replacing....")
-                                    # update new world with existing variable aliases and alternative parameters
+                                    # update new world with any existing variable aliases and alternative parameters
                                     try:
                                         new_world.variable_alias.update(self.entries[world_id].variable_alias)
                                         new_world.alternative_parameter.update(self.entries[world_id].alternative_parameter)
-                                    except KeyError:
-                                        # TODO should
+                                    except KeyError as e:
+                                        # this is raised if the world id doesn't already exist, i.e. if the model is better
+                                        # rather than if another variable has already created the better model
+                                        logger.debug(f"key {e} doesn't exist in world entries")
                                         pass
                                     del self.entries[world_id2]
                                     self.entries[world_id] = new_world
