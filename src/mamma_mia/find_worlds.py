@@ -299,9 +299,9 @@ class FindWorlds:
                                     #step = variables[m]["coordinates"][n]["step"]
                                 # convert trajectory datetimes into timestamps to be able to compare with CMEMS catalog
                                 start_traj = float((np.datetime64(extent.time_start) - np.datetime64(
-                                    '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+                                    '1970-01-01T00:00:00')) / np.timedelta64(1, 'ms'))
                                 end_traj = float((np.datetime64(extent.time_end) - np.datetime64(
-                                    '1970-01-01T00:00:00Z')) / np.timedelta64(1, 'ms'))
+                                    '1970-01-01T00:00:00')) / np.timedelta64(1, 'ms'))
                                 # check if trajectory temporal extent is within variable data
                                 if start_traj > start and end_traj < end:
                                     parts = dataset.dataset_id.split("_")
