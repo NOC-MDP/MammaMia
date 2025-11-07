@@ -8,7 +8,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from unittest import case
 
 from attrs import frozen, define
 from loguru import logger
@@ -41,7 +40,7 @@ class ResolutionTypeWithRank:
     @classmethod
     def from_string(cls,enum_string:str) -> "ResolutionTypeWithRank":
         match enum_string:
-            case "12" | "eorca12":
+            case "12" | "eorca12" | "0.083deg":
                 return cls(resolution_type=ResolutionType.TwelfthDegree, rank=1)
             case "025" | "eorca025":
                 return cls(resolution_type=ResolutionType.QuarterDegree, rank=2)

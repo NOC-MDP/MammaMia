@@ -12,7 +12,7 @@
 from mamma_mia.mission import Mission, Creator, Contributor, Publisher
 from mamma_mia.interpolator import Interpolators
 from mamma_mia import create_platform_attrs
-from mamma_mia.find_worlds import SourceType, SourceConfig
+from mamma_mia.find_worlds import SourceConfig
 from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform, InvalidEntity
 from loguru import logger
 import zarr
@@ -52,12 +52,15 @@ class Campaign:
     missions: dict[str, Mission] = field(factory=dict)
     interpolators: dict[str, Interpolators] = field(factory=dict)
     verbose: bool = False
+    debug: bool = False
 
     def __attrs_post_init__(self):
         # reset logger
         logger.remove()        # set logger based on requested verbosity
         if self.verbose:
             logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
+        elif self.debug:
+            logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG")
         else:
             logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         logger.success(f"Campaign {self.name} created")
