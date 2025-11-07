@@ -53,6 +53,8 @@ class FindWorlds:
                     self.__find_msm_worlds(cat=cat, key=key, extent=extent)
                 case _:
                     raise ValueError(f"unknown source type {source.source_type.name}")
+        for key2, item in self.entries.items():
+            logger.success(f"using world {key2} for parameters {item.variable_alias.values()}")
 
 
     def __find_local_worlds(self,key:str, extent:WorldExtent, local_dir:str) -> None:
@@ -310,30 +312,30 @@ class FindWorlds:
                                     try:
                                         field_type = FieldTypeWithRank.from_string(enum_string=parts[-1])
                                     except ValueError:
-                                        logger.warning(f"{parts[-1]} is not a supported field type")
+                                        logger.debug(f"{parts[-1]} is not a supported field type")
                                         continue
                                     world_id = "_".join(parts[:-1])
                                     # check to see if domain type is supported by MM
                                     try:
                                         domain_type = DomainType.from_string(enum_string=parts[2])
                                     except ValueError:
-                                        logger.warning(f"domain {parts[2]} not supported, skipping this dataset")
+                                        logger.debug(f"domain {parts[2]} not supported, skipping this dataset")
                                         continue
                                     # check is world type is supported
                                     try:
                                         world_type = WorldType.from_string(enum_string=parts[1])
                                     except ValueError:
-                                        logger.warning(f"world type {parts[1]} not supported, skipping this dataset")
+                                        logger.debug(f"world type {parts[1]} not supported, skipping this dataset")
                                         continue
                                     # after all that PHEW! we can add to matched entries
-                                    logger.success(f"found a match in {dataset.dataset_id} for {key}")
+                                    logger.info(f"found a match in {dataset.dataset_id} for {key}")
                                     # TODO validation on remaining fields if appropriate, e.g. do we need to validate resolution?
                                     new_world = MatchedWorld(
                                         data_id = dataset.dataset_id,
                                         world_type=world_type,
                                         domain=domain_type,
                                         dataset_name=parts[3],
-                                        resolution=parts[5],
+                                        resolution= ResolutionTypeWithRank.from_string(enum_string=parts[5]),
                                         field_type=field_type,
                                         variable_alias={variables[m].short_name:key},
                                         alternative_parameter={key:alternative_parameter}
@@ -414,7 +416,7 @@ class FindWorlds:
                         try:
                             field_type = FieldTypeWithRank.from_string(enum_string=item.properties["operation_frequency"])
                         except ValueError:
-                            logger.warning(f"{item.properties['operation_frequency']} is not a supported field type")
+                            logger.debug(f"{item.properties['operation_frequency']} is not a supported field type")
                             continue
                         world_id = item.id
                         # check to see if domain type is supported by MM
@@ -424,23 +426,23 @@ class FindWorlds:
                             else:
                                 domain_type = DomainType.from_string(enum_string="regional")
                         except ValueError as e:
-                            logger.warning(f"domain {e} not supported, skipping this dataset")
+                            logger.debug(f"domain {e} not supported, skipping this dataset")
                             continue
                         # check is world type is supported
                         try:
                             # TODO this should not be hardcoded, ideally need to locate a suitable field in catalog metadata
                             world_type = WorldType.from_string(enum_string="mod")
                         except ValueError as e:
-                            logger.warning(f"world type {e} not supported, skipping this dataset")
+                            logger.debug(f"world type {e} not supported, skipping this dataset")
                             continue
                         resolution_parts = parts[1].split("-")
                         try:
                             resolution = ResolutionTypeWithRank.from_string(enum_string=resolution_parts[1])
                         except ValueError as e:
-                            logger.warning(f"resolution {e} not supported, skipping this dataset")
+                            logger.debig(f"resolution {e} not supported, skipping this dataset")
                             continue
                         # after all that PHEW! we can add to matched entries
-                        logger.success(f"found a match in {item.id} for {key}")
+                        logger.info(f"found a match in {item.id} for {key}")
                         new_world = MatchedWorld(
                             data_id=item.id,
                             world_type=world_type,
