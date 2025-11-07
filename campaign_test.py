@@ -25,7 +25,7 @@ print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
 campaign = Campaign(name="RAPID array virtual mooring",
                     description="single slocum glider deployment at a RAPID mooring",
-                    verbose=False
+                    verbose=False,
                     )
 # create platform entity (mutable)
 Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Slocum_G2",serial_number="unit_398")
