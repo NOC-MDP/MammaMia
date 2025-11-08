@@ -58,20 +58,20 @@ behavior: surface
     b_arg: start_when(enum)          9  # 
     b_arg: args_from_file(enum)     10  # read from mafiles/surfac10.ma
 
-behavior: set_heading
-    b_arg: use_heading(bool) 4 # in, 1 HM_HEADING
-                               # in, 2 HM_ROLL
-                               # in, 3 HM_BATTROLL
-                               # in, 4 HM_FIN
+#behavior: set_heading
+#    b_arg: use_heading(bool) 4 # in, 1 HM_HEADING
+#                               # in, 2 HM_ROLL
+#                               # in, 3 HM_BATTROLL
+#                               # in, 4 HM_FIN
 
-    b_arg: heading_value(X) 0.2
-                         # use_heading == 1 C_HEADING(rad) desired heading
-                         # use_heading == 2 C_ROLL(rad),    >0 bank right
-                         # use_heading == 3 C_BATTROLL(rad) >0 puts stbd wing down
-                         # use_heading == 4 C_FIN(rad),     >0 turns to stbd
+#    b_arg: heading_value(X) 0.2
+#                         # use_heading == 1 C_HEADING(rad) desired heading
+#                         # use_heading == 2 C_ROLL(rad),    >0 bank right
+#                         # use_heading == 3 C_BATTROLL(rad) >0 puts stbd wing down
+#                         # use_heading == 4 C_FIN(rad),     >0 turns to stbd
 
-    b_arg: start_when(enum) 0     # See doco above
-    b_arg: stop_when(enum)  5     # See doco above
+#    b_arg: start_when(enum) 0     # See doco above
+#    b_arg: stop_when(enum)  5     # See doco above
 
 behavior: goto_list
     b_arg: args_from_file(enum)     10   # read from mafiles/goto_l10.ma
