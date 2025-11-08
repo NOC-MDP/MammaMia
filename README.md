@@ -277,8 +277,15 @@ The output "comet-mm1.nc" can then be copied into the MammaMia repository, where
 Mamma Mia also has the abilty to return interpolated data at requested points, this is to provide environment data for the
 glider simulator as part of the trajectory creation. See dvr_test.py for an example implementation.
 
+## Known issues
 
-
+When updating to python 3.12, dbdreader (glider sim dependancy) caused some issues with a missing arch (it had x84 but not arm64) so was crashing on import
+This shouldn't really happen but dbdreader's setup.py seems to be written to cover linux and windows but not macos, I managed to resolve by running the following:
+```shell
+$ arch -arm64 pip install dbdreader --no-cache --force-reinstall
+```
+This explicitly installs the arm64 arch version bypassing any cached and installed versions. This is only likely to be an issue
+for M series Macbooks.
 
 
 
