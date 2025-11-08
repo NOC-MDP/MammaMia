@@ -42,9 +42,9 @@ compatible package manager e.g. conda, miniconda, mamba, miniforge etc.
 Assuming a conda package manager as a virtual env:
 
 ```shell
-$ conda create -n mm python=3.11 esmpy=8.8 # esmpy is not installable via pip and must be installed before mamma-mia
+$ conda create -n mm python=3.13 esmpy pyinterp  # these dependancies aren't installable via pip
 ```
-This should create a virtual environment containing python 3.11 which Mamma mia is compatible with,
+This should create a virtual environment containing python 3.13 which Mamma mia is compatible with,
 
 ```shell
 $ conda activate mm
@@ -54,7 +54,7 @@ Then you can install Mamma Mia itself, note the command below must be run in the
 $ pip install .
 ```
 
-#### Additional installation notes
+#### Additional installation notes (if not using Conda)
 The Mamma Mia dependency, PyInterp builds from source in pip and will need some C++ dependencies installing:
 - g++
 - cmake
