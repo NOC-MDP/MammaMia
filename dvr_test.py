@@ -26,7 +26,7 @@ point = Point(latitude= 23.8,
 
 )
 
-DVR = Reality.for_glidersim(extent=extent,verbose=True)
+DVR = Reality.for_glidersim(extent=extent,env_source="MSM",verbose=True)
 Real = DVR.teleport(point=point)
 print(Real)
 print(">===========< Mamma Mia Velocity Reality test complete >==========<")
