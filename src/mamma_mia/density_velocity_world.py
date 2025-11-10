@@ -100,8 +100,6 @@ class RealityWorld:
     def for_glidersim(cls,  extent:WorldExtent,
                             excess_depth:int=100,
                             excess_space:float=0.5,
-                            msm_priority:int=2,
-                            cmems_priority:int=1,
                       ):
         """
         Reality World built for Glider Simulator
@@ -130,19 +128,17 @@ class RealityWorld:
         )
 
         attrs = WorldsAttributes(extent=extent_excess,
-                                 catalog_priorities={"msm": msm_priority, "cmems": cmems_priority},
                                  interpolator_priorities={},
                                  matched_worlds={})
 
         worlds_conf = WorldsConf(attributes=attrs,worlds={},stores={})
-
+        source = SourceConfig(source_type=SourceType.from_string("MSM"))
         # create cats
         cats = Cats()
-        cats.init_catalog()
+        cats.init_catalog(source_type=source.source_type,)
         sensor_inventory = SensorInventory()
         ctd = sensor_inventory.entries["Generic CTD"]
         adcp = sensor_inventory.entries["Generic ADCP"]
-
         reality = {}
         for name,sensor in adcp.specification.items():
             reality[name] = np.empty(shape=1,dtype=np.float64)
@@ -150,7 +146,7 @@ class RealityWorld:
             reality[name] = np.empty(shape=1,dtype=np.float64)
 
         matched_worlds = FindWorlds()
-        source = SourceConfig(source_type=SourceType.from_string("CMEMS"))
+
         matched_worlds.search_worlds(cat=cats,extent=extent_excess,payload=reality,source=source)
         worlds_conf.attributes.matched_worlds = matched_worlds.entries
         zarr_stores = get_worlds(cat=cats, worlds=worlds_conf,source=source)
@@ -188,7 +184,7 @@ class RealityWorld:
                 #logger.warning(f"no interpolator for {key}")
 
         if np.isnan(self.reality["WATERCURRENTS_U"][0]):
-            if point.depth >= 0.5:
+            if point.depth >= 0.51:
                 logger.error(f"U component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             u_velocity = 0.0
@@ -196,7 +192,7 @@ class RealityWorld:
             u_velocity = self.reality["WATERCURRENTS_U"][0]
 
         if np.isnan(self.reality["WATERCURRENTS_V"][0]):
-            if point.depth >= 0.5:
+            if point.depth >= 0.51:
                 logger.error(f"V component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             v_velocity = 0.0
@@ -211,21 +207,21 @@ class RealityWorld:
         # else:
         #     w_velocity = self.reality["WATERCURRENTS_W"][0]
 
-        if np.isnan(self.reality["CFSN0329"][0]):
-            if point.depth >= 0.5:
+        if np.isnan(self.reality["POTENTIAL_TEMPERATURE"][0]):
+            if point.depth >= 0.51:
                 logger.error(f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             potential_temperature = 15.00
         else:
-            potential_temperature = self.reality["CFSN0329"][0]
+            potential_temperature = self.reality["POTENTIAL_TEMPERATURE"][0]
 
-        if np.isnan(self.reality["IADIHDIJ"][0]):
-            if point.depth >= 0.5:
+        if np.isnan(self.reality["PRACTICAL_SALINITY"][0]):
+            if point.depth >= 0.51:
                 logger.error(f"salinity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
                 raise NullDataException
             practical_salinity = 34.5
         else:
-            practical_salinity = self.reality["IADIHDIJ"][0]
+            practical_salinity = self.reality["PRACTICAL_SALINITY"][0]
 
         reality = RealityPt(u_velocity=u_velocity,
                             v_velocity=v_velocity,

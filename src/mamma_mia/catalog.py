@@ -9,12 +9,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import json
-import os
 from datetime import datetime
-
 from attrs import define
 from OceanDataStore import OceanDataCatalog
-import copernicusmarine
+from copernicusmarine import CopernicusMarineCatalogue, describe
 from loguru import logger
 import jsonpickle
 from mamma_mia.worlds import SourceType
@@ -39,7 +37,7 @@ class Cats:
     msm_cat: OceanDataCatalog
         msm catalog class
     """
-    cmems_cat: copernicusmarine.CopernicusMarineCatalogue = None
+    cmems_cat: CopernicusMarineCatalogue = None
     msm_cat: OceanDataCatalog = None
     overwrite: bool = False
 
@@ -52,7 +50,7 @@ class Cats:
             logger.info("local data source request, skipping catalog initialization")
         elif source_type == SourceType.CMEMS:
             logger.info("CMEMS source requested, building catalog")
-            self.cmems_cat = copernicusmarine.describe(contains=[])
+            self.cmems_cat = describe(contains=[])
         elif source_type == SourceType.MSM:
             logger.info("MSM source requested, building catalog")
             cat_file = Path("catalog.json")
