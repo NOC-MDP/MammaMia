@@ -92,6 +92,7 @@ class GliderMissionBuilder:
                        dive_depth:float,
                        mission_directory:str,
                        data_dir:str = "data",
+                       environment_source: str = "MSM",
                        spiral:bool = False,
                        fp:FlightParameters = FlightParameters(),
                        bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "GliderMissionBuilder":
@@ -211,6 +212,7 @@ class GliderMissionBuilder:
                        lon_wp:list[float],
                        mission_directory:str,
                        data_dir:str = "data",
+                       environment_source: str = "MSM",
                        fp:FlightParameters = FlightParameters(),
                        bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "GliderMissionBuilder":
         """

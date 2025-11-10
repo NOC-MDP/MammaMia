@@ -37,6 +37,7 @@ dependencies = ["loguru>=0.7",
                 "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF",
                 "OceanDataStore@git+https://github.com/NOC-MSM/OceanDataStore@v0.1.0"
 ]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
