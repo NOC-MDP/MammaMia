@@ -100,15 +100,15 @@ class RealityWorld:
     def for_glidersim(cls,  extent:WorldExtent,
                             excess_depth:int=100,
                             excess_space:float=0.5,
+                            env_source:str="MSM",
                       ):
         """
         Reality World built for Glider Simulator
         Args:
+            env_source:
             extent:
             excess_depth:
             excess_space:
-            msm_priority:
-            cmems_priority:
 
         Returns: RealityWorld object for Glider Simulator
 
@@ -132,7 +132,7 @@ class RealityWorld:
                                  matched_worlds={})
 
         worlds_conf = WorldsConf(attributes=attrs,worlds={},stores={})
-        source = SourceConfig(source_type=SourceType.from_string("MSM"))
+        source = SourceConfig(source_type=SourceType.from_string(env_source))
         # create cats
         cats = Cats()
         cats.init_catalog(source_type=source.source_type,)
@@ -248,7 +248,7 @@ class Reality:
     verbose: bool = False
 
     @classmethod
-    def for_glidersim(cls,extent: WorldExtent,verbose: bool = False):
+    def for_glidersim(cls,extent: WorldExtent,env_source:str,verbose: bool = False):
         # reset logger
         logger.remove()        # set logger based on requested verbosity
         if verbose:
@@ -256,7 +256,7 @@ class Reality:
         else:
             logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         logger.info("creating velocity reality")
-        world = RealityWorld.for_glidersim(extent=extent)
+        world = RealityWorld.for_glidersim(extent=extent,env_source=env_source)
         interpolators = Interpolators()
         interpolators.build(worlds=world.world_conf,mission="DVR",source_type=world.source.source_type)
         logger.success("reality created successfully")

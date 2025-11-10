@@ -92,7 +92,6 @@ class GliderMissionBuilder:
                        dive_depth:float,
                        mission_directory:str,
                        data_dir:str = "data",
-                       environment_source: str = "MSM",
                        spiral:bool = False,
                        fp:FlightParameters = FlightParameters(),
                        bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "GliderMissionBuilder":
@@ -140,6 +139,7 @@ class GliderMissionBuilder:
                                        download_time=24,
                                        gliders_directory=data_dir,
                                        bathymetry_filename=bathy.file_path,
+                                       env_source = "MSM"
                                        )
         nmea_lon, nmea_lat = latlon.convertToNmea(x=lon_ini, y=lat_ini)
         sensor_settings = SensorSettings(c_wpt_lat=lat_ini,
@@ -212,7 +212,6 @@ class GliderMissionBuilder:
                        lon_wp:list[float],
                        mission_directory:str,
                        data_dir:str = "data",
-                       environment_source: str = "MSM",
                        fp:FlightParameters = FlightParameters(),
                        bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "GliderMissionBuilder":
         """
@@ -256,6 +255,7 @@ class GliderMissionBuilder:
                                        download_time=24,
                                        gliders_directory=data_dir,
                                        bathymetry_filename=bathy.file_path,
+                                       env_source="MSM"
                                        )
         nmea_lon, nmea_lat = latlon.convertToNmea(x=lon_ini, y=lat_ini)
         sensor_settings = SensorSettings(c_wpt_lat=lat_ini,
