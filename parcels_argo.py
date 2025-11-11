@@ -1,5 +1,7 @@
 # Define the new Kernel that mimics Argo vertical movement
-from parcels import StatusCode
+from datetime import timedelta
+import numpy as np
+import parcels
 
 
 def ArgoVerticalMovement(particle, fieldset, time):
@@ -46,14 +48,10 @@ def ArgoVerticalMovement(particle, fieldset, time):
             particle.cycle_phase = 0
             particle.cycle_age = 0
 
-    if particle.state == StatusCode.Evaluate:
+    if particle.state == parcels.StatusCode.Evaluate:
         particle.cycle_age += particle.dt  # update cycle_age
 
-from datetime import timedelta
 
-import numpy as np
-
-import parcels
 
 # Load the GlobCurrent data in the Agulhas region from the example_data
 example_dataset_folder = parcels.download_example_dataset("GlobCurrent_example_data")
