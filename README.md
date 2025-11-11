@@ -2,14 +2,19 @@
 
 ## Description
 
-###  Main functions
-This toolbox enables the simulation of a platform through a model "virtual reality". Platforms can be any observation
-platform such as gliders and autosubs. Mamma Mia takes a simulated trajectory of a platform, and creates a world encompassing
-it. This world will contain data (or as much as can be found) that is defined in the platform's payload.
+###  Main function
+This toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated 
+that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently
+only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added 
+in future releases.
+
+When give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models
+to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms
+simulated payload.
 
 Each trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,
 these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations. 
-e.g. same glider with different payloads or the same glider with the same payload but with different model sources prioritised.
+e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.
 
 When the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had
 been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders
@@ -42,7 +47,7 @@ compatible package manager e.g. conda, miniconda, mamba, miniforge etc.
 Assuming a conda package manager as a virtual env:
 
 ```shell
-$ conda create -n mm python=3.13 esmpy pyinterp  # these dependancies aren't installable via pip
+$ conda create -n mm python=3.13 esmpy pyinterp  # these dependancies aren't easily installable via pip
 ```
 This should create a virtual environment containing python 3.13 which Mamma mia is compatible with,
 
@@ -53,66 +58,28 @@ Then you can install Mamma Mia itself, note the command below must be run in the
 ```shell
 $ pip install .
 ```
-
-#### Additional installation notes (if not using Conda)
-The Mamma Mia dependency, PyInterp builds from source in pip and will need some C++ dependencies installing:
-- g++
-- cmake
-- boost
-- egien3
-
-These can be installed in Ubuntu:
-```shell
-$ sudo apt-get install g++ cmake libeigen3-dev libboost-dev
-```
-or macos with homebrew (may need xcode command tools installing):
-```shell
-$ brew install egien boost cmake g++
-```
-Alternatively install pyinterp using conda as this provides a compiled binary:
-```shell
-$ conda install pyinterp=2024.6
-```
-
-### Installing the glider simulator
-Currently, the glider simulator used in the example is not part of mamma mia and is used/operated separately. 
-In a separate folder (or HOME) running the following script will install the glider simulator. It is recommended a 
-separate virtual environment to Mamma mia is used to ensure no dependency clashes. Mamma mia is designed to be agnostic 
-to the physical simulator allowing gliders, autosubs, argo floats and potentially even air ships to be simulated.
-
-```#!/bin/bash
-# get the source of additional packages from github
-git clone https://github.com/NOC-MDP/latlon.git
-git clone https://github.com/NOC-MDP/GliderNetCDF.git
-pip install ./latlon ./GliderNetCDF
-
-pip install -r requirements.txt
-pip install gsw
-
-# Get and install glidersim.
-git clone https://github.com/NOC-MDP/glidersim.git
-pip install glidersim
-```
-
-## Testing
-### Prerequisites
-In order to test Mamma mia, a glider trajectory needs to be created, please read the installation and usage sections of the glider
-simulator. The example script in the glidersim repository should produce the example trajectory shown above.
-
-### Running test suite
-Mamma mia uses pytest to test its code, to test for correction installation please run:
+### Optional dependancies
+By default no simulator is installed alongside Mamma Mia, this is to simplify the install process as for example the glidersim
+requires an C++ compiler to install all its dependencies, and this is an additional complication that may not be required e.g.
+if the user doesn't want to simulate a glider. To install Mamma Mia with the glidersim:
 
 ```shell
-$ pytest test.py
+$ pip install '.[glidersim]'
 ```
-This will execute the test suite and display the results. All tests should pass.(WIP!)
+As other simulators become available they will be added here, e.g. parcels for argo float simulation.
+
+To install all simulators (currently just glidersim) then:
+
+```shell
+$ pip install '.[all]'
+```
 
 ### Example scripts
-In addition to the pytest suite there are some example scripts showing how Mamma Mia can be used.
+There are some example scripts showing how Mamma Mia can be used.
 
 #### campaign_test.py
 Running this script will run an example campaign with a single glider mission that undertakes a number of dives off
-Greenland in 2019. It demostrations the main functions of Mamma mia as follows:
+Greenland in 2019. It demonstrations the main functions of Mamma mia as follows:
 
 - creating a campaign
 - listing available platform types
@@ -167,9 +134,8 @@ Mamma mia is structured in the following way with the following concepts:
 Each of the components above are specified in separate JSON files, mamma mia reads these on import and creates an immutable
 inventory for each. Users can then create entities from this inventory that are mutable.
 
-It is possible to add new platforms, sensors and parameters, this is demonstrated in the pytest script "test.py". However, 
-any added entries do not persist and must be added each time. It is planned that Mamma mia will read any compatible JSON files 
-provided and combine those with the stored files in the module.
+It is not currently possible to add new platforms, sensors and parameters, but a future release will add the ability for local 
+JSON or similar files to be used.
 
 ### Vocabulary
 Mamma mia uses the following terms to describe different aspects of the toolbox
@@ -181,70 +147,98 @@ Mamma mia uses the following terms to describe different aspects of the toolbox
 - Campaign (holds missions, platforms, interpolators in one group that can be exported)
 
 ### Parameters
-These specify a specific variable or dataset, an example being temperature:
+These specify a specific variable, an example being in-situ temperature:
 
 ```json
             {
-                "parameter_name": "TEMP",
-                "standard_name": "sea_water_temperature",
-                "unit_of_measure": "degree_Celsius",
+                "parameter_id": "INSITU_TEMPERATURE",
+                "identifier": "SDN:OG1::TEMP",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/TEMP/",
+                "standard_name": "Sea temperature in-situ ITS-90 scale",
+                "unit_of_measure": "Degrees Celsius",
+                "unit_identifier": "SDN:P06::UPAA",
                 "parameter_definition": "Temperature of the water body by CTD or STD",
-                "seadatanet_parameter": "http://vocab.nerc.ac.uk/collection/P01/current/TEMPST01/",
-                "seadatanet_unit_of_measure": "SDN:P06::UPAA",
-                "source_name": "sci_water_temp",
-                "ancillary_variables": "TEMP_QC"
+                "alternate_sources": ["POTENTIAL_TEMPERATURE","CONSERVATIVE_TEMPERATURE"],
+                "alternate_labels": ["TEMPERATURE"],
+                "source_names": ["sci_water_temp"]
             }
 ```
+Most fields cover the vocabulary and specific details of the parameter, source_names field lists input variable aliases,
+from model source etc. alternate_sources details what other parameters can be used as a source, e.g. POTENTIAL_TEMPERATURE or
+CONSERVATIVE_TEMPERATURE can be converted into INSITU_TEMPERATURE.
 
 ### Sensors
 These specify a specific set of parameters along with a sampling rate. They can mirror a real sensor, the following is 
-an CTD that is compatible with a slocum glider with serial number unit_397
+an CTD that is compatible with a slocum glider model G2
 
 ```json
             {
-                "sensor_serial_number": "9099",
-                "sensor_name": "SBE Glider Payload CTD 9099",
-                "instrument_type": "water temperature sensor",
-                "sensor_manufacturer": "Sea-Bird Scientific",
-                "model_name": "SBE Slocum Glider Payload (GPCTD) CTD",
-                "sensor_model": "SBE Slocum Glider Payload (GPCTD) CTD",
-                "max_sample_rate": 5,
-                "parameters": {
-                    "TEMP": 5,
-                    "CNDC": 5,
-                    "PRES": 5
+                "sensor_model": "Slocum Glider G2 CTD",
+                "instrument_type": "CTD",
+                "specification": {
+                    "INSITU_TEMPERATURE": {
+                        "accuracy": 0.001,
+                        "resolution": 0.001,
+                        "drift_per_month": 0.0002,
+                        "range": [-5, 42],
+                        "percent_errors": false,
+                        "noise_std": 0.0005,
+                        "meta_data": "insitu temperature"
+                    },
+                    "PRACTICAL_SALINITY": {
+                        "accuracy": 0.005,
+                        "resolution": 0.0001,
+                        "drift_per_month": 0.003,
+                        "range": [0, 42],
+                        "percent_errors": false,
+                        "noise_std": 0.0025,
+                        "meta_data": "practical salinity"
+                    },
+                    "PRESSURE": {
+                        "accuracy": 0.1,
+                        "resolution": 0.002,
+                        "drift_per_month": 0.0042,
+                        "range": [0, 2000],
+                        "percent_errors": true,
+                        "noise_std": 0.0005,
+                        "meta_data": "pressure"
+                    }
                 },
-                "platform_compatibility": ["unit_397"]
+                "platform_compatibility": ["Slocum_G2"]
             }
 ```
 
 ### Platforms
-This specifies a set of sensors, along with specific platform data such as serial numbers, the following is a slocum G2 
-glider called Churchill
+This determines what platforms are available within Mamma Mia, currently Slocum G2 and ALR 1500 are specified.
 
 ```json
+{
+    "platforms": {
+        "glider": [
             {
-                "nvs_platform_id": "B7600001",
-                "platform_type": "slocum",
+                "platform_type": "Slocum_G2",
                 "platform_manufacturer": "Teledyne Webb Research",
-                "platform_model_name":"G2",
-                "platform_name": "Churchill",
-                "platform_family": "open_ocean_glider",
-                "platform_serial_number": "unit_398",
-                "platform_owner": "NOCS",
-                "wmo_platform_code": 6801573,
-                "data_type": "EGO glider time-series data"
+                "NEMA_coordinate_conversion": true
             }
+        ],
+        "alr": [
+            {
+                "platform_type": "ALR_1500",
+                "platform_manufacturer": "National Oceanography Centre",
+                "NEMA_coordinate_conversion": false
+            }
+        ]
+    }
+}
 ```
 
 
 ### World
 The world is the model data that will be interpolated onto the glider's trajectory. This is currently downloaded from 
-CMEMS and other sources for the full extent of the trajectory
+NOC data sources or CMEMS for the full extent of the trajectory
 
 ### Trajectory
-The trajectory is currently created from a real glider dataset, it consists of a zarr group containing the latitudes, 
-longitudes, depths as well as datetimes.
+The trajectory consists of a zarr group containing the latitudes, longitudes, depths as well as datetimes.
 
 ### Payload
 Payload is a zarr Group that holds arrays that reflect the specified sensors in the virtual AUV, this is populated with 

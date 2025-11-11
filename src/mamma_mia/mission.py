@@ -789,6 +789,10 @@ class Mission:
         Returns:
             dict: A new flight dictionary with resampled data.
         """
+        # check to see if new interval is larger than old (raise warning if not)
+        old_interval_seconds = flight["time"][1]- flight["time"][0]
+        if old_interval_seconds > new_interval_seconds:
+            logger.warning("resampling to a higher resolution flight, this could result in unrealistic flight behavior")
         # Convert time to seconds since the first timestamp
         time_seconds = (flight["time"][:] - flight["time"][0])/np.timedelta64(1,'s')
         # Create new time array with specified interval

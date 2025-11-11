@@ -256,7 +256,7 @@ def test_mission_creation():
     campaign.add_mission(mission_name="SEG19_01", title="Churchill with CTD deployment off South East Greenland",
                          summary="single glider deployed to undertake 15 dives to 200m",
                          platform_name="Churchill_withCTD",
-                         trajectory_path="comet-mm1.nc", creator=creator, publisher=publisher, contributor=contributor)
+                         trajectory_path="../comet-mm1.nc", creator=creator, publisher=publisher, contributor=contributor)
     assert "SEG19_01" in campaign.missions
 
 
