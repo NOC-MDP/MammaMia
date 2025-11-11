@@ -10,18 +10,25 @@
 # limitations under the License.
 
 import os
-import glidersim.configuration
-import glidersim.environments
-import glidersim.glidermodels
-import latlon
 import datetime
 from attrs import define,frozen
 from cattr import unstructure
-import glidersim.glidermodels
-from glidersim.environments import VelocityRealityModel
-from glidersim.glidersim import GliderMission
 import shutil
 from loguru import logger
+
+from mamma_mia.util import requires
+try:
+    import latlon
+    import glidersim.configuration
+    import glidersim.environments
+    import glidersim.glidermodels
+    import glidersim.glidermodels
+    from glidersim.environments import VelocityRealityModel
+    from glidersim.glidersim import GliderMission
+except ImportError:
+    logger.debug("glidersim is not installed")
+
+
 
 @frozen
 class FlightParameters:
@@ -62,9 +69,10 @@ class SpecialSettings:
     glider_gps_acquiretime: float = 100.00
     mission_initialisation_time: float = 400
 
+@requires("glidersim")
 class GliderBuilder:
     @classmethod
-    def from_string(cls,model:str) -> glidersim.glidermodels.BaseGliderModel:
+    def from_string(cls,model:str) -> "glidersim.glidermodels.BaseGliderModel":
         match model:
             case "DEEP" | "DEEPEXTENDED":
                 return glidersim.glidermodels.DeepExtendedGliderModel()
@@ -76,6 +84,7 @@ class GliderBuilder:
                 raise Exception(f"Unknown model {model}")
 
 @define
+@requires("glidersim")
 class GliderMissionBuilder:
     glider_mission: GliderMission
 
@@ -92,12 +101,14 @@ class GliderMissionBuilder:
                        dive_depth:float,
                        mission_directory:str,
                        data_dir:str = "data",
+                       env_source:str="MSM",
                        spiral:bool = False,
                        fp:FlightParameters = FlightParameters(),
                        bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "GliderMissionBuilder":
         """
 
         Args:
+            env_source:
             spiral:
             dive_depth:
             mission_name:
@@ -139,7 +150,7 @@ class GliderMissionBuilder:
                                        download_time=24,
                                        gliders_directory=data_dir,
                                        bathymetry_filename=bathy.file_path,
-                                       env_source = "MSM"
+                                       env_source = env_source
                                        )
         nmea_lon, nmea_lat = latlon.convertToNmea(x=lon_ini, y=lat_ini)
         sensor_settings = SensorSettings(c_wpt_lat=lat_ini,
@@ -212,11 +223,13 @@ class GliderMissionBuilder:
                        lon_wp:list[float],
                        mission_directory:str,
                        data_dir:str = "data",
+                       env_source:str = "MSM",
                        fp:FlightParameters = FlightParameters(),
                        bathy:BathymetryParameters= BathymetryParameters.for_mission()) -> "GliderMissionBuilder":
         """
 
         Args:
+            env_source:
             lon_wp:
             lat_wp:
             dive_depth:
@@ -255,7 +268,7 @@ class GliderMissionBuilder:
                                        download_time=24,
                                        gliders_directory=data_dir,
                                        bathymetry_filename=bathy.file_path,
-                                       env_source="MSM"
+                                       env_source=env_source,
                                        )
         nmea_lon, nmea_lat = latlon.convertToNmea(x=lon_ini, y=lat_ini)
         sensor_settings = SensorSettings(c_wpt_lat=lat_ini,

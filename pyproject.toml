@@ -32,9 +32,6 @@ dependencies = ["loguru>=0.7",
                 "gsw>=3.6",
                 "numpy>=2.2",
                 "xesmf@git+https://github.com/pangeo-data/xesmf.git",
-                "glidersim@git+https://github.com/NOC-MDP/glidersim",
-                "latlon@git+https://github.com/NOC-MDP/latlon",
-                "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF",
                 "OceanDataStore@git+https://github.com/NOC-MSM/OceanDataStore@v0.1.0"
 ]
 
@@ -44,6 +41,12 @@ classifiers = [
 ]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
+
+[project.optional-dependencies]
+glidersim = [   "glidersim@git+https://github.com/NOC-MDP/glidersim",
+                "latlon@git+https://github.com/NOC-MDP/latlon",
+                "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF"
+]
 
 [project.urls]
 Homepage = "https://github.com/NOC-MDP/MammaMia"
