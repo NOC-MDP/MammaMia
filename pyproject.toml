@@ -47,6 +47,13 @@ glidersim = [   "glidersim@git+https://github.com/NOC-MDP/glidersim",
                 "latlon@git+https://github.com/NOC-MDP/latlon",
                 "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF"
 ]
+#parcels = ["parcels>=0.4"]
+
+all = [         "glidersim@git+https://github.com/NOC-MDP/glidersim",
+                "latlon@git+https://github.com/NOC-MDP/latlon",
+                "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF",
+#                "parcels>=0.4"
+]
 
 [project.urls]
 Homepage = "https://github.com/NOC-MDP/MammaMia"

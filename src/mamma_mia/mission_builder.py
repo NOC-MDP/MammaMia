@@ -15,7 +15,6 @@ from attrs import define,frozen
 from cattr import unstructure
 import shutil
 from loguru import logger
-
 from mamma_mia.util import requires
 try:
     import latlon
@@ -25,9 +24,8 @@ try:
     import glidersim.glidermodels
     from glidersim.environments import VelocityRealityModel
     from glidersim.glidersim import GliderMission
-except ImportError:
-    logger.debug("glidersim is not installed")
-
+except ImportError as e:
+    logger.debug(f"optional dependency glidersim is not installed: {e}")
 
 
 @frozen
