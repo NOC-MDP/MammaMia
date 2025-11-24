@@ -189,7 +189,7 @@ campaign.build_missions()
 campaign.run()
 
 # visualise the results
-campaign.missions["Deployment_646"].plot_trajectory()
-campaign.missions["Deployment_646"].show_payload(parameter="INSITU_TEMPERATURE")
+campaign.missions["Deployment_650"].plot_trajectory()
+campaign.missions["Deployment_650"].show_payload(parameter="DISSOLVED_OXYGEN")
 campaign.export()
 print("the end")

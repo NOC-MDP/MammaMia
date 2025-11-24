@@ -42,9 +42,9 @@ class ResolutionTypeWithRank:
         match enum_string:
             case "12" | "eorca12" | "0.083deg":
                 return cls(resolution_type=ResolutionType.TwelfthDegree, rank=1)
-            case "025" | "eorca025":
+            case "025" | "eorca025"| "0.25deg":
                 return cls(resolution_type=ResolutionType.QuarterDegree, rank=2)
-            case "1" | "eorca1":
+            case "1" | "eorca1"| "1deg":
                 return cls(resolution_type=ResolutionType.OneDegree, rank=3)
             case _:
                 raise ValueError(f"unknown resolution type {enum_string}")
