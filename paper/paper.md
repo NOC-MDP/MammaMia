@@ -1,14 +1,14 @@
 ---
 title: 'Mamma Mia: A Python library for simulating underwater platform payloads using ocean model data'
 tags:
- - python
- - oceanography
+  - Python
+  - oceanography
 authors:
- -  name: Thomas Prime
+  - name: Thomas Prime
     orcid: 0000-0002-9638-009X
     affliliation: "1"
 affiliations:
- -  name: National Oceanography Centre, Southampton, United Kingdom
+  - name: National Oceanography Centre, Southampton, United Kingdom
     index: 1
 date: 24th November 2025
 
