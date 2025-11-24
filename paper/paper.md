@@ -3,7 +3,7 @@ title: 'Mamma Mia: A Python library for simulating underwater platform payloads 
 tags:
   - Python
   - oceanography
-author:
+authors:
   - name: Thomas Prime
     orcid: 0000-0002-9638-009X
     affliliation: "1"
@@ -11,6 +11,7 @@ affiliations:
   - name: National Oceanography Centre, Southampton, United Kingdom
     index: 1
 date: 24th November 2025
+---
 
 # Summary
 Autonomous underwater vehicles (AUVs) and ocean gliders rely on a wide variety of onboard payloads—such as CTDs, ADCPs, fluorometers, and passive acoustic sensors—to collect high-resolution in situ ocean data. Before deployment, mission planners and researchers often need to simulate how these payloads will behave when embedded in complex 3D or 4D ocean environments. This includes anticipating sampling resolution, environmental conditions, and sensor-specific responses to varying water masses.
