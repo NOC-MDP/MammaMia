@@ -3,7 +3,7 @@ title: 'Mamma Mia: A Python library for simulating underwater platform payloads 
 tags:
   - Python
   - oceanography
-authors:
+author:
   - name: Thomas Prime
     orcid: 0000-0002-9638-009X
     affliliation: "1"
