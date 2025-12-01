@@ -4,19 +4,28 @@ project:
 
 website:
   title: "Mamma Mia Documentation"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - href: simulators.qmd
-        text: Simulators
-      - about.qmd
-
+  sidebar:
+    logo: mammamia_logo.png
+    search: true
+    contents:
+      - text: "Home"
+        href: index.qmd
+      - text: "Introduction"
+        href: introduction.qmd
+      - text: "Mamma Mia"
+        href: mamma-mia.qmd
+      - section: "Simulators"
+        href: simulators.qmd
+      - text: "About"
+        href: about.qmd
+      - text: "Acknowledgments"
+        href: acknowledgement.qmd
+    tools:
+      - href: https://github.com/NOC-MDP/MammaMia
+        icon: github
 format:
   html:
-    theme:
-      - yeti
-      - brand
+    theme: lux
     css: styles.css
     toc: true
 

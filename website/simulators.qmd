@@ -2,4 +2,12 @@
 title: "Simulators"
 ---
 
-We have some!
+We have serveral types of simulator to use
+
+## Slocum Gliders
+
+slocum gliders with glidersim
+
+## ALR 1500
+
+Autosub long range 1500 with autonomy sim

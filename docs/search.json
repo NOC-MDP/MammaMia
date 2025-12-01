@@ -4,20 +4,66 @@
     "href": "index.html",
     "title": "Mamma Mia Documentation",
     "section": "",
-    "text": "This toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added in future releases.\nWhen give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms simulated payload.\nEach trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations.e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.\nWhen the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated."
+    "text": "This toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added in future releases.\nWhen give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms simulated payload.\nEach trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations.e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.\nWhen the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.",
+    "crumbs": [
+      "Home"
+    ]
   },
   {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "About this site\n\n1 + 1\n\n[1] 2",
+    "crumbs": [
+      "About"
+    ]
   },
   {
     "objectID": "simulators.html",
     "href": "simulators.html",
     "title": "Simulators",
     "section": "",
-    "text": "We have some!"
+    "text": "We have serveral types of simulator to use",
+    "crumbs": [
+      "Simulators"
+    ]
+  },
+  {
+    "objectID": "Introduction.html",
+    "href": "Introduction.html",
+    "title": "Introduction",
+    "section": "",
+    "text": "Stuff abou the intro"
+  },
+  {
+    "objectID": "introduction.html",
+    "href": "introduction.html",
+    "title": "Introduction",
+    "section": "",
+    "text": "Stuff about the intro",
+    "crumbs": [
+      "Introduction"
+    ]
+  },
+  {
+    "objectID": "simulators.html#alr-1500",
+    "href": "simulators.html#alr-1500",
+    "title": "Simulators",
+    "section": "ALR 1500",
+    "text": "ALR 1500\nAutosub long range 1500 with autonomy sim",
+    "crumbs": [
+      "Simulators"
+    ]
+  },
+  {
+    "objectID": "simulators.html#slocum-gliders",
+    "href": "simulators.html#slocum-gliders",
+    "title": "Simulators",
+    "section": "Slocum Gliders",
+    "text": "Slocum Gliders\nslocum gliders with glidersim",
+    "crumbs": [
+      "Simulators"
+    ]
   }
 ]
