@@ -23,6 +23,7 @@ interpolator_cache
 *.geojson
 catalog.json
 !paper/assets/*.png
+!docs/*.png
 !website/*.png
 .Rproj.user
 .quarto
