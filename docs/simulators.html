@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Mamma Mia Documentation</title>
+<title>Simulators – Mamma Mia Documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -89,11 +89,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./simulators.html"> 
+    <a class="nav-link active" href="./simulators.html" aria-current="page"> 
 <span class="menu-text">Simulators</span></a>
   </li>  
   <li class="nav-item">
@@ -111,24 +111,15 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#main-function" id="toc-main-function" class="nav-link active" data-scroll-target="#main-function">Main function</a>
-  <ul class="collapse">
-  <li><a href="#simulators" id="toc-simulators" class="nav-link" data-scroll-target="#simulators">Simulators</a></li>
-  </ul></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Mamma Mia Documentation</h1>
+<h1 class="title">Simulators</h1>
 </div>
 
 
@@ -145,18 +136,9 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="main-function" class="level1">
-<h1>Main function</h1>
-<p>This toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added in future releases.</p>
-<p>When give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms simulated payload.</p>
-<p>Each trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,these missions can be different platforms e.g.&nbsp;glider and an Autosub or the same platform with different configurations.e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.</p>
-<p>When the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g.&nbsp;different sensor rates can be specified and comparable metadata is generated.</p>
-<section id="simulators" class="level2">
-<h2 class="anchored" data-anchor-id="simulators">Simulators</h2>
+<p>We have some!</p>
 
 
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

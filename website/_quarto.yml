@@ -3,17 +3,19 @@ project:
   output-dir: ../docs
 
 website:
-  title: "AEROSTATS_M16a"
+  title: "Mamma Mia Documentation"
   navbar:
     left:
       - href: index.qmd
         text: Home
+      - href: simulators.qmd
+        text: Simulators
       - about.qmd
 
 format:
   html:
     theme:
-      - cosmo
+      - yeti
       - brand
     css: styles.css
     toc: true
