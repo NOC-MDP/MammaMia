@@ -7,6 +7,8 @@ website:
   sidebar:
     logo: mammamia_logo.png
     search: true
+    style: docked
+    background: '#00B5FF'
     contents:
       - text: "Home"
         href: index.qmd
@@ -23,6 +25,9 @@ website:
     tools:
       - href: https://github.com/NOC-MDP/MammaMia
         icon: github
+  page-footer: "Copyright 2025 National Oceanography Centre"
+  repo-url: https://github.com/NOC-MDP/MammaMia
+  repo-actions: [issue]
 format:
   html:
     theme: lux
