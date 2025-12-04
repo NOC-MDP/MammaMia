@@ -1,15 +1,13 @@
 ---
-title: "Mamma Mia Documentation"
+title: "MAMMAMIA Documentation"
 ---
 
-# Main function
+MAMMAMIA is a platform payload simulator
 
-This toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added in future releases.
+![In-situ temperature parameter of simulated payload from a Slocum Glider](images/Picture 1.png){fig-align="center"}
 
-When give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms simulated payload.
+![Practical Salinity payload from a virtual glider performing an “virtual mooring mission”](images/Picture 2.png){fig-align="center"}
 
-Each trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations.e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.
+![ALR simulating BIOCARBON Iceland to Scotland mission showing in-situ temperature.](images/Picture 3.png){fig-align="center"}
 
-When the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.
-
-## Simulators
+![ALR simulated payload of dissolved oxygen](images/Picture 4.png){fig-align="center"}

@@ -4,6 +4,8 @@ project:
 
 website:
   title: "Mamma Mia Documentation"
+  page-navigation: true
+  back-to-top-navigation: true
   sidebar:
     logo: mammamia_logo.png
     search: true
@@ -14,9 +16,11 @@ website:
         href: index.qmd
       - text: "Introduction"
         href: introduction.qmd
+      - text: "Installation"
+        href: installation.qmd
       - text: "Mamma Mia"
         href: mamma-mia.qmd
-      - section: "Simulators"
+      - text: "Simulators"
         href: simulators.qmd
       - text: "About"
         href: about.qmd
