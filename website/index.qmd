@@ -1,13 +1,13 @@
 ---
-title: "MAMMAMIA Documentation"
+title: "MAMMA MIA Documentation"
 ---
 
-MAMMAMIA is a platform payload simulator
+MAMMA MIA is a platform payload simulator
 
-![In-situ temperature parameter of simulated payload from a Slocum Glider](images/Picture 1.png){fig-align="center"}
+![In-situ temperature parameter of simulated payload from a Slocum Glider](images/Picture%201.png){fig-align="center"}
 
-![Practical Salinity payload from a virtual glider performing an “virtual mooring mission”](images/Picture 2.png){fig-align="center"}
+![Practical Salinity payload from a virtual glider performing an “virtual mooring mission”](images/Picture%202.png){fig-align="center"}
 
-![ALR simulating BIOCARBON Iceland to Scotland mission showing in-situ temperature.](images/Picture 3.png){fig-align="center"}
+![ALR simulating BIOCARBON Iceland to Scotland mission showing in-situ temperature.](images/Picture%203.png){fig-align="center"}
 
-![ALR simulated payload of dissolved oxygen](images/Picture 4.png){fig-align="center"}
+![ALR simulated payload of dissolved oxygen](images/Picture%204.png){fig-align="center"}

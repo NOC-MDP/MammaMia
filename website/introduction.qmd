@@ -2,7 +2,7 @@
 title: "Introduction"
 ---
 
-MAMMAMIA is a platform payload simulator
+MAMMA MIA is a platform payload simulator
 
 This toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added in future releases.
 

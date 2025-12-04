@@ -3,17 +3,17 @@ title: "Installation"
 format: html
 ---
 
-The following steps are required to install MAMMAMIA.
+The following steps are required to install MAMMA MIA.
 
 ## Clone the repository
 
-First clone a MAMMAMIA release, it is highly recommended to download the latest one which can be found on the releases page.
+First clone a MAMMA MIA release, it is highly recommended to download the latest one which can be found on the releases page.
 
 ```         
 $ git clone https://github.com/NOC-MDP/MammaMia/releases/tag/0.4.1
 ```
 
-The above command will clone the 0.4.1 release of MAMMAMIA.
+The above command will clone the 0.4.1 release of MAMMA MIA.
 
 ## Set up python environment
 
@@ -23,13 +23,13 @@ Assuming a conda package manager as a virtual env:
 $ conda create -n mm python=3.13 esmpy pyinterp  # these dependancies aren't easily installable via pip
 ```
 
-This should create a virtual environment containing python 3.13 which MAMMAMIA is compatible with,
+This should create a virtual environment containing python 3.13 which MAMMA MIA is compatible with,
 
 ```         
 $ conda activate mm
 ```
 
-Then you can install MAMMAMIA itself, note the command below must be run in the top level of the MAMMAMIA repository.
+Then you can install MAMMA MIA itself, note the command below must be run in the top level of the MAMMA MIA repository.
 
 ```         
 $ pip install .
@@ -37,7 +37,7 @@ $ pip install .
 
 ## Optional dependancies
 
-By default no simulator is installed alongside MAMMAMIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn't want to simulate a glider. To install MAMMAMIA with the glidersim:
+By default no simulator is installed alongside MAMMA MIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn't want to simulate a glider. To install MAMMA MIA with the glidersim:
 
 ```         
 $ pip install '.[glidersim]'
