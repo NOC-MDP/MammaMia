@@ -3,7 +3,7 @@ project:
   output-dir: ../docs
 
 website:
-  title: "Mamma Mia Documentation"
+  title: "MAMMA MIA Documentation"
   page-navigation: true
   back-to-top-navigation: true
   sidebar:
