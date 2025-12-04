@@ -2,12 +2,16 @@
 title: "Simulators"
 ---
 
-We have serveral types of simulator to use
+We have several types of simulator to use (Slocum gliders are currently the only integrated simulator)
 
 ## Slocum Gliders
 
-slocum gliders with glidersim
+Slocum gliders with glidersim
 
 ## ALR 1500
 
 Autosub long range 1500 with autonomy sim
+
+## ARGO float
+
+Argo floats with ocean parcels
