@@ -91,7 +91,7 @@
     "href": "installation.html",
     "title": "Installation",
     "section": "",
-    "text": "Assuming a conda package manager as a virtual env:\n$ conda create -n mm python=3.13 esmpy pyinterp  # these dependancies aren't easily installable via pip\nThis should create a virtual environment containing python 3.13 which Mamma mia is compatible with,\n$ conda activate mm\nThen you can install Mamma Mia itself, note the command below must be run in the top level of the Mamma Mia repository.\n$ pip install .\n\n\nBy default no simulator is installed alongside Mamma Mia, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all its dependencies, and this is an additional complication that may not be required e.g. if the user doesn’t want to simulate a glider. To install Mamma Mia with the glidersim:\n$ pip install '.[glidersim]'\nAs other simulators become available they will be added here, e.g. parcels for argo float simulation.\nTo install all simulators (currently just glidersim) then:\n$ pip install '.[all]'",
+    "text": "The following steps are required to install MAMMAMIA.",
     "crumbs": [
       "Installation"
     ]
@@ -131,7 +131,7 @@
     "href": "installation.html#optional-dependancies",
     "title": "Installation",
     "section": "Optional dependancies",
-    "text": "Optional dependancies\nBy default no simulator is installed alongside MAMMAMIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all its dependencies, and this is an additional complication that may not be required e.g. if the user doesn’t want to simulate a glider. To install MAMMAMIA with the glidersim:\n$ pip install '.[glidersim]'\nAs other simulators become available they will be added here, e.g. parcels for argo float simulation.\nTo install all simulators (currently just glidersim) then:\n$ pip install '.[all]'",
+    "text": "Optional dependancies\nBy default no simulator is installed alongside MAMMAMIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn’t want to simulate a glider. To install MAMMAMIA with the glidersim:\n$ pip install '.[glidersim]'\nAs other simulators become available they will be added here, e.g. parcels for argo float simulation.\nTo install all simulators (currently just glidersim) then:\n$ pip install '.[all]'",
     "crumbs": [
       "Installation"
     ]

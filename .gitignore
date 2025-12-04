@@ -25,6 +25,8 @@ catalog.json
 !paper/assets/*.png
 !docs/*.png
 !website/*.png
+!docs/images/*.png
+!website/images/*.png
 .Rproj.user
 .quarto
 _site
