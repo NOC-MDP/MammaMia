@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Installation – Mamma Mia Documentation</title>
+<title>Installation – MAMMA MIA Documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -191,25 +191,25 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>The following steps are required to install MAMMAMIA.</p>
+<p>The following steps are required to install MAMMA MIA.</p>
 <section id="clone-the-repository" class="level2">
 <h2 class="anchored" data-anchor-id="clone-the-repository">Clone the repository</h2>
-<p>First clone a MAMMAMIA release, it is highly recommended to download the latest one which can be found on the releases page.</p>
+<p>First clone a MAMMA MIA release, it is highly recommended to download the latest one which can be found on the releases page.</p>
 <pre><code>$ git clone https://github.com/NOC-MDP/MammaMia/releases/tag/0.4.1</code></pre>
-<p>The above command will clone the 0.4.1 release of MAMMAMIA.</p>
+<p>The above command will clone the 0.4.1 release of MAMMA MIA.</p>
 </section>
 <section id="set-up-python-environment" class="level2">
 <h2 class="anchored" data-anchor-id="set-up-python-environment">Set up python environment</h2>
 <p>Assuming a conda package manager as a virtual env:</p>
 <pre><code>$ conda create -n mm python=3.13 esmpy pyinterp  # these dependancies aren't easily installable via pip</code></pre>
-<p>This should create a virtual environment containing python 3.13 which MAMMAMIA is compatible with,</p>
+<p>This should create a virtual environment containing python 3.13 which MAMMA MIA is compatible with,</p>
 <pre><code>$ conda activate mm</code></pre>
-<p>Then you can install MAMMAMIA itself, note the command below must be run in the top level of the MAMMAMIA repository.</p>
+<p>Then you can install MAMMA MIA itself, note the command below must be run in the top level of the MAMMA MIA repository.</p>
 <pre><code>$ pip install .</code></pre>
 </section>
 <section id="optional-dependancies" class="level2">
 <h2 class="anchored" data-anchor-id="optional-dependancies">Optional dependancies</h2>
-<p>By default no simulator is installed alongside MAMMAMIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g.&nbsp;if the user doesn’t want to simulate a glider. To install MAMMAMIA with the glidersim:</p>
+<p>By default no simulator is installed alongside MAMMA MIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g.&nbsp;if the user doesn’t want to simulate a glider. To install MAMMA MIA with the glidersim:</p>
 <pre><code>$ pip install '.[glidersim]'</code></pre>
 <p>As other simulators become available they will be added here, e.g.&nbsp;parcels for argo float simulation.</p>
 <p>To install all simulators (currently just glidersim) then:</p>
