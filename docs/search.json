@@ -2,9 +2,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "MAMMAMIA Documentation",
+    "title": "MAMMA MIA Documentation",
     "section": "",
-    "text": "MAMMAMIA is a platform payload simulator\n\n\n\nIn-situ temperature parameter of simulated payload from a Slocum Glider\n\n\n\n\n\nPractical Salinity payload from a virtual glider performing an “virtual mooring mission”\n\n\n\n\n\nALR simulating BIOCARBON Iceland to Scotland mission showing in-situ temperature.\n\n\n\n\n\nALR simulated payload of dissolved oxygen\n\n\n\n\n\n Back to top",
+    "text": "MAMMA MIA is a platform payload simulator\n\n\n\nIn-situ temperature parameter of simulated payload from a Slocum Glider\n\n\n\n\n\nPractical Salinity payload from a virtual glider performing an “virtual mooring mission”\n\n\n\n\n\nALR simulating BIOCARBON Iceland to Scotland mission showing in-situ temperature.\n\n\n\n\n\nALR simulated payload of dissolved oxygen\n\n\n\n\n\n Back to top",
     "crumbs": [
       "Home"
     ]
@@ -41,7 +41,7 @@
     "href": "introduction.html",
     "title": "Introduction",
     "section": "",
-    "text": "MAMMAMIA is a platform payload simulator\nThis toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added in future releases.\nWhen give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms simulated payload.\nEach trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations.e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.\nWhen the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.\n\n\n\n Back to top",
+    "text": "MAMMA MIA is a platform payload simulator\nThis toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added in future releases.\nWhen give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms simulated payload.\nEach trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations.e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.\nWhen the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.\n\n\n\n Back to top",
     "crumbs": [
       "Introduction"
     ]
@@ -91,7 +91,7 @@
     "href": "installation.html",
     "title": "Installation",
     "section": "",
-    "text": "The following steps are required to install MAMMAMIA.",
+    "text": "The following steps are required to install MAMMA MIA.",
     "crumbs": [
       "Installation"
     ]
@@ -111,7 +111,7 @@
     "href": "installation.html#clone-the-repository",
     "title": "Installation",
     "section": "Clone the repository",
-    "text": "Clone the repository\nFirst clone a MAMMAMIA release, it is highly recommended to download the latest one which can be found on the releases page.\n$ git clone https://github.com/NOC-MDP/MammaMia/releases/tag/0.4.1\nThe above command will clone the 0.4.1 release of MAMMAMIA.",
+    "text": "Clone the repository\nFirst clone a MAMMA MIA release, it is highly recommended to download the latest one which can be found on the releases page.\n$ git clone https://github.com/NOC-MDP/MammaMia/releases/tag/0.4.1\nThe above command will clone the 0.4.1 release of MAMMA MIA.",
     "crumbs": [
       "Installation"
     ]
@@ -131,7 +131,7 @@
     "href": "installation.html#optional-dependancies",
     "title": "Installation",
     "section": "Optional dependancies",
-    "text": "Optional dependancies\nBy default no simulator is installed alongside MAMMAMIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn’t want to simulate a glider. To install MAMMAMIA with the glidersim:\n$ pip install '.[glidersim]'\nAs other simulators become available they will be added here, e.g. parcels for argo float simulation.\nTo install all simulators (currently just glidersim) then:\n$ pip install '.[all]'",
+    "text": "Optional dependancies\nBy default no simulator is installed alongside MAMMA MIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn’t want to simulate a glider. To install MAMMA MIA with the glidersim:\n$ pip install '.[glidersim]'\nAs other simulators become available they will be added here, e.g. parcels for argo float simulation.\nTo install all simulators (currently just glidersim) then:\n$ pip install '.[all]'",
     "crumbs": [
       "Installation"
     ]
@@ -141,7 +141,7 @@
     "href": "installation.html#set-up-python-environment",
     "title": "Installation",
     "section": "Set up python environment",
-    "text": "Set up python environment\nAssuming a conda package manager as a virtual env:\n$ conda create -n mm python=3.13 esmpy pyinterp  # these dependancies aren't easily installable via pip\nThis should create a virtual environment containing python 3.13 which MAMMAMIA is compatible with,\n$ conda activate mm\nThen you can install MAMMAMIA itself, note the command below must be run in the top level of the MAMMAMIA repository.\n$ pip install .",
+    "text": "Set up python environment\nAssuming a conda package manager as a virtual env:\n$ conda create -n mm python=3.13 esmpy pyinterp  # these dependancies aren't easily installable via pip\nThis should create a virtual environment containing python 3.13 which MAMMA MIA is compatible with,\n$ conda activate mm\nThen you can install MAMMA MIA itself, note the command below must be run in the top level of the MAMMA MIA repository.\n$ pip install .",
     "crumbs": [
       "Installation"
     ]
