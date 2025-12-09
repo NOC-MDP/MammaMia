@@ -94,9 +94,16 @@ class PlatformInventory:
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}inventory{os.sep}platforms.json", "r") as f:
             plats = json.load(f)
-
         for platform_type, platforms2 in plats["platforms"].items():
             self._process_platform(platforms2)
+        try:
+            with open(f"platforms.json", "r") as f:
+                plats = json.load(f)
+            for platform_type, platforms2 in plats["platforms"].items():
+                self._process_platform(platforms2)
+            logger.log("COMPLETED", "Successfully loaded local platform inventory file")
+        except FileNotFoundError:
+            logger.debug("no platform inventory file found in current working directory")
         logger.log("COMPLETED","successfully created platform Inventory")
 
     def _process_platform(self, platforms2) -> None:

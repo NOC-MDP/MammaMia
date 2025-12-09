@@ -41,7 +41,7 @@ campaign.add_mission(mission_name="RAD24_01",
                      summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
                      platform_name="Churchill",
                      trajectory_path="data/RAPID-mooring/rapid-mooring.nc",
-                     source_location="MSM",
+                     source_location="CMEMS",
                      mission_time_step=60,
                      apply_obs_error=True)
 
