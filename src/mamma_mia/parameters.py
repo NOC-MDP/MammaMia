@@ -43,10 +43,16 @@ class ParameterInventory:
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}inventory{os.sep}parameters.json", "r") as f:
             params = json.load(f)
-
         for parameter_type, parameters2 in params["parameters"].items():
             self._process_parameters(parameter_type, parameters2)
-
+        try:
+            with open(f"parameters.json", "r") as f:
+                params = json.load(f)
+            for parameter_type, parameters2 in params["parameters"].items():
+                self._process_parameters(parameter_type, parameters2)
+            logger.log("COMPLETED", "Successfully loaded local parameter inventory file")
+        except FileNotFoundError:
+            logger.debug("no local parameters.json file found in current working directory")
         logger.log("COMPLETED","Successfully created parameter inventory")
 
     def _process_parameters(self, parameter_type, parameters2):

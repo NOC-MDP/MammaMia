@@ -90,9 +90,16 @@ class SensorInventory:
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}inventory{os.sep}sensors.json", "r") as f:
             sens = json.load(f)
-
         for sensor_type, sensors2 in sens["sensors"].items():
             self._process_sensor(sensors2)
+        try:
+            with open(f"sensors.json", "r") as f:
+                sens = json.load(f)
+            for sensor_type, sensors2 in sens["sensors"].items():
+                self._process_sensor(sensors2)
+                logger.log("COMPLETED", "Successfully loaded local sensor inventory file")
+        except FileNotFoundError:
+            logger.debug("no sensors.json file found in current working directory")
         logger.log("COMPLETED","successfully created sensor inventory")
 
     def _process_sensor(self, sensors2):
