@@ -19,7 +19,7 @@ print(f"Available parameters: {inventory.list_parameters()}")
 print(f"Available sensor types: {inventory.list_sensor_types()}")
 print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
 print(f"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}")
-print(f"sensor info: {inventory.get_sensor_info(platform_type='Slocum_G2', sensor_type='CTD')}")
+print(f"sensor info: {inventory.get_sensor_info(platform_type='ARGO', sensor_type='CTD')}")
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
