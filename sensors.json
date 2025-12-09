@@ -1,0 +1,31 @@
+{
+    "sensors": {
+        "CTD": [
+            {
+                "sensor_model": "ARGO CTD",
+                "instrument_type": "CTD",
+                "specification": {
+                    "INSITU_TEMPERATURE": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "noise_std": -999.999,
+                        "meta_data": "potential temperature"
+                    },
+                    "PRACTICAL_SALINITY": {
+                        "accuracy": -999.999,
+                        "resolution": -999.999,
+                        "drift_per_month": -999.999,
+                        "range": [-999.999, -999.999],
+                        "percent_errors": false,
+                        "noise_std": -999.999,
+                        "meta_data": "practical salinity"
+                    }
+                },
+                "platform_compatibility": ["ARGO"]
+            }
+        ]
+    }
+}

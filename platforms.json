@@ -1,8 +1,8 @@
 {
     "platforms": {
-        "ARGO": [
+        "drifter": [
             {
-                "platform_type": "APEX",
+                "platform_type": "ARGO",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "NEMA_coordinate_conversion": false
             }
