@@ -445,6 +445,9 @@ class FindWorlds:
                         except ValueError as e:
                             logger.debig(f"resolution {e} not supported, skipping this dataset")
                             continue
+                        if parts[2] == "tn":
+                            logger.debug(f"model types {parts[2]} not currently supported, skipping this dataset")
+                            continue
                         # after all that PHEW! we can add to matched entries
                         logger.info(f"found a match in {item.id} for {key}")
                         new_world = MatchedWorld(
