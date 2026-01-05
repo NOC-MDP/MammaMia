@@ -1,0 +1,453 @@
+{
+    "parameters": {
+        "insitu": [
+            {
+                "parameter_id": "PRESSURE",
+                "identifier": "SDN:OG1::PRES",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/PRES/",
+                "standard_name": "Sea water pressure, equals 0 at sea-level",
+                "unit_of_measure": "Decibars",
+                "unit_identifier": " SDN:P06::UPDB",
+                "parameter_definition": "Pressure (spatial co-ordinate) exerted by the water body by profiling pressure sensor and corrected to read zero at sea level",
+                "alternate_sources": ["GLIDER_DEPTH"],
+                "alternate_labels": ["PRESSURE"],
+                "source_names": ["sci_water_pressure"]
+            },
+            {
+                "parameter_id": "INSITU_TEMPERATURE",
+                "identifier": "SDN:OG1::TEMP",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/TEMP/",
+                "standard_name": "Sea temperature in-situ ITS-90 scale",
+                "unit_of_measure": "Degrees Celsius",
+                "unit_identifier": "SDN:P06::UPAA",
+                "parameter_definition": "Temperature of the water body by CTD or STD",
+                "alternate_sources": ["POTENTIAL_TEMPERATURE","CONSERVATIVE_TEMPERATURE"],
+                "alternate_labels": ["TEMPERATURE"],
+                "source_names": ["sci_water_temp"]
+            },
+            {
+                "parameter_id": "INSITU_CHLOROPHYLL",
+                "identifier": "SDN:OG1::CHLA",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/CHLA/",
+                "standard_name": "Chlorophyll-A",
+                "unit_of_measure": "mg/m3",
+                "unit_identifier": " SDN:P06::UMMC",
+                "parameter_definition": "In-situ fluorometer with either manufacturer, laboratory or sample calibration applied.",
+                "alternate_sources": ["CHLOROPHYLL"],
+                "alternate_labels": ["CHLA"],
+                "source_names": ["sci_flbbcd_chlor_units"]
+            },
+            {
+                "parameter_id": "INSITU_DISSOLVED_OXYGEN",
+                "identifier": "SDN:P01::DOXYAAOP",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/DOXYAAOP/",
+                "standard_name": "molar_dissolved_oxygen_concentration",
+                "unit_of_measure": "micromole/l",
+                "unit_identifier": "SDN:P06::UPOX",
+                "parameter_definition": "Concentration of oxygen {O2 CAS 7782-44-7} per unit volume of the water body [dissolved plus reactive particulate phase] by optode",
+                "alternate_sources": [""],
+                "alternate_labels": ["WC_dissO2_optode"],
+                "source_names": ["sci_oxy4_oxygen"]
+            }
+        ],
+        "model": [
+            {
+                "parameter_id": "POTENTIAL_TEMPERATURE",
+                "identifier": "SDN:P07::CFSN0329",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0329/",
+                "standard_name": "sea_water_potential_temperature",
+                "unit_of_measure": "Degrees Celsius",
+                "unit_identifier": "SDN:P06::UPAA",
+                "parameter_definition": "Sea water potential temperature is the temperature a parcel of sea water would have if moved adiabatically to sea level pressure.",
+                "alternate_sources": ["CONSERVATIVE_TEMPERATURE"],
+                "alternate_labels": ["potential_temperature"],
+                "source_names": ["thetao"]
+            },
+
+            {
+                "parameter_id": "DISSOLVED_OXYGEN",
+                "identifier": "SDN:P07::CF14N29",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CF14N29/",
+                "standard_name": "mole_concentration_of_dissolved_molecular_oxygen_in_sea_water",
+                "unit_of_measure": "Millimoles per cubic metre",
+                "unit_identifier": "SDN:P06::MMCM",
+                "parameter_definition": "Mole concentration means number of moles per unit volume, also called \"molarity\", and is used in the construction mole_concentration_of_X_in_Y, where X is a material constituent of Y. A chemical or biological species denoted by X may be described by a single term such as \"nitrogen\" or a phrase such as \"nox_expressed_as_nitrogen\". The chemical formula for molecular oxygen is O2.",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": ["o2"]
+            },
+            {
+                "parameter_id": "PRACTICAL_SALINITY",
+                "identifier": "SDN:P07::IADIHDIJ",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/IADIHDIJ/",
+                "standard_name": "sea_water_practical_salinity",
+                "unit_of_measure": "Dimensionless",
+                "unit_identifier": "SDN:P06::UUUU",
+                "parameter_definition": "Practical Salinity, S_P, is a determination of the salinity of sea water, based on its electrical conductance. The measured conductance, corrected for temperature and pressure, is compared to the conductance of a standard potassium chloride solution, producing a value on the Practical Salinity Scale of 1978 (PSS-78).",
+                "alternate_sources": ["ABSOLUTE_SALINITY"],
+                "alternate_labels": ["practical salinity"],
+                "source_names": ["so"]
+            },
+            {
+                "parameter_id": "ABSOLUTE_SALINITY",
+                "identifier": "SDN:P07::JIBGDIEJ",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/JIBGDIEJ/",
+                "standard_name": "sea_water_absolute_salinity",
+                "unit_of_measure": "Dimensionless",
+                "unit_identifier": "SDN:P06::UUUU",
+                "parameter_definition": "Absolute Salinity, S_A, is defined as part of the Thermodynamic Equation of Seawater 2010 (TEOS-10) which was adopted in 2010 by the Intergovernmental Oceanographic Commission (IOC). It is the mass fraction of dissolved material in sea water. ",
+                "alternate_sources": [""],
+                "alternate_labels": ["absolute salinity"],
+                "source_names": ["soce_abs","so_abs"]
+            },
+            {
+                "parameter_id": "CONSERVATIVE_TEMPERATURE",
+                "identifier": "SDN:P07::IFEDAFIE",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/IFEDAFIE/",
+                "standard_name": "sea_water_conservative_temperature",
+                "unit_of_measure": "Degrees Celsius",
+                "unit_identifier": "SDN:P06::UPAA",
+                "parameter_definition": "Conservative Temperature is specific potential enthalpy (which has the standard name sea_water_specific_potential_enthalpy) divided by a fixed value of the specific heat capacity of sea water, namely cp_0 = 3991.86795711963 J kg-1 K-1.",
+                "alternate_sources": [""],
+                "alternate_labels": ["conservative temperature"],
+                "source_names": ["toce_con","thetao_con"]
+            },
+            {
+                "parameter_id": "EAST_CURRENT_VELOCITY",
+                "identifier": "SDN:P07::CFSN0650",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0650/",
+                "standard_name": "eastward_sea_water_velocity",
+                "unit_of_measure": "Metres per second",
+                "unit_identifier": "SDN:P06::UVAA",
+                "parameter_definition": "A velocity is a vector quantity. 'Eastward' indicates a vector component which is positive when directed eastward (negative westward).",
+                "alternate_sources": [""],
+                "alternate_labels": ["Eastward ocean current velocity"],
+                "source_names": ["uo"]
+            },
+            {
+                "parameter_id": "NORTH_CURRENT_VELOCITY",
+                "identifier": "SDN:P07::CFSN0494",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0494/",
+                "standard_name": "northward_sea_water_velocity",
+                "unit_of_measure": "Metres per second",
+                "unit_identifier": "SDN:P06::UVAA",
+                "parameter_definition": "A velocity is a vector quantity. 'Northward' indicates a vector component which is positive when directed northward (negative southward).",
+                "alternate_sources": [""],
+                "alternate_labels": ["Northward ocean current velocity"],
+                "source_names": ["vo"]
+            },
+                        {
+                "parameter_id": "CHLOROPHYLL",
+                "identifier": "SDN:P07::CF14N7",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CF14N7/",
+                "standard_name": "mass_concentration_of_chlorophyll_a_in_sea_water",
+                "unit_of_measure": "Kilograms per cubic metre",
+                "unit_identifier": "SDN:P06::UKMC",
+                "parameter_definition": "Mass concentration means mass per unit volume and is used in the construction mass_concentration_of_X_in_Y, where X is a material constituent of Y. A chemical or biological species denoted by X may be described by a single term such as nitrogen or a phrase such as nox_expressed_as_nitrogen. Chlorophylls are the green pigments found in most plants, algae and cyanobacteria; their presence is essential for photosynthesis to take place. There are several different forms of chlorophyll that occur naturally. All contain a chlorin ring (chemical formula C20H16N4) which gives the green pigment and a side chain whose structure varies. The naturally occurring forms of chlorophyll contain between 35 and 55 carbon atoms. Chlorophyll-a is the most commonly occurring form of natural chlorophyll. The chemical formula of chlorophyll-a is C55H72O5N4Mg.",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": ["chl"]
+            },
+            {
+                "parameter_id": "DOWNWELLING_RADIATIVE_FLUX",
+                "identifier": "SDN:P07::CFSN0064",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P07/current/CFSN0064/",
+                "standard_name": "volume_attenuation_coefficient_of_downwelling_radiative_flux_in_sea_water",
+                "unit_of_measure": "per metre",
+                "unit_identifier": "SDN:P06::UPRM",
+                "parameter_definition": "Downwelling radiation is radiation from above. It does not mean \"net downward\". The sign convention is that \"upwelling\" is positive upwards and \"downwelling\" is positive downwards. Radiative flux is the sum of shortwave and longwave radiative fluxes. ",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": ["kd"]
+            }
+        ],
+        "navigation": [
+            {
+                "parameter_id": "ALTITUDE",
+                "identifier": "SDN:OG1::ALTITUDE",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/ALTITUDE/",
+                "standard_name": "Height above bed in the water body",
+                "unit_of_measure": "Metres",
+                "unit_identifier": "SDN:P06::ULAA",
+                "parameter_definition": "The vertical distance of a platform above the bed surface of a water body.",
+                "alternate_sources": [""],
+                "alternate_labels": ["ALT"],
+                "source_names": ["m_altitude","ALTITUDE"]
+            },
+            {
+                "parameter_id": "LATITUDE",
+                "identifier": "SDN:OG1::LAT",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/LAT/",
+                "standard_name": "Latitude north",
+                "unit_of_measure": "Degrees north",
+                "unit_identifier": "SDN:P06::DEGN",
+                "parameter_definition": "Latitude north",
+                "alternate_sources": [""],
+                "alternate_labels": ["LAT"],
+                "source_names": ["m_lat","nav_lat","LATITUDE","lat"]
+            },
+            {
+                "parameter_id": "LATITUDE_GPS",
+                "identifier": "SDN:OG1::LAT_GPS",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/LAT_GPS/",
+                "standard_name": "GPS fixed latitude",
+                "unit_of_measure": "Degrees North",
+                "unit_identifier": "SDN:P06::DEGN",
+                "parameter_definition": "Latitude north by unspecified GPS system.",
+                "alternate_sources": [""],
+                "alternate_labels": ["LAT_GPS"],
+                "source_names": ["m_gps_lat"]
+            },
+            {
+                "parameter_id": "LONGITUDE",
+                "identifier": "SDN:OG1::LON",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/LON/",
+                "standard_name": "Longitude east",
+                "unit_of_measure": "Degrees east",
+                "unit_identifier": "SDN:P06::DEGE",
+                "parameter_definition": "Longitude east",
+                "alternate_sources": [""],
+                "alternate_labels": ["LON"],
+                "source_names": ["m_lon","nav_lon","LONGITUDE","lon"]
+            },
+            {
+                "parameter_id": "LONGITUDE_GPS",
+                "identifier": "SDN:OG1::LON_GPS",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/LON_GPS/",
+                "standard_name": "GPS fixed longitude",
+                "unit_of_measure": "Degrees east",
+                "unit_identifier": "SDN:P06::DEGE",
+                "parameter_definition": "Longitude east by unspecified GPS system.",
+                "alternate_sources": [""],
+                "alternate_labels": ["LON_GPS"],
+                "source_names": ["m_gps_lon"]
+            },
+            {
+                "parameter_id": "WATERCURRENTS_U",
+                "identifier": "SDN:OG1::WCUR_X",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/WCUR_X/",
+                "standard_name": "Eastward current velocity in the water body",
+                "unit_of_measure": "Centimetres per second",
+                "unit_identifier": " SDN:P06::UVBB",
+                "parameter_definition": "The depth-averaged current in the x-axis using dead reckoning between two surfacings.",
+                "alternate_sources": [""],
+                "alternate_labels": ["WCUR_X"],
+                "source_names": ["m_final_water_vx","uo"]
+            },
+            {
+                "parameter_id": "",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "WATERCURRENTS_V",
+                "identifier": "SDN:OG1::WCUR_Y",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/WCUR_Y/",
+                "standard_name": "Northward current velocity in the water body",
+                "unit_of_measure": "Centimetres per second",
+                "unit_identifier": "SDN:P06::UVBB",
+                "parameter_definition": "The depth-averaged current in the y-axis using dead reckoning between two surfacings.",
+                "alternate_sources": [
+                    ""
+                ],
+                "alternate_labels": [
+                    "WCUR_Y"
+                ],
+                "source_names": [
+                    "m_final_water_vy",
+                    "vo"
+                ]
+            },
+            {
+                "parameter_id": "GLIDER_HEADING",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": ["GLIDER_HEADING"]
+            },
+            {
+                "parameter_id": "GLIDER_PITCH",
+                "identifier": "SDN:OG1::PITCH",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/PITCH/",
+                "standard_name": "Orientation (pitch) of measurement platform by inclinometer",
+                "unit_of_measure": "Degrees",
+                "unit_identifier": "SDN:P06::UAAA",
+                "parameter_definition": "The up/down rotation of a platform relative to it Y axis as measured by an inclinometer.",
+                "alternate_sources": [""],
+                "alternate_labels": ["PITCH"],
+                "source_names": ["m_pitch","GLIDER_PITCH"]
+            },
+            {
+                "parameter_id": "GLIDER_ROLL",
+                "identifier": "SDN:OG1::ROLL",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/ROLL/",
+                "standard_name": "Orientation (roll angle) of measurement platform by inclinometer",
+                "unit_of_measure": "Degrees",
+                "unit_identifier": "SDN:P06::UAAA",
+                "parameter_definition": "The tilting rotation of a platform relative to its longitudinal/X axis as measured by an inclinometer.",
+                "alternate_sources": [""],
+                "alternate_labels": ["ROLL"],
+                "source_names": ["m_roll","GLIDER_ROLL"]
+            },
+            {
+                "parameter_id": "GLIDER_DEPTH",
+                "identifier": "SDN:OG1::DEPTH",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/DEPTH/",
+                "standard_name": "Depth below sea surface (zero at sea level) of measurement platform",
+                "unit_of_measure": "Metres",
+                "unit_identifier": "SDN:P06::ULAA",
+                "parameter_definition": "Depth below surface of the water body by unknown instrument and correction to zero at sea level using unspecified algorithm.",
+                "alternate_sources": [""],
+                "alternate_labels": ["DEPTH"],
+                "source_names": ["m_depth"  ,"GLIDER_DEPTH"]
+            },
+            {
+                "parameter_id": "ALATPT01",
+                "identifier": "SDN:P01::ALATPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ALATPT01/",
+                "standard_name": "best_estimate_latitude",
+                "unit_of_measure": "SDN:P06::UAAA",
+                "unit_identifier": "Degrees",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of the latitudinal position of a platform.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateLat","latitude"],
+                "source_names": ["ALATPT01"]
+            },
+            {
+                "parameter_id": "ALONPT01",
+                "identifier": "SDN:P01::ALONPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ALONPT01/",
+                "standard_name": "best_estimate_longitude",
+                "unit_of_measure": "Degrees",
+                "unit_identifier": "SDN:P06::UAAA",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of the longitudinal position of a platform.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateLon","longitude"],
+                "source_names": ["ALONPT01"]
+            },
+            {
+                "parameter_id": "ADEPPT01",
+                "identifier": "SDN:P01::ADEPPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ADEPPT01/",
+                "standard_name": "depth_below_surface",
+                "unit_of_measure": "Metres",
+                "unit_identifier": "SDN:P06::ULAA",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of the distance of a sensor or sampling point below the sea surface.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateDepBelowSurf","depth"],
+                "source_names": ["ADEPPT01"]
+            },
+            {
+                "parameter_id": "HEADPT01",
+                "identifier": "SDN:P01::HEADPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/HEADPT01/",
+                "standard_name": "best_estimate_yaw",
+                "unit_of_measure": "Degrees True",
+                "unit_identifier": "SDN:P06::UABB",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of a platform's yaw angle.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateOrientYaw","yaw"],
+                "source_names": ["HEADPT01"]
+            },
+            {
+                "parameter_id": "ROLLPT01",
+                "identifier": "SDN:P01::ROLLPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ROLLPT01/",
+                "standard_name": "best_estimate_roll",
+                "unit_of_measure": "Degrees",
+                "unit_identifier": "SDN:P06::UAAA",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of a platform's roll angle.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateOrientRoll","roll"],
+                "source_names": ["ROLLPT01"]
+            },
+            {
+                "parameter_id": "PTCHPT01",
+                "identifier": "SDN:P01::PTCHPT01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/PTCHPT01/",
+                "standard_name": "best_estimate_pitch",
+                "unit_of_measure": "Degrees",
+                "unit_identifier": "SDN:P06::UAAA",
+                "parameter_definition": "The best estimate using on-board navigation system and algorithm of a platform's pitch angle.",
+                "alternate_sources": [""],
+                "alternate_labels": ["BestEstimateOrientPitch","pitch"],
+                "source_names": ["PTCHPT01"]
+            },
+            {
+                "parameter_id": "PTVELX01",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "PTVELY01",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            },
+            {
+                "parameter_id": "PTVELZ01",
+                "identifier": "",
+                "vocab_url": "",
+                "standard_name": "",
+                "unit_of_measure": "",
+                "unit_identifier": "",
+                "parameter_definition": "",
+                "alternate_sources": [""],
+                "alternate_labels": [""],
+                "source_names": [""]
+            }
+        ],
+        "time": [
+            {
+                "parameter_id": "TIME",
+                "identifier": "SDN:OG1::TIME",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/OG1/current/TIME/",
+                "standard_name": "time",
+                "unit_of_measure": "Seconds",
+                "unit_identifier": "SDN:P06::UTBB",
+                "parameter_definition": "Time elapsed since 1970-01-01T00:00:00Z.",
+                "alternate_sources": [""],
+                "alternate_labels": ["TIME"],
+                "source_names": ["time","TIME"]
+            },
+            {
+                "parameter_id": "ELTXIX01",
+                "identifier": "SDN:P01::ELTXIX01",
+                "vocab_url": "https://vocab.nerc.ac.uk/collection/P01/current/ELTXIX01/",
+                "standard_name": "Elapsed time relative to 1900-01-01T00:00:00Z",
+                "unit_of_measure": "Seconds",
+                "unit_identifier": "SDN:P06::UTBB",
+                "parameter_definition": "The time that has elapsed between midnight UTC on 01 January 1900 and the timestamped event.",
+                "alternate_sources": [""],
+                "alternate_labels": ["ElTime_1900"],
+                "source_names": ["time_counter"]
+            }
+
+        ]
+    }
+}
