@@ -1,11 +1,10 @@
 {
-    "platforms": {
-        "ARGO": [
+    "platforms": [
             {
-                "platform_type": "APEX",
+                "platform_type": "ARGO",
+                "platform_model": "APEX",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "NEMA_coordinate_conversion": false
             }
-        ]
-    }
+    ]
 }

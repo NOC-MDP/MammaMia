@@ -46,6 +46,7 @@ def create_platform_attrs(frozen_mode=False):
         """
         # platform parameters
         platform_type: str
+        platform_model:str
         platform_manufacturer: str
         NEMA_coordinate_conversion: bool
         sensors: dict[str, create_sensor_class(frozen_mode=True)] = field(factory=dict)
@@ -63,17 +64,17 @@ def create_platform_attrs(frozen_mode=False):
             """
             # TODO this is very dependant on strings exactly matching, ideally a more robust approach is needed.
             for sensor in sensor_inventory.entries.values():
-                if sensor.instrument_type == sensor_type and self.platform_type in sensor.platform_compatibility:
+                if sensor.instrument_type == sensor_type and self.platform_model in sensor.platform_compatibility:
                     sensor_unstruct = unstructure(sensor)
                     created_sensor = structure(sensor_unstruct, create_sensor_class(frozen_mode=False))
                     if self.entity_name is not None:
                         created_sensor.sensor_name = f"{self.entity_name}_{sensor.instrument_type}"
                     else:
-                        created_sensor.sensor_name = f"{self.platform_type}_{self.platform_type}_{sensor.instrument_type}"
+                        created_sensor.sensor_name = f"{self.platform_type}_{self.platform_model}_{sensor.instrument_type}"
                     self.sensors[sensor_type] = created_sensor
                     logger.info(f"successfully created sensor {sensor_type} on entity {self.entity_name}")
                     return
-            raise Exception(f"sensor type {sensor_type} not found for platform {self.platform_type}")
+            raise Exception(f"sensor type {sensor_type} not found for platform {self.platform_model}")
 
 
     return PlatformAttrs
@@ -94,12 +95,12 @@ class PlatformInventory:
         module_dir = Path(__file__).parent
         with open(f"{module_dir}{os.sep}inventory{os.sep}platforms.json", "r") as f:
             plats = json.load(f)
-        for platform_type, platforms2 in plats["platforms"].items():
+        for platforms2 in plats["platforms"]:
             self._process_platform(platforms2)
         try:
             with open(f"platforms.json", "r") as f:
                 plats = json.load(f)
-            for platform_type, platforms2 in plats["platforms"].items():
+            for platforms2 in plats["platforms"]:
                 self._process_platform(platforms2)
             logger.log("COMPLETED", "Successfully loaded local platform inventory file")
         except FileNotFoundError:
@@ -115,18 +116,17 @@ class PlatformInventory:
         Returns:
 
         """
-        for platform in platforms2:
-            # TODO this is more complicated than just a Invalid platform exception need to handle it better
-            try:
-                platform_type = platform.get("platform_type")
-                if not platform_type:
-                    logger.error("Platform entry missing 'platform_type', skipping")
-                    continue
 
-                self.entries[platform_type] = structure(platform,create_platform_attrs(frozen_mode=True))
-            except TypeError as e:
-                logger.error(f"Error initializing platform: {e}")
-                raise InvalidPlatform
+        # TODO this is more complicated than just a Invalid platform exception need to handle it better
+        try:
+            platform_model = platforms2.get("platform_model")
+            if not platform_model:
+                logger.error("Platform entry missing 'platform_model', skipping")
+
+            self.entries[platform_model] = structure(platforms2,create_platform_attrs(frozen_mode=True))
+        except TypeError as e:
+            logger.error(f"Error initializing platform: {e}")
+            raise InvalidPlatform
 
     def create_entity(self,entity_name:str, platform: str,serial_number:str,NMEA_conversion:bool=None):
         """Returns a deep copy of a platform (prevents direct modification)."""
@@ -140,5 +140,5 @@ class PlatformInventory:
             created_platform.NEMA_coordinate_conversion = NMEA_conversion
         # register datalogger to platform
         created_platform.register_sensor(sensor_type="data_logger")
-        logger.success(f"successfully created entity {created_platform.entity_name} of type {created_platform.platform_type}")
+        logger.success(f"successfully created entity {created_platform.entity_name} of type {created_platform.platform_type} and model {created_platform.platform_model} ")
         return created_platform
