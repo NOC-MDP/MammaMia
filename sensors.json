@@ -2,7 +2,7 @@
     "sensors": {
         "CTD": [
             {
-                "sensor_model": "ARGO CTD",
+                "sensor_model": "APEX CTD",
                 "instrument_type": "CTD",
                 "specification": {
                     "INSITU_TEMPERATURE": {
@@ -24,7 +24,7 @@
                         "meta_data": "practical salinity"
                     }
                 },
-                "platform_compatibility": ["ARGO"]
+                "platform_compatibility": ["APEX"]
             }
         ]
     }

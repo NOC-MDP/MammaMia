@@ -12,35 +12,28 @@
 from mamma_mia import Campaign
 from mamma_mia import inventory
 
-
+print("<=========> starting Mamma Mia ARGO Campaign test run <===========>")
 print(f"Available groups in inventory {inventory.list_inventory_groups()}")
 print(f"Available platform types: {inventory.list_platform_types()}")
-print(f"Available parameters: {inventory.list_parameters()}")
-print(f"Available sensor types: {inventory.list_sensor_types()}")
-print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
-print(f"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}")
-print(f"sensor info: {inventory.get_sensor_info(platform_type='APEX', sensor_type='CTD')}")
-
-print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
-campaign = Campaign(name="RAPID array virtual mooring",
-                    description="single slocum glider deployment at a RAPID mooring",
+campaign = Campaign(name="ARGO example drifter mission",
+                    description="single ARGO APEX drifter",
                     verbose=True,
                     )
 # create platform entity (mutable)
-Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Slocum_G2",serial_number="unit_398")
+APEX = inventory.create_platform_entity(entity_name="ARGO_APEX",platform="APEX",serial_number="APEX1")
 
 # register sensor to platform
-Churchill.register_sensor(sensor_type="CTD")
+APEX.register_sensor(sensor_type="CTD")
 # register platform to the campaign for use in missions
-campaign.register_platform(entity=Churchill)
+campaign.register_platform(entity=APEX)
 
 # # # add mission
-campaign.add_mission(mission_name="RAD24_01",
-                     title="Churchill with CTD deployment at RAPID array mooring eb1l2n",
-                     summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
-                     platform_name="Churchill",
-                     trajectory_path="data/RAPID-mooring/rapid-mooring.nc",
+campaign.add_mission(mission_name="ARGO_01",
+                     title="Example ARGO deployment",
+                     summary="single ARGO deployed",
+                     platform_name="ARGO_APEX",
+                     trajectory_path="argo_float.zarr",
                      source_location="CMEMS",
                      mission_time_step=60,
                      apply_obs_error=True)
@@ -55,8 +48,8 @@ campaign.build_missions()
 campaign.run()
 
 # visualise the results
-campaign.missions["RAD24_01"].plot_trajectory()
-campaign.missions["RAD24_01"].show_payload()
+campaign.missions["ARGO_01"].plot_trajectory()
+campaign.missions["ARGO_01"].show_payload()
 campaign.export()
 print("the end")
 
