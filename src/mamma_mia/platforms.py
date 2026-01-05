@@ -128,11 +128,11 @@ class PlatformInventory:
             logger.error(f"Error initializing platform: {e}")
             raise InvalidPlatform
 
-    def create_entity(self,entity_name:str, platform: str,serial_number:str,NMEA_conversion:bool=None):
+    def create_entity(self,entity_name:str, platform_model: str,serial_number:str,NMEA_conversion:bool=None):
         """Returns a deep copy of a platform (prevents direct modification)."""
-        if platform not in self.entries:
-            raise KeyError(f"Platform '{platform}' not found in platform inventory.")
-        platform_unstruct = unstructure(self.entries[platform])
+        if platform_model not in self.entries:
+            raise KeyError(f"Platform model '{platform_model}' not found in platform inventory.")
+        platform_unstruct = unstructure(self.entries[platform_model])
         created_platform = structure(platform_unstruct,create_platform_attrs(frozen_mode=False))
         created_platform.entity_name = entity_name
         created_platform.serial_number = serial_number

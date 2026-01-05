@@ -15,6 +15,7 @@ from mamma_mia import inventory
 
 print(f"Available groups in inventory {inventory.list_inventory_groups()}")
 print(f"Available platform types: {inventory.list_platform_types()}")
+print(f"Available platform models: {inventory.list_platform_models()}")
 print(f"Available parameters: {inventory.list_parameters()}")
 print(f"Available sensor types: {inventory.list_sensor_types()}")
 print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
@@ -28,7 +29,7 @@ campaign = Campaign(name="RAPID array virtual mooring",
                     verbose=True,
                     )
 # create platform entity (mutable)
-Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Slocum_G2",serial_number="unit_398")
+Churchill = inventory.create_platform_entity(entity_name="Churchill",platform_model="Slocum_G2",serial_number="unit_398")
 
 # register sensor to platform
 Churchill.register_sensor(sensor_type="CTD")
