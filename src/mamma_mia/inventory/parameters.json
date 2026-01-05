@@ -184,7 +184,7 @@
                 "parameter_definition": "Latitude north",
                 "alternate_sources": [""],
                 "alternate_labels": ["LAT"],
-                "source_names": ["m_lat","nav_lat","LATITUDE"]
+                "source_names": ["m_lat","nav_lat","LATITUDE","lat"]
             },
             {
                 "parameter_id": "LATITUDE_GPS",
@@ -208,7 +208,7 @@
                 "parameter_definition": "Longitude east",
                 "alternate_sources": [""],
                 "alternate_labels": ["LON"],
-                "source_names": ["m_lon","nav_lon","LONGITUDE"]
+                "source_names": ["m_lon","nav_lon","LONGITUDE","lon"]
             },
             {
                 "parameter_id": "LONGITUDE_GPS",
