@@ -1,18 +1,16 @@
 {
-    "platforms": {
-        "glider": [
+    "platforms": [
             {
-                "platform_type": "Slocum_G2",
+                "platform_type": "glider",
+                "platform_model": "Slocum_G2",
                 "platform_manufacturer": "Teledyne Webb Research",
                 "NEMA_coordinate_conversion": true
-            }
-        ],
-        "alr": [
+            },
             {
-                "platform_type": "ALR_1500",
+                "platform_type": "autosub",
+                "platform_model": "ALR_1500",
                 "platform_manufacturer": "National Oceanography Centre",
                 "NEMA_coordinate_conversion": false
             }
         ]
-    }
 }
