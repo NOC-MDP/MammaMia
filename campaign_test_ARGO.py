@@ -21,18 +21,18 @@ campaign = Campaign(name="ARGO example drifter mission",
                     verbose=True,
                     )
 # create platform entity (mutable)
-APEX = inventory.create_platform_entity(entity_name="ARGO_APEX",platform="APEX",serial_number="APEX1")
+APEXY = inventory.create_platform_entity(entity_name="APEXY",platform_model="APEX",serial_number="APEX1")
 
 # register sensor to platform
-APEX.register_sensor(sensor_type="CTD")
+APEXY.register_sensor(sensor_type="CTD")
 # register platform to the campaign for use in missions
-campaign.register_platform(entity=APEX)
+campaign.register_platform(entity=APEXY)
 
 # # # add mission
 campaign.add_mission(mission_name="ARGO_01",
                      title="Example ARGO deployment",
                      summary="single ARGO deployed",
-                     platform_name="ARGO_APEX",
+                     platform_name="APEXY",
                      trajectory_path="argo_float.zarr",
                      source_location="CMEMS",
                      mission_time_step=60,

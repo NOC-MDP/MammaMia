@@ -481,8 +481,12 @@ class Mission:
         elif attrs.trajectory_path[-4:] == ".csv":
             df = pd.read_csv(attrs.trajectory_path)
             trajectory = Trajectory.from_dataframe(df=df, navigation_keys=nav_keys)
+        elif attrs.trajectory_path[-5:] == ".zarr":
+            ds = xr.open_dataset(attrs.trajectory_path)
+            trajectory = Trajectory.from_xarray(ds=ds, navigation_keys=nav_keys)
         else:
-            raise Exception(f"trajectory file type: {attrs.trajectory_path[-3:]} is not supported")
+            extension = attrs.trajectory_path.split(".")[-1]
+            raise Exception(f"trajectory file type: {extension} is not supported")
 
 
         #seconds_into_flight = (trajectory.time - trajectory.time[0]) / np.timedelta64(1, 's')
