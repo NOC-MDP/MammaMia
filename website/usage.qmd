@@ -4,3 +4,29 @@ format: html
 ---
 
 # How to use MAMMA MIA
+
+## Input options
+
+MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources:
+
+-   integrated slocum glider simulator
+
+-   timeseries NetCDF/Zarr file
+
+-   way-points in csv file
+
+### Integrated SLOCUM glider simulator
+
+MAMMA MIA using glider sim
+
+### Timeseries NetCDF/Zarr file
+
+MAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D timeseries with time dimension data should work.
+
+### Way points in CSV file.
+
+MAMMA MIA can read csv files that contain a set of way points, these must be 3D and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.
+
+### What is currently not supported
+
+Observation based input datasets where time is an observation and not a dimension. e.g. PARCELS output datasets.

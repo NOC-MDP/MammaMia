@@ -35,7 +35,7 @@ Then you can install MAMMA MIA itself, note the command below must be run in the
 $ pip install .
 ```
 
-## Optional dependancies
+## Optional dependencies
 
 By default no simulator is installed alongside MAMMA MIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn't want to simulate a glider. To install MAMMA MIA with the glidersim:
 
@@ -50,3 +50,7 @@ To install all simulators (currently just glidersim) then:
 ```         
 $ pip install '.[all]'
 ```
+
+## Windows Support
+
+The above process will most likely not work on windows due to dependencies not having pre built binaries available for Windows (e.g. PyInterp, esmpy). While this is surmountable, by building these dependencies, the recommended workaround is to use a docker or similar container containing a linux distribution or Windows Subsystem for Linux.

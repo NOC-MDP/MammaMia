@@ -11,7 +11,3 @@ Slocum gliders with glidersim
 ## ALR 1500
 
 Autosub long range 1500 with autonomy sim
-
-## ARGO float
-
-Argo floats with ocean parcels
