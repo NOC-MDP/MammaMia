@@ -173,27 +173,28 @@ class Interpolators:
                         logger.info(f"built {var} from source {source_type.name} into interpolator: {world_attrs.variable_alias[var]}")
         logger.info("interpolators built successfully")
 
-    def import_interp(self,key:str,source_type:SourceType,mission:str):
-        if not os.path.isdir(f"interpolator_cache/{mission}"):
-            return False
-        import_loc = f"interpolator_cache/{mission}/{source_type.value}_{key}.lerp"
-        if os.path.exists(import_loc):
-            with open(import_loc, 'rb') as f:
-                compressed_pickle = f.read()
-            depressed_pickle = blosc.decompress(compressed_pickle)
-            self.interpolator[key] = pickle.loads(depressed_pickle)
-            logger.info(f"imported interpolator for {key} from source {source_type.name} for {mission}")
-            return True
-        else:
-            logger.info(f"interpolator {key} not found for source {source_type.name} for {mission}")
-            return False
-
-    def export_interp(self,key:str,source_type:SourceType,mission:str):
-        if not os.path.isdir(f"interpolator_cache/{mission}"):
-            os.mkdir(f"interpolator_cache")
-            os.mkdir(f"interpolator_cache/{mission}")
-        pickled_data = pickle.dumps(self.interpolator[key])
-        compressed_pickle = blosc.compress(pickled_data)
-        with open(f"interpolator_cache/{mission}/{source_type.value}_{key}.lerp", 'wb') as f:
-            f.write(compressed_pickle)
-        logger.info(f"exported interpolator {key} for source {source_type.name} for {mission}")
+    # TODO decide if this should be implemented, possibly as part of feature in MAMMA MIA where it can load previously created output.
+    # def import_interp(self,key:str,source_type:SourceType,mission:str):
+    #     if not os.path.isdir(f"interpolator_cache/{mission}"):
+    #         return False
+    #     import_loc = f"interpolator_cache/{mission}/{source_type.value}_{key}.lerp"
+    #     if os.path.exists(import_loc):
+    #         with open(import_loc, 'rb') as f:
+    #             compressed_pickle = f.read()
+    #         depressed_pickle = blosc.decompress(compressed_pickle)
+    #         self.interpolator[key] = pickle.loads(depressed_pickle)
+    #         logger.info(f"imported interpolator for {key} from source {source_type.name} for {mission}")
+    #         return True
+    #     else:
+    #         logger.info(f"interpolator {key} not found for source {source_type.name} for {mission}")
+    #         return False
+    #
+    # def export_interp(self,key:str,source_type:SourceType,mission:str):
+    #     if not os.path.isdir(f"interpolator_cache/{mission}"):
+    #         os.mkdir(f"interpolator_cache")
+    #         os.mkdir(f"interpolator_cache/{mission}")
+    #     pickled_data = pickle.dumps(self.interpolator[key])
+    #     compressed_pickle = blosc.compress(pickled_data)
+    #     with open(f"interpolator_cache/{mission}/{source_type.value}_{key}.lerp", 'wb') as f:
+    #         f.write(compressed_pickle)
+    #     logger.info(f"exported interpolator {key} for source {source_type.name} for {mission}")
