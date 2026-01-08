@@ -1007,11 +1007,11 @@ class Mission:
                 "zaxis_title": "depth",
             }
             # TODO figure out how to dynamically set these as they could be different parameters e.g. GLIDER_DEPTH
-            if self.platform.attrs.platform_type == "Slocum_G2" or self.platform.attrs.platform_type == "Slocum_G2_NonNMEA":
+            if self.platform.attrs.platform_model == "Slocum_G2" or self.platform.attrs.platform_model == "Slocum_G2_NonNMEA":
                 latitude = "LATITUDE"
                 longitude = "LONGITUDE"
                 depth = "GLIDER_DEPTH"
-            elif self.platform.attrs.platform_type == "ALR_1500":
+            elif self.platform.attrs.platform_model == "ALR_1500":
                 latitude = "ALATPT01"
                 longitude = "ALONPT01"
                 depth = "ADEPPT01"

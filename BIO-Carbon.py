@@ -30,26 +30,26 @@ campaign = Campaign(name="BIO-Carbon",
 # create platform entities
 # since the trajectory is from processed output, NMEA_conversion should be false as the conversion has already been applied
 Churchill = inventory.create_platform_entity(entity_name="Churchill",
-                                             platform="Slocum_G2",
+                                             platform_model="Slocum_G2",
                                              serial_number="unit_398",
                                              NMEA_conversion=False)
 Nelson = inventory.create_platform_entity(entity_name="Nelson",
-                                          platform="Slocum_G2",
+                                          platform_model="Slocum_G2",
                                           serial_number="unit_397",
                                           NMEA_conversion=False)
 Doombar = inventory.create_platform_entity(entity_name="Doombar",
-                                           platform="Slocum_G2",
+                                           platform_model="Slocum_G2",
                                            serial_number="unit_405",
                                            NMEA_conversion=False)
 Cabot = inventory.create_platform_entity(entity_name="Cabot",
-                                         platform="Slocum_G2",
+                                         platform_model="Slocum_G2",
                                          serial_number="unit_345",
                                          NMEA_conversion=False)
 ALR4 = inventory.create_platform_entity(entity_name="ALR4",
-                                        platform="ALR_1500",
+                                        platform_model="ALR_1500",
                                         serial_number="ALR_4")
 ALR6 = inventory.create_platform_entity(entity_name="ALR6",
-                                        platform="ALR_1500",
+                                        platform_model="ALR_1500",
                                         serial_number="ALR_6")
 
 # register sensors to platform entities
@@ -127,7 +127,7 @@ campaign.add_mission(mission_name="Deployment_646",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="MSM",
+                     source_location="CMEMS",
                      mission_time_step=60)
 
 # # add Doombar mission
@@ -139,7 +139,7 @@ campaign.add_mission(mission_name="Deployment_648",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="MSM",
+                     source_location="CMEMS",
                      mission_time_step=60)
 
 # # add ALR4 mission
@@ -151,7 +151,7 @@ campaign.add_mission(mission_name="Deployment_649",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="MSM",
+                     source_location="CMEMS",
                      mission_time_step=60)
 
 # # add ALR6 mission
@@ -163,7 +163,7 @@ campaign.add_mission(mission_name="Deployment_650",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="MSM",
+                     source_location="CMEMS",
                      mission_time_step=60)
 
 # # add Cabot mission
@@ -175,7 +175,7 @@ campaign.add_mission(mission_name="Deployment_645",
                      creator=creator,
                      publisher=publisher,
                      contributor=contributor,
-                     source_location="MSM",
+                     source_location="CMEMS",
                      mission_time_step=60)
 
 
