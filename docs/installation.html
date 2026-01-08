@@ -132,7 +132,13 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./mamma-mia.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Mamma Mia</span></a>
+ <span class="menu-text">MAMMA MIA</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Usage</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -165,7 +171,8 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#clone-the-repository" id="toc-clone-the-repository" class="nav-link active" data-scroll-target="#clone-the-repository">Clone the repository</a></li>
   <li><a href="#set-up-python-environment" id="toc-set-up-python-environment" class="nav-link" data-scroll-target="#set-up-python-environment">Set up python environment</a></li>
-  <li><a href="#optional-dependancies" id="toc-optional-dependancies" class="nav-link" data-scroll-target="#optional-dependancies">Optional dependancies</a></li>
+  <li><a href="#optional-dependencies" id="toc-optional-dependencies" class="nav-link" data-scroll-target="#optional-dependencies">Optional dependencies</a></li>
+  <li><a href="#windows-support" id="toc-windows-support" class="nav-link" data-scroll-target="#windows-support">Windows Support</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -207,13 +214,17 @@ ul.task-list li input[type="checkbox"] {
 <p>Then you can install MAMMA MIA itself, note the command below must be run in the top level of the MAMMA MIA repository.</p>
 <pre><code>$ pip install .</code></pre>
 </section>
-<section id="optional-dependancies" class="level2">
-<h2 class="anchored" data-anchor-id="optional-dependancies">Optional dependancies</h2>
+<section id="optional-dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="optional-dependencies">Optional dependencies</h2>
 <p>By default no simulator is installed alongside MAMMA MIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g.&nbsp;if the user doesn’t want to simulate a glider. To install MAMMA MIA with the glidersim:</p>
 <pre><code>$ pip install '.[glidersim]'</code></pre>
 <p>As other simulators become available they will be added here, e.g.&nbsp;parcels for argo float simulation.</p>
 <p>To install all simulators (currently just glidersim) then:</p>
 <pre><code>$ pip install '.[all]'</code></pre>
+</section>
+<section id="windows-support" class="level2">
+<h2 class="anchored" data-anchor-id="windows-support">Windows Support</h2>
+<p>The above process will most likely not work on windows due to dependencies not having pre built binaries available for Windows (e.g.&nbsp;PyInterp, esmpy). While this is surmountable, by building these dependencies, the recommended workaround is to use a docker or similar container containing a linux distribution or Windows Subsystem for Linux.</p>
 
 
 </section>
@@ -625,8 +636,8 @@ ul.task-list li input[type="checkbox"] {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./mamma-mia.html" class="pagination-link" aria-label="Mamma Mia">
-        <span class="nav-page-text">Mamma Mia</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./mamma-mia.html" class="pagination-link" aria-label="MAMMA MIA">
+        <span class="nav-page-text">MAMMA MIA</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

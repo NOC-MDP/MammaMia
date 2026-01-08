@@ -124,9 +124,226 @@
     "href": "introduction.html",
     "title": "Introduction",
     "section": "",
-    "text": "MAMMA MIA is a platform payload simulator\nThis toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (sampling ocean surface) are expected to be added in future releases.\nWhen give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms simulated payload.\nEach trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations.e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.\nWhen the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.\n\n\n\n Back to top",
+    "text": "MAMMA MIA\nMAMMA MIA is a platform payload simulator\nThis toolbox simulates the payload of a platform that is sampling the ocean. Input trajectories have a payload simulated that relates to the sensors on the platform. Optionally the toolbox can also simulate the trajectory of a platform, currently only slocum gliders are supported, although autosubs, argo floats and airborne (observing ocean surface) are expected to be added in future releases.\nWhen give a trajectory (either simulated, from an actual AUV or csv waypoints), the toolbox will search and find the best models to create a world that encompasses the trajectory. The world will hold as much data as can be found that matches the platforms simulated payload.\nEach trajectory is defined as a mission, these can be added to a campaign allowing multiple platforms to operate together,these missions can be different platforms e.g. glider and an Autosub or the same platform with different configurations.e.g. same glider with different payloads or the same glider with the same payload but with different model sources set.\nWhen the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.\n\n\n\n\n Back to top",
     "crumbs": [
       "Introduction"
+    ]
+  },
+  {
+    "objectID": "installation.html#windows-support",
+    "href": "installation.html#windows-support",
+    "title": "Installation",
+    "section": "Windows Support",
+    "text": "Windows Support\nThe above process will most likely not work on windows due to dependencies not having pre built binaries available for Windows (e.g. PyInterp, esmpy). While this is surmountable, by building these dependencies, the recommended workaround is to use a docker or similar container containing a linux distribution or Windows Subsystem for Linux.",
+    "crumbs": [
+      "Installation"
+    ]
+  },
+  {
+    "objectID": "installation.html#optional-dependencies",
+    "href": "installation.html#optional-dependencies",
+    "title": "Installation",
+    "section": "Optional dependencies",
+    "text": "Optional dependencies\nBy default no simulator is installed alongside MAMMA MIA, this is to simplify the install process as for example the glidersim requires an C++ compiler to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn’t want to simulate a glider. To install MAMMA MIA with the glidersim:\n$ pip install '.[glidersim]'\nAs other simulators become available they will be added here, e.g. parcels for argo float simulation.\nTo install all simulators (currently just glidersim) then:\n$ pip install '.[all]'",
+    "crumbs": [
+      "Installation"
+    ]
+  },
+  {
+    "objectID": "usage.html",
+    "href": "usage.html",
+    "title": "usage",
+    "section": "",
+    "text": "MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources:\n\nintegrated slocum glider simulator\ntimeseries NetCDF/Zarr file\nway-points in csv file\n\n\n\nMAMMA MIA using glider sim\n\n\n\nMAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D timeseries with time dimension data should work.\n\n\n\nMAMMA MIA can read csv files that contain a set of way points, these must be 3D and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.\n\n\n\nObservation based input datasets where time is an observation and not a dimension. e.g. PARCELS output datasets.\n\n\n\n\nMAMMA MIA output contains the following hierarchical structure:\n\nCampaign: contains one or more missions\n\nMissions: contains a single platform deployment with one or more sensors\n\npayload: contains the simulated sensor payload for the deployment\n\n\n\n\n\n\nCampaigns contain all the missions for a given set of deployments. They can contain one or more missions each with its self contained set of meta data, world data and simulated payload.\n\n\n\nThis is a single platform deplyment, it contains multiple sections:\n\nPayload: simulated data\nPlatform: metadata for platform\nWorlds: gridded model data that has been used to simulate observations\n\n\n\n\nThis contains all the simulated data ranging from:\n\ndatalogger: contains flight information like position, pitch, yaw etc\nCTD: simulated temperature, pressure and salinity",
+    "crumbs": [
+      "Usage"
+    ]
+  },
+  {
+    "objectID": "usage.html#input-options",
+    "href": "usage.html#input-options",
+    "title": "usage",
+    "section": "",
+    "text": "MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources:\n\nintegrated slocum glider simulator\ntimeseries NetCDF/Zarr file\nway-points in csv file\n\n\n\nMAMMA MIA using glider sim\n\n\n\nMAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D timeseries with time dimension data should work.\n\n\n\nMAMMA MIA can read csv files that contain a set of way points, these must be 3D and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.\n\n\n\nObservation based input datasets where time is an observation and not a dimension. e.g. PARCELS output datasets.",
+    "crumbs": [
+      "Usage"
+    ]
+  },
+  {
+    "objectID": "usage.html#mamma-mia-structure",
+    "href": "usage.html#mamma-mia-structure",
+    "title": "usage",
+    "section": "",
+    "text": "MAMMA MIA output contains the following hierarchical structure:\n\nCampaign: contains one or more missions\n\nMissions: contains a single platform deployment with one or more sensors\n\npayload: contains the simulated sensor payload for the deployment",
+    "crumbs": [
+      "Usage"
+    ]
+  },
+  {
+    "objectID": "usage.html#campaigns",
+    "href": "usage.html#campaigns",
+    "title": "usage",
+    "section": "",
+    "text": "Campaigns contain all the missions for a given set of deployments. They can contain one or more missions each with its self contained set of meta data, world data and simulated payload.",
+    "crumbs": [
+      "Usage"
+    ]
+  },
+  {
+    "objectID": "example.html",
+    "href": "example.html",
+    "title": "Examples",
+    "section": "",
+    "text": "Back to top"
+  },
+  {
+    "objectID": "usage.html#missions",
+    "href": "usage.html#missions",
+    "title": "usage",
+    "section": "",
+    "text": "This is a single platform deplyment, it contains multiple sections:\n\nPayload: simulated data\nPlatform: metadata for platform\nWorlds: gridded model data that has been used to simulate observations",
+    "crumbs": [
+      "Usage"
+    ]
+  },
+  {
+    "objectID": "usage.html#payload",
+    "href": "usage.html#payload",
+    "title": "usage",
+    "section": "",
+    "text": "This contains all the simulated data ranging from:\n\ndatalogger: contains flight information like position, pitch, yaw etc\nCTD: simulated temperature, pressure and salinity",
+    "crumbs": [
+      "Usage"
+    ]
+  },
+  {
+    "objectID": "examples.html",
+    "href": "examples.html",
+    "title": "Example MAMMA MIA Campaigns",
+    "section": "",
+    "text": "Single glider repeat diving at single point (over RAPID Array mooring) for 2 days",
+    "crumbs": [
+      "Examples"
+    ]
+  },
+  {
+    "objectID": "examples.html#single-slocum-glider-simulating-a-mooring-mission",
+    "href": "examples.html#single-slocum-glider-simulating-a-mooring-mission",
+    "title": "Example MAMMA MIA Campaigns",
+    "section": "",
+    "text": "Single glider repeat diving at single point (over RAPID Array mooring) for 2 days",
+    "crumbs": [
+      "Examples"
+    ]
+  },
+  {
+    "objectID": "examples.html#replication-of-existing-glider-and-alr-deployment",
+    "href": "examples.html#replication-of-existing-glider-and-alr-deployment",
+    "title": "Example MAMMA MIA Campaigns",
+    "section": "Replication of existing glider and ALR deployment",
+    "text": "Replication of existing glider and ALR deployment\nUse real trajectories of the BIOCARBON mission to simulate payloads",
+    "crumbs": [
+      "Examples"
+    ]
+  },
+  {
+    "objectID": "examples.html#example-simulated-alr-mission",
+    "href": "examples.html#example-simulated-alr-mission",
+    "title": "Example MAMMA MIA Campaigns",
+    "section": "Example simulated ALR mission",
+    "text": "Example simulated ALR mission\nALR1500 performing a mission",
+    "crumbs": [
+      "Examples"
+    ]
+  },
+  {
+    "objectID": "structure.html",
+    "href": "structure.html",
+    "title": "structure",
+    "section": "",
+    "text": "MAMMA MIA output contains the following hierarchical structure:\n\nCampaign: contains one or more missions\n\nMissions: contains a single platform deployment with one or more sensors\n\npayload: contains the simulated sensor payload for the deployment",
+    "crumbs": [
+      "Structure"
+    ]
+  },
+  {
+    "objectID": "structure.html#mamma-mia-structure",
+    "href": "structure.html#mamma-mia-structure",
+    "title": "structure",
+    "section": "",
+    "text": "MAMMA MIA output contains the following hierarchical structure:\n\nCampaign: contains one or more missions\n\nMissions: contains a single platform deployment with one or more sensors\n\npayload: contains the simulated sensor payload for the deployment",
+    "crumbs": [
+      "Structure"
+    ]
+  },
+  {
+    "objectID": "structure.html#campaigns",
+    "href": "structure.html#campaigns",
+    "title": "structure",
+    "section": "Campaigns",
+    "text": "Campaigns\nCampaigns contain all the missions for a given set of deployments. They can contain one or more missions each with its self contained set of meta data, world data and simulated payload.",
+    "crumbs": [
+      "Structure"
+    ]
+  },
+  {
+    "objectID": "structure.html#missions",
+    "href": "structure.html#missions",
+    "title": "structure",
+    "section": "Missions",
+    "text": "Missions\nThis is a single platform deplyment, it contains multiple sections:\n\nPayload: simulated data\nPlatform: metadata for platform\nWorlds: gridded model data that has been used to simulate observations",
+    "crumbs": [
+      "Structure"
+    ]
+  },
+  {
+    "objectID": "structure.html#payload",
+    "href": "structure.html#payload",
+    "title": "structure",
+    "section": "Payload",
+    "text": "Payload\nThis contains all the simulated data ranging from:\n\ndatalogger: contains flight information like position, pitch, yaw etc\nCTD: simulated temperature, pressure and salinity",
+    "crumbs": [
+      "Structure"
+    ]
+  },
+  {
+    "objectID": "configuration.html",
+    "href": "configuration.html",
+    "title": "configuration",
+    "section": "",
+    "text": "MAMMA MIA uses an internal JSON file to specify its platforms, users can create new platforms by writing their own json file and placing it in the working directory where MAMMA MIA is ran from.\n\n\nPlatforms are specifed in a file called platforms.json. An example file looks like this:\n{\n    \"platforms\": [\n            {\n                \"platform_type\": \"ARGO\",\n                \"platform_model\": \"APEX\",\n                \"platform_manufacturer\": \"Teledyne Webb Research\",\n                \"NEMA_coordinate_conversion\": false\n            },\n            {\n                \"platform_type\": \"ARGO\",\n                \"platform_model\": \"ARVOR\",\n                \"platform_manufacturer\": \"NKE-INSTRUMENTATION\",\n                \"NEMA_coordinate_conversion\": false\n            }\n    ]\n}\nHere two new platforms are specified, two different models of ARGO floats. Currently there are only 4 fields to specify mostly for meta data purposes, type, model, manufacturer. The final boolean field NEMA_coordinate_conversion specifies if the trajectory coordinates require conversion from NMEA coordinates. This is required if the glider simulator is used as this produces a “raw” file but other sources such as processed NetCDF’s may already be converted.\n\n\n\nSensors are specified using a file called sensors.json. In the example below two sensors are specified for one of the new ARGO float platforms defined above. An CTD and a data logger. A platform requires a data logger to be specified otherwise it cannot load a trajectory. At least one sensor is required as otherwise no payload will be simulated. All sensors have the same structure:\n\nsensor_model: used for meta data purposes\ninstrument_type: defines instrument type NOTE: this is important as this string is used to find the sensor to add it to the platform.\nspecification: dictionary containing a set of parameters the sensor is observing. (see specification section)\nplatform_compatibility: this is a list of platforms that can use this sensor, this must match an specified platform\n\nNOTE: sensors are organised into different sub lists, e.g. CTD and data_logger. These are for help in reading the file and are not used by MAMMA MIA directly.\n{\n    \"sensors\": {\n        \"CTD\": [\n            {\n                \"sensor_model\": \"APEX CTD\",\n                \"instrument_type\": \"CTD\",\n                \"specification\": {\n                    \"INSITU_TEMPERATURE\": {\n                        \"accuracy\": 0.001,\n                        \"resolution\": 0.001,\n                        \"drift_per_month\": 0.0002,\n                        \"range\": [-5, 42],\n                        \"percent_errors\": false,\n                        \"noise_std\": 0.0005,\n                        \"meta_data\": \"insitu temperature\"\n                    },\n                    \"PRACTICAL_SALINITY\": {\n                        \"accuracy\": 0.005,\n                        \"resolution\": 0.0001,\n                        \"drift_per_month\": 0.003,\n                        \"range\": [0, 42],\n                        \"percent_errors\": false,\n                        \"noise_std\": 0.0025,\n                        \"meta_data\": \"practical salinity\"\n                    },\n                    \"PRESSURE\": {\n                        \"accuracy\": 0.1,\n                        \"resolution\": 0.002,\n                        \"drift_per_month\": 0.0042,\n                        \"range\": [0, 2000],\n                        \"percent_errors\": true,\n                        \"noise_std\": 0.0005,\n                        \"meta_data\": \"pressure\"\n                    }\n                },\n                \"platform_compatibility\": [\"APEX\"]\n            }\n        ],\n        \"data_logger\": [\n            {\n                \"sensor_model\": \"APEX Data logger\",\n                \"instrument_type\": \"data_logger\",\n                \"specification\": {\n                    \"DEPTH\": {\n                        \"accuracy\": -999.999,\n                        \"resolution\": -999.999,\n                        \"drift_per_month\": -999.999,\n                        \"range\": [-999.999, -999.999],\n                        \"percent_errors\": false,\n                        \"noise_std\": -999.999,\n                        \"meta_data\": \"glider_depth\"\n                    },\n                    \"LATITUDE\": {\n                        \"accuracy\": -999.999,\n                        \"resolution\": -999.999,\n                        \"drift_per_month\": -999.999,\n                        \"range\": [-999.999, -999.999],\n                        \"percent_errors\": false,\n                        \"noise_std\": -999.999,\n                        \"meta_data\": \"latitude\"\n                    },\n                    \"LONGITUDE\": {\n                        \"accuracy\": -999.999,\n                        \"resolution\": -999.999,\n                        \"drift_per_month\": -999.999,\n                        \"range\": [-999.999, -999.999],\n                        \"percent_errors\": false,\n                        \"noise_std\": -999.999,\n                        \"meta_data\": \"longitude\"\n                    },\n                    \"TIME\": {\n                        \"accuracy\": -999.999,\n                        \"resolution\": -999.999,\n                        \"drift_per_month\": -999.999,\n                        \"range\": [-999.999, -999.999],\n                        \"percent_errors\": false,\n                        \"noise_std\": -999.999,\n                        \"meta_data\": \"time\"\n                    }\n                },\n                \"platform_compatibility\": [\"APEX\"]\n            }\n        ]\n    }\n}\n\n\nThe specification field in a sensor defines the parameters that the sensor is observing, it also determines the observation error that will be applied to model data to simulate the observation. These values can be used to replicate existing sensors or to simulate entirely new ones. Or if no sensor error simulation is desired then -999.999 can be used as a null/ignore value.\nEach parameter in the sensor specification dictionary contains the following:\n\naccuracy: a random value is selected from a uniform distribution of plus/minus this value\nresolution: values are rounded to this amount\ndrift_per_month: this drift rate is applied for all values with start of timeseries assumed to be freshly calibrated\nrange: values are clipped to this range\npercent_errors: if true then accuracy, resolution, drift and noise are assumed to be percentage values\nnoise_std: sampled random value from a normal distribution with this standard deviation\nmeta_data:\n\nThe process for applying this specification is as follows:\n\ngenerate accuracy bias values\ngenerate random noise values\ncalculate drift based on timestep\ncombine errors by summation and add to timeseries\napply resolution rounding\nclip to specified range\n\n\n\n\n\nParameters are defined based on their meta data from a vocabulary. There are various collections, MAMMA MIA uses the NERC one here: https://vocab.nerc.ac.uk\nBelow is an example that has been created to use with the ARGO platform defined earlier. This is a DEPTH parameter, other platforms use other DEPTH parameters such as GLIDER_DEPTH. Parameters are the same in that they are organised into sublists, in this case “navigation” but these are just for readability and not used by MAMMA MIA.\nEvery parameter has the following fields, most of these are for meta data purposes and come from the vocabulary entry, but some are critical to the operation of MAMMA MIA.\n\nparameter_id: this is the id used within MAMMA MIA for the parameter\nidentifier: this is the vocabulary reference\nvocab_url: the URL where the vocabulary used for this parameter is held\nstandard_name: short description of parameter\nunit of measure: units used for this parameter\nunit_identifier: vocabulary reference for the specific units\nparameter_definition: longer and more explicit description for the parameter\nalternate_sources: If this parameter can be converted from others e.g. pressure from depth, potential_temperature to insitu temperature then they are listed here*\nalternate_labels: a different label that the parameter can be known by\nsource_names: names that parameter can be in source files **\n\n{\n    \"parameters\": {\n        \"navigation\": [\n            {\n                \"parameter_id\": \"DEPTH\",\n                \"identifier\": \"SDN:OG1::DEPTH\",\n                \"vocab_url\": \"https://vocab.nerc.ac.uk/collection/OG1/current/DEPTH/\",\n                \"standard_name\": \"Depth below sea surface (zero at sea level) of measurement platform\",\n                \"unit_of_measure\": \"Metres\",\n                \"unit_identifier\": \"SDN:P06::ULAA\",\n                \"parameter_definition\": \"Depth below surface of the water body by unknown instrument and correction to zero at sea level using unspecified algorithm.\",\n                \"alternate_sources\": [\"\"],\n                \"alternate_labels\": [\"DEPTH\"],\n                \"source_names\": [\"depth\"  ,\"z\"]\n            }\n        ]\n    }\n}\n* MAMMA MIA needs to know how to convert the parameters for this to work, so only specific conversions are supported. See conversion section\n** This is the name of the parameter in any data sources, e.g. potential temperature is often stored as thetao, multiple options can be listed",
+    "crumbs": [
+      "Configuration"
+    ]
+  },
+  {
+    "objectID": "configuration.html#adding-new-platforms",
+    "href": "configuration.html#adding-new-platforms",
+    "title": "configuration",
+    "section": "",
+    "text": "Platforms are specifed in a file called platforms.json. An example file looks like this:\n{\n    \"platforms\": [\n            {\n                \"platform_type\": \"ARGO\",\n                \"platform_model\": \"APEX\",\n                \"platform_manufacturer\": \"Teledyne Webb Research\",\n                \"NEMA_coordinate_conversion\": false\n            },\n            {\n                \"platform_type\": \"ARGO\",\n                \"platform_model\": \"ARVOR\",\n                \"platform_manufacturer\": \"NKE-INSTRUMENTATION\",\n                \"NEMA_coordinate_conversion\": false\n            }\n    ]\n}\nHere two new platforms are specified, two different models of ARGO floats. Currently there are only 4 fields to specify mostly for meta data purposes, type, model, manufacturer. The final boolean field NEMA_coordinate_conversion specifies if the trajectory coordinates require conversion from NMEA coordinates. This is required if the glider simulator is used as this produces a “raw” file but other sources such as processed NetCDF’s may already be converted.",
+    "crumbs": [
+      "Configuration"
+    ]
+  },
+  {
+    "objectID": "configuration.html#adding-new-sensors",
+    "href": "configuration.html#adding-new-sensors",
+    "title": "configuration",
+    "section": "",
+    "text": "Sensors are specified using a file called sensors.json. In the example below two sensors are specified for one of the new ARGO float platforms defined above. An CTD and a data logger. A platform requires a data logger to be specified otherwise it cannot load a trajectory. At least one sensor is required as otherwise no payload will be simulated. All sensors have the same structure:\n\nsensor_model: used for meta data purposes\ninstrument_type: defines instrument type NOTE: this is important as this string is used to find the sensor to add it to the platform.\nspecification: dictionary containing a set of parameters the sensor is observing. (see specification section)\nplatform_compatibility: this is a list of platforms that can use this sensor, this must match an specified platform\n\nNOTE: sensors are organised into different sub lists, e.g. CTD and data_logger. These are for help in reading the file and are not used by MAMMA MIA directly.\n{\n    \"sensors\": {\n        \"CTD\": [\n            {\n                \"sensor_model\": \"APEX CTD\",\n                \"instrument_type\": \"CTD\",\n                \"specification\": {\n                    \"INSITU_TEMPERATURE\": {\n                        \"accuracy\": 0.001,\n                        \"resolution\": 0.001,\n                        \"drift_per_month\": 0.0002,\n                        \"range\": [-5, 42],\n                        \"percent_errors\": false,\n                        \"noise_std\": 0.0005,\n                        \"meta_data\": \"insitu temperature\"\n                    },\n                    \"PRACTICAL_SALINITY\": {\n                        \"accuracy\": 0.005,\n                        \"resolution\": 0.0001,\n                        \"drift_per_month\": 0.003,\n                        \"range\": [0, 42],\n                        \"percent_errors\": false,\n                        \"noise_std\": 0.0025,\n                        \"meta_data\": \"practical salinity\"\n                    },\n                    \"PRESSURE\": {\n                        \"accuracy\": 0.1,\n                        \"resolution\": 0.002,\n                        \"drift_per_month\": 0.0042,\n                        \"range\": [0, 2000],\n                        \"percent_errors\": true,\n                        \"noise_std\": 0.0005,\n                        \"meta_data\": \"pressure\"\n                    }\n                },\n                \"platform_compatibility\": [\"APEX\"]\n            }\n        ],\n        \"data_logger\": [\n            {\n                \"sensor_model\": \"APEX Data logger\",\n                \"instrument_type\": \"data_logger\",\n                \"specification\": {\n                    \"DEPTH\": {\n                        \"accuracy\": -999.999,\n                        \"resolution\": -999.999,\n                        \"drift_per_month\": -999.999,\n                        \"range\": [-999.999, -999.999],\n                        \"percent_errors\": false,\n                        \"noise_std\": -999.999,\n                        \"meta_data\": \"glider_depth\"\n                    },\n                    \"LATITUDE\": {\n                        \"accuracy\": -999.999,\n                        \"resolution\": -999.999,\n                        \"drift_per_month\": -999.999,\n                        \"range\": [-999.999, -999.999],\n                        \"percent_errors\": false,\n                        \"noise_std\": -999.999,\n                        \"meta_data\": \"latitude\"\n                    },\n                    \"LONGITUDE\": {\n                        \"accuracy\": -999.999,\n                        \"resolution\": -999.999,\n                        \"drift_per_month\": -999.999,\n                        \"range\": [-999.999, -999.999],\n                        \"percent_errors\": false,\n                        \"noise_std\": -999.999,\n                        \"meta_data\": \"longitude\"\n                    },\n                    \"TIME\": {\n                        \"accuracy\": -999.999,\n                        \"resolution\": -999.999,\n                        \"drift_per_month\": -999.999,\n                        \"range\": [-999.999, -999.999],\n                        \"percent_errors\": false,\n                        \"noise_std\": -999.999,\n                        \"meta_data\": \"time\"\n                    }\n                },\n                \"platform_compatibility\": [\"APEX\"]\n            }\n        ]\n    }\n}\n\n\nThe specification field in a sensor defines the parameters that the sensor is observing, it also determines the observation error that will be applied to model data to simulate the observation. These values can be used to replicate existing sensors or to simulate entirely new ones. Or if no sensor error simulation is desired then -999.999 can be used as a null/ignore value.\nEach parameter in the sensor specification dictionary contains the following:\n\naccuracy: a random value is selected from a uniform distribution of plus/minus this value\nresolution: values are rounded to this amount\ndrift_per_month: this drift rate is applied for all values with start of timeseries assumed to be freshly calibrated\nrange: values are clipped to this range\npercent_errors: if true then accuracy, resolution, drift and noise are assumed to be percentage values\nnoise_std: sampled random value from a normal distribution with this standard deviation\nmeta_data:\n\nThe process for applying this specification is as follows:\n\ngenerate accuracy bias values\ngenerate random noise values\ncalculate drift based on timestep\ncombine errors by summation and add to timeseries\napply resolution rounding\nclip to specified range",
+    "crumbs": [
+      "Configuration"
+    ]
+  },
+  {
+    "objectID": "configuration.html#adding-new-parameters",
+    "href": "configuration.html#adding-new-parameters",
+    "title": "configuration",
+    "section": "",
+    "text": "Parameters are defined based on their meta data from a vocabulary. There are various collections, MAMMA MIA uses the NERC one here: https://vocab.nerc.ac.uk\nBelow is an example that has been created to use with the ARGO platform defined earlier. This is a DEPTH parameter, other platforms use other DEPTH parameters such as GLIDER_DEPTH. Parameters are the same in that they are organised into sublists, in this case “navigation” but these are just for readability and not used by MAMMA MIA.\nEvery parameter has the following fields, most of these are for meta data purposes and come from the vocabulary entry, but some are critical to the operation of MAMMA MIA.\n\nparameter_id: this is the id used within MAMMA MIA for the parameter\nidentifier: this is the vocabulary reference\nvocab_url: the URL where the vocabulary used for this parameter is held\nstandard_name: short description of parameter\nunit of measure: units used for this parameter\nunit_identifier: vocabulary reference for the specific units\nparameter_definition: longer and more explicit description for the parameter\nalternate_sources: If this parameter can be converted from others e.g. pressure from depth, potential_temperature to insitu temperature then they are listed here*\nalternate_labels: a different label that the parameter can be known by\nsource_names: names that parameter can be in source files **\n\n{\n    \"parameters\": {\n        \"navigation\": [\n            {\n                \"parameter_id\": \"DEPTH\",\n                \"identifier\": \"SDN:OG1::DEPTH\",\n                \"vocab_url\": \"https://vocab.nerc.ac.uk/collection/OG1/current/DEPTH/\",\n                \"standard_name\": \"Depth below sea surface (zero at sea level) of measurement platform\",\n                \"unit_of_measure\": \"Metres\",\n                \"unit_identifier\": \"SDN:P06::ULAA\",\n                \"parameter_definition\": \"Depth below surface of the water body by unknown instrument and correction to zero at sea level using unspecified algorithm.\",\n                \"alternate_sources\": [\"\"],\n                \"alternate_labels\": [\"DEPTH\"],\n                \"source_names\": [\"depth\"  ,\"z\"]\n            }\n        ]\n    }\n}\n* MAMMA MIA needs to know how to convert the parameters for this to work, so only specific conversions are supported. See conversion section\n** This is the name of the parameter in any data sources, e.g. potential temperature is often stored as thetao, multiple options can be listed",
+    "crumbs": [
+      "Configuration"
     ]
   }
 ]

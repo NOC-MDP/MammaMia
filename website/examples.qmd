@@ -1,0 +1,15 @@
+---
+title: "Example MAMMA MIA Campaigns"
+---
+
+## Single Slocum glider simulating a mooring mission
+
+Single glider repeat diving at single point (over RAPID Array mooring) for 2 days
+
+## Replication of existing glider and ALR deployment
+
+Use real trajectories of the BIOCARBON mission to simulate payloads
+
+## Example simulated ALR mission
+
+ALR1500 performing a mission

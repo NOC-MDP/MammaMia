@@ -18,8 +18,14 @@ website:
         href: introduction.qmd
       - text: "Installation"
         href: installation.qmd
-      - text: "Mamma Mia"
-        href: mamma-mia.qmd
+      - text: "Usage"
+        href: usage.qmd
+      - text: "Structure"
+        href: structure.qmd
+      - text: "Configuration"
+        href: configuration.qmd
+      - text: "Examples"
+        href: examples.qmd
       - text: "Simulators"
         href: simulators.qmd
       - text: "About"
@@ -29,7 +35,7 @@ website:
     tools:
       - href: https://github.com/NOC-MDP/MammaMia
         icon: github
-  page-footer: "Copyright 2025 National Oceanography Centre"
+  page-footer: "Copyright 2026 National Oceanography Centre"
   repo-url: https://github.com/NOC-MDP/MammaMia
   repo-actions: [issue]
 format:

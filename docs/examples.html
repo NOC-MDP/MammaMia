@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>usage – MAMMA MIA Documentation</title>
+<title>Example MAMMA MIA Campaigns – MAMMA MIA Documentation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./examples.qmd" rel="next">
-<link href="./installation.html" rel="prev">
+<link href="./simulators.html" rel="next">
+<link href="./usage.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -83,7 +83,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./usage.html">Usage</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./examples.html">Examples</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -131,13 +131,13 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./usage.html" class="sidebar-item-text sidebar-link active">
+  <a href="./usage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Usage</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./examples.qmd" class="sidebar-item-text sidebar-link">
+  <a href="./examples.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Examples</span></a>
   </div>
 </li>
@@ -169,20 +169,9 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#how-to-use-mamma-mia" id="toc-how-to-use-mamma-mia" class="nav-link active" data-scroll-target="#how-to-use-mamma-mia">How to use MAMMA MIA</a>
-  <ul class="collapse">
-  <li><a href="#input-options" id="toc-input-options" class="nav-link" data-scroll-target="#input-options">Input options</a>
-  <ul class="collapse">
-  <li><a href="#integrated-slocum-glider-simulator" id="toc-integrated-slocum-glider-simulator" class="nav-link" data-scroll-target="#integrated-slocum-glider-simulator">Integrated SLOCUM glider simulator</a></li>
-  <li><a href="#timeseries-netcdfzarr-file" id="toc-timeseries-netcdfzarr-file" class="nav-link" data-scroll-target="#timeseries-netcdfzarr-file">Timeseries NetCDF/Zarr file</a></li>
-  <li><a href="#way-points-in-csv-file." id="toc-way-points-in-csv-file." class="nav-link" data-scroll-target="#way-points-in-csv-file.">Way points in CSV file.</a></li>
-  <li><a href="#what-is-currently-not-supported" id="toc-what-is-currently-not-supported" class="nav-link" data-scroll-target="#what-is-currently-not-supported">What is currently not supported</a></li>
-  </ul></li>
-  <li><a href="#mamma-mia-structure" id="toc-mamma-mia-structure" class="nav-link" data-scroll-target="#mamma-mia-structure">MAMMA MIA structure</a></li>
-  <li><a href="#campaigns" id="toc-campaigns" class="nav-link" data-scroll-target="#campaigns">Campaigns</a></li>
-  <li><a href="#missions" id="toc-missions" class="nav-link" data-scroll-target="#missions">Missions</a></li>
-  <li><a href="#payload" id="toc-payload" class="nav-link" data-scroll-target="#payload">Payload</a></li>
-  </ul></li>
+  <li><a href="#single-slocum-glider-simulating-a-mooring-mission" id="toc-single-slocum-glider-simulating-a-mooring-mission" class="nav-link active" data-scroll-target="#single-slocum-glider-simulating-a-mooring-mission">Single Slocum glider simulating a mooring mission</a></li>
+  <li><a href="#replication-of-existing-glider-and-alr-deployment" id="toc-replication-of-existing-glider-and-alr-deployment" class="nav-link" data-scroll-target="#replication-of-existing-glider-and-alr-deployment">Replication of existing glider and ALR deployment</a></li>
+  <li><a href="#example-simulated-alr-mission" id="toc-example-simulated-alr-mission" class="nav-link" data-scroll-target="#example-simulated-alr-mission">Example simulated ALR mission</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -191,7 +180,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">usage</h1>
+<h1 class="title">Example MAMMA MIA Campaigns</h1>
 </div>
 
 
@@ -208,69 +197,19 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="how-to-use-mamma-mia" class="level1">
-<h1>How to use MAMMA MIA</h1>
-<section id="input-options" class="level2">
-<h2 class="anchored" data-anchor-id="input-options">Input options</h2>
-<p>MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources:</p>
-<ul>
-<li><p>integrated slocum glider simulator</p></li>
-<li><p>timeseries NetCDF/Zarr file</p></li>
-<li><p>way-points in csv file</p></li>
-</ul>
-<section id="integrated-slocum-glider-simulator" class="level3">
-<h3 class="anchored" data-anchor-id="integrated-slocum-glider-simulator">Integrated SLOCUM glider simulator</h3>
-<p>MAMMA MIA using glider sim</p>
+<section id="single-slocum-glider-simulating-a-mooring-mission" class="level2">
+<h2 class="anchored" data-anchor-id="single-slocum-glider-simulating-a-mooring-mission">Single Slocum glider simulating a mooring mission</h2>
+<p>Single glider repeat diving at single point (over RAPID Array mooring) for 2 days</p>
 </section>
-<section id="timeseries-netcdfzarr-file" class="level3">
-<h3 class="anchored" data-anchor-id="timeseries-netcdfzarr-file">Timeseries NetCDF/Zarr file</h3>
-<p>MAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D timeseries with time dimension data should work.</p>
+<section id="replication-of-existing-glider-and-alr-deployment" class="level2">
+<h2 class="anchored" data-anchor-id="replication-of-existing-glider-and-alr-deployment">Replication of existing glider and ALR deployment</h2>
+<p>Use real trajectories of the BIOCARBON mission to simulate payloads</p>
 </section>
-<section id="way-points-in-csv-file." class="level3">
-<h3 class="anchored" data-anchor-id="way-points-in-csv-file.">Way points in CSV file.</h3>
-<p>MAMMA MIA can read csv files that contain a set of way points, these must be 3D and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.</p>
-</section>
-<section id="what-is-currently-not-supported" class="level3">
-<h3 class="anchored" data-anchor-id="what-is-currently-not-supported">What is currently not supported</h3>
-<p>Observation based input datasets where time is an observation and not a dimension. e.g.&nbsp;PARCELS output datasets.</p>
-</section>
-</section>
-<section id="mamma-mia-structure" class="level2">
-<h2 class="anchored" data-anchor-id="mamma-mia-structure">MAMMA MIA structure</h2>
-<p>MAMMA MIA output contains the following hierarchical structure:</p>
-<ul>
-<li><p>Campaign: contains one or more missions</p>
-<ul>
-<li><p>Missions: contains a single platform deployment with one or more sensors</p>
-<ul>
-<li>payload: contains the simulated sensor payload for the deployment</li>
-</ul></li>
-</ul></li>
-</ul>
-</section>
-<section id="campaigns" class="level2">
-<h2 class="anchored" data-anchor-id="campaigns">Campaigns</h2>
-<p>Campaigns contain all the missions for a given set of deployments. They can contain one or more missions each with its self contained set of meta data, world data and simulated payload.</p>
-</section>
-<section id="missions" class="level2">
-<h2 class="anchored" data-anchor-id="missions">Missions</h2>
-<p>This is a single platform deplyment, it contains multiple sections:</p>
-<ul>
-<li><p>Payload: simulated data</p></li>
-<li><p>Platform: metadata for platform</p></li>
-<li><p>Worlds: gridded model data that has been used to simulate observations</p></li>
-</ul>
-</section>
-<section id="payload" class="level2">
-<h2 class="anchored" data-anchor-id="payload">Payload</h2>
-<p>This contains all the simulated data ranging from:</p>
-<ul>
-<li><p>datalogger: contains flight information like position, pitch, yaw etc</p></li>
-<li><p>CTD: simulated temperature, pressure and salinity</p></li>
-</ul>
+<section id="example-simulated-alr-mission" class="level2">
+<h2 class="anchored" data-anchor-id="example-simulated-alr-mission">Example simulated ALR mission</h2>
+<p>ALR1500 performing a mission</p>
 
 
-</section>
 </section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
@@ -675,13 +614,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./installation.html" class="pagination-link" aria-label="Installation">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Installation</span>
+      <a href="./usage.html" class="pagination-link" aria-label="Usage">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Usage</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./examples.qmd" class="pagination-link" aria-label="Examples">
-        <span class="nav-page-text">Examples</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./simulators.html" class="pagination-link" aria-label="Simulators">
+        <span class="nav-page-text">Simulators</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -692,7 +631,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Copyright 2025 National Oceanography Centre</p>
+<p>Copyright <strong>?meta:date</strong> National Oceanography Centre</p>
 <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
