@@ -104,7 +104,7 @@ class Campaign:
                     contributor:Contributor = Contributor(),
                     publisher:Publisher = Publisher(),
                     source_location: str = "CMEMS",
-                    mission_time_step: int = 1,
+                    mission_time_step: int = 60,
                     apply_obs_error: bool = False,
                     standard_name_vocabulary: str = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html",
                     ) -> None:
