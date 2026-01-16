@@ -12,6 +12,10 @@ MAMMA MIA output contains the following hierarchical structure:
 
         -   payload: contains the simulated sensor payload for the deployment
 
+## Schematic of structure
+
+![Structure of MAMMAMIA Campaign output](Structure.png)
+
 ## Campaigns
 
 Campaigns contain all the missions for a given set of deployments. They can contain one or more missions each with its self contained set of meta data, world data and simulated payload.

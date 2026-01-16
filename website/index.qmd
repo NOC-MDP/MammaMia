@@ -2,7 +2,29 @@
 title: "MAMMA MIA Documentation"
 ---
 
-MAMMA MIA is a platform payload simulator
+## Summary
+
+MAMMA MIA is a platform payload simulator that can take various trajectory input (or for some cases simulate a platform). Below are example outputs from different missions that have been simulated.
+
+MAMMA MIA supports the following inputs:
+
+-   NetCDF/Zarr trajectories
+
+-   waypoints from CSV
+
+MAMMA MIA also simulates the following platforms:
+
+-   slocum gliders, providing environmental data during simulation.
+
+Future simulator integration's planned:
+
+-   Autosub (using Autonomy Sim)
+
+-   ARGO floats/drifters (using Parcels)
+
+## Example output
+
+The following image show example payloads that have been simulated by MAMMA MIA.
 
 ![In-situ temperature parameter of simulated payload from a Slocum Glider](images/Picture%201.png){fig-align="center"}
 

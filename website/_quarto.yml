@@ -30,8 +30,6 @@ website:
         href: simulators.qmd
       - text: "About"
         href: about.qmd
-      - text: "Acknowledgments"
-        href: acknowledgement.qmd
     tools:
       - href: https://github.com/NOC-MDP/MammaMia
         icon: github

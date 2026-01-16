@@ -44,7 +44,7 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2\n\n\n\n\n\n Back to top",
+    "text": "MAMMA MIA was funded by the National Oceanography Centre.\n\n\n\n Back to top",
     "crumbs": [
       "About"
     ]
@@ -54,7 +54,7 @@
     "href": "index.html",
     "title": "MAMMA MIA Documentation",
     "section": "",
-    "text": "MAMMA MIA is a platform payload simulator\n\n\n\nIn-situ temperature parameter of simulated payload from a Slocum Glider\n\n\n\n\n\nPractical Salinity payload from a virtual glider performing an “virtual mooring mission”\n\n\n\n\n\nALR simulating BIOCARBON Iceland to Scotland mission showing in-situ temperature.\n\n\n\n\n\nALR simulated payload of dissolved oxygen\n\n\n\n\n\n Back to top",
+    "text": "MAMMA MIA is a platform payload simulator that can take various trajectory input (or for some cases simulate a platform). Below are example outputs from different missions that have been simulated.\nMAMMA MIA supports the following inputs:\n\nNetCDF/Zarr trajectories\nwaypoints from CSV\n\nMAMMA MIA also simulates the following platforms:\n\nslocum gliders, providing environmental data during simulation.\n\nFuture simulator integration’s planned:\n\nAutosub (using Autonomy Sim)\nARGO floats/drifters (using Parcels)",
     "crumbs": [
       "Home"
     ]
@@ -364,6 +364,36 @@
     "text": "Some parameters can be converted from one to the other, this often requires other parameters to be present, e.g. temperature conversion also requires depths and salinity. The currently supported conversions are:\n\npotential temperature to insitu temperature\nconservative temperature to insitu temperature\nabsolute salinity to practical salinity\ndepth to pressure",
     "crumbs": [
       "Configuration"
+    ]
+  },
+  {
+    "objectID": "index.html#example-output",
+    "href": "index.html#example-output",
+    "title": "MAMMA MIA Documentation",
+    "section": "Example output",
+    "text": "Example output\nThe following image show example payloads that have been simulated by MAMMA MIA.\n\n\n\nIn-situ temperature parameter of simulated payload from a Slocum Glider\n\n\n\n\n\nPractical Salinity payload from a virtual glider performing an “virtual mooring mission”\n\n\n\n\n\nALR simulating BIOCARBON Iceland to Scotland mission showing in-situ temperature.\n\n\n\n\n\nALR simulated payload of dissolved oxygen",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "index.html#summary",
+    "href": "index.html#summary",
+    "title": "MAMMA MIA Documentation",
+    "section": "",
+    "text": "MAMMA MIA is a platform payload simulator that can take various trajectory input (or for some cases simulate a platform). Below are example outputs from different missions that have been simulated.\nMAMMA MIA supports the following inputs:\n\nNetCDF/Zarr trajectories\nwaypoints from CSV\n\nMAMMA MIA also simulates the following platforms:\n\nslocum gliders, providing environmental data during simulation.\n\nFuture simulator integration’s planned:\n\nAutosub (using Autonomy Sim)\nARGO floats/drifters (using Parcels)",
+    "crumbs": [
+      "Home"
+    ]
+  },
+  {
+    "objectID": "structure.html#schematic-of-structure",
+    "href": "structure.html#schematic-of-structure",
+    "title": "structure",
+    "section": "Schematic of structure",
+    "text": "Schematic of structure\n\n\n\nStructure of MAMMAMIA Campaign output",
+    "crumbs": [
+      "Structure"
     ]
   }
 ]
