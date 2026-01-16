@@ -166,19 +166,20 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">About</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./acknowledgement.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Acknowledgments</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#summary" id="toc-summary" class="nav-link active" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#example-output" id="toc-example-output" class="nav-link" data-scroll-target="#example-output">Example output</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -202,7 +203,27 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>MAMMA MIA is a platform payload simulator</p>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>MAMMA MIA is a platform payload simulator that can take various trajectory input (or for some cases simulate a platform). Below are example outputs from different missions that have been simulated.</p>
+<p>MAMMA MIA supports the following inputs:</p>
+<ul>
+<li><p>NetCDF/Zarr trajectories</p></li>
+<li><p>waypoints from CSV</p></li>
+</ul>
+<p>MAMMA MIA also simulates the following platforms:</p>
+<ul>
+<li>slocum gliders, providing environmental data during simulation.</li>
+</ul>
+<p>Future simulator integration’s planned:</p>
+<ul>
+<li><p>Autosub (using Autonomy Sim)</p></li>
+<li><p>ARGO floats/drifters (using Parcels)</p></li>
+</ul>
+</section>
+<section id="example-output" class="level2">
+<h2 class="anchored" data-anchor-id="example-output">Example output</h2>
+<p>The following image show example payloads that have been simulated by MAMMA MIA.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/Picture 1.png" class="img-fluid figure-img"></p>
@@ -229,6 +250,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 
 
+</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -648,7 +670,7 @@ ul.task-list li input[type="checkbox"] {
     </div>   
     <div class="nav-footer-center">
 <p>Copyright 2026 National Oceanography Centre</p>
-<div class="toc-actions"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
