@@ -1,9 +1,6 @@
 ---
-title: "usage"
-format: html
+title: "How to use MAMMA MIA"
 ---
-
-# How to use MAMMA MIA
 
 ## Input options
 
@@ -35,7 +32,7 @@ MAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples i
 
 MAMMA MIA can read csv files that contain a set of way points, these must be again 3D (need to specify depth) and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.
 
-### What is currently not supported
+## What is currently not supported
 
 Observation based input datasets, where time is an observation and not a dimension. e.g. PARCELS output datasets.
 

@@ -1,8 +1,6 @@
 ---
-title: "configuration"
+title: "Configuring MAMMA MIA"
 ---
-
-# Configuring MAMMA MIA
 
 MAMMA MIA uses an internal JSON file to specify its platforms, users can create new platforms, sensors and parameters by writing their own json file and placing it in the working directory where MAMMA MIA is ran from. The examples below are already present in the MAMMAMIA repository.
 

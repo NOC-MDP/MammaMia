@@ -1,8 +1,6 @@
 ---
-title: "Introduction"
+title: "Introduction to MAMMA MIA"
 ---
-
-# MAMMA MIA
 
 MAMMA MIA is a platform payload simulator
 
