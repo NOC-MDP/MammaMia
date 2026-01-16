@@ -21,6 +21,7 @@ import sys
 from attrs import define, field
 from mamma_mia.log import log_filter
 from mamma_mia.catalog import Cats
+from xarray import DataTree
 
 @define
 class Campaign:
@@ -249,4 +250,6 @@ class Campaign:
             mission.export_as_zarr(store=store)
             logger.info(f"successfully exported {mission.attrs.mission}")
         logger.success(f"successfully exported {self.name}")
+
+
 
