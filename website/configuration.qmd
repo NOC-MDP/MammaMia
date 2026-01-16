@@ -4,11 +4,11 @@ title: "configuration"
 
 # Configuring MAMMA MIA
 
-MAMMA MIA uses an internal JSON file to specify its platforms, users can create new platforms by writing their own json file and placing it in the working directory where MAMMA MIA is ran from.
+MAMMA MIA uses an internal JSON file to specify its platforms, users can create new platforms, sensors and parameters by writing their own json file and placing it in the working directory where MAMMA MIA is ran from. The examples below are already present in the MAMMAMIA repository.
 
 ## Adding new platforms
 
-Platforms are specifed in a file called platforms.json. An example file looks like this:
+Platforms are specified in a file called platforms.json. An example file looks like this:
 
 ``` json
 {
@@ -216,7 +216,7 @@ Every parameter has the following fields, most of these are for meta data purpos
 }
 ```
 
-\* MAMMA MIA needs to know how to convert the parameters for this to work, so only specific conversions are supported. See conversion section
+\* MAMMA MIA needs to know how to convert the parameters for this to work, so only specific conversions are supported. See converting parameters section.
 
 \*\* This is the name of the parameter in any data sources, e.g. potential temperature is often stored as thetao, multiple options can be listed
 

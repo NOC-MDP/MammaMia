@@ -7,7 +7,7 @@ format: html
 
 ## Input options
 
-MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources:
+MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources, currently supported sources are:
 
 -   integrated slocum glider simulator
 
@@ -17,16 +17,28 @@ MAMMA MIA requires a trajectory that is located in the ocean, this can be from a
 
 ### Integrated SLOCUM glider simulator
 
-MAMMA MIA using glider sim
+MAMMA MIA can run simplified missions using the slocum glider simulator, [glidersim](https://github.com/smerckel/glidersim). If the user installs this optional dependency then glider missions can be ran that will create compatible MAMMA MIA input. The glidersim will also use MAMMA MIA to get environmental data to use during simulation for currents and density etc. glidersim is designed to work exactly like programming an real slocum glider. Therefore MAMMA MIA provides a simplified interface with the current behaviors able to be programmed:
+
+-   virtual mooring (try to make continuous dives at same point)
+
+-   follow way-points
+
+Other behaviors/mission will be added or the ability to chain behaviors, e.g. perform virtual mooring for x period then follow way-points to next mooring site etc.
+
+See Simulators section for more information on using the MAMMA MIA interface.
 
 ### Timeseries NetCDF/Zarr file
 
-MAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D timeseries with time dimension data should work.
+MAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D spatial timeseries with time dimension data should work, i.e. it needs, a latitude, longitude, depth and time.
 
 ### Way points in CSV file.
 
-MAMMA MIA can read csv files that contain a set of way points, these must be 3D and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.
+MAMMA MIA can read csv files that contain a set of way points, these must be again 3D (need to specify depth) and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.
 
 ### What is currently not supported
 
-Observation based input datasets where time is an observation and not a dimension. e.g. PARCELS output datasets.
+Observation based input datasets, where time is an observation and not a dimension. e.g. PARCELS output datasets.
+
+Surface simulated payloads, MAMMA MIA currently only supports using 3D datasets, and can only interpolate within the model/dataset boundaries. Since most 3D parameters in models have an shallowest depth of around 0.5 metres this means there is no payload simulated when the glider or other platforms are on the surface.
+
+The solution is to use a suitable surface field parameter in these situations, which also means MAMMA MIA will be able to support airborne platforms observing the ocean surface.

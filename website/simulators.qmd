@@ -6,8 +6,77 @@ We have several types of simulator to use (Slocum gliders are currently the only
 
 ## Slocum Gliders
 
-Slocum gliders with glidersim
+MAMMA MIA provides a simplified interface with [glidersim](https://github.com/smerckel/glidersim), it also provides an integration with glidersim providing environmental data like u/v currents and temperature and salinity when it is running a mission simulation.
+
+### Mission builder
+
+MAMMA MIA provides an GliderMissionBuilder class that allows users to create Slocum glider missions without having to configure glidersim directly.
+
+There are two missions that can be built (more will be added), a virtual_mooring and follow_waypoints.
+
+#### Virtual Mooring
+
+The code snippet below shows how to configure and run a virtual mooring mission.
+
+``` python
+from mamma_mia import GliderMissionBuilder
+
+virtual_mooring = GliderMissionBuilder.virtual_mooring(
+    mission_name="rapid-mooring_spiral",
+    datetime_str="2023-03-03T12:00:00:Z",
+    description="RAPID ARRAY spiral simulation",
+    glider_model="DEEP",
+    inital_heading=225,
+    lat_ini=27.225,
+    lon_ini=-15.4225,
+    glider_name="comet",
+    mission_directory="RAPID-mooring_spiral",
+    dive_depth=1000,
+    spiral=False
+)
+
+virtual_mooring.run_mission(maxSimulationTime=2,verbose=True) # 2 days
+virtual_mooring.save_mission()
+```
+
+This snippet creates a virtual mooring mission, starting at midnight on the 3rd March 2023 at 27.225 degrees N and -15.4225 degrees E, diving to 1000 metres.
+
+Then the mission is ran for 2 days and finally saved (important for MAMMA MIA to import the trajectory).
+
+The output will be a NetCDF file that can be specified as input to a MAMMAMIA mission.
+
+#### Follow Waypoints
+
+The second mission type that can be created is follow_waypoints:
+
+``` python
+from mamma_mia import GliderMissionBuilder
+
+waypoints = GliderMissionBuilder.follow_waypoints(
+    mission_name="waypoints2",
+    datetime_str="2023-03-03T12:00:00:Z",
+    description="follow waypoints simulation",
+    glider_model="DEEP",
+    inital_heading=225,
+    lat_ini=27.225,
+    lon_ini=-15.4225,
+    lat_wp=[27.425,27.825,28.205,28.503],
+    lon_wp=[-15.4225,-15.4225,-15.4225,-15.4225],
+    glider_name="comet",
+    mission_directory="waypoints2",
+    dive_depth=1000
+)
+
+waypoints.run_mission(maxSimulationTime=7,verbose=True) # 7 days
+waypoints.save_mission()
+```
+
+This snippet will start at 27.225 degrees N, -15.4225 degrees East and will try and head to the next way point as specified in the lat_wp and lon_wp lists. While doing this will be diving to 1000 metres. Once it reaches the first way point it will then head to the second.
+
+The mission is then run for 7 days, **NOTE** the glider may not reach all waypoints as that will depend on its ability to travel to them in the time simulated.
+
+Finally the mission is exported and can again be used as input into MAMMAMIA
 
 ## ALR 1500
 
-Autosub long range 1500 with autonomy sim
+Autosub long range 1500 simulated using autonomy simulator
