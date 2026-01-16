@@ -3,9 +3,26 @@ project:
   output-dir: ../docs
 
 website:
-  title: "MAMMA MIA Documentation"
+  title: "MAMMA MIA"
+  favicon: mammamia_logo.png
+  description: A payload simulator
   page-navigation: true
   back-to-top-navigation: true
+  navbar:
+    background: '#164166'
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Getting Started"
+        href: installation.qmd
+      - text: "Example Usage"
+        href: examples.qmd
+      - text: "About"
+        href: about.qmd
+    right:
+      - icon: github
+        href: https://github.com/NOC-MDP/MammaMia
+
   sidebar:
     logo: mammamia_logo.png
     search: true
@@ -14,8 +31,6 @@ website:
     contents:
       - text: "Home"
         href: index.qmd
-      - text: "Introduction"
-        href: introduction.qmd
       - text: "Installation"
         href: installation.qmd
       - text: "Usage"
@@ -30,17 +45,21 @@ website:
         href: simulators.qmd
       - text: "About"
         href: about.qmd
-    tools:
-      - href: https://github.com/NOC-MDP/MammaMia
-        icon: github
   page-footer: "Copyright 2026 National Oceanography Centre"
-  repo-url: https://github.com/NOC-MDP/MammaMia
-  repo-actions: [issue]
+  repo-url: https://github.com/NOC-MDP/MammaMia/
+  repo-subdir: website
+  repo-branch: main
+  repo-actions: [edit, issue, source]
 format:
   html:
-    theme: cosmo
-    css: styles.css
+    theme: yeti
+    highlight-style: pygments
+    ccs: styles.css
     toc: true
+    toc-depth: 4
+    grid:
+      sidebar-width: 150px
+callout-appearance: simple
 
-editor: visual
+
 

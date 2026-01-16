@@ -1,8 +1,6 @@
 ---
-title: "structure"
+title: "MAMMA MIA structure"
 ---
-
-## MAMMA MIA structure
 
 MAMMA MIA output contains the following hierarchical structure:
 
@@ -14,6 +12,8 @@ MAMMA MIA output contains the following hierarchical structure:
 
 ## Schematic of structure
 
+The figure below shows how a campaign is structured, with its own metadata, then each mission is stored within it, each with its own payload, trajectory (raw input data), metadata about the platform and finally the worlds (input 3D model data).
+
 ![Structure of MAMMAMIA Campaign output](Structure.png)
 
 ## Campaigns
@@ -22,7 +22,7 @@ Campaigns contain all the missions for a given set of deployments. They can cont
 
 ## Missions
 
-This is a single platform deplyment, it contains multiple sections:
+This is a single platform deployment, it contains multiple sections:
 
 -   Payload: simulated data
 
