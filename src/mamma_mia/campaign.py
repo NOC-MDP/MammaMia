@@ -12,6 +12,7 @@
 from mamma_mia.mission import Mission, Creator, Contributor, Publisher
 from mamma_mia.interpolator import Interpolators
 from mamma_mia import create_platform_attrs
+from mamma_mia.platforms import Platform
 from mamma_mia.find_worlds import SourceConfig
 from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform, InvalidEntity
 from loguru import logger
@@ -37,8 +38,6 @@ class Campaign:
         Description/Summary of the Campaign
     catalog : Cats
         The Mamma Mia catalog class
-    platforms: dict[str, Platform]
-        A dictionary containing platforms that can be used in missions
     missions: dict[str, Mission]
         A dictionary containing missions objects
     interpolators: dict[str, Interpolator]
@@ -49,7 +48,6 @@ class Campaign:
     name: str
     description: str
     catalog: Cats = Cats()
-    platforms: dict[str,create_platform_attrs()] = field(factory=dict)
     missions: dict[str, Mission] = field(factory=dict)
     interpolators: dict[str, Interpolators] = field(factory=dict)
     verbose: bool = False
@@ -66,36 +64,11 @@ class Campaign:
             logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
         logger.success(f"Campaign {self.name} created")
 
-
-    def register_platform(self,entity: create_platform_attrs()):
-        """
-        Register a platform to the campaign platform dictionary
-
-        Parameters
-        -----------
-        entity : PlatformAttributes
-            Platform attributes object
-
-        Raises
-        -------
-        InvalidEntity
-            Platform name must not be None
-        PlatformExists
-            Platform name must not already be registered
-        """
-        if entity.entity_name is None:
-            raise InvalidEntity("Platform entity name cannot be None")
-        if entity.entity_name in self.platforms:
-            logger.error(f"{entity.entity_name} already exists in {self.name}")
-            raise PlatformExists
-        self.platforms[entity.entity_name] = entity
-        logger.success(f"{entity.entity_name} successfully registered to {self.name}")
-
     def add_mission(self,
                     mission_name:str,
                     summary:str,
                     title:str,
-                    platform_name:str,
+                    platform:Platform,
                     trajectory_path:str,
                     excess_space: int = 0.5,
                     extra_depth: int = 100,
@@ -115,8 +88,8 @@ class Campaign:
         ----------
         summary: str, required
             summary of mission
-        platform_name: str, required
-            name of the platform to use in the mission
+        platform: Platform, required
+            platform to use in the mission
         mission_name: str, required
             name of the mission
         title: str, required
@@ -153,19 +126,18 @@ class Campaign:
         UnknownPlatform
             Platform must be registered
 
+        Args:
+            platform:
+
         """
         if mission_name in self.missions:
             logger.error(f"mission {mission_name} already exists")
             raise MissionExists
-        try:
-            platform_n = self.platforms[platform_name]
-        except KeyError:
-            raise UnknownPlatform
         mission_source = SourceConfig.from_string(source_location)
         mission = Mission.for_campaign(mission=mission_name,
                           title=title,
                           summary=summary,
-                          platform_attributes=platform_n,
+                          platform_attributes=platform,
                           trajectory_path=trajectory_path,
                           creator=creator,
                           publisher=publisher,

@@ -1,0 +1,78 @@
+---
+title: "Inventory"
+---
+
+MAMMA MIA uses an inventory system to hold components that it can use. These components are:
+
+-   Platforms
+
+-   Sensors
+
+-   Parameters
+
+These are required to tell MAMMA MIA what kind of platform is being simulated, what sensors it is carried and what parameters they are measuring.
+
+## Searching the Inventory
+
+To search and see what is available you import the inventory and are able to search as follows:
+
+``` python
+print(f"Available groups in inventory {inventory.list_inventory_groups()}")
+print(f"Available platform types: {inventory.list_platform_types()}")
+print(f"Available platform models: {inventory.list_platform_models()}")
+print(f"Available parameters: {inventory.list_parameters()}")
+print(f"Available sensor types: {inventory.list_sensor_types()}")
+print(f"sensors available for platform Slocum G2: {inventory.list_sensors(platform_model='Slocum_G2')}")
+print(f"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}")
+print(f"sensor info: {inventory.get_sensor_info(platform_model='APEX', sensor_type='CTD')}")
+```
+
+The first print statement will list the available inventory groups.
+
+``` bash
+Available groups in inventory ['platforms', 'sensors', 'parameters']
+```
+
+The second lists platform types:
+
+``` bash
+Available platform types: ['glider', 'autosub', 'ARGO']
+```
+
+The third lists available models:
+
+``` bash
+Available platform models: {'glider': ['Slocum_G2'], 'autosub': ['ALR_1500'], 'ARGO': ['APEX', 'ARVOR']}
+```
+
+The fourth, available parameters:
+
+``` bash
+Available parameters: ['PRESSURE', 'INSITU_TEMPERATURE', 'INSITU_CHLOROPHYLL', 'INSITU_DISSOLVED_OXYGEN', 'POTENTIAL_TEMPERATURE', 'DISSOLVED_OXYGEN', 'PRACTICAL_SALINITY', 'ABSOLUTE_SALINITY', 'CONSERVATIVE_TEMPERATURE', 'EAST_CURRENT_VELOCITY', 'NORTH_CURRENT_VELOCITY', 'CHLOROPHYLL', 'DOWNWELLING_RADIATIVE_FLUX', 'ALTITUDE', 'LATITUDE', 'LATITUDE_GPS', 'LONGITUDE', 'LONGITUDE_GPS', 'WATERCURRENTS_U', '', 'WATERCURRENTS_V', 'GLIDER_HEADING', 'GLIDER_PITCH', 'GLIDER_ROLL', 'GLIDER_DEPTH', 'ALATPT01', 'ALONPT01', 'ADEPPT01', 'HEADPT01', 'ROLLPT01', 'PTCHPT01', 'PTVELX01', 'PTVELY01', 'PTVELZ01', 'TIME', 'ELTXIX01', 'DEPTH']
+```
+
+The fifth, lists sensor types (**NOTE** they may not all be available for all platforms)
+
+``` bash
+Available sensor types: ['CTD', 'ADCP', 'radiometer', 'dissolved_gas', 'optical_backscatter', 'data_logger']
+```
+
+Sixth lists sensors available for a specific platform model:
+
+``` bash
+sensors available for platform Slocum G2: ['Slocum Glider G2 CTD', 'Slocum G2 Radiometer', 'Slocum G2 Dissolved Oxygen', 'Slocum G2 Data logger']
+```
+
+Seventh shows that we can also list sensors of a specific type:
+
+``` bash
+sensors of type CTD: ['Generic CTD', 'Slocum Glider G2 CTD', 'Autosub Long Range 1500 CTD', 'APEX CTD']
+```
+
+Finally we can list the full meta data for a specific sensor, in this case an APEX ARGO float CTD.
+
+``` bash
+sensor info: Sensor(sensor_model='APEX CTD', instrument_type='CTD', specification={'INSITU_TEMPERATURE': {'accuracy': 0.001, 'resolution': 0.001, 'drift_per_month': 0.0002, 'range': [-5, 42], 'percent_errors': False, 'noise_std': 0.0005, 'meta_data': Parameter(parameter_id='INSITU_TEMPERATURE', identifier='SDN:OG1::TEMP', vocab_url='https://vocab.nerc.ac.uk/collection/OG1/current/TEMP/', standard_name='Sea temperature in-situ ITS-90 scale', unit_of_measure='Degrees Celsius', unit_identifier='SDN:P06::UPAA', parameter_definition='Temperature of the water body by CTD or STD', alternate_sources=['POTENTIAL_TEMPERATURE', 'CONSERVATIVE_TEMPERATURE'], alternate_labels=['TEMPERATURE'], source_names=['sci_water_temp'])}, 'PRACTICAL_SALINITY': {'accuracy': 0.005, 'resolution': 0.0001, 'drift_per_month': 0.003, 'range': [0, 42], 'percent_errors': False, 'noise_std': 0.0025, 'meta_data': Parameter(parameter_id='PRACTICAL_SALINITY', identifier='SDN:P07::IADIHDIJ', vocab_url='https://vocab.nerc.ac.uk/collection/P07/current/IADIHDIJ/', standard_name='sea_water_practical_salinity', unit_of_measure='Dimensionless', unit_identifier='SDN:P06::UUUU', parameter_definition='Practical Salinity, S_P, is a determination of the salinity of sea water, based on its electrical conductance. The measured conductance, corrected for temperature and pressure, is compared to the conductance of a standard potassium chloride solution, producing a value on the Practical Salinity Scale of 1978 (PSS-78).', alternate_sources=['ABSOLUTE_SALINITY'], alternate_labels=['practical salinity'], source_names=['so'])}, 'PRESSURE': {'accuracy': 0.1, 'resolution': 0.002, 'drift_per_month': 0.0042, 'range': [0, 2000], 'percent_errors': True, 'noise_std': 0.0005, 'meta_data': Parameter(parameter_id='PRESSURE', identifier='SDN:OG1::PRES', vocab_url='https://vocab.nerc.ac.uk/collection/OG1/current/PRES/', standard_name='Sea water pressure, equals 0 at sea-level', unit_of_measure='Decibars', unit_identifier=' SDN:P06::UPDB', parameter_definition='Pressure (spatial co-ordinate) exerted by the water body by profiling pressure sensor and corrected to read zero at sea level', alternate_sources=['GLIDER_DEPTH'], alternate_labels=['PRESSURE'], source_names=['sci_water_pressure'])}}, platform_compatibility=['APEX'], sensor_name=None)
+```
+
+The inventory also shows locally imported items (the ARGO platform, sensor and depth parameter) these have been loaded from the working directory. See the configuration section to get more information.

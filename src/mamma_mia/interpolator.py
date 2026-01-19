@@ -61,7 +61,7 @@ class Interpolators:
                     else:
                         imported = False
                     if not imported:
-                        if source_type == SourceType.MSM:
+                        if source_type == SourceType.NOC:
                             ds = xr.open_zarr(store=worlds.stores[key])
                             # check that dimensions of lat and lon are at least larger than 1 as 1 degree models on glider scale deployments
                             # are often too low a resolution to have multiple grid cells in the mission extent.

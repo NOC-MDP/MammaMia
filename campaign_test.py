@@ -19,8 +19,9 @@ print(f"Available platform models: {inventory.list_platform_models()}")
 print(f"Available parameters: {inventory.list_parameters()}")
 print(f"Available sensor types: {inventory.list_sensor_types()}")
 print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
+print(f"sensors available for platform Slocum G2: {inventory.list_sensors(platform_model='Slocum_G2')}")
 print(f"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}")
-print(f"sensor info: {inventory.get_sensor_info(platform_type='APEX', sensor_type='CTD')}")
+print(f"sensor info: {inventory.get_sensor_info(platform_model='APEX', sensor_type='CTD')}")
 
 print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
 # create campaign
@@ -33,21 +34,17 @@ Churchill = inventory.create_platform_entity(entity_name="Churchill",platform_mo
 
 # register sensor to platform
 Churchill.register_sensor(sensor_type="CTD")
-# register platform to the campaign for use in missions
-campaign.register_platform(entity=Churchill)
+
 
 # # # add mission
 campaign.add_mission(mission_name="RAD24_01",
                      title="Churchill with CTD deployment at RAPID array mooring eb1l2n",
                      summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
-                     platform_name="Churchill",
+                     platform=Churchill,
                      trajectory_path="data/RAPID-mooring/rapid-mooring.nc",
                      source_location="CMEMS",
                      mission_time_step=60,
                      apply_obs_error=True)
-
-# Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
-#campaign.enable_interpolator_cache()
 
 # build missions (search datasets, download datasets, build interpolators etc)
 campaign.build_missions()

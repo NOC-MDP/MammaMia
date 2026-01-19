@@ -39,8 +39,8 @@ def get_worlds(cat: Cats, worlds:WorldsConf,source:SourceConfig) -> dict:
             zarr_store = __get_cmems_worlds(value=value,worlds=worlds)
             zarr_stores[key] = zarr_store
             worlds.worlds[key] = zarr.open(zarr_store, mode='r')
-        elif source.source_type == SourceType.MSM:
-            zarr_store = __get_msm_worlds(key=key, value=value, catalog=cat,worlds=worlds)
+        elif source.source_type == SourceType.NOC:
+            zarr_store = __get_NOC_worlds(key=key, value=value, catalog=cat,worlds=worlds)
             zarr_stores[key] = zarr_store
             worlds.worlds[key] = zarr.open(zarr_store, mode='r')
         elif source.source_type == SourceType.LOCAL:
@@ -52,9 +52,9 @@ def get_worlds(cat: Cats, worlds:WorldsConf,source:SourceConfig) -> dict:
 
     return zarr_stores
 
-def __get_msm_worlds(key: str, value, catalog: Cats,worlds:WorldsConf) -> str:
+def __get_NOC_worlds(key: str, value, catalog: Cats,worlds:WorldsConf) -> str:
     """
-    Function that downloads the msm source model data that matches the required spatial and temporal extents and sensor
+    Function that downloads the NOC source model data that matches the required spatial and temporal extents and sensor
     specification of the auv.
     Args:
         key: model source
@@ -69,11 +69,11 @@ def __get_msm_worlds(key: str, value, catalog: Cats,worlds:WorldsConf) -> str:
     zarr_f = (f"{value.data_id}_{worlds.attributes.extent.lon_max}_{worlds.attributes.extent.lon_min}_"
               f"{worlds.attributes.extent.lat_max}_{worlds.attributes.extent.lat_min}_"
               f"{worlds.attributes.extent.time_start}_{worlds.attributes.extent.time_end}.zarr")
-    zarr_d = "msm-data/"
-    logger.info(f"getting msm world {zarr_f}")
+    zarr_d = "NOC-data/"
+    logger.info(f"getting NOC world {zarr_f}")
     if not os.path.isdir(zarr_d + zarr_f):
         logger.info(f"{zarr_f} has not been cached, downloading now")
-        ds = catalog.msm_cat.open_dataset(id=key,
+        ds = catalog.NOC_cat.open_dataset(id=key,
                                   start_datetime=worlds.attributes.extent.time_start,
                                   end_datetime=worlds.attributes.extent.time_end,
                                   bbox=(worlds.attributes.extent.lon_min, worlds.attributes.extent.lat_min,

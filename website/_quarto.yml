@@ -35,6 +35,8 @@ website:
         href: installation.qmd
       - text: "Usage"
         href: usage.qmd
+      - text: "Inventory"
+        href: inventory.qmd
       - text: "Structure"
         href: structure.qmd
       - text: "Configuration"
@@ -43,6 +45,8 @@ website:
         href: examples.qmd
       - text: "Simulators"
         href: simulators.qmd
+      - text: "Future Development"
+        href: future_dev.qmd
       - text: "About"
         href: about.qmd
   page-footer: "Copyright 2026 National Oceanography Centre"

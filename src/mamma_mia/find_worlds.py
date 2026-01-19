@@ -48,8 +48,8 @@ class FindWorlds:
                         SourceConfig.local_dir = os.getcwd()
                         logger.info(f"using local directory {SourceConfig.local_dir}")
                     self.__find_local_worlds(extent=extent,key=key,local_dir=source.local_dir)
-                case SourceType.MSM:
-                    self.__find_msm_worlds(cat=cat, key=key, extent=extent)
+                case SourceType.NOC:
+                    self.__find_NOC_worlds(cat=cat, key=key, extent=extent)
                 case _:
                     raise ValueError(f"unknown source type {source.source_type.name}")
         for key2, item in self.entries.items():
@@ -374,9 +374,9 @@ class FindWorlds:
                                         logger.info(f"creating new matched world {dataset.dataset_id} for key {key}")
                                         self.entries[world_id] = new_world
 
-    def __find_msm_worlds(self,key :str ,cat :Cats,extent) -> None:
+    def __find_NOC_worlds(self,key :str ,cat :Cats,extent) -> None:
         """
-        function to find models/worlds within the msm source catalog for a given auv extent and sensor specification
+        function to find models/worlds within the NOC source catalog for a given auv extent and sensor specification
         Args:
             key: string that represents the variable to find
             cat: Cats object that contains the catalogs
@@ -394,8 +394,8 @@ class FindWorlds:
         # create datetimes from extent strings
         world_start = datetime.strptime(extent.time_start, "%Y-%m-%d")
         world_end = datetime.strptime(extent.time_end, "%Y-%m-%d")
-        # for every item in msm catalog
-        for item in cat.msm_cat.Items:
+        # for every item in NOC catalog
+        for item in cat.NOC_cat.Items:
             # see if the item contains the required temporal and spatial extent
             if (
                     item.bbox[0] <= extent.lon_min and

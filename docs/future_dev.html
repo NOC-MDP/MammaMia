@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>MAMMA MIA structure – MAMMA MIA</title>
+<title>Future Development – MAMMA MIA</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./configuration.html" rel="next">
-<link href="./usage.html" rel="prev">
+<link href="./about.html" rel="next">
+<link href="./simulators.html" rel="prev">
 <link href="./mammamia_logo.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -128,7 +128,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./structure.html">Structure</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./future_dev.html">Future Development</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -174,7 +174,13 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./structure.html" class="sidebar-item-text sidebar-link active">
+  <a href="./inventory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inventory</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./structure.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Structure</span></a>
   </div>
 </li>
@@ -198,6 +204,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./future_dev.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Future Development</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./about.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">About</span></a>
   </div>
@@ -212,19 +224,18 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#schematic-of-structure" id="toc-schematic-of-structure" class="nav-link active" data-scroll-target="#schematic-of-structure">Schematic of structure</a></li>
-  <li><a href="#campaigns" id="toc-campaigns" class="nav-link" data-scroll-target="#campaigns">Campaigns</a></li>
-  <li><a href="#missions" id="toc-missions" class="nav-link" data-scroll-target="#missions">Missions</a></li>
-  <li><a href="#payload" id="toc-payload" class="nav-link" data-scroll-target="#payload">Payload</a></li>
+  <li><a href="#support-for-airborne-platforms" id="toc-support-for-airborne-platforms" class="nav-link active" data-scroll-target="#support-for-airborne-platforms">Support for Airborne Platforms</a></li>
+  <li><a href="#support-for-lagrangian-drifters-e.g.-argo-floats" id="toc-support-for-lagrangian-drifters-e.g.-argo-floats" class="nav-link" data-scroll-target="#support-for-lagrangian-drifters-e.g.-argo-floats">Support for Lagrangian Drifters (e.g.&nbsp;ARGO floats)</a></li>
+  <li><a href="#support-for-xarray" id="toc-support-for-xarray" class="nav-link" data-scroll-target="#support-for-xarray">Support for Xarray</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/edit/main/website/structure.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/blob/main/website/structure.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/edit/main/website/future_dev.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/blob/main/website/future_dev.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">MAMMA MIA structure</h1>
+<h1 class="title">Future Development</h1>
 </div>
 
 
@@ -241,46 +252,19 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>MAMMA MIA output contains the following hierarchical structure:</p>
-<ul>
-<li><p>Campaign: contains one or more missions</p>
-<ul>
-<li><p>Missions: contains a single platform deployment with one or more sensors</p>
-<ul>
-<li>payload: contains the simulated sensor payload for the deployment</li>
-</ul></li>
-</ul></li>
-</ul>
-<section id="schematic-of-structure" class="level2">
-<h2 class="anchored" data-anchor-id="schematic-of-structure">Schematic of structure</h2>
-<p>The figure below shows how a campaign is structured, with its own metadata, then each mission is stored within it, each with its own payload, trajectory (raw input data), metadata about the platform and finally the worlds (input 3D model data).</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="Structure.png" class="img-fluid figure-img"></p>
-<figcaption>Structure of MAMMAMIA Campaign output</figcaption>
-</figure>
-</div>
+<p>This page details the future development plans for the MAMMA MIA python module.</p>
+<section id="support-for-airborne-platforms" class="level2">
+<h2 class="anchored" data-anchor-id="support-for-airborne-platforms">Support for Airborne Platforms</h2>
+<p>Currently only subsurface platforms are supported, MAMMA MIA also does not simulate payloads at the surface (approx less than 0.5 m) due to needing to switch to a different data product at this point (from a 3D to a surface field). Future work will make this seamless and also introduce the option of simulating the payloads of airborne platforms, and introducing new observation types such as swaths.</p>
 </section>
-<section id="campaigns" class="level2">
-<h2 class="anchored" data-anchor-id="campaigns">Campaigns</h2>
-<p>Campaigns contain all the missions for a given set of deployments. They can contain one or more missions each with its self contained set of meta data, world data and simulated payload.</p>
+<section id="support-for-lagrangian-drifters-e.g.-argo-floats" class="level2">
+<h2 class="anchored" data-anchor-id="support-for-lagrangian-drifters-e.g.-argo-floats">Support for Lagrangian Drifters (e.g.&nbsp;ARGO floats)</h2>
+<p>MAMMA MIA currently doesn’t support a typical Lagrangian python library output (PARCELS), this is due to the fact that PARCELS output does not have a time dimension but is an effectively a 2D array of observations and drifters. This support will be implemented so an ARGO simulator can be integrated into MAMMA MIA.</p>
 </section>
-<section id="missions" class="level2">
-<h2 class="anchored" data-anchor-id="missions">Missions</h2>
-<p>This is a single platform deployment, it contains multiple sections:</p>
-<ul>
-<li><p>Payload: simulated data</p></li>
-<li><p>Platform: metadata for platform</p></li>
-<li><p>Worlds: gridded model data that has been used to simulate observations</p></li>
-</ul>
-</section>
-<section id="payload" class="level2">
-<h2 class="anchored" data-anchor-id="payload">Payload</h2>
-<p>This contains all the simulated data ranging from:</p>
-<ul>
-<li><p>datalogger: contains flight information like position, pitch, yaw etc</p></li>
-<li><p>CTD: simulated temperature, pressure and salinity</p></li>
-</ul>
+<section id="support-for-xarray" class="level2">
+<h2 class="anchored" data-anchor-id="support-for-xarray">Support for Xarray</h2>
+<p>MAMMA MIA uses the zarr library directly to export its campaign objects. In hindsight this is less than ideal as it is not currently compatible with Xarray due to missing dim meta data and the fact that xarray datasets cannot handle a zarr group hierarchy.</p>
+<p>Xarray datatrees look like a good solution, using this as the export format means that it will be compatible with Xarray and also still able to export as a zarr file.</p>
 
 
 </section>
@@ -688,13 +672,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./usage.html" class="pagination-link" aria-label="Usage">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Usage</span>
+      <a href="./simulators.html" class="pagination-link" aria-label="Simulators">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Simulators</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./configuration.html" class="pagination-link" aria-label="Configuration">
-        <span class="nav-page-text">Configuration</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./about.html" class="pagination-link" aria-label="About">
+        <span class="nav-page-text">About</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -706,7 +690,7 @@ ul.task-list li input[type="checkbox"] {
     </div>   
     <div class="nav-footer-center">
 <p>Copyright 2026 National Oceanography Centre</p>
-<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/edit/main/website/structure.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/blob/main/website/structure.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/edit/main/website/future_dev.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/blob/main/website/future_dev.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

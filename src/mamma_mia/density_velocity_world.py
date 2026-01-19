@@ -100,7 +100,7 @@ class RealityWorld:
     def for_glidersim(cls,  extent:WorldExtent,
                             excess_depth:int=100,
                             excess_space:float=0.5,
-                            env_source:str="MSM",
+                            env_source:str="NOC",
                       ):
         """
         Reality World built for Glider Simulator

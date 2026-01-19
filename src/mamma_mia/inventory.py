@@ -74,7 +74,7 @@ class InventoryClass:
                 sensor_types.append(sensor.instrument_type)
         return sensor_types
 
-    def list_sensors(self, sensor_type:str=None) -> list:
+    def list_sensors(self, sensor_type:str=None, platform_model:str=None) -> list:
         """
         Lists all available sensors.
         Returns:
@@ -84,19 +84,23 @@ class InventoryClass:
         for sensor in self.sensors.entries.values():
             if sensor_type is not None:
                 if sensor.instrument_type == sensor_type:
-                    sensors.append(sensor.sensor_name)
+                    sensors.append(sensor.sensor_model)
+            elif platform_model is not None:
+                if platform_model in sensor.platform_compatibility:
+                    sensors.append(sensor.sensor_model)
             else:
-                sensors.append(sensor.sensor_name)
+                sensors.append(sensor.sensor_model)
+
         return sensors
 
-    def get_sensor_info(self,platform_type:str,sensor_type:str):
+    def get_sensor_info(self,platform_model:str,sensor_type:str):
         """
 
         Returns:
 
         """
         for sensor in self.sensors.entries.values():
-            if platform_type in sensor.platform_compatibility and sensor_type == sensor.instrument_type:
+            if platform_model in sensor.platform_compatibility and sensor_type == sensor.instrument_type:
                 return sensor
 
     def list_parameters(self):

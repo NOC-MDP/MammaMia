@@ -65,15 +65,15 @@ class SourceType(Enum):
     Source type enumeration: this determines where worlds are sourced from
     """
     CMEMS = "cmems"
-    MSM = "msm"
+    NOC = "NOC"
     LOCAL = "local"
     @classmethod
     def from_string(cls,enum_string:str) -> "SourceType":
         match enum_string:
             case "cmems" | "CMEMS":
                 return SourceType.CMEMS
-            case "msm" | "MSM":
-                return SourceType.MSM
+            case "NOC" | "NOC":
+                return SourceType.NOC
             case "local" | "LOCAL":
                 return SourceType.LOCAL
             case _:
@@ -89,7 +89,7 @@ class SourceConfig:
     @classmethod
     def from_string(cls,src_str:str):
         match src_str:
-            case "cmems" | "CMEMS" | "MSM" | "msm":
+            case "cmems" | "CMEMS" | "NOC" | "NOC":
                 logger.info(f"setting source type to {src_str}")
                 return cls(source_type=SourceType.from_string(src_str))
             case "local" | "LOCAL":
