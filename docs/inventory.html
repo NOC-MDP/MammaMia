@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>MAMMA MIA structure – MAMMA MIA</title>
+<title>Inventory – MAMMA MIA</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -30,7 +65,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./configuration.html" rel="next">
+<link href="./structure.html" rel="next">
 <link href="./usage.html" rel="prev">
 <link href="./mammamia_logo.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
@@ -128,7 +163,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./structure.html">Structure</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./inventory.html">Inventory</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -174,7 +209,13 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./structure.html" class="sidebar-item-text sidebar-link active">
+  <a href="./inventory.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Inventory</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./structure.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Structure</span></a>
   </div>
 </li>
@@ -198,6 +239,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./future_dev.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Future Development</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./about.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">About</span></a>
   </div>
@@ -212,19 +259,16 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#schematic-of-structure" id="toc-schematic-of-structure" class="nav-link active" data-scroll-target="#schematic-of-structure">Schematic of structure</a></li>
-  <li><a href="#campaigns" id="toc-campaigns" class="nav-link" data-scroll-target="#campaigns">Campaigns</a></li>
-  <li><a href="#missions" id="toc-missions" class="nav-link" data-scroll-target="#missions">Missions</a></li>
-  <li><a href="#payload" id="toc-payload" class="nav-link" data-scroll-target="#payload">Payload</a></li>
+  <li><a href="#searching-the-inventory" id="toc-searching-the-inventory" class="nav-link active" data-scroll-target="#searching-the-inventory">Searching the Inventory</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/edit/main/website/structure.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/blob/main/website/structure.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/edit/main/website/inventory.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/blob/main/website/inventory.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">MAMMA MIA structure</h1>
+<h1 class="title">Inventory</h1>
 </div>
 
 
@@ -241,46 +285,41 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>MAMMA MIA output contains the following hierarchical structure:</p>
+<p>MAMMA MIA uses an inventory system to hold components that it can use. These components are:</p>
 <ul>
-<li><p>Campaign: contains one or more missions</p>
-<ul>
-<li><p>Missions: contains a single platform deployment with one or more sensors</p>
-<ul>
-<li>payload: contains the simulated sensor payload for the deployment</li>
-</ul></li>
-</ul></li>
+<li><p>Platforms</p></li>
+<li><p>Sensors</p></li>
+<li><p>Parameters</p></li>
 </ul>
-<section id="schematic-of-structure" class="level2">
-<h2 class="anchored" data-anchor-id="schematic-of-structure">Schematic of structure</h2>
-<p>The figure below shows how a campaign is structured, with its own metadata, then each mission is stored within it, each with its own payload, trajectory (raw input data), metadata about the platform and finally the worlds (input 3D model data).</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="Structure.png" class="img-fluid figure-img"></p>
-<figcaption>Structure of MAMMAMIA Campaign output</figcaption>
-</figure>
-</div>
-</section>
-<section id="campaigns" class="level2">
-<h2 class="anchored" data-anchor-id="campaigns">Campaigns</h2>
-<p>Campaigns contain all the missions for a given set of deployments. They can contain one or more missions each with its self contained set of meta data, world data and simulated payload.</p>
-</section>
-<section id="missions" class="level2">
-<h2 class="anchored" data-anchor-id="missions">Missions</h2>
-<p>This is a single platform deployment, it contains multiple sections:</p>
-<ul>
-<li><p>Payload: simulated data</p></li>
-<li><p>Platform: metadata for platform</p></li>
-<li><p>Worlds: gridded model data that has been used to simulate observations</p></li>
-</ul>
-</section>
-<section id="payload" class="level2">
-<h2 class="anchored" data-anchor-id="payload">Payload</h2>
-<p>This contains all the simulated data ranging from:</p>
-<ul>
-<li><p>datalogger: contains flight information like position, pitch, yaw etc</p></li>
-<li><p>CTD: simulated temperature, pressure and salinity</p></li>
-</ul>
+<p>These are required to tell MAMMA MIA what kind of platform is being simulated, what sensors it is carried and what parameters they are measuring.</p>
+<section id="searching-the-inventory" class="level2">
+<h2 class="anchored" data-anchor-id="searching-the-inventory">Searching the Inventory</h2>
+<p>To search and see what is available you import the inventory and are able to search as follows:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Available groups in inventory </span><span class="sc">{</span>inventory<span class="sc">.</span>list_inventory_groups()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Available platform types: </span><span class="sc">{</span>inventory<span class="sc">.</span>list_platform_types()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Available platform models: </span><span class="sc">{</span>inventory<span class="sc">.</span>list_platform_models()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Available parameters: </span><span class="sc">{</span>inventory<span class="sc">.</span>list_parameters()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Available sensor types: </span><span class="sc">{</span>inventory<span class="sc">.</span>list_sensor_types()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"sensors available for platform Slocum G2: </span><span class="sc">{</span>inventory<span class="sc">.</span>list_sensors(platform_model<span class="op">=</span><span class="st">'Slocum_G2'</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"sensors of type CTD: </span><span class="sc">{</span>inventory<span class="sc">.</span>list_sensors(sensor_type<span class="op">=</span><span class="st">'CTD'</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"sensor info: </span><span class="sc">{</span>inventory<span class="sc">.</span>get_sensor_info(platform_model<span class="op">=</span><span class="st">'APEX'</span>, sensor_type<span class="op">=</span><span class="st">'CTD'</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The first print statement will list the available inventory groups.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Available</span> groups in inventory [<span class="st">'platforms'</span>, <span class="st">'sensors'</span>, <span class="st">'parameters'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The second lists platform types:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Available</span> platform types: [<span class="st">'glider'</span>, <span class="st">'autosub'</span>, <span class="st">'ARGO'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The third lists available models:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Available</span> platform models: {<span class="st">'glider'</span>: <span class="pp">[</span><span class="st">'Slocum_G2'</span><span class="pp">]</span>, <span class="st">'autosub'</span>: <span class="pp">[</span><span class="st">'ALR_1500'</span><span class="pp">]</span>, <span class="st">'ARGO'</span>: [<span class="st">'APEX'</span>, <span class="st">'ARVOR'</span>]}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The fourth, available parameters:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Available</span> parameters: [<span class="st">'PRESSURE'</span>, <span class="st">'INSITU_TEMPERATURE'</span>, <span class="st">'INSITU_CHLOROPHYLL'</span>, <span class="st">'INSITU_DISSOLVED_OXYGEN'</span>, <span class="st">'POTENTIAL_TEMPERATURE'</span>, <span class="st">'DISSOLVED_OXYGEN'</span>, <span class="st">'PRACTICAL_SALINITY'</span>, <span class="st">'ABSOLUTE_SALINITY'</span>, <span class="st">'CONSERVATIVE_TEMPERATURE'</span>, <span class="st">'EAST_CURRENT_VELOCITY'</span>, <span class="st">'NORTH_CURRENT_VELOCITY'</span>, <span class="st">'CHLOROPHYLL'</span>, <span class="st">'DOWNWELLING_RADIATIVE_FLUX'</span>, <span class="st">'ALTITUDE'</span>, <span class="st">'LATITUDE'</span>, <span class="st">'LATITUDE_GPS'</span>, <span class="st">'LONGITUDE'</span>, <span class="st">'LONGITUDE_GPS'</span>, <span class="st">'WATERCURRENTS_U'</span>, <span class="st">''</span>, <span class="st">'WATERCURRENTS_V'</span>, <span class="st">'GLIDER_HEADING'</span>, <span class="st">'GLIDER_PITCH'</span>, <span class="st">'GLIDER_ROLL'</span>, <span class="st">'GLIDER_DEPTH'</span>, <span class="st">'ALATPT01'</span>, <span class="st">'ALONPT01'</span>, <span class="st">'ADEPPT01'</span>, <span class="st">'HEADPT01'</span>, <span class="st">'ROLLPT01'</span>, <span class="st">'PTCHPT01'</span>, <span class="st">'PTVELX01'</span>, <span class="st">'PTVELY01'</span>, <span class="st">'PTVELZ01'</span>, <span class="st">'TIME'</span>, <span class="st">'ELTXIX01'</span>, <span class="st">'DEPTH'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The fifth, lists sensor types (<strong>NOTE</strong> they may not all be available for all platforms)</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Available</span> sensor types: [<span class="st">'CTD'</span>, <span class="st">'ADCP'</span>, <span class="st">'radiometer'</span>, <span class="st">'dissolved_gas'</span>, <span class="st">'optical_backscatter'</span>, <span class="st">'data_logger'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Sixth lists sensors available for a specific platform model:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sensors</span> available for platform Slocum G2: [<span class="st">'Slocum Glider G2 CTD'</span>, <span class="st">'Slocum G2 Radiometer'</span>, <span class="st">'Slocum G2 Dissolved Oxygen'</span>, <span class="st">'Slocum G2 Data logger'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Seventh shows that we can also list sensors of a specific type:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sensors</span> of type CTD: [<span class="st">'Generic CTD'</span>, <span class="st">'Slocum Glider G2 CTD'</span>, <span class="st">'Autosub Long Range 1500 CTD'</span>, <span class="st">'APEX CTD'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Finally we can list the full meta data for a specific sensor, in this case an APEX ARGO float CTD.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sensor</span> info: Sensor<span class="er">(</span><span class="va">sensor_model</span><span class="op">=</span><span class="st">'APEX CTD'</span>, <span class="va">instrument_type</span><span class="op">=</span><span class="st">'CTD'</span>, <span class="va">specification</span><span class="op">=</span>{<span class="st">'INSITU_TEMPERATURE'</span>: <span class="ex">{</span><span class="st">'accuracy'</span><span class="ex">:</span> 0.001, <span class="st">'resolution'</span>: 0.001, <span class="st">'drift_per_month'</span>: 0.0002, <span class="st">'range'</span>: [-5, 42], <span class="st">'percent_errors'</span>: False, <span class="st">'noise_std'</span>: 0.0005, <span class="st">'meta_data'</span>: Parameter<span class="er">(</span><span class="va">parameter_id</span><span class="op">=</span><span class="st">'INSITU_TEMPERATURE'</span>, <span class="va">identifier</span><span class="op">=</span><span class="st">'SDN:OG1::TEMP'</span>, <span class="va">vocab_url</span><span class="op">=</span><span class="st">'https://vocab.nerc.ac.uk/collection/OG1/current/TEMP/'</span>, <span class="va">standard_name</span><span class="op">=</span><span class="st">'Sea temperature in-situ ITS-90 scale'</span>, <span class="va">unit_of_measure</span><span class="op">=</span><span class="st">'Degrees Celsius'</span>, <span class="va">unit_identifier</span><span class="op">=</span><span class="st">'SDN:P06::UPAA'</span>, <span class="va">parameter_definition</span><span class="op">=</span><span class="st">'Temperature of the water body by CTD or STD'</span>, <span class="va">alternate_sources</span><span class="op">=</span>[<span class="st">'POTENTIAL_TEMPERATURE'</span>, <span class="st">'CONSERVATIVE_TEMPERATURE'</span><span class="ex">],</span> alternate_labels=<span class="pp">[</span><span class="st">'TEMPERATURE'</span><span class="pp">]</span>, source_names=<span class="pp">[</span><span class="st">'sci_water_temp'</span><span class="pp">]</span><span class="kw">)</span><span class="er">}</span><span class="ex">,</span> <span class="st">'PRACTICAL_SALINITY'</span>: {<span class="st">'accuracy'</span>: 0.005, <span class="st">'resolution'</span>: 0.0001, <span class="st">'drift_per_month'</span>: 0.003, <span class="st">'range'</span>: [0, 42], <span class="st">'percent_errors'</span>: False, <span class="st">'noise_std'</span>: 0.0025, <span class="st">'meta_data'</span>: Parameter<span class="er">(</span><span class="va">parameter_id</span><span class="op">=</span><span class="st">'PRACTICAL_SALINITY'</span>, <span class="va">identifier</span><span class="op">=</span><span class="st">'SDN:P07::IADIHDIJ'</span>, <span class="va">vocab_url</span><span class="op">=</span><span class="st">'https://vocab.nerc.ac.uk/collection/P07/current/IADIHDIJ/'</span>, <span class="va">standard_name</span><span class="op">=</span><span class="st">'sea_water_practical_salinity'</span>, <span class="va">unit_of_measure</span><span class="op">=</span><span class="st">'Dimensionless'</span>, <span class="va">unit_identifier</span><span class="op">=</span><span class="st">'SDN:P06::UUUU'</span>, <span class="va">parameter_definition</span><span class="op">=</span><span class="st">'Practical Salinity, S_P, is a determination of the salinity of sea water, based on its electrical conductance. The measured conductance, corrected for temperature and pressure, is compared to the conductance of a standard potassium chloride solution, producing a value on the Practical Salinity Scale of 1978 (PSS-78).'</span>, <span class="va">alternate_sources</span><span class="op">=</span><span class="pp">[</span><span class="st">'ABSOLUTE_SALINITY'</span><span class="pp">]</span>, <span class="va">alternate_labels</span><span class="op">=</span><span class="pp">[</span><span class="st">'practical salinity'</span><span class="pp">]</span>, <span class="va">source_names</span><span class="op">=</span><span class="pp">[</span><span class="st">'so'</span><span class="pp">]</span><span class="kw">)</span><span class="er">}</span><span class="ex">,</span> <span class="st">'PRESSURE'</span>: {<span class="st">'accuracy'</span>: 0.1, <span class="st">'resolution'</span>: 0.002, <span class="st">'drift_per_month'</span>: 0.0042, <span class="st">'range'</span>: [0, 2000], <span class="st">'percent_errors'</span>: True, <span class="st">'noise_std'</span>: 0.0005, <span class="st">'meta_data'</span>: Parameter<span class="er">(</span><span class="va">parameter_id</span><span class="op">=</span><span class="st">'PRESSURE'</span>, <span class="va">identifier</span><span class="op">=</span><span class="st">'SDN:OG1::PRES'</span>, <span class="va">vocab_url</span><span class="op">=</span><span class="st">'https://vocab.nerc.ac.uk/collection/OG1/current/PRES/'</span>, <span class="va">standard_name</span><span class="op">=</span><span class="st">'Sea water pressure, equals 0 at sea-level'</span>, <span class="va">unit_of_measure</span><span class="op">=</span><span class="st">'Decibars'</span>, <span class="va">unit_identifier</span><span class="op">=</span><span class="st">' SDN:P06::UPDB'</span>, <span class="va">parameter_definition</span><span class="op">=</span><span class="st">'Pressure (spatial co-ordinate) exerted by the water body by profiling pressure sensor and corrected to read zero at sea level'</span>, <span class="va">alternate_sources</span><span class="op">=</span><span class="pp">[</span><span class="st">'GLIDER_DEPTH'</span><span class="pp">]</span>, <span class="va">alternate_labels</span><span class="op">=</span><span class="pp">[</span><span class="st">'PRESSURE'</span><span class="pp">]</span>, <span class="va">source_names</span><span class="op">=</span><span class="pp">[</span><span class="st">'sci_water_pressure'</span><span class="pp">]</span><span class="kw">)</span><span class="er">}}</span><span class="ex">,</span> platform_compatibility=<span class="pp">[</span><span class="st">'APEX'</span><span class="pp">]</span>, sensor_name=None<span class="kw">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The inventory also shows locally imported items (the ARGO platform, sensor and depth parameter) these have been loaded from the working directory. See the configuration section to get more information.</p>
 
 
 </section>
@@ -693,8 +732,8 @@ ul.task-list li input[type="checkbox"] {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./configuration.html" class="pagination-link" aria-label="Configuration">
-        <span class="nav-page-text">Configuration</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./structure.html" class="pagination-link" aria-label="Structure">
+        <span class="nav-page-text">Structure</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -706,7 +745,7 @@ ul.task-list li input[type="checkbox"] {
     </div>   
     <div class="nav-footer-center">
 <p>Copyright 2026 National Oceanography Centre</p>
-<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/edit/main/website/structure.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/blob/main/website/structure.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/NOC-MDP/MammaMia/edit/main/website/inventory.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/NOC-MDP/MammaMia/blob/main/website/inventory.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

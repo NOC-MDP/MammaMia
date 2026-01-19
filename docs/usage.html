@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -30,7 +65,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./structure.html" rel="next">
+<link href="./inventory.html" rel="next">
 <link href="./installation.html" rel="prev">
 <link href="./mammamia_logo.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
@@ -43,7 +78,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-95f147d06fdb9f8ce149f95e323965f4.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-5579354cb86b1fb3fa17c6e0a9629fb7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-b532d497ae9c14fc736afc69b061c24e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -162,12 +197,6 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./introduction.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Introduction</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./installation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Installation</span></a>
   </div>
@@ -176,6 +205,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="./usage.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Usage</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./inventory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inventory</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -204,6 +239,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./future_dev.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Future Development</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./about.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">About</span></a>
   </div>
@@ -223,6 +264,23 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#integrated-slocum-glider-simulator" id="toc-integrated-slocum-glider-simulator" class="nav-link" data-scroll-target="#integrated-slocum-glider-simulator">Integrated SLOCUM glider simulator</a></li>
   <li><a href="#timeseries-netcdfzarr-file" id="toc-timeseries-netcdfzarr-file" class="nav-link" data-scroll-target="#timeseries-netcdfzarr-file">Timeseries NetCDF/Zarr file</a></li>
   <li><a href="#way-points-in-csv-file." id="toc-way-points-in-csv-file." class="nav-link" data-scroll-target="#way-points-in-csv-file.">Way points in CSV file.</a></li>
+  </ul></li>
+  <li><a href="#campaigns" id="toc-campaigns" class="nav-link" data-scroll-target="#campaigns">Campaigns</a>
+  <ul>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#add_mission" id="toc-add_mission" class="nav-link" data-scroll-target="#add_mission">add_mission</a></li>
+  <li><a href="#build_missions" id="toc-build_missions" class="nav-link" data-scroll-target="#build_missions">build_missions</a></li>
+  <li><a href="#run" id="toc-run" class="nav-link" data-scroll-target="#run">run</a></li>
+  <li><a href="#export" id="toc-export" class="nav-link" data-scroll-target="#export">export</a></li>
+  </ul></li>
+  <li><a href="#platforms" id="toc-platforms" class="nav-link" data-scroll-target="#platforms">Platforms</a></li>
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources">Data Sources</a>
+  <ul class="collapse">
+  <li><a href="#noc" id="toc-noc" class="nav-link" data-scroll-target="#noc">NOC</a></li>
+  <li><a href="#cmems" id="toc-cmems" class="nav-link" data-scroll-target="#cmems">CMEMS</a></li>
+  <li><a href="#local-netcdf" id="toc-local-netcdf" class="nav-link" data-scroll-target="#local-netcdf">Local NetCDF</a></li>
+  </ul></li>
   </ul></li>
   <li><a href="#what-is-currently-not-supported" id="toc-what-is-currently-not-supported" class="nav-link" data-scroll-target="#what-is-currently-not-supported">What is currently not supported</a></li>
   </ul>
@@ -252,7 +310,7 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="input-options" class="level2">
 <h2 class="anchored" data-anchor-id="input-options">Input options</h2>
-<p>MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources, currently supported sources are:</p>
+<p>MAMMA MIA requires a trajectory that is located in the sub surface ocean, this can be from a number of different sources, currently supported sources are:</p>
 <ul>
 <li><p>integrated slocum glider simulator</p></li>
 <li><p>timeseries NetCDF/Zarr file</p></li>
@@ -260,28 +318,124 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <section id="integrated-slocum-glider-simulator" class="level3">
 <h3 class="anchored" data-anchor-id="integrated-slocum-glider-simulator">Integrated SLOCUM glider simulator</h3>
-<p>MAMMA MIA can run simplified missions using the slocum glider simulator, <a href="https://github.com/smerckel/glidersim">glidersim</a>. If the user installs this optional dependency then glider missions can be ran that will create compatible MAMMA MIA input. The glidersim will also use MAMMA MIA to get environmental data to use during simulation for currents and density etc. glidersim is designed to work exactly like programming an real slocum glider. Therefore MAMMA MIA provides a simplified interface with the current behaviors able to be programmed:</p>
+<p>MAMMA MIA can run simplified missions using the slocum glider simulator, <a href="https://github.com/smerckel/glidersim">glidersim</a>. If the user installs this optional dependency then glider missions can be ran that will create compatible MAMMA MIA input. The glidersim will also use MAMMA MIA to get environmental data to use during simulation for currents and density etc. glidersim is designed to work exactly like programming an real slocum glider which is not particularly intuitive. Therefore MAMMA MIA provides a simplified interface with the current behaviors able to be programmed:</p>
 <ul>
 <li><p>virtual mooring (try to make continuous dives at same point)</p></li>
 <li><p>follow way-points</p></li>
 </ul>
-<p>Other behaviors/mission will be added or the ability to chain behaviors, e.g.&nbsp;perform virtual mooring for x period then follow way-points to next mooring site etc.</p>
 <p>See Simulators section for more information on using the MAMMA MIA interface.</p>
 </section>
 <section id="timeseries-netcdfzarr-file" class="level3">
 <h3 class="anchored" data-anchor-id="timeseries-netcdfzarr-file">Timeseries NetCDF/Zarr file</h3>
-<p>MAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D spatial timeseries with time dimension data should work, i.e.&nbsp;it needs, a latitude, longitude, depth and time.</p>
+<p>MAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D spatial timeseries with time dimension data should work.</p>
 </section>
 <section id="way-points-in-csv-file." class="level3">
 <h3 class="anchored" data-anchor-id="way-points-in-csv-file.">Way points in CSV file.</h3>
-<p>MAMMA MIA can read csv files that contain a set of way points, these must be again 3D (need to specify depth) and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.</p>
+<p>MAMMA MIA can read csv files that contain a set of way points, these must be again 3D (need to specify depth) and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step. An example being</p>
+<pre class="csv"><code>TIME,ALATPT01,ALONPT01,ADEPPT01
+15/06/2023 00:00:00,72,30,5
+16/06/2023 00:01:00,73.5,30,5
+17/06/2023 00:02:00,73.75,30,125
+18/06/2023 00:03:00,74,30,325
+19/06/2023 00:04:00,74.8,30,325
+20/06/2023 00:05:00,74.87,30,250
+21/06/2023 00:06:00,74.94,30,125
+22/06/2023 00:07:00,75,30,5</code></pre>
+<p>The above is a snippet of a virtual ALR mission where it will start at 5 m, dive to 125 m, then to 325 m before rising to 250 m, 125 m, and finally back to the surface at 5m over the course of 7 days. It also changes its position from 72 degrees N to 75 degrees N staying at 30 degrees E.</p>
+</section>
+</section>
+<section id="campaigns" class="level2">
+<h2 class="anchored" data-anchor-id="campaigns">Campaigns</h2>
+<p>Campaigns have the following structure:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Campaign:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    description: <span class="bu">str</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    catalog: Cats <span class="op">=</span> Cats()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    missions: <span class="bu">dict</span>[<span class="bu">str</span>, Mission] <span class="op">=</span> field(factory<span class="op">=</span><span class="bu">dict</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    interpolators: <span class="bu">dict</span>[<span class="bu">str</span>, Interpolators] <span class="op">=</span> field(factory<span class="op">=</span><span class="bu">dict</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    verbose: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    debug: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When creating a campaign there are two required fields and two optional ones. An example creation is shown below:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>campaign <span class="op">=</span> Campaign(name<span class="op">=</span><span class="st">"RAPID array virtual mooring"</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                    description<span class="op">=</span><span class="st">"single slocum glider deployment at a RAPID mooring"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                    verbose<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This creates a campaign that has the above name and description (these are for metadata purposes and not used by MAMMA MIA). The verbose Boolean is set to true which will produce more log output (Info log statements in addition to success and warnings/errors). There is another Boolean debug which if set to true will add debug log statements. It is not recommended to use this unless there is an issue with MAMMA MIA.</p>
+<p>The other components of the Campaign object are set by MAMMA MIA itself, missions and interpolators for each specified mission.</p>
+<section id="methods" class="level3">
+<h3 class="anchored" data-anchor-id="methods">Methods</h3>
+<p>The campaign object is the expected user interface for a MAMMA MIA user, due to the modular nature of MAMMA MIA, missions can be created in isolation but this is not directly supported and may result in unexpected behavior. The user has the following methods available:</p>
+<section id="add_mission" class="level4">
+<h4 class="anchored" data-anchor-id="add_mission">add_mission</h4>
+<p>This requires a platform entity to be created, (see platforms section) and creates the basic mission configuration that can then be built and ran.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>campaign.add_mission(mission_name<span class="op">=</span><span class="st">"RAD24_01"</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                     title<span class="op">=</span><span class="st">"Churchill with CTD deployment at RAPID array mooring eb1l2n"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                     summary<span class="op">=</span><span class="st">"single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array."</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                     platform<span class="op">=</span>Churchill,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                     trajectory_path<span class="op">=</span><span class="st">"data/RAPID-mooring/rapid-mooring.nc"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                     source_location<span class="op">=</span><span class="st">"NOC"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                     mission_time_step<span class="op">=</span><span class="dv">60</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                     apply_obs_error<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The above snippet adds a mission to the campaign object, the title and summary are text that is not used by MAMMAMIA directly, the mission_name is a reference to the specific mission within the campaign (e.g.&nbsp;when plotting) the platform is a platform entity that has been created (in this case the slocum glider churchill) the trajectory_path is a file path to an trajectory file this can be a NetCDF/Zarr timeseries or a csv file. source_location is what model data source to use (options are “NOC” ,“CMEMS”, “local” or a file path) see data_sources section for more information. mission_time_step is the timestep of the mission in seconds, this is the “tick” rate of the mission and determines the output rate of the payload. Finally apply_obs_error determines if observation errors as specified in the sensor configuration (see configuring section). should be applied.</p>
+<p>Multiple missions can be added to a single campaign by repeating the method above.</p>
+</section>
+<section id="build_missions" class="level4">
+<h4 class="anchored" data-anchor-id="build_missions">build_missions</h4>
+<p>Once all the missions are added, running the build_missions method will run all the steps needed to be able to generate synthetic payloads. These include, searching for worlds (suitable model data) downloading the world data (saving as local Zarrs) and creating and preparing the interpolators to be able to generate payloads.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>campaign.build_missions()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>NOTE</strong> this step can take quite awhile depending on network speeds and availability of data. The size of the trajectory (both temporally and spatially) can have a large impact on this time.</p>
+<p>MAMMA MIA automatically gets the best data it can find, both spatially and temporally e.g.&nbsp;it will get daily means over monthly means, and 1/12th degree over 1/4 degree resolution models.</p>
+</section>
+<section id="run" class="level4">
+<h4 class="anchored" data-anchor-id="run">run</h4>
+<p>The missions can now be run by using this method, each missions will have its payload generated in turn, using the interpolators and model data generated in the build_mission step. To see the results, each mission has some plotting methods see missions section for more details.</p>
+</section>
+<section id="export" class="level4">
+<h4 class="anchored" data-anchor-id="export">export</h4>
+<p>exports the campaign as an zarr store, with each mission stored as a zarr group inside. Each mission then has a zarr group inside of it for each of the components, payload, trajectory, platform, worlds etc. See the structure page for more information.</p>
+<p><strong>NOTE</strong> this output is compatible with the python Zarr library but not xarray which is unable to read the hierarchical Zarr group format.</p>
+</section>
+</section>
+<section id="platforms" class="level3">
+<h3 class="anchored" data-anchor-id="platforms">Platforms</h3>
+<p>MAMMA MIA uses an inventory system to store details on the platforms and sensors it can simulate. The inventory is an read_only catalog of platforms, sensors and parameters. From this a platform entity (this is a mutable copy) can be created and added to a mission. There are a number of inventory search methods please see inventory page for more information.</p>
+<p>To create an platform entity you create one from the inventory:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mamma_mia <span class="im">import</span> inventory</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>Churchill <span class="op">=</span> inventory.create_platform_entity(entity_name<span class="op">=</span><span class="st">"Churchill"</span>,platform_model<span class="op">=</span><span class="st">"Slocum_G2"</span>,serial_number<span class="op">=</span><span class="st">"unit_398"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can replicate real world platforms as above or create your own virtual ones. The above creates a Slocum G2 glider with name Churchill and serial number unit_398.</p>
+<p>You can create your own platform models that get added to the inventory when MAMMA MIA starts, see the configuration section for more details.</p>
+<p>This platform is only generated with a datalogger as standard so will only generate positional payload data as it stands. Sensors need to be added so that is will collect the data specified when flying a mission.</p>
+<p>See inventory section for finding when sensors can be added and the configuring section to make new ones. You can register the sensor that is available in the inventory for that platform type. e.g.&nbsp;CTD, radiometer, etc.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Churchill.register_sensor(sensor_type<span class="op">=</span><span class="st">"CTD"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This has now registered a CTD sensor to the Churchill platform and will collect the parameters as specified which in this case are insitu-temperature, practical salinity and pressure.</p>
+<p>You can add as many sensors as needed, MAMMA MIA will try and match up all the requested parameters and the specified trajectory and find the best model match based on the source specified.</p>
+</section>
+<section id="data-sources" class="level3">
+<h3 class="anchored" data-anchor-id="data-sources">Data Sources</h3>
+<p>MAMMA MIA has three different source options for the worlds (model data) it will search to use when simulating a payload. Each mission can be set to a different source and they are as follows:</p>
+<section id="noc" class="level4">
+<h4 class="anchored" data-anchor-id="noc">NOC</h4>
+<p>setting the source location to “NOC” when adding the mission will tell MAMMA MIA to use the OceanDataStore library and get data from the National Oceanography Centre’s object store. This holds the Near Present Day model runs for the various model configurations that the NOC will run. See the OceanDataStore repository for more details. <a href="https://github.com/NOC-MSM/OceanDataStore" class="uri">https://github.com/NOC-MSM/OceanDataStore</a></p>
+</section>
+<section id="cmems" class="level4">
+<h4 class="anchored" data-anchor-id="cmems">CMEMS</h4>
+<p>If the source location is set to “CMEMS” then the mission will use the Copernicus Marine Toolbox to search and download data from. This requires the user to have an account to access the CMEMS data store. See here for more details. <a href="https://help.marine.copernicus.eu/en/articles/7949409-copernicus-marine-toolbox-introduction" class="uri">https://help.marine.copernicus.eu/en/articles/7949409-copernicus-marine-toolbox-introduction</a></p>
+<p>Making sure that you can login in using the python library API would be sensible before using this model source. If you are successful than a configuration file is created that will automatically authenticate MAMMAMIA download requests. e.g.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> copernicusmarine</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>copernicusmarine.login()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="local-netcdf" class="level4">
+<h4 class="anchored" data-anchor-id="local-netcdf">Local NetCDF</h4>
+<p>Finally MAMMAMIA can use local NetCDF files, these need to cover the temporal and spatial extent that is set by the input trajectory. By setting the source_location to “Local” MAMMAMIA will search the current working directory for a suitable file. Alternatively users can set the path in the source_location, that will tell MAMMA MIA the directory in which to search for suitable NetCDF files.</p>
+</section>
 </section>
 </section>
 <section id="what-is-currently-not-supported" class="level2">
 <h2 class="anchored" data-anchor-id="what-is-currently-not-supported">What is currently not supported</h2>
-<p>Observation based input datasets, where time is an observation and not a dimension. e.g.&nbsp;PARCELS output datasets.</p>
+<p>Observation based input datasets for a trajectory, where time is an observation and not a dimension. e.g.&nbsp;PARCELS output datasets.</p>
 <p>Surface simulated payloads, MAMMA MIA currently only supports using 3D datasets, and can only interpolate within the model/dataset boundaries. Since most 3D parameters in models have an shallowest depth of around 0.5 metres this means there is no payload simulated when the glider or other platforms are on the surface.</p>
-<p>The solution is to use a suitable surface field parameter in these situations, which also means MAMMA MIA will be able to support airborne platforms observing the ocean surface.</p>
+<p>The planned solution for this is to switch to a suitable surface field parameter when the platform is at the surface (since most models will have one), which also means MAMMA MIA will be able to support airborne platforms observing the ocean surface.</p>
 
 
 </section>
@@ -694,8 +848,8 @@ ul.task-list li input[type="checkbox"] {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./structure.html" class="pagination-link" aria-label="Structure">
-        <span class="nav-page-text">Structure</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./inventory.html" class="pagination-link" aria-label="Inventory">
+        <span class="nav-page-text">Inventory</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

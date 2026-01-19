@@ -1165,12 +1165,12 @@ class Mission:
             self.__copy_group(subgrp, subdest)
 
     # TODO this hacky mess created dimension mapping for xarray zarr support.
-    # def create_dim_map(self, msm_cat):
+    # def create_dim_map(self, NOC_cat):
     #     """
     #     Creates a dimension mapping dictionary and updates the relevant attribute in the world group. This attribute is
     #     required to enable Xarray to read the zarr groups of the campaign object.
     #     Args:
-    #         msm_cat: msm intake catalog
+    #         NOC_cat: NOC intake catalog
     #
     #     Returns:
     #         void: updates the dim_map attribute of the world zarr group
@@ -1192,8 +1192,8 @@ class Mission:
     #     #     f"{mission.attrs['name']}/world/cmems_mod_glo_bgc_my_0.25deg_P1D-m/si": ['time', 'depth', 'latitude', 'longitude'],
     #     #     f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/so": ['time', 'depth', 'latitude', 'longitude'],
     #     #     f"{mission.attrs['name']}/world/cmems_mod_glo_phy_my_0.083deg_P1D-m/thetao": ['time', 'depth', 'latitude', 'longitude'],
-    #     #     f"{mission.attrs['name']}/world/msm_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
-    #     #     f"{mission.attrs['name']}/world/msm_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
+    #     #     f"{mission.attrs['name']}/world/NOC_eORCA12/so": ['time_counter','deptht','latitude','longitude'],
+    #     #     f"{mission.attrs['name']}/world/NOC_eORCA12/thetao": ['time_counter', 'deptht', 'latitude', 'longitude'],
     #     # }
     #     # TODO need to figure out how to dynamically set the dimensions in the mapping attribute as these could change
     #     # TODO Also ideally need to do the other variables in the world datasets e.g. time, depth etc
@@ -1213,10 +1213,10 @@ class Mission:
     #                         aliases.append(alias)
     #                 if [k5] in aliases:
     #                     dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time', 'depth', 'latitude', 'longitude']
-    #             elif split_key[0] == "msm":
-    #                 msm_metadata = msm_cat[k4].describe()['metadata']
-    #                 msm_alias = msm_metadata.get('aliases', [])
-    #                 if k5 in msm_alias.keys():
+    #             elif split_key[0] == "NOC":
+    #                 NOC_metadata = NOC_cat[k4].describe()['metadata']
+    #                 NOC_alias = NOC_metadata.get('aliases', [])
+    #                 if k5 in NOC_alias.keys():
     #                     dim_map[f"{self.attrs['mission']}/world/{k4}/{k5}"] = ['time_counter', 'deptht', 'latitude',
     #                                                                            'longitude']
     #             else:

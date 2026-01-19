@@ -78,15 +78,6 @@ Cabot.register_sensor(sensor_type="CTD")
 Cabot.register_sensor(sensor_type="radiometer")
 Cabot.register_sensor(sensor_type="dissolved_gas")
 
-
-# register platforms to the campaign for use in missions
-campaign.register_platform(entity=Churchill)
-campaign.register_platform(entity=Nelson)
-campaign.register_platform(entity=Doombar)
-campaign.register_platform(entity=Cabot)
-campaign.register_platform(entity=ALR4)
-campaign.register_platform(entity=ALR6)
-
 # for metadata purposes a creator can be specified
 creator = Creator(email="thopri@noc.ac.uk",
                   institution="NOCS",
@@ -122,7 +113,7 @@ contributor = Contributor(email="thopri@noc.ac.uk",
 campaign.add_mission(mission_name="Deployment_646",
                      title="Nelson BIO-Carbon deployment",
                      summary="Nelsons's mission that it undertook during BIO-Carbon",
-                     platform_name="Nelson",
+                     platform=Nelson,
                      trajectory_path="BioCarbonTrajectories/Nelson_646_R.nc",
                      creator=creator,
                      publisher=publisher,
@@ -134,7 +125,7 @@ campaign.add_mission(mission_name="Deployment_646",
 campaign.add_mission(mission_name="Deployment_648",
                      title="Doombar BIO-Carbon deployment",
                      summary="Doombar's mission that it undertook during BIO-Carbon",
-                     platform_name="Doombar",
+                     platform=Doombar,
                      trajectory_path="BioCarbonTrajectories/Doombar_648_R.nc",
                      creator=creator,
                      publisher=publisher,
@@ -146,7 +137,7 @@ campaign.add_mission(mission_name="Deployment_648",
 campaign.add_mission(mission_name="Deployment_649",
                      title="ALR4 BIO-Carbon deployment",
                      summary="ALR4's mission that it undertook during BIO-Carbon",
-                     platform_name="ALR4",
+                     platform=ALR4,
                      trajectory_path="BioCarbonTrajectories/ALR_4_649_R.nc",
                      creator=creator,
                      publisher=publisher,
@@ -158,7 +149,7 @@ campaign.add_mission(mission_name="Deployment_649",
 campaign.add_mission(mission_name="Deployment_650",
                      title="ALR6 BIO-Carbon deployment",
                      summary="ALR6's mission that it undertook during BIO-Carbon",
-                     platform_name="ALR6",
+                     platform=ALR6,
                      trajectory_path="BioCarbonTrajectories/ALR_6_650_R.nc",
                      creator=creator,
                      publisher=publisher,
@@ -170,7 +161,7 @@ campaign.add_mission(mission_name="Deployment_650",
 campaign.add_mission(mission_name="Deployment_645",
                      title="Cabot BIO-Carbon deployment",
                      summary="Cabot's mission that it undertook during BIO-Carbon",
-                     platform_name="Cabot",
+                     platform=Cabot,
                      trajectory_path="BioCarbonTrajectories/Cabot_645_R.nc",
                      creator=creator,
                      publisher=publisher,

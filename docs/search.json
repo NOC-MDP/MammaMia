@@ -70,6 +70,7 @@
     "section": "",
     "text": "We have several types of simulator to use (Slocum gliders are currently the only integrated simulator)",
     "crumbs": [
+      "Home",
       "Simulators"
     ]
   },
@@ -80,6 +81,7 @@
     "section": "Slocum Gliders",
     "text": "Slocum Gliders\nMAMMA MIA provides a simplified interface with glidersim, it also provides an integration with glidersim providing environmental data like u/v currents and temperature and salinity when it is running a mission simulation.\n\nMission builder\nMAMMA MIA provides an GliderMissionBuilder class that allows users to create Slocum glider missions without having to configure glidersim directly.\nThere are two missions that can be built (more will be added), a virtual_mooring and follow_waypoints.\n\nVirtual Mooring\nThe code snippet below shows how to configure and run a virtual mooring mission.\nfrom mamma_mia import GliderMissionBuilder\n\nvirtual_mooring = GliderMissionBuilder.virtual_mooring(\n    mission_name=\"rapid-mooring_spiral\",\n    datetime_str=\"2023-03-03T12:00:00:Z\",\n    description=\"RAPID ARRAY spiral simulation\",\n    glider_model=\"DEEP\",\n    inital_heading=225,\n    lat_ini=27.225,\n    lon_ini=-15.4225,\n    glider_name=\"comet\",\n    mission_directory=\"RAPID-mooring_spiral\",\n    dive_depth=1000,\n    spiral=False\n)\n\nvirtual_mooring.run_mission(maxSimulationTime=2,verbose=True) # 2 days\nvirtual_mooring.save_mission()\nThis snippet creates a virtual mooring mission, starting at midnight on the 3rd March 2023 at 27.225 degrees N and -15.4225 degrees E, diving to 1000 metres.\nThen the mission is ran for 2 days and finally saved (important for MAMMA MIA to import the trajectory).\nThe output will be a NetCDF file that can be specified as input to a MAMMAMIA mission.\n\n\nFollow Waypoints\nThe second mission type that can be created is follow_waypoints:\nfrom mamma_mia import GliderMissionBuilder\n\nwaypoints = GliderMissionBuilder.follow_waypoints(\n    mission_name=\"waypoints2\",\n    datetime_str=\"2023-03-03T12:00:00:Z\",\n    description=\"follow waypoints simulation\",\n    glider_model=\"DEEP\",\n    inital_heading=225,\n    lat_ini=27.225,\n    lon_ini=-15.4225,\n    lat_wp=[27.425,27.825,28.205,28.503],\n    lon_wp=[-15.4225,-15.4225,-15.4225,-15.4225],\n    glider_name=\"comet\",\n    mission_directory=\"waypoints2\",\n    dive_depth=1000\n)\n\nwaypoints.run_mission(maxSimulationTime=7,verbose=True) # 7 days\nwaypoints.save_mission()\nThis snippet will start at 27.225 degrees N, -15.4225 degrees East and will try and head to the next way point as specified in the lat_wp and lon_wp lists. While doing this will be diving to 1000 metres. Once it reaches the first way point it will then head to the second.\nThe mission is then run for 7 days, NOTE the glider may not reach all waypoints as that will depend on its ability to travel to them in the time simulated.\nFinally the mission is exported and can again be used as input into MAMMAMIA",
     "crumbs": [
+      "Home",
       "Simulators"
     ]
   },
@@ -90,6 +92,7 @@
     "section": "ALR 1500",
     "text": "ALR 1500\nAutosub long range 1500 simulated using autonomy simulator",
     "crumbs": [
+      "Home",
       "Simulators"
     ]
   },
@@ -161,7 +164,7 @@
     "href": "usage.html",
     "title": "How to use MAMMA MIA",
     "section": "",
-    "text": "MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources, currently supported sources are:\n\nintegrated slocum glider simulator\ntimeseries NetCDF/Zarr file\nway-points in csv file\n\n\n\nMAMMA MIA can run simplified missions using the slocum glider simulator, glidersim. If the user installs this optional dependency then glider missions can be ran that will create compatible MAMMA MIA input. The glidersim will also use MAMMA MIA to get environmental data to use during simulation for currents and density etc. glidersim is designed to work exactly like programming an real slocum glider. Therefore MAMMA MIA provides a simplified interface with the current behaviors able to be programmed:\n\nvirtual mooring (try to make continuous dives at same point)\nfollow way-points\n\nOther behaviors/mission will be added or the ability to chain behaviors, e.g. perform virtual mooring for x period then follow way-points to next mooring site etc.\nSee Simulators section for more information on using the MAMMA MIA interface.\n\n\n\nMAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D spatial timeseries with time dimension data should work, i.e. it needs, a latitude, longitude, depth and time.\n\n\n\nMAMMA MIA can read csv files that contain a set of way points, these must be again 3D (need to specify depth) and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.",
+    "text": "MAMMA MIA requires a trajectory that is located in the sub surface ocean, this can be from a number of different sources, currently supported sources are:\n\nintegrated slocum glider simulator\ntimeseries NetCDF/Zarr file\nway-points in csv file\n\n\n\nMAMMA MIA can run simplified missions using the slocum glider simulator, glidersim. If the user installs this optional dependency then glider missions can be ran that will create compatible MAMMA MIA input. The glidersim will also use MAMMA MIA to get environmental data to use during simulation for currents and density etc. glidersim is designed to work exactly like programming an real slocum glider which is not particularly intuitive. Therefore MAMMA MIA provides a simplified interface with the current behaviors able to be programmed:\n\nvirtual mooring (try to make continuous dives at same point)\nfollow way-points\n\nSee Simulators section for more information on using the MAMMA MIA interface.\n\n\n\nMAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D spatial timeseries with time dimension data should work.\n\n\n\nMAMMA MIA can read csv files that contain a set of way points, these must be again 3D (need to specify depth) and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step. An example being\nTIME,ALATPT01,ALONPT01,ADEPPT01\n15/06/2023 00:00:00,72,30,5\n16/06/2023 00:01:00,73.5,30,5\n17/06/2023 00:02:00,73.75,30,125\n18/06/2023 00:03:00,74,30,325\n19/06/2023 00:04:00,74.8,30,325\n20/06/2023 00:05:00,74.87,30,250\n21/06/2023 00:06:00,74.94,30,125\n22/06/2023 00:07:00,75,30,5\nThe above is a snippet of a virtual ALR mission where it will start at 5 m, dive to 125 m, then to 325 m before rising to 250 m, 125 m, and finally back to the surface at 5m over the course of 7 days. It also changes its position from 72 degrees N to 75 degrees N staying at 30 degrees E.",
     "crumbs": [
       "Home",
       "Usage"
@@ -172,7 +175,7 @@
     "href": "usage.html#input-options",
     "title": "How to use MAMMA MIA",
     "section": "",
-    "text": "MAMMA MIA requires a trajectory that is located in the ocean, this can be from a number of different sources, currently supported sources are:\n\nintegrated slocum glider simulator\ntimeseries NetCDF/Zarr file\nway-points in csv file\n\n\n\nMAMMA MIA can run simplified missions using the slocum glider simulator, glidersim. If the user installs this optional dependency then glider missions can be ran that will create compatible MAMMA MIA input. The glidersim will also use MAMMA MIA to get environmental data to use during simulation for currents and density etc. glidersim is designed to work exactly like programming an real slocum glider. Therefore MAMMA MIA provides a simplified interface with the current behaviors able to be programmed:\n\nvirtual mooring (try to make continuous dives at same point)\nfollow way-points\n\nOther behaviors/mission will be added or the ability to chain behaviors, e.g. perform virtual mooring for x period then follow way-points to next mooring site etc.\nSee Simulators section for more information on using the MAMMA MIA interface.\n\n\n\nMAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D spatial timeseries with time dimension data should work, i.e. it needs, a latitude, longitude, depth and time.\n\n\n\nMAMMA MIA can read csv files that contain a set of way points, these must be again 3D (need to specify depth) and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step.",
+    "text": "MAMMA MIA requires a trajectory that is located in the sub surface ocean, this can be from a number of different sources, currently supported sources are:\n\nintegrated slocum glider simulator\ntimeseries NetCDF/Zarr file\nway-points in csv file\n\n\n\nMAMMA MIA can run simplified missions using the slocum glider simulator, glidersim. If the user installs this optional dependency then glider missions can be ran that will create compatible MAMMA MIA input. The glidersim will also use MAMMA MIA to get environmental data to use during simulation for currents and density etc. glidersim is designed to work exactly like programming an real slocum glider which is not particularly intuitive. Therefore MAMMA MIA provides a simplified interface with the current behaviors able to be programmed:\n\nvirtual mooring (try to make continuous dives at same point)\nfollow way-points\n\nSee Simulators section for more information on using the MAMMA MIA interface.\n\n\n\nMAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D spatial timeseries with time dimension data should work.\n\n\n\nMAMMA MIA can read csv files that contain a set of way points, these must be again 3D (need to specify depth) and contain a suitable time value. MAMMA MIA will linearly interpolate a trajectory from these way points based on the mission time step. An example being\nTIME,ALATPT01,ALONPT01,ADEPPT01\n15/06/2023 00:00:00,72,30,5\n16/06/2023 00:01:00,73.5,30,5\n17/06/2023 00:02:00,73.75,30,125\n18/06/2023 00:03:00,74,30,325\n19/06/2023 00:04:00,74.8,30,325\n20/06/2023 00:05:00,74.87,30,250\n21/06/2023 00:06:00,74.94,30,125\n22/06/2023 00:07:00,75,30,5\nThe above is a snippet of a virtual ALR mission where it will start at 5 m, dive to 125 m, then to 325 m before rising to 250 m, 125 m, and finally back to the surface at 5m over the course of 7 days. It also changes its position from 72 degrees N to 75 degrees N staying at 30 degrees E.",
     "crumbs": [
       "Home",
       "Usage"
@@ -191,10 +194,11 @@
   {
     "objectID": "usage.html#campaigns",
     "href": "usage.html#campaigns",
-    "title": "usage",
-    "section": "",
-    "text": "Campaigns contain all the missions for a given set of deployments. They can contain one or more missions each with its self contained set of meta data, world data and simulated payload.",
+    "title": "How to use MAMMA MIA",
+    "section": "Campaigns",
+    "text": "Campaigns\nCampaigns have the following structure:\nclass Campaign:\n    name: str\n    description: str\n    catalog: Cats = Cats()\n    missions: dict[str, Mission] = field(factory=dict)\n    interpolators: dict[str, Interpolators] = field(factory=dict)\n    verbose: bool = False\n    debug: bool = False\nWhen creating a campaign there are two required fields and two optional ones. An example creation is shown below:\ncampaign = Campaign(name=\"RAPID array virtual mooring\",\n                    description=\"single slocum glider deployment at a RAPID mooring\",\n                    verbose=True,\n                    )\nThis creates a campaign that has the above name and description (these are for metadata purposes and not used by MAMMA MIA). The verbose Boolean is set to true which will produce more log output (Info log statements in addition to success and warnings/errors). There is another Boolean debug which if set to true will add debug log statements. It is not recommended to use this unless there is an issue with MAMMA MIA.\nThe other components of the Campaign object are set by MAMMA MIA itself, missions and interpolators for each specified mission.\n\nMethods\nThe campaign object is the expected user interface for a MAMMA MIA user, due to the modular nature of MAMMA MIA, missions can be created in isolation but this is not directly supported and may result in unexpected behavior. The user has the following methods available:\n\nadd_mission\nThis requires a platform entity to be created, (see platforms section) and creates the basic mission configuration that can then be built and ran.\ncampaign.add_mission(mission_name=\"RAD24_01\",\n                     title=\"Churchill with CTD deployment at RAPID array mooring eb1l2n\",\n                     summary=\"single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.\",\n                     platform=Churchill,\n                     trajectory_path=\"data/RAPID-mooring/rapid-mooring.nc\",\n                     source_location=\"NOC\",\n                     mission_time_step=60,\n                     apply_obs_error=True)\nThe above snippet adds a mission to the campaign object, the title and summary are text that is not used by MAMMAMIA directly, the mission_name is a reference to the specific mission within the campaign (e.g. when plotting) the platform is a platform entity that has been created (in this case the slocum glider churchill) the trajectory_path is a file path to an trajectory file this can be a NetCDF/Zarr timeseries or a csv file. source_location is what model data source to use (options are “NOC” ,“CMEMS”, “local” or a file path) see data_sources section for more information. mission_time_step is the timestep of the mission in seconds, this is the “tick” rate of the mission and determines the output rate of the payload. Finally apply_obs_error determines if observation errors as specified in the sensor configuration (see configuring section). should be applied.\nMultiple missions can be added to a single campaign by repeating the method above.\n\n\nbuild_missions\nOnce all the missions are added, running the build_missions method will run all the steps needed to be able to generate synthetic payloads. These include, searching for worlds (suitable model data) downloading the world data (saving as local Zarrs) and creating and preparing the interpolators to be able to generate payloads.\ncampaign.build_missions()\nNOTE this step can take quite awhile depending on network speeds and availability of data. The size of the trajectory (both temporally and spatially) can have a large impact on this time.\nMAMMA MIA automatically gets the best data it can find, both spatially and temporally e.g. it will get daily means over monthly means, and 1/12th degree over 1/4 degree resolution models.\n\n\nrun\nThe missions can now be run by using this method, each missions will have its payload generated in turn, using the interpolators and model data generated in the build_mission step. To see the results, each mission has some plotting methods see missions section for more details.\n\n\nexport\nexports the campaign as an zarr store, with each mission stored as a zarr group inside. Each mission then has a zarr group inside of it for each of the components, payload, trajectory, platform, worlds etc. See the structure page for more information.\nNOTE this output is compatible with the python Zarr library but not xarray which is unable to read the hierarchical Zarr group format.\n\n\n\nPlatforms\nMAMMA MIA uses an inventory system to store details on the platforms and sensors it can simulate. The inventory is an read_only catalog of platforms, sensors and parameters. From this a platform entity (this is a mutable copy) can be created and added to a mission. There are a number of inventory search methods please see inventory page for more information.\nTo create an platform entity you create one from the inventory:\nfrom mamma_mia import inventory\n\nChurchill = inventory.create_platform_entity(entity_name=\"Churchill\",platform_model=\"Slocum_G2\",serial_number=\"unit_398\")\nYou can replicate real world platforms as above or create your own virtual ones. The above creates a Slocum G2 glider with name Churchill and serial number unit_398.\nYou can create your own platform models that get added to the inventory when MAMMA MIA starts, see the configuration section for more details.\nThis platform is only generated with a datalogger as standard so will only generate positional payload data as it stands. Sensors need to be added so that is will collect the data specified when flying a mission.\nSee inventory section for finding when sensors can be added and the configuring section to make new ones. You can register the sensor that is available in the inventory for that platform type. e.g. CTD, radiometer, etc.\nChurchill.register_sensor(sensor_type=\"CTD\")\nThis has now registered a CTD sensor to the Churchill platform and will collect the parameters as specified which in this case are insitu-temperature, practical salinity and pressure.\nYou can add as many sensors as needed, MAMMA MIA will try and match up all the requested parameters and the specified trajectory and find the best model match based on the source specified.\n\n\nData Sources\nMAMMA MIA has three different source options for the worlds (model data) it will search to use when simulating a payload. Each mission can be set to a different source and they are as follows:\n\nNOC\nsetting the source location to “NOC” when adding the mission will tell MAMMA MIA to use the OceanDataStore library and get data from the National Oceanography Centre’s object store. This holds the Near Present Day model runs for the various model configurations that the NOC will run. See the OceanDataStore repository for more details. https://github.com/NOC-MSM/OceanDataStore\n\n\nCMEMS\nIf the source location is set to “CMEMS” then the mission will use the Copernicus Marine Toolbox to search and download data from. This requires the user to have an account to access the CMEMS data store. See here for more details. https://help.marine.copernicus.eu/en/articles/7949409-copernicus-marine-toolbox-introduction\nMaking sure that you can login in using the python library API would be sensible before using this model source. If you are successful than a configuration file is created that will automatically authenticate MAMMAMIA download requests. e.g.\nimport copernicusmarine\ncopernicusmarine.login()\n\n\nLocal NetCDF\nFinally MAMMAMIA can use local NetCDF files, these need to cover the temporal and spatial extent that is set by the input trajectory. By setting the source_location to “Local” MAMMAMIA will search the current working directory for a suitable file. Alternatively users can set the path in the source_location, that will tell MAMMA MIA the directory in which to search for suitable NetCDF files.",
     "crumbs": [
+      "Home",
       "Usage"
     ]
   },
@@ -208,10 +212,11 @@
   {
     "objectID": "usage.html#missions",
     "href": "usage.html#missions",
-    "title": "usage",
-    "section": "",
-    "text": "This is a single platform deplyment, it contains multiple sections:\n\nPayload: simulated data\nPlatform: metadata for platform\nWorlds: gridded model data that has been used to simulate observations",
+    "title": "How to use MAMMA MIA",
+    "section": "Missions",
+    "text": "Missions\nDescription of a mission object\n\nData Sources\nWhat model data sources can be used",
     "crumbs": [
+      "Home",
       "Usage"
     ]
   },
@@ -426,10 +431,76 @@
     "href": "usage.html#what-is-currently-not-supported",
     "title": "How to use MAMMA MIA",
     "section": "What is currently not supported",
-    "text": "What is currently not supported\nObservation based input datasets, where time is an observation and not a dimension. e.g. PARCELS output datasets.\nSurface simulated payloads, MAMMA MIA currently only supports using 3D datasets, and can only interpolate within the model/dataset boundaries. Since most 3D parameters in models have an shallowest depth of around 0.5 metres this means there is no payload simulated when the glider or other platforms are on the surface.\nThe solution is to use a suitable surface field parameter in these situations, which also means MAMMA MIA will be able to support airborne platforms observing the ocean surface.",
+    "text": "What is currently not supported\nObservation based input datasets for a trajectory, where time is an observation and not a dimension. e.g. PARCELS output datasets.\nSurface simulated payloads, MAMMA MIA currently only supports using 3D datasets, and can only interpolate within the model/dataset boundaries. Since most 3D parameters in models have an shallowest depth of around 0.5 metres this means there is no payload simulated when the glider or other platforms are on the surface.\nThe planned solution for this is to switch to a suitable surface field parameter when the platform is at the surface (since most models will have one), which also means MAMMA MIA will be able to support airborne platforms observing the ocean surface.",
     "crumbs": [
       "Home",
       "Usage"
+    ]
+  },
+  {
+    "objectID": "inventory.html",
+    "href": "inventory.html",
+    "title": "Inventory",
+    "section": "",
+    "text": "MAMMA MIA uses an inventory system to hold components that it can use. These components are:\nThese are required to tell MAMMA MIA what kind of platform is being simulated, what sensors it is carried and what parameters they are measuring.",
+    "crumbs": [
+      "Home",
+      "Inventory"
+    ]
+  },
+  {
+    "objectID": "future_dev.html",
+    "href": "future_dev.html",
+    "title": "Future Development",
+    "section": "",
+    "text": "This page details the future development plans for the MAMMA MIA python module.",
+    "crumbs": [
+      "Home",
+      "Future Development"
+    ]
+  },
+  {
+    "objectID": "future_dev.html#support-for-lagrangian-drifters-e.g.-argo-floats",
+    "href": "future_dev.html#support-for-lagrangian-drifters-e.g.-argo-floats",
+    "title": "Future Development",
+    "section": "Support for Lagrangian Drifters (e.g. ARGO floats)",
+    "text": "Support for Lagrangian Drifters (e.g. ARGO floats)\nMAMMA MIA currently doesn’t support a typical Lagrangian python library output (PARCELS), this is due to the fact that PARCELS output does not have a time dimension but is an effectively a 2D array of observations and drifters. This support will be implemented so an ARGO simulator can be integrated into MAMMA MIA.",
+    "crumbs": [
+      "Home",
+      "Future Development"
+    ]
+  },
+  {
+    "objectID": "future_dev.html#support-for-xarray",
+    "href": "future_dev.html#support-for-xarray",
+    "title": "Future Development",
+    "section": "Support for Xarray",
+    "text": "Support for Xarray\nMAMMA MIA uses the zarr library directly to export its campaign objects. In hindsight this is less than ideal as it is not currently compatible with Xarray due to missing dim meta data and the fact that xarray datasets cannot handle a zarr group hierarchy.\nXarray datatrees look like a good solution, using this as the export format means that it will be compatible with Xarray and also still able to export as a zarr file.",
+    "crumbs": [
+      "Home",
+      "Future Development"
+    ]
+  },
+  {
+    "objectID": "inventory.html#searching-the-inventory",
+    "href": "inventory.html#searching-the-inventory",
+    "title": "Inventory",
+    "section": "Searching the Inventory",
+    "text": "Searching the Inventory\nTo search and see what is available you import the inventory and are able to search as follows:\nprint(f\"Available groups in inventory {inventory.list_inventory_groups()}\")\nprint(f\"Available platform types: {inventory.list_platform_types()}\")\nprint(f\"Available platform models: {inventory.list_platform_models()}\")\nprint(f\"Available parameters: {inventory.list_parameters()}\")\nprint(f\"Available sensor types: {inventory.list_sensor_types()}\")\nprint(f\"sensors available for platform Slocum G2: {inventory.list_sensors(platform_model='Slocum_G2')}\")\nprint(f\"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}\")\nprint(f\"sensor info: {inventory.get_sensor_info(platform_model='APEX', sensor_type='CTD')}\")\nThe first print statement will list the available inventory groups.\nAvailable groups in inventory ['platforms', 'sensors', 'parameters']\nThe second lists platform types:\nAvailable platform types: ['glider', 'autosub', 'ARGO']\nThe third lists available models:\nAvailable platform models: {'glider': ['Slocum_G2'], 'autosub': ['ALR_1500'], 'ARGO': ['APEX', 'ARVOR']}\nThe fourth, available parameters:\nAvailable parameters: ['PRESSURE', 'INSITU_TEMPERATURE', 'INSITU_CHLOROPHYLL', 'INSITU_DISSOLVED_OXYGEN', 'POTENTIAL_TEMPERATURE', 'DISSOLVED_OXYGEN', 'PRACTICAL_SALINITY', 'ABSOLUTE_SALINITY', 'CONSERVATIVE_TEMPERATURE', 'EAST_CURRENT_VELOCITY', 'NORTH_CURRENT_VELOCITY', 'CHLOROPHYLL', 'DOWNWELLING_RADIATIVE_FLUX', 'ALTITUDE', 'LATITUDE', 'LATITUDE_GPS', 'LONGITUDE', 'LONGITUDE_GPS', 'WATERCURRENTS_U', '', 'WATERCURRENTS_V', 'GLIDER_HEADING', 'GLIDER_PITCH', 'GLIDER_ROLL', 'GLIDER_DEPTH', 'ALATPT01', 'ALONPT01', 'ADEPPT01', 'HEADPT01', 'ROLLPT01', 'PTCHPT01', 'PTVELX01', 'PTVELY01', 'PTVELZ01', 'TIME', 'ELTXIX01', 'DEPTH']\nThe fifth, lists sensor types (NOTE they may not all be available for all platforms)\nAvailable sensor types: ['CTD', 'ADCP', 'radiometer', 'dissolved_gas', 'optical_backscatter', 'data_logger']\nSixth lists sensors available for a specific platform model:\nsensors available for platform Slocum G2: ['Slocum Glider G2 CTD', 'Slocum G2 Radiometer', 'Slocum G2 Dissolved Oxygen', 'Slocum G2 Data logger']\nSeventh shows that we can also list sensors of a specific type:\nsensors of type CTD: ['Generic CTD', 'Slocum Glider G2 CTD', 'Autosub Long Range 1500 CTD', 'APEX CTD']\nFinally we can list the full meta data for a specific sensor, in this case an APEX ARGO float CTD.\nsensor info: Sensor(sensor_model='APEX CTD', instrument_type='CTD', specification={'INSITU_TEMPERATURE': {'accuracy': 0.001, 'resolution': 0.001, 'drift_per_month': 0.0002, 'range': [-5, 42], 'percent_errors': False, 'noise_std': 0.0005, 'meta_data': Parameter(parameter_id='INSITU_TEMPERATURE', identifier='SDN:OG1::TEMP', vocab_url='https://vocab.nerc.ac.uk/collection/OG1/current/TEMP/', standard_name='Sea temperature in-situ ITS-90 scale', unit_of_measure='Degrees Celsius', unit_identifier='SDN:P06::UPAA', parameter_definition='Temperature of the water body by CTD or STD', alternate_sources=['POTENTIAL_TEMPERATURE', 'CONSERVATIVE_TEMPERATURE'], alternate_labels=['TEMPERATURE'], source_names=['sci_water_temp'])}, 'PRACTICAL_SALINITY': {'accuracy': 0.005, 'resolution': 0.0001, 'drift_per_month': 0.003, 'range': [0, 42], 'percent_errors': False, 'noise_std': 0.0025, 'meta_data': Parameter(parameter_id='PRACTICAL_SALINITY', identifier='SDN:P07::IADIHDIJ', vocab_url='https://vocab.nerc.ac.uk/collection/P07/current/IADIHDIJ/', standard_name='sea_water_practical_salinity', unit_of_measure='Dimensionless', unit_identifier='SDN:P06::UUUU', parameter_definition='Practical Salinity, S_P, is a determination of the salinity of sea water, based on its electrical conductance. The measured conductance, corrected for temperature and pressure, is compared to the conductance of a standard potassium chloride solution, producing a value on the Practical Salinity Scale of 1978 (PSS-78).', alternate_sources=['ABSOLUTE_SALINITY'], alternate_labels=['practical salinity'], source_names=['so'])}, 'PRESSURE': {'accuracy': 0.1, 'resolution': 0.002, 'drift_per_month': 0.0042, 'range': [0, 2000], 'percent_errors': True, 'noise_std': 0.0005, 'meta_data': Parameter(parameter_id='PRESSURE', identifier='SDN:OG1::PRES', vocab_url='https://vocab.nerc.ac.uk/collection/OG1/current/PRES/', standard_name='Sea water pressure, equals 0 at sea-level', unit_of_measure='Decibars', unit_identifier=' SDN:P06::UPDB', parameter_definition='Pressure (spatial co-ordinate) exerted by the water body by profiling pressure sensor and corrected to read zero at sea level', alternate_sources=['GLIDER_DEPTH'], alternate_labels=['PRESSURE'], source_names=['sci_water_pressure'])}}, platform_compatibility=['APEX'], sensor_name=None)\nThe inventory also shows locally imported items (the ARGO platform, sensor and depth parameter) these have been loaded from the working directory. See the configuration section to get more information.",
+    "crumbs": [
+      "Home",
+      "Inventory"
+    ]
+  },
+  {
+    "objectID": "future_dev.html#support-for-airborne-platforms",
+    "href": "future_dev.html#support-for-airborne-platforms",
+    "title": "Future Development",
+    "section": "Support for Airborne Platforms",
+    "text": "Support for Airborne Platforms\nCurrently only subsurface platforms are supported, MAMMA MIA also does not simulate payloads at the surface (approx less than 0.5 m) due to needing to switch to a different data product at this point (from a 3D to a surface field). Future work will make this seamless and also introduce the option of simulating the payloads of airborne platforms, and introducing new observation types such as swaths.",
+    "crumbs": [
+      "Home",
+      "Future Development"
     ]
   }
 ]

@@ -34,11 +34,11 @@ class Cats:
     ----------
     cmems_cat: CopernicusMarineCatalog
         cmems catalog class
-    msm_cat: OceanDataCatalog
-        msm catalog class
+    NOC_cat: OceanDataCatalog
+        NOC catalog class
     """
     cmems_cat: CopernicusMarineCatalogue = None
-    msm_cat: OceanDataCatalog = None
+    NOC_cat: OceanDataCatalog = None
     overwrite: bool = False
 
     def init_catalog(self,source_type: SourceType):
@@ -51,17 +51,17 @@ class Cats:
         elif source_type == SourceType.CMEMS:
             logger.info("CMEMS source requested, building catalog")
             self.cmems_cat = describe(contains=[])
-        elif source_type == SourceType.MSM:
-            logger.info("MSM source requested, building catalog")
+        elif source_type == SourceType.NOC:
+            logger.info("NOC source requested, building catalog")
             cat_file = Path("catalog.json")
             if cat_file.is_file() and not self.overwrite:
                 logger.info("local catalog file found, reading catalog")
                 with open(cat_file, "r") as f:
                     cat = json.load(f)
-                self.msm_cat = jsonpickle.decode(cat)
+                self.NOC_cat = jsonpickle.decode(cat)
                 cat = OceanDataCatalog(catalog_name="noc-model-stac")
                 last_update_server = datetime.strptime(cat.Catalog.extra_fields['last_update'],"%Y-%m-%dT%H:%M:%S.%f")
-                last_update_local = datetime.strptime(self.msm_cat.Catalog.extra_fields['last_update'],"%Y-%m-%dT%H:%M:%S.%f")
+                last_update_local = datetime.strptime(self.NOC_cat.Catalog.extra_fields['last_update'],"%Y-%m-%dT%H:%M:%S.%f")
                 if last_update_local < last_update_server:
                     logger.info("local catalog is out of date with server catalog, updating....")
                     self.__create_local_catalog()
@@ -76,8 +76,8 @@ class Cats:
         logger.info("Catalog initialized")
 
     def __create_local_catalog(self,file_name="catalog.json"):
-        self.msm_cat = OceanDataCatalog(catalog_name="noc-model-stac")
-        self.msm_cat.search(collection="noc-npd-era5")
-        cat_file2 = jsonpickle.encode(self.msm_cat)
+        self.NOC_cat = OceanDataCatalog(catalog_name="noc-model-stac")
+        self.NOC_cat.search(collection="noc-npd-era5")
+        cat_file2 = jsonpickle.encode(self.NOC_cat)
         with open(file_name, "w") as f2:
             json.dump(cat_file2, f2)
