@@ -24,7 +24,7 @@ See Simulators section for more information on using the MAMMA MIA interface.
 
 ### Timeseries NetCDF/Zarr file
 
-MAMMA MIA can read netcdf or zarr files that contain timeseries data. Examples include BODC netcdf files generated as output from real glider and ALR missions, but any 3D spatial timeseries with time dimension data should work.
+MAMMA MIA can read netcdf or zarr files that contain time-series data. Examples include BODC NetCDF files generated as output from real glider and ALR missions, but any 3D spatial time-series with time dimension data should work, although new/updated parameters maybe required if the variable names are ones not defined in the relevant parameter entries in parameter.json. See configuration section for more details.
 
 ### Way points in CSV file.
 
@@ -74,7 +74,7 @@ The other components of the Campaign object are set by MAMMA MIA itself, mission
 
 ### Methods
 
-The campaign object is the expected user interface for a MAMMA MIA user, due to the modular nature of MAMMA MIA, missions can be created in isolation but this is not directly supported and may result in unexpected behavior. The user has the following methods available:
+The campaign object is the expected user interface for a MAMMA MIA user, however due to the modular nature of MAMMA MIA, missions can be created in isolation but this is not directly supported and may result in unexpected behavior. From the campaign object the user has the following methods available:
 
 #### add_mission
 
@@ -91,7 +91,7 @@ campaign.add_mission(mission_name="RAD24_01",
                      apply_obs_error=True)
 ```
 
-The above snippet adds a mission to the campaign object, the title and summary are text that is not used by MAMMAMIA directly, the mission_name is a reference to the specific mission within the campaign (e.g. when plotting) the platform is a platform entity that has been created (in this case the slocum glider churchill) the trajectory_path is a file path to an trajectory file this can be a NetCDF/Zarr timeseries or a csv file. source_location is what model data source to use (options are "NOC" ,"CMEMS", "local" or a file path) see data_sources section for more information. mission_time_step is the timestep of the mission in seconds, this is the "tick" rate of the mission and determines the output rate of the payload. Finally apply_obs_error determines if observation errors as specified in the sensor configuration (see configuring section). should be applied.
+The above snippet adds a mission to the campaign object, the title and summary are text that is not used by MAMMAMIA directly, the mission_name is a reference to the specific mission within the campaign (e.g. when plotting) the platform is a platform entity that has been created (in this case the Slocum glider Churchill) the trajectory_path is a file path to an trajectory file this can be a NetCDF/Zarr time series or a csv file. source_location is what model data source to use (options are "NOC" ,"CMEMS", "local" or a file path) see data_sources section for more information. mission_time_step is the time step of the mission in seconds, this is the "tick" rate of the mission and determines the output rate of the payload. Finally apply_obs_error determines if observation errors as specified in the sensor configuration (see configuring section). should be applied.
 
 Multiple missions can be added to a single campaign by repeating the method above.
 
@@ -115,7 +115,7 @@ The missions can now be run by using this method, each missions will have its pa
 
 exports the campaign as an zarr store, with each mission stored as a zarr group inside. Each mission then has a zarr group inside of it for each of the components, payload, trajectory, platform, worlds etc. See the structure page for more information.
 
-**NOTE** this output is compatible with the python Zarr library but not xarray which is unable to read the hierarchical Zarr group format.
+**NOTE** this output is compatible with the python Zarr library but not Xarray which is unable to read the hierarchical Zarr group format.
 
 ### Platforms
 
@@ -133,7 +133,7 @@ You can replicate real world platforms as above or create your own virtual ones.
 
 You can create your own platform models that get added to the inventory when MAMMA MIA starts, see the configuration section for more details.
 
-This platform is only generated with a datalogger as standard so will only generate positional payload data as it stands. Sensors need to be added so that is will collect the data specified when flying a mission.
+This platform is only generated with a data logger as standard so will only generate positional payload data as it stands. Sensors need to be added so that is will collect the data specified when flying a mission.
 
 See inventory section for finding when sensors can be added and the configuring section to make new ones. You can register the sensor that is available in the inventory for that platform type. e.g. CTD, radiometer, etc.
 
