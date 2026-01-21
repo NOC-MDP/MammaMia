@@ -114,7 +114,7 @@
     "href": "installation.html#optional-dependencies",
     "title": "Installation",
     "section": "Optional dependencies",
-    "text": "Optional dependencies\nBy default no simulator is installed alongside MAMMA MIA, this is to simplify the install process as for example the glidersim dependency requires an C++ compiler to be able to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn’t want to simulate a glider. To install MAMMA MIA with the glidersim:\n$ pip install '.[glidersim]'\nAs other simulators become available they will be added here, e.g. parcels for argo float simulation.\nTo install all simulators (currently just glidersim) then:\n$ pip install '.[all]'",
+    "text": "Optional dependencies\nBy default no simulator is installed alongside MAMMA MIA, this is to simplify the install process as for example the glidersim dependency requires an C++ compiler to be able to install all of its dependencies, and this is an additional complication that may not be required e.g. if the user doesn’t want to simulate a glider. To install MAMMA MIA with the glidersim:\n$ pip install '.[glidersim]'\nNOTE You will need an C++ compiler available on the command line where you are installing MAMMA MIA to be able to install glidersim.\nAs other simulators become available they will be added here, e.g. parcels for argo float simulation.\nTo install all simulators (currently just glidersim) then:\n$ pip install '.[all]'",
     "crumbs": [
       "Home",
       "Installation"
