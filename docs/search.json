@@ -475,7 +475,7 @@
     "href": "future_dev.html#support-for-xarray",
     "title": "Future Development",
     "section": "Support for Xarray",
-    "text": "Support for Xarray\nMAMMA MIA uses the zarr library directly to export its campaign objects. In hindsight this is less than ideal as it is not currently compatible with Xarray due to missing dim meta data and the fact that xarray datasets cannot handle a zarr group hierarchy.\nXarray datatrees look like a good solution, using this as the export format means that it will be compatible with Xarray and also still able to export as a zarr file.",
+    "text": "Support for Xarray\nMAMMA MIA uses the zarr library directly to export its campaign objects. In hindsight this is less than ideal as it is not currently compatible with Xarray due to missing dim meta data and the fact that xarray datasets cannot handle a zarr group hierarchy.\nXarray datatrees look like a good solution, using this as the export format means that it will be compatible with Xarray and also still able to optionally export as a zarr file for backwards compatibility.",
     "crumbs": [
       "Home",
       "Future Development"
