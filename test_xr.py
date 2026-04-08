@@ -10,24 +10,28 @@
 # limitations under the License.
 
 from mamma_mia.campaign_xr import create_campaign
-from mamma_mia.catalog_xr import create_catalog
-from mamma_mia.mission_xr import build_mission, create_mission
+from mamma_mia.get_model_xr import get_worlds
+from mamma_mia.interpolator_xr import create_interpolator
+from mamma_mia.mission_xr import create_mission
 from mamma_mia.platform_xr import create_platform
 from mamma_mia.trajectory_xr import create_trajectory
 
-tpath = "data/RAPID-mooring/rapid-mooring.nc"
+spec_file = "glider_spec.toml"
 # tpath = "arctic_vis_traj.csv"
-traj = create_trajectory(path=tpath)
-platform = create_platform(platform_type="glider", add_sensors=["CTD"])
+traj = create_trajectory(spec_file=spec_file)
+
+platform = create_platform(spec_file=spec_file)
 # if the platform uses NMEA_coords to store its position then these need to be converted into lat/lon
 platform.attrs["NMEA_coordinates"] = True
 
 mission = create_mission(
     mission_name="test", summary="testy mctestface", platform=platform, trajectory=traj
 )
-catalog = create_catalog(source="CMEMS")
-mission = build_mission(catalog=catalog, mission=mission)
-# campaign = create_campaign(mission, mission, campaign_name="test")
+
+# mission = get_worlds(model_id="cmems_mod_glo_phy_anfc_0.083deg_PT1H-m", mission=mission)
 
 
-# campaign.to_zarr("test.zarr", "w")
+campaign = create_campaign(mission, mission, campaign_name="test")
+
+
+campaign.to_zarr("test.zarr", "w")

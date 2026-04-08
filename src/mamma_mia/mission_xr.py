@@ -5,8 +5,6 @@ import numpy as np
 import xarray as xr
 from loguru import logger
 
-from mamma_mia.find_worlds import FindWorlds
-
 # TODO need to add cleaning (removing spurious nans)
 # TODO Need to add behaviour generation
 
@@ -129,27 +127,4 @@ def create_mission(
         }
     )
     logger.success(f"mission {mission_name} created successfully")
-    return mission
-
-
-def build_mission(catalog, mission):
-    """
-    build missions, this searches for relevant data, downloads and updates attributes as needed
-    Args:
-        cat: Initialised Cats object, this contains catalogs for all source data
-
-    Returns:
-        void: Mission object is now populated with world data ready to build interpolators for. Matched worlds
-              and zarr store attributes are updated with the new values (what worlds match sensors and trajectory etc)
-
-    """
-    matched_worlds = FindWorlds()
-    matched_worlds.search_worlds(
-        cat=catalog,
-        payload=mission["payload"],
-        extent=mission.attrs["geospatial_attrs"],
-        source="CMEMS",
-    )
-    # TODO add matched worlds attributes into mission attributes
-    # TODO download world data to cache
     return mission

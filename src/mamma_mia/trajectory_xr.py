@@ -9,30 +9,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tomllib
+
 import numpy as np
 import pandas as pd
 import xarray as xr
 from loguru import logger
-
-from mamma_mia.sensors_xr import sensors
-
-
-def _find_key(ds, keys, required=True):
-    # in the case with no dataset return None so an empty trajectory is created
-    if ds is None:
-        return None
-
-    matched = next((key for key in keys if key in ds), None)
-
-    if matched is None:
-        if required:
-            assert False, (
-                f"No matching key found: {set(keys)}\nAvailable keys: {set(ds.keys())}"
-            )
-        else:
-            logger.warning(f"No matching key found for: {set(keys)}")
-
-    return matched
 
 
 def _parse_time(values) -> np.ndarray:
@@ -44,8 +26,8 @@ def _parse_time(values) -> np.ndarray:
     )
 
 
-def create_trajectory(path: str | None):
-    if path is None:
+def create_trajectory(spec_file: str) -> xr.Dataset:
+    if spec_file is None:
         coords = {
             "time": np.array(-999.999),
             "latitude": np.array(-999.999),
@@ -61,7 +43,12 @@ def create_trajectory(path: str | None):
         return xr.Dataset(data_vars=data_vars, coords=coords)
 
     else:
+        with open(spec_file, "rb") as f:
+            raw = tomllib.load(f)
+
+        spec = raw["specification"]
         # open dataset
+        path = spec["trajectory"]["path"]
         if path[-3:] == ".nc":
             ds = xr.open_dataset(path)
         elif path[-4:] == ".csv":
@@ -72,33 +59,42 @@ def create_trajectory(path: str | None):
             extension = path.split(".")[-1]
             raise Exception(f"trajectory file type: {extension} is not supported")
 
-        time_key = _find_key(ds, sensors["data_logger"]["time"]["aliases"])
-        lat_key = _find_key(ds, sensors["data_logger"]["latitude"]["aliases"])
-        lon_key = _find_key(ds, sensors["data_logger"]["longitude"]["aliases"])
-        depth_key = _find_key(ds, sensors["data_logger"]["depth"]["aliases"])
-        pitch_key = _find_key(
-            ds, sensors["data_logger"]["pitch"]["aliases"], required=False
-        )
-        roll_key = _find_key(
-            ds, sensors["data_logger"]["roll"]["aliases"], required=False
-        )
-        yaw_key = _find_key(
-            ds, sensors["data_logger"]["heading"]["aliases"], required=False
-        )
-
         coords = {
-            "time": _parse_time(ds[time_key]),
-            "latitude": ("time", np.array(ds[lat_key], dtype=np.float64)),
-            "longitude": ("time", np.array(ds[lon_key], dtype=np.float64)),
-            "depth": ("time", np.array(ds[depth_key], dtype=np.float64)),
+            "time": _parse_time(ds[spec["navigation"]["time"]]),
+            "latitude": (
+                "time",
+                np.array(ds[spec["navigation"]["latitude"]], dtype=np.float64),
+            ),
+            "longitude": (
+                "time",
+                np.array(ds[spec["navigation"]["longitude"]], dtype=np.float64),
+            ),
+            "depth": (
+                "time",
+                np.array(ds[spec["navigation"]["depth"]], dtype=np.float64),
+            ),
         }
 
         data_vars = {}
-        if pitch_key is not None:
-            data_vars["pitch"] = ("time", np.array(ds[pitch_key], dtype=np.float64))
-        if roll_key is not None:
-            data_vars["roll"] = ("time", np.array(ds[roll_key], dtype=np.float64))
-        if yaw_key is not None:
-            data_vars["yaw"] = ("time", np.array(ds[yaw_key], dtype=np.float64))
-
+        try:
+            data_vars["pitch"] = (
+                "time",
+                np.array(ds[spec["navigation"]["pitch"]], dtype=np.float64),
+            )
+        except KeyError:
+            logger.warning("pitch key not found in trajectory dataset")
+        try:
+            data_vars["roll"] = (
+                "time",
+                np.array(ds[spec["navigation"]["roll"]], dtype=np.float64),
+            )
+        except KeyError:
+            logger.warning("roll key not found in trajectory dataset")
+        try:
+            data_vars["yaw"] = (
+                "time",
+                np.array(ds[spec["navigation"]["yaw"]], dtype=np.float64),
+            )
+        except KeyError:
+            logger.warning("yaw key not found in trajectory dataset")
         return xr.Dataset(data_vars=data_vars, coords=coords)

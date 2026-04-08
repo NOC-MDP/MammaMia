@@ -11,14 +11,14 @@
 
 sensors = {
     "CTD": {
-        "potenital_temperature": {
+        "potential_temperature": {
             "accuracy": 0.001,
             "resolution": 0.001,
             "drift_per_month": 0.0002,
             "range": [-5, 42],
             "percent_errors": False,
             "noise_std": 0.0005,
-            "aliases": ["thetao"],
+            "alias": ["thetao"],
         },
         "practical_salinity": {
             "accuracy": 0.005,

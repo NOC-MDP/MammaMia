@@ -26,7 +26,7 @@ import xarray as xr
 # from mamma_mia.worlds import WorldsConf
 
 
-def create_interpolator(mission):
+def create_interpolator(mission: xr.DataTree):
     interpolator = {}
     for world_key in mission.attrs["worlds"].keys():
         world = xr.open_zarr(store=world_key)
