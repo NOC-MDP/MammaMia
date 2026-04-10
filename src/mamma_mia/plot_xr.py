@@ -9,11 +9,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import cartopy.feature as cfeature
 import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
 from dash import Dash, Input, Output, callback, dcc, html
 from loguru import logger
+from shapely.geometry import box
 
 COLOUR_SCALES = ["Jet", "Viridis", "Cividis", "Plasma", "Rainbow", "Portland"]
 
@@ -37,6 +39,132 @@ def get_coords(mission: xr.DataTree, s_key: str):
         np.array(sensor_ds["latitude"].values),
         np.array(sensor_ds["depth"].values),
     )
+
+
+def add_map_floor(fig, lon, lat, depth):
+    floor_z = np.nanmax(depth)
+    lon_pad = (np.nanmax(lon) - np.nanmin(lon)) * 0.2
+    lat_pad = (np.nanmax(lat) - np.nanmin(lat)) * 0.2
+    extent_box = box(
+        np.nanmin(lon) - lon_pad,
+        np.nanmin(lat) - lat_pad,
+        np.nanmax(lon) + lon_pad,
+        np.nanmax(lat) + lat_pad,
+    )
+
+    coastlines = cfeature.NaturalEarthFeature("physical", "coastline", "10m")
+    for geom in coastlines.geometries():
+        clipped = geom.intersection(extent_box)
+        if clipped.is_empty:
+            continue
+        for line in clipped.geoms if hasattr(clipped, "geoms") else [clipped]:
+            xs, ys = line.xy
+            fig.add_trace(
+                go.Scatter3d(
+                    x=list(xs),
+                    y=list(ys),
+                    z=[floor_z] * len(xs),
+                    mode="lines",
+                    line=dict(color="black", width=2),
+                    showlegend=False,
+                    hoverinfo="skip",
+                )
+            )
+
+    land = cfeature.NaturalEarthFeature("physical", "land", "10m")
+    for geom in land.geometries():
+        clipped = geom.intersection(extent_box)
+        if clipped.is_empty:
+            continue
+        for poly in clipped.geoms if hasattr(clipped, "geoms") else [clipped]:
+            xs, ys = poly.exterior.xy
+            fig.add_trace(
+                go.Scatter3d(
+                    x=list(xs),
+                    y=list(ys),
+                    z=[floor_z] * len(xs),
+                    mode="lines",
+                    line=dict(color="rgba(180,180,180,0.3)", width=0.5),
+                    showlegend=False,
+                    hoverinfo="skip",
+                )
+            )
+    return fig
+
+
+def add_bathy_contours(fig, lon, lat, depth, contour_interval=50):
+    import xarray as xr
+    from scipy.ndimage import gaussian_filter
+
+    floor_z = np.nanmax(depth)
+
+    # --- Fetch ETOPO bathymetry via OPeNDAP (requires internet connection) ---
+    lon_pad = (np.nanmax(lon) - np.nanmin(lon)) * 0.3
+    lat_pad = (np.nanmax(lat) - np.nanmin(lat)) * 0.3
+    lon_min, lon_max = np.nanmin(lon) - lon_pad, np.nanmax(lon) + lon_pad
+    lat_min, lat_max = np.nanmin(lat) - lat_pad, np.nanmax(lat) + lat_pad
+
+    etopo_url = "https://www.ngdc.noaa.gov/thredds/dodsC/global/ETOPO2022/30s/30s_bed_elev_netcdf/ETOPO_2022_v1_30s_N90W180_bed.nc"
+    ds = xr.open_dataset(etopo_url)
+    bathy = ds["z"].sel(
+        lon=slice(lon_min, lon_max),
+        lat=slice(lat_min, lat_max),
+    )
+
+    # Keep only ocean (negative values) and smooth slightly
+    bathy_vals = gaussian_filter(bathy.values.astype(float), sigma=1)
+    bathy_vals[bathy_vals > 0] = np.nan  # mask land
+
+    bathy_lon = bathy.lon.values
+    bathy_lat = bathy.lat.values
+
+    # --- Generate contours using matplotlib (not rendered, just for coords) ---
+    import matplotlib
+
+    matplotlib.use("Agg")  # non-interactive backend
+    import matplotlib.pyplot as plt
+
+    lon_grid, lat_grid = np.meshgrid(bathy_lon, bathy_lat)
+
+    # Contour levels from surface to max mission depth
+    max_depth = int(np.nanmax(np.abs(bathy_vals)))
+    levels = np.arange(-max_depth, 0, contour_interval)
+
+    fig_mpl, ax = plt.subplots()
+    cs = ax.contour(lon_grid, lat_grid, bathy_vals, levels=levels)
+    plt.close(fig_mpl)
+
+    from shapely.geometry import MultiLineString
+    from shapely.ops import linemerge
+
+    for level, segs in zip(cs.levels, cs.allsegs):
+        if not segs:
+            continue
+
+        # Merge all segments at this level into continuous lines
+        multi = MultiLineString([seg.tolist() for seg in segs if len(seg) >= 2])
+        merged = linemerge(multi)
+
+        lines = merged.geoms if hasattr(merged, "geoms") else [merged]
+        for line in lines:
+            coords = np.array(line.coords)
+            fig.add_trace(
+                go.Scatter3d(
+                    x=coords[:, 0],
+                    y=coords[:, 1],
+                    z=[floor_z] * len(coords),
+                    mode="lines",
+                    line=dict(
+                        color="rgba(0,0,128,0.5)",
+                        width=1,
+                    ),
+                    showlegend=False,
+                    hoverinfo="skip",
+                    name=f"{int(abs(level))}m",
+                )
+            )
+
+    return fig
 
 
 def make_figure(lon, lat, depth, color, title: str, colorscale: str) -> go.Figure:
@@ -68,8 +196,10 @@ def make_figure(lon, lat, depth, color, title: str, colorscale: str) -> go.Figur
             zaxis_title="Depth",
         ),
         margin=dict(l=0, r=0, t=80, b=0),
-        uirevision="constant",  # Keeps camera angle stable between updates
+        uirevision="constant",
     )
+    fig = add_map_floor(fig, lon, lat, depth)
+    fig = add_bathy_contours(fig, lon, lat, depth, contour_interval=250)
     return fig
 
 
