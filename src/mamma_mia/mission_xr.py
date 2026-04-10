@@ -105,6 +105,31 @@ def create_mission(
         )
         for sensor_name, sensor_params in platform.attrs["sensors"].items()
     }
+
+    # Define state mapping (CF convention)
+    state_map = {"hovering": 0, "diving": 1, "climbing": 2, "surfaced": 3}
+
+    # Calculate changes in depth to determine platform behaviour
+    dz = np.gradient(traj_interp.depth)
+
+    # Build integer state array, defaulting to hovering
+    state = np.zeros(len(traj_interp.depth), dtype=np.int8)
+    state[dz > platform.attrs["descent_thresh"]] = state_map["diving"]
+    state[dz < platform.attrs["ascent_thresh"]] = state_map["climbing"]
+
+    surfaced_mask = (traj_interp.depth[:] < platform.attrs["near_surface_thresh"]) & (
+        np.abs(dz) < platform.attrs["ascent_thresh"]
+    )
+    state[surfaced_mask] = state_map["surfaced"]
+
+    platform["state"] = xr.DataArray(
+        state,
+        dims=["time"],
+        attrs={
+            "long_name": "platform behaviour state",
+            "state_meanings": state_map,
+        },
+    )
     # combine all the bits into one datatree
     mission = xr.DataTree.from_dict(
         {

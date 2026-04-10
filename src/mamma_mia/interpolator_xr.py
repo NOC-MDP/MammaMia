@@ -20,7 +20,6 @@ from loguru import logger
 def create_interpolator(mission: xr.DataTree):
     interpolator = {}
     for store_key, store in mission.attrs["stores"].items():
-        print(store["store"])
         ds = xr.open_zarr(store=store["store"])
         # if regridding is needed
         if mission.attrs["stores"][store_key]["regrid"]:

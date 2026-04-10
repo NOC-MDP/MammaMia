@@ -26,6 +26,6 @@ def create_platform(spec_file: str) -> xr.Dataset:
     for sensor_key, sensor_val in spec["sensors"].items():
         attributes["sensors"][sensor_key] = sensor_val
 
-    platform = xr.Dataset(data_vars={"behaviour": []}, attrs=attributes)
+    platform = xr.Dataset(data_vars={"state": []}, attrs=attributes)
     logger.success(f"Successfully created platform of type: {spec['platform']['type']}")
     return platform
