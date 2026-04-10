@@ -9,19 +9,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from attrs import frozen,field,define
-from loguru import logger
-import numpy as np
 import sys
-from mamma_mia.mission import Trajectory
-from mamma_mia.sensors import SensorInventory
+
+import numpy as np
+from attrs import define, field, frozen
+from loguru import logger
+
 from mamma_mia.catalog import Cats
+from mamma_mia.exceptions import NullDataException
+from mamma_mia.find_worlds import FindWorlds, SourceConfig, SourceType
 from mamma_mia.get_worlds import get_worlds
 from mamma_mia.interpolator import Interpolators
-from mamma_mia.exceptions import NullDataException
 from mamma_mia.log import log_filter
-from mamma_mia.find_worlds import SourceType, SourceConfig, FindWorlds
-from mamma_mia.worlds import WorldsAttributes,WorldsConf,WorldExtent
+from mamma_mia.mission import Trajectory
+from mamma_mia.sensors import SensorInventory
+from mamma_mia.worlds import WorldExtent, WorldsAttributes, WorldsConf
 
 
 @frozen
@@ -42,6 +44,7 @@ class Point:
     datetime, np.datetime64
         datetime of the point derived from dt string
     """
+
     latitude: float
     longitude: float
     depth: float
@@ -49,7 +52,8 @@ class Point:
     dt: str
 
     def __attrs_post_init__(self):
-        object.__setattr__(self, 'datetime', np.datetime64(self.dt))
+        object.__setattr__(self, "datetime", np.datetime64(self.dt))
+
 
 @frozen
 class RealityPt:
@@ -69,11 +73,13 @@ class RealityPt:
     practical_salinity : float, required
         practical salinity at point
     """
+
     u_velocity: float
     v_velocity: float
     w_velocity: float
     potential_temperature: float
     practical_salinity: float
+
 
 @define
 class RealityWorld:
@@ -91,17 +97,20 @@ class RealityWorld:
     source: SourceConfig, required
         source configuration object
     """
+
     world_conf: WorldsConf
     trajectory: Trajectory
     reality: dict
     source: SourceConfig
 
     @classmethod
-    def for_glidersim(cls,  extent:WorldExtent,
-                            excess_depth:int=100,
-                            excess_space:float=0.5,
-                            env_source:str="NOC",
-                      ):
+    def for_glidersim(
+        cls,
+        extent: WorldExtent,
+        excess_depth: int = 100,
+        excess_space: float = 0.5,
+        env_source: str = "NOC",
+    ):
         """
         Reality World built for Glider Simulator
         Args:
@@ -122,43 +131,53 @@ class RealityWorld:
             lat_min=np.float64(extent.lat_min - excess_space),
             lon_max=np.float64(extent.lon_max + excess_space),
             lon_min=np.float64(extent.lon_min - excess_space),
-            time_start=np.datetime_as_string(np.datetime64(extent.time_start) - np.timedelta64(30,'D'),unit="D"),
-            time_end = np.datetime_as_string(np.datetime64(extent.time_end) + np.timedelta64(30,'D'),unit="D"),
-            depth_max=np.float64(extent.depth_max + excess_depth)
+            time_start=np.datetime_as_string(
+                np.datetime64(extent.time_start) - np.timedelta64(30, "D"), unit="D"
+            ),
+            time_end=np.datetime_as_string(
+                np.datetime64(extent.time_end) + np.timedelta64(30, "D"), unit="D"
+            ),
+            depth_max=np.float64(extent.depth_max + excess_depth),
         )
 
-        attrs = WorldsAttributes(extent=extent_excess,
-                                 interpolator_priorities={},
-                                 matched_worlds={})
+        attrs = WorldsAttributes(
+            extent=extent_excess, interpolator_priorities={}, matched_worlds={}
+        )
 
-        worlds_conf = WorldsConf(attributes=attrs,worlds={},stores={})
+        worlds_conf = WorldsConf(attributes=attrs, worlds={}, stores={})
         source = SourceConfig(source_type=SourceType.from_string(env_source))
         # create cats
         cats = Cats()
-        cats.init_catalog(source_type=source.source_type,)
+        cats.init_catalog(
+            source_type=source.source_type,
+        )
         sensor_inventory = SensorInventory()
         ctd = sensor_inventory.entries["Generic CTD"]
         adcp = sensor_inventory.entries["Generic ADCP"]
         reality = {}
-        for name,sensor in adcp.specification.items():
-            reality[name] = np.empty(shape=1,dtype=np.float64)
-        for name,sensor in ctd.specification.items():
-            reality[name] = np.empty(shape=1,dtype=np.float64)
+        for name, sensor in adcp.specification.items():
+            reality[name] = np.empty(shape=1, dtype=np.float64)
+        for name, sensor in ctd.specification.items():
+            reality[name] = np.empty(shape=1, dtype=np.float64)
 
         matched_worlds = FindWorlds()
 
-        matched_worlds.search_worlds(cat=cats,extent=extent_excess,payload=reality,source=source)
+        matched_worlds.search_worlds(
+            cat=cats, extent=extent_excess, payload=reality, source=source
+        )
         worlds_conf.attributes.matched_worlds = matched_worlds.entries
-        zarr_stores = get_worlds(cat=cats, worlds=worlds_conf,source=source)
+        zarr_stores = get_worlds(cat=cats, worlds=worlds_conf, source=source)
         worlds_conf.stores = zarr_stores
         logger.success("reality world created successfully")
 
-        return cls(trajectory=trajectory,
-                    reality=reality,
-                    world_conf=worlds_conf,
-                    source=source,)
+        return cls(
+            trajectory=trajectory,
+            reality=reality,
+            world_conf=worlds_conf,
+            source=source,
+        )
 
-    def get_reality(self,point:Point,interpolator:Interpolators) -> RealityPt:
+    def get_reality(self, point: Point, interpolator: Interpolators) -> RealityPt:
         """
         Interpolates a point object using the interpolators and returns a vector object containing the interpolated data
 
@@ -171,21 +190,25 @@ class RealityWorld:
 
         """
         location = {
-            "longitude": np.array([point.longitude],dtype=np.float64),
-            "latitude": np.array([point.latitude],dtype=np.float64),
-            "depth": np.array([point.depth],dtype=np.float64),
-            "time": np.array([point.datetime], dtype='datetime64'),
+            "longitude": np.array([point.longitude], dtype=np.float64),
+            "latitude": np.array([point.latitude], dtype=np.float64),
+            "depth": np.array([point.depth], dtype=np.float64),
+            "time": np.array([point.datetime], dtype="datetime64"),
         }
         for key in self.reality.keys():
             try:
-                self.reality[key] = interpolator.interpolator[key].quadrivariate(location)
+                self.reality[key] = interpolator.interpolator[key].quadrivariate(
+                    location
+                )
             except KeyError:
                 pass
-                #logger.warning(f"no interpolator for {key}")
+                # logger.warning(f"no interpolator for {key}")
 
         if np.isnan(self.reality["WATERCURRENTS_U"][0]):
             if point.depth >= 0.51:
-                logger.error(f"U component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
+                logger.error(
+                    f"U component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}"
+                )
                 raise NullDataException
             u_velocity = 0.0
         else:
@@ -193,7 +216,9 @@ class RealityWorld:
 
         if np.isnan(self.reality["WATERCURRENTS_V"][0]):
             if point.depth >= 0.51:
-                logger.error(f"V component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
+                logger.error(
+                    f"V component velocity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}"
+                )
                 raise NullDataException
             v_velocity = 0.0
         else:
@@ -209,7 +234,9 @@ class RealityWorld:
 
         if np.isnan(self.reality["POTENTIAL_TEMPERATURE"][0]):
             if point.depth >= 0.51:
-                logger.error(f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
+                logger.error(
+                    f"temperature is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}"
+                )
                 raise NullDataException
             potential_temperature = 15.00
         else:
@@ -217,18 +244,21 @@ class RealityWorld:
 
         if np.isnan(self.reality["PRACTICAL_SALINITY"][0]):
             if point.depth >= 0.51:
-                logger.error(f"salinity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}")
+                logger.error(
+                    f"salinity is NaN, depth {point.depth} is non zero and location is lat: {point.latitude} lng: {point.longitude}"
+                )
                 raise NullDataException
             practical_salinity = 34.5
         else:
             practical_salinity = self.reality["PRACTICAL_SALINITY"][0]
 
-        reality = RealityPt(u_velocity=u_velocity,
-                            v_velocity=v_velocity,
-                            w_velocity=0.0,
-                            practical_salinity=practical_salinity,
-                            potential_temperature=potential_temperature
-                            )
+        reality = RealityPt(
+            u_velocity=u_velocity,
+            v_velocity=v_velocity,
+            w_velocity=0.0,
+            practical_salinity=practical_salinity,
+            potential_temperature=potential_temperature,
+        )
         return reality
 
 
@@ -242,28 +272,39 @@ class Reality:
         extent: Extent object
 
     """
+
     extent: WorldExtent
     world: RealityWorld
     interpolators: Interpolators
     verbose: bool = False
 
     @classmethod
-    def for_glidersim(cls,extent: WorldExtent,env_source:str,verbose: bool = False):
+    def for_glidersim(cls, extent: WorldExtent, env_source: str, verbose: bool = False):
         # reset logger
-        logger.remove()        # set logger based on requested verbosity
+        logger.remove()  # set logger based on requested verbosity
         if verbose:
-            logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
+            logger.add(
+                sys.stdout,
+                format="{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}",
+                level="INFO",
+            )
         else:
-            logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
+            logger.add(
+                sys.stderr,
+                format="{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}",
+                level="DEBUG",
+                filter=log_filter,
+            )
         logger.info("creating velocity reality")
-        world = RealityWorld.for_glidersim(extent=extent,env_source=env_source)
+        world = RealityWorld.for_glidersim(extent=extent, env_source=env_source)
         interpolators = Interpolators()
-        interpolators.build(worlds=world.world_conf,mission="DVR",source_type=world.source.source_type)
+        interpolators.build(
+            worlds=world.world_conf, mission="DVR", source_type=world.source.source_type
+        )
         logger.success("reality created successfully")
-        return cls(extent=extent,
-                   world=world,
-                   interpolators=interpolators,
-                   verbose=verbose)
+        return cls(
+            extent=extent, world=world, interpolators=interpolators, verbose=verbose
+        )
 
     def teleport(self, point: Point) -> RealityPt:
         """
