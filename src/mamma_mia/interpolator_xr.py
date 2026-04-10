@@ -13,13 +13,13 @@
 # import pickle
 # from dataclasses import dataclass,field
 # import zarr
-# import numpy as np
+import numpy as np
 import pyinterp
 import pyinterp.backends.xarray
 import xarray as xr
+import xesmf as xe
+from loguru import logger
 
-# from loguru import logger
-# import xesmf as xe
 # import blosc
 # from mamma_mia.exceptions import UnknownSourceKey
 # from mamma_mia.find_worlds import SourceType
@@ -30,10 +30,104 @@ def create_interpolator(mission: xr.DataTree):
     interpolator = {}
     for store_key, store in mission.attrs["stores"].items():
         ds = xr.open_zarr(store=store["store"])
+        # if regridding is needed
+        if mission.attrs["stores"][store_key]["regrid"]:
+            if ds["nav_lat"].sizes["x"] == 1:
+                logger.warning(
+                    "dataset latitude dimension length = 1, cannot interpolate, likely too low resolution"
+                )
+                continue
+            if ds["nav_lon"].sizes["x"] == 1:
+                logger.warning(
+                    "dataset longitude dimension length = 1, cannot interpolate, likely too low resolution"
+                )
+                continue
+            if ds["time_counter"].sizes["time_counter"] <= 1:
+                logger.warning(
+                    "dataset time dimension length = 1, cannot interpolate, likely too low resolution"
+                )
+                continue
+            # rename time and depth dimensions to be consistent
+            # depths can be named t u or v depending on their grid
+            try:
+                ds = ds.rename(
+                    {
+                        "deptht": "depth",
+                        "time_counter": "time",
+                        "nav_lon": "lon",
+                        "nav_lat": "lat",
+                    }
+                )
+            except ValueError:
+                try:
+                    ds = ds.rename(
+                        {
+                            "depthu": "depth",
+                            "time_counter": "time",
+                            "nav_lon": "lon",
+                            "nav_lat": "lat",
+                        }
+                    )
+                except ValueError:
+                    ds = ds.rename(
+                        {
+                            "depthv": "depth",
+                            "time_counter": "time",
+                            "nav_lon": "lon",
+                            "nav_lat": "lat",
+                        }
+                    )
+            lat = ds["lat"]
+            lon = ds["lon"]
+
+            # reduce arrays to get max and min values
+            latmin = lat.reduce(np.min, dim=["x", "y"]).values
+            latmax = lat.reduce(np.max, dim=["x", "y"]).values
+            lonmin = lon.reduce(np.min, dim=["x", "y"]).values
+            lonmax = lon.reduce(np.max, dim=["x", "y"]).values
+            # Define a regular grid with 1D lat/lon arrays
+            target_lat = np.linspace(latmin, latmax, lat.sizes["y"])
+            target_lon = np.linspace(lonmin, lonmax, lon.sizes["x"])
+            # Create a target grid dataset
+            target_grid = xr.Dataset(
+                {
+                    "latitude": (["latitude"], target_lat),
+                    "longitude": (["longitude"], target_lon),
+                }
+            )
+            # Example: regrid only data variables that depend on lat/lon
+            data_vars = [v for v in ds.data_vars if {"x", "y"} <= set(ds[v].dims)]
+            # Loop and regrid each variable
+            ds_regridded = xr.Dataset()
+            for var2 in data_vars:
+                if "time" in var2:
+                    continue
+                regridder = xe.Regridder(
+                    ds[var2], target_grid, method="bilinear", ignore_degenerate=True
+                )
+                ds_regridded[var2] = regridder(ds[var2])
+            ds_regridded = ds_regridded.assign_coords(time=ds.time)
+
+            # # Create a regridder object to go from curvilinear to regular grid
+            # regridder = xe.Regridder(ds, target_grid, method='bilinear',ignore_degenerate=True)
+            # # Regrid the entire dataset
+            # ds_regridded = regridder(ds)
+            # Add units to latitude and longitude coordinates
+            ds_regridded["latitude"].attrs["units"] = "degrees_north"
+            ds_regridded["longitude"].attrs["units"] = "degrees_east"
+            # Convert all float32 variables in the dataset to float64
+            ds_regridded = ds_regridded.astype("float64")
+            ds_regridded["time"] = ds_regridded["time"].astype("datetime64[ns]")
+        else:
+            ds = ds_regridded
         interpolator[store_key] = pyinterp.backends.xarray.Grid4D(
-            ds[store["variable_name"]], geodetic=True
+            ds_regridded[store["variable_name"]], geodetic=True
         )
     return interpolator
+
+
+# check that dimensions of lat and lon are at least larger than 1 as 1 degree models on glider scale deployments
+# are often too low a resolution to have multiple grid cells in the mission extent.
 
 
 # @dataclass

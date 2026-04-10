@@ -22,8 +22,15 @@ traj = create_trajectory(spec_file=spec_file)
 platform = create_platform(spec_file=spec_file)
 
 mission = create_mission(
-    mission_name="test", summary="testy mctestface", platform=platform, trajectory=traj
+    mission_name="test",
+    summary="testy mctestface",
+    platform=platform,
+    trajectory=traj,
+    apply_obs_error=True,
 )
+
+# get data from specified souce in spec file
+# note mission is returned with locations of data stored as attributes
 mission = get_data(mission=mission)
 
 interpolator = create_interpolator(mission=mission)

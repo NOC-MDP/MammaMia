@@ -1,27 +1,15 @@
 import uuid
 from datetime import datetime
 
+import gsw
 import numpy as np
 import xarray as xr
 from loguru import logger
-from scipy.interpolate import interp1d
+
+from mamma_mia.sim_error_xr import simulate_sensor_error
 
 # TODO need to add cleaning (removing spurious nans)
 # TODO Need to add behaviour generation
-
-
-# From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
-# Lucas Merckelbach
-def __convert_to_decimal(x):
-    """
-    Converts a latitude or longitude in NMEA format to decimal degrees
-    """
-    sign = np.sign(x)
-    x_abs = np.abs(x)
-    degrees = np.floor(x_abs / 100.0)
-    minutes = x_abs - degrees * 100
-    decimal_format = degrees + minutes / 60.0
-    return decimal_format * sign
 
 
 def create_mission(
@@ -146,19 +134,75 @@ def fly(mission: xr.DataTree, interpolators) -> xr.DataTree:
             }
             try:
                 result = interpolators[variable_key].quadrivariate(flight)
-                print(result)
-                # Get the node you want to update
-                node = mission.payload[sensor_key]
-                # Grab the existing DataArray to preserve coords/dims/attrs
-                existing_da = node.ds[variable_key]
-                # Create a new DataArray with the updated values (same coords/dims)
-                new_da = existing_da.copy(data=result)
-                # Update the node's dataset in-place
-                node.update({variable_key: new_da})
             except KeyError:
                 logger.warning(
                     f"no interpolator found for variable {variable_key} in sensor {sensor_key}"
                 )
+                # pressure is special case as it can be derived from depth coordinates and latitude
+                if variable_key == "pressure":
+                    logger.info(
+                        "missing interpolator is pressure, will convert from depths coords"
+                    )
+                    result = gsw.p_from_z(
+                        z=-1 * mission.payload[sensor_key][variable_key].depth.values,
+                        lat=mission.payload[sensor_key][variable_key].latitude.values,
+                    )
+            if mission.attrs["mission_attrs"]["apply_obs_error"]:
+                logger.info(
+                    f"apply simulated observation errors set to True, applying to {variable_key} now"
+                )
+                result = simulate_sensor_error(
+                    model_t=result,
+                    mission_ts=mission.attrs["mission_attrs"]["mission_time_step"],
+                    accuracy_bias=mission.platform.attrs["sensors"][sensor_key][
+                        variable_key
+                    ]["accuracy"],
+                    noise_std=mission.platform.attrs["sensors"][sensor_key][
+                        variable_key
+                    ]["noise_std"],
+                    resolution=mission.platform.attrs["sensors"][sensor_key][
+                        variable_key
+                    ]["resolution"],
+                    drift_per_month=mission.platform.attrs["sensors"][sensor_key][
+                        variable_key
+                    ]["drift_per_month"],
+                    m_min=mission.platform.attrs["sensors"][sensor_key][variable_key][
+                        "range"
+                    ][0],
+                    m_max=mission.platform.attrs["sensors"][sensor_key][variable_key][
+                        "range"
+                    ][1],
+                    percent_errors=mission.platform.attrs["sensors"][sensor_key][
+                        variable_key
+                    ]["percent_errors"],
+                )
+
+            # Get the node you want to update
+            node = mission.payload[sensor_key]
+            __update_node(node, result, variable_key)
 
     logger.success(f"{mission.attrs['mission_attrs']['name']} flown successfully")
     return mission
+
+
+def __update_node(node, result, variable_key):
+    # Grab the existing DataArray to preserve coords/dims/attrs
+    existing_da = node.ds[variable_key]
+    # Create a new DataArray with the updated values (same coords/dims)
+    new_da = existing_da.copy(data=result)
+    # Update the node's dataset in-place
+    node.update({variable_key: new_da})
+
+
+# From: https://github.com/smerckel/latlon/blob/main/latlon/latlon.py
+# Lucas Merckelbach
+def __convert_to_decimal(x):
+    """
+    Converts a latitude or longitude in NMEA format to decimal degrees
+    """
+    sign = np.sign(x)
+    x_abs = np.abs(x)
+    degrees = np.floor(x_abs / 100.0)
+    minutes = x_abs - degrees * 100
+    decimal_format = degrees + minutes / 60.0
+    return decimal_format * sign

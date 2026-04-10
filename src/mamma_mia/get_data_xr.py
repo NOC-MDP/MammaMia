@@ -40,12 +40,14 @@ def get_data(mission: xr.DataTree) -> xr.DataTree:
                 source_id=source_id,
                 geospatial_attrs=mission.attrs["geospatial_attrs"],
             )
-        if parts2[0] == "cmems":
+            regrid = True
+        elif parts2[0] == "cmems":
             store = __get_cmems(
                 source_id=source_id,
                 variables=source_var["variable_names"],
                 geospatial_attrs=mission.attrs["geospatial_attrs"],
             )
+            regrid = False
         else:
             raise Exception(f"unknown source id: {source_id}")
         # create a store location for each parameter (for interpoator)
@@ -53,6 +55,7 @@ def get_data(mission: xr.DataTree) -> xr.DataTree:
             stores[source_var["parameter_names"][i]] = {
                 "store": store,
                 "variable_name": source_var["variable_names"][i],
+                "regrid": regrid,
             }
     mission.attrs.update(stores=stores)
     return mission
@@ -130,7 +133,7 @@ def __get_cmems(
     return zarr_d + zarr_f
 
 
-def __get_NOC(source_id, geospatial_attrs) -> str:
+def __get_NOC(source_id, geospatial_attrs, excess=0.5) -> str:
     """
     Function that downloads the NOC source model data that matches the required spatial and temporal extents and sensor
     specification of the auv.
@@ -144,10 +147,23 @@ def __get_NOC(source_id, geospatial_attrs) -> str:
     """
     catalog = OceanDataCatalog(catalog_name="noc-model-stac")
     zarr_f = (
-        f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'], 3)}_{round(geospatial_attrs['geospatial_lon_min'], 3)}_"
-        f"{round(geospatial_attrs['geospatial_lat_max'], 3)}_{round(geospatial_attrs['geospatial_lat_min'], 3)}_"
-        f"{round(geospatial_attrs['geospatial_vertical_max'], 3)}_{geospatial_attrs['time_coverage_start']}_"
-        f"{geospatial_attrs['time_coverage_end']}.zarr"
+        f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"
+        f"{round(geospatial_attrs['geospatial_lat_max'] + excess, 3)}_{
+            round(geospatial_attrs['geospatial_lat_min'] - excess, 3)
+        }_{
+            np.datetime_as_string(
+                np.datetime64(geospatial_attrs['time_coverage_start'])
+                - np.timedelta64(30, 'D'),
+                unit='D',
+            )
+        }_"
+        f"{
+            np.datetime_as_string(
+                np.datetime64(geospatial_attrs['time_coverage_end'])
+                + np.timedelta64(30, 'D'),
+                unit='D',
+            )
+        }.zarr"
     )
     zarr_d = "NOC-data/"
     logger.info(f"getting NOC world {zarr_f}")
@@ -155,13 +171,25 @@ def __get_NOC(source_id, geospatial_attrs) -> str:
         logger.info(f"{zarr_f} has not been cached, downloading now")
         ds = catalog.open_dataset(
             id=source_id,
-            start_datetime=geospatial_attrs["time_coverage_start"],
-            end_datetime=geospatial_attrs["time_coverage_end"],
+            start_datetime=str(
+                np.datetime_as_string(
+                    np.datetime64(geospatial_attrs["time_coverage_start"])
+                    - np.timedelta64(30, "D"),
+                    unit="D",
+                )
+            ),
+            end_datetime=str(
+                np.datetime_as_string(
+                    np.datetime64(geospatial_attrs["time_coverage_end"])
+                    + np.timedelta64(30, "D"),
+                    unit="D",
+                )
+            ),
             bbox=(
-                geospatial_attrs["geosptial_lon_min"],
-                geospatial_attrs["geosptial_lat_min"],
-                geospatial_attrs["geosptial_lon_max"],
-                geospatial_attrs["geosptial_lat_max"],
+                float(geospatial_attrs["geospatial_lon_min"] - excess),
+                float(geospatial_attrs["geospatial_lat_min"] - excess),
+                float(geospatial_attrs["geospatial_lon_max"] + excess),
+                float(geospatial_attrs["geospatial_lat_max"] + excess),
             ),
         )
         ds.drop_encoding().to_zarr(store=zarr_d + zarr_f)

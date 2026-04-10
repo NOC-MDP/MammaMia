@@ -16,6 +16,8 @@ import pandas as pd
 import xarray as xr
 from loguru import logger
 
+# TODO need to add a spec file validator, e.g. range is list len 2, etc.
+
 
 def _parse_time(values) -> np.ndarray:
     series = pd.Series(values)
