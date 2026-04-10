@@ -28,10 +28,10 @@ import xarray as xr
 
 def create_interpolator(mission: xr.DataTree):
     interpolator = {}
-    for world_key in mission.attrs["worlds"].keys():
-        world = xr.open_zarr(store=world_key)
-        interpolator[world_key] = pyinterp.backends.xarray.Grid4D(
-            world[world_key], geodetic=True
+    for store_key, store in mission.attrs["stores"].items():
+        ds = xr.open_zarr(store=store["store"])
+        interpolator[store_key] = pyinterp.backends.xarray.Grid4D(
+            ds[store["variable_name"]], geodetic=True
         )
     return interpolator
 

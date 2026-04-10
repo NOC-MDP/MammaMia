@@ -4,6 +4,7 @@ from datetime import datetime
 import numpy as np
 import xarray as xr
 from loguru import logger
+from scipy.interpolate import interp1d
 
 # TODO need to add cleaning (removing spurious nans)
 # TODO Need to add behaviour generation
@@ -127,4 +128,37 @@ def create_mission(
         }
     )
     logger.success(f"mission {mission_name} created successfully")
+    return mission
+
+
+def fly(mission: xr.DataTree, interpolators) -> xr.DataTree:
+    """ """
+    logger.info(
+        f"flying {mission.attrs['mission_attrs']['name']} using {mission['platform'].attrs['type']}"
+    )
+    for sensor_key, sensor in mission.payload.items():
+        for variable_key in sensor.keys():
+            flight = {
+                "longitude": mission.payload[sensor_key][variable_key].longitude.values,
+                "latitude": mission.payload[sensor_key][variable_key].latitude.values,
+                "depth": mission.payload[sensor_key][variable_key].depth.values,
+                "time": mission.payload[sensor_key][variable_key].time.values,
+            }
+            try:
+                result = interpolators[variable_key].quadrivariate(flight)
+                print(result)
+                # Get the node you want to update
+                node = mission.payload[sensor_key]
+                # Grab the existing DataArray to preserve coords/dims/attrs
+                existing_da = node.ds[variable_key]
+                # Create a new DataArray with the updated values (same coords/dims)
+                new_da = existing_da.copy(data=result)
+                # Update the node's dataset in-place
+                node.update({variable_key: new_da})
+            except KeyError:
+                logger.warning(
+                    f"no interpolator found for variable {variable_key} in sensor {sensor_key}"
+                )
+
+    logger.success(f"{mission.attrs['mission_attrs']['name']} flown successfully")
     return mission

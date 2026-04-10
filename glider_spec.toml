@@ -3,7 +3,7 @@ path = "data/RAPID-mooring/rapid-mooring.nc"
 
 [specification.platform]
 type = "glider"
-NMEA_coordinates = false
+NMEA_coordinates = true
 ascent_thresh = 0.05  # m/s
 descent_thresh= -0.05  # m/s
 near_surface_thresh = 1
@@ -16,7 +16,7 @@ pitch = "m_pitch"
 time = "time"
 
 [specification.sensors.ctd.potential_temperature]
-source_id = "cmems_mod_glo_phy_anfc_0.083deg_PT1H-m"
+source_id = "cmems_mod_glo_phy-thetao_anfc_0.083deg_P1D-m"
 variable_name = "thetao"
 accuracy = 0.001
 resolution = 0.0001
@@ -26,7 +26,7 @@ percent_errors = false
 noise_std = 0.0005
 
 [specification.sensors.ctd.practical_salinity]
-source_id = "cmems_mod_glo_phy_anfc_0.083deg_PT1H-m"
+source_id = "cmems_mod_glo_phy-so_anfc_0.083deg_P1D-m"
 variable_name = "so"
 accuracy = 0.005
 resolution = 0.0001

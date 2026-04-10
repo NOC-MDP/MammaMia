@@ -1,0 +1,169 @@
+import os
+
+import copernicusmarine
+import numpy as np
+import xarray as xr
+from loguru import logger
+from OceanDataStore import OceanDataCatalog
+
+
+def get_data(mission: xr.DataTree) -> xr.DataTree:
+    source_ids = {}
+    stores = {}
+    sensors = mission["platform"].attrs["sensors"]
+    # go through each sensor
+    for sensor in sensors.values():
+        # go through each variable in the sensor
+        for variable_key, variable in sensor.items():
+            if variable["source_id"] == "":
+                logger.warning(f"no source id found for {variable_key}")
+                continue
+            # build a dictionary that matches variables to models (e.g. thetao,so are in same dataset)
+            source_id = variable["source_id"]
+
+            if source_id in source_ids:
+                source_ids[source_id]["variable_names"].append(
+                    variable["variable_name"]
+                )
+                source_ids[source_id]["parameter_names"].append(variable_key)
+            else:
+                source_ids[source_id] = {
+                    "variable_names": [variable["variable_name"]],
+                    "parameter_names": [variable_key],
+                }
+    # download data using source id
+    for source_id, source_var in source_ids.items():
+        parts = source_id.split("-")
+        parts2 = source_id.split("_")
+        if parts[0] == "noc":
+            store = __get_NOC(
+                source_id=source_id,
+                geospatial_attrs=mission.attrs["geospatial_attrs"],
+            )
+        if parts2[0] == "cmems":
+            store = __get_cmems(
+                source_id=source_id,
+                variables=source_var["variable_names"],
+                geospatial_attrs=mission.attrs["geospatial_attrs"],
+            )
+        else:
+            raise Exception(f"unknown source id: {source_id}")
+        # create a store location for each parameter (for interpoator)
+        for i in range(source_var["parameter_names"].__len__()):
+            stores[source_var["parameter_names"][i]] = {
+                "store": store,
+                "variable_name": source_var["variable_names"][i],
+            }
+    mission.attrs.update(stores=stores)
+    return mission
+
+
+def __get_cmems(
+    source_id, variables, geospatial_attrs, excess=0.5, excess_depth=100
+) -> str:
+    """
+    function that downloads model data from CMEMS, data must match the temporal and spatial extents of the auv, and also
+    have the required variables to match the sensor arrays of the auv.
+    Args:
+        value: object that contains the intake entry of the matched dataset
+        worlds:
+
+    Returns:
+        string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
+        the downloaded model data.
+
+    """
+
+    zarr_f = (
+        f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"
+        f"{round(geospatial_attrs['geospatial_lat_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lat_min'] - excess, 3)}_"
+        f"{round(geospatial_attrs['geospatial_vertical_max'] + excess_depth, 3)}_{
+            np.datetime_as_string(
+                np.datetime64(geospatial_attrs['time_coverage_start'])
+                - np.timedelta64(30, 'D'),
+                unit='D',
+            )
+        }_"
+        f"{
+            np.datetime_as_string(
+                np.datetime64(geospatial_attrs['time_coverage_end'])
+                + np.timedelta64(30, 'D'),
+                unit='D',
+            )
+        }.zarr"
+    )
+
+    zarr_d = "copernicus-data/"
+    logger.info(f"getting cmems model {zarr_f}")
+    if not os.path.isdir(zarr_d + zarr_f):
+        logger.info(f"{zarr_f} has not been cached, downloading now")
+        copernicusmarine.subset(
+            dataset_id=source_id,
+            variables=variables,
+            minimum_longitude=float(geospatial_attrs["geospatial_lon_min"] - excess),
+            maximum_longitude=float(geospatial_attrs["geospatial_lon_max"] + excess),
+            minimum_latitude=float(geospatial_attrs["geospatial_lat_min"] - excess),
+            maximum_latitude=float(geospatial_attrs["geospatial_lat_max"] + excess),
+            start_datetime=str(
+                np.datetime_as_string(
+                    np.datetime64(geospatial_attrs["time_coverage_start"])
+                    - np.timedelta64(30, "D"),
+                    unit="D",
+                )
+            ),
+            end_datetime=str(
+                np.datetime_as_string(
+                    np.datetime64(geospatial_attrs["time_coverage_end"])
+                    + np.timedelta64(30, "D"),
+                    unit="D",
+                )
+            ),
+            minimum_depth=0,
+            maximum_depth=float(
+                geospatial_attrs["geospatial_vertical_max"] + excess_depth
+            ),
+            output_filename=zarr_f,
+            output_directory=zarr_d,
+            file_format="zarr",
+        )
+        logger.success(f"{zarr_f} has been cached")
+    return zarr_d + zarr_f
+
+
+def __get_NOC(source_id, geospatial_attrs) -> str:
+    """
+    Function that downloads the NOC source model data that matches the required spatial and temporal extents and sensor
+    specification of the auv.
+    Args:
+        key: model source
+        worlds:
+
+    Returns:
+        string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
+        the downloaded model data.
+    """
+    catalog = OceanDataCatalog(catalog_name="noc-model-stac")
+    zarr_f = (
+        f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'], 3)}_{round(geospatial_attrs['geospatial_lon_min'], 3)}_"
+        f"{round(geospatial_attrs['geospatial_lat_max'], 3)}_{round(geospatial_attrs['geospatial_lat_min'], 3)}_"
+        f"{round(geospatial_attrs['geospatial_vertical_max'], 3)}_{geospatial_attrs['time_coverage_start']}_"
+        f"{geospatial_attrs['time_coverage_end']}.zarr"
+    )
+    zarr_d = "NOC-data/"
+    logger.info(f"getting NOC world {zarr_f}")
+    if not os.path.isdir(zarr_d + zarr_f):
+        logger.info(f"{zarr_f} has not been cached, downloading now")
+        ds = catalog.open_dataset(
+            id=source_id,
+            start_datetime=geospatial_attrs["time_coverage_start"],
+            end_datetime=geospatial_attrs["time_coverage_end"],
+            bbox=(
+                geospatial_attrs["geosptial_lon_min"],
+                geospatial_attrs["geosptial_lat_min"],
+                geospatial_attrs["geosptial_lon_max"],
+                geospatial_attrs["geosptial_lat_max"],
+            ),
+        )
+        ds.drop_encoding().to_zarr(store=zarr_d + zarr_f)
+        logger.success(f"{zarr_f} has been cached")
+    return zarr_d + zarr_f

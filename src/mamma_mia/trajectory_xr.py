@@ -26,8 +26,8 @@ def _parse_time(values) -> np.ndarray:
     )
 
 
-def create_trajectory(spec_file: str) -> xr.Dataset:
-    if spec_file is None:
+def create_trajectory(spec_file: str = "") -> xr.Dataset:
+    if spec_file == "":
         coords = {
             "time": np.array(-999.999),
             "latitude": np.array(-999.999),
