@@ -13,8 +13,6 @@ import tomllib
 import xarray as xr
 from loguru import logger
 
-from mamma_mia.sensors_xr import sensors
-
 
 def create_platform(spec_file: str) -> xr.Dataset:
     with open(spec_file, "rb") as f:

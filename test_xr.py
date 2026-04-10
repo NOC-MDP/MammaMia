@@ -14,32 +14,39 @@ from mamma_mia.get_data_xr import get_data
 from mamma_mia.interpolator_xr import create_interpolator
 from mamma_mia.mission_xr import create_mission, fly
 from mamma_mia.platform_xr import create_platform
-from mamma_mia.plot_xr import plot_payload, plot_trajectory
+from mamma_mia.plot_xr import plot_path, start_payload_dashboard
 from mamma_mia.trajectory_xr import create_trajectory
 
 spec_file = "glider_spec.toml"
 traj = create_trajectory(spec_file=spec_file)
 platform = create_platform(spec_file=spec_file)
 
+# create mission using trajectory and platform datasets
+# a payload dataset is created but is currently empty
 mission = create_mission(
-    mission_name="test",
-    summary="testy mctestface",
+    mission_name="RAPID array VM",
+    summary="simulated glider performing a virtual mooring mission",
     platform=platform,
     trajectory=traj,
     apply_obs_error=True,
 )
+# create a campaign to store the mission (missions can be standalone)
+campaign = create_campaign(mission, mission, campaign_name="test")
 
+# export to zarr (netcdf should be possible too)
+campaign.to_zarr("RAPID.zarr", "w")
 # get data from specified souce in spec file
 # note mission is returned with locations of data stored as attributes
 mission = get_data(mission=mission)
 
+# create interpolators from downloaded datasets
 interpolator = create_interpolator(mission=mission)
 
+# fly the mission by interpolating the downloaded data onto the payload dataset
 mission = fly(mission=mission, interpolators=interpolator)
 
-campaign = create_campaign(mission, mission, campaign_name="test")
 
-campaign.to_zarr("test.zarr", "w")
-
-plot_payload(mission=mission)
-plot_trajectory(mission=mission)
+# simple plot to show payload path
+# plot_path(mission=mission)
+# plot a mission payload
+start_payload_dashboard(mission=mission)

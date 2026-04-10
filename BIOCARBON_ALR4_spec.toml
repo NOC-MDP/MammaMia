@@ -1,19 +1,21 @@
 [specification.trajectory]
-path = "data/RAPID-mooring/rapid-mooring.nc"
+path = "BioCarbonTrajectories/ALR_4_649_R.nc"
 
 [specification.platform]
-type = "glider"
-NMEA_coordinates = true
+type = "alr1500"
+NMEA_coordinates = false
 ascent_thresh = 0.05  # m/s
 descent_thresh= -0.05  # m/s
 near_surface_thresh = 1
 
 [specification.navigation]
-latitude = "m_lat"
-longitude = "m_lon"
-depth = "m_depth"
-pitch = "m_pitch"
-time = "time"
+latitude = "ALATPT01"
+longitude = "ALONPT01"
+depth = "ADEPPT01"
+pitch = "PTCHPT01"
+time = "TIME"
+heading = "HEADPT01"
+roll = "ROLLPT01"
 
 [specification.sensors.ctd.conservative_temperature]
 source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
@@ -38,16 +40,6 @@ noise_std = 0.0005
 [specification.sensors.ctd.pressure]
 source_id = ""
 variable_name = "pressure"
-accuracy = -999.999
-resolution = -999.999
-drift_per_month = -999.999
-range = [-999.999,-999.999]
-percent_errors = false
-noise_std = -999.999
-
-[specification.sensors.dissolved_gas.dissolved_oxygen]
-source_id = "cmems_mod_glo_bgc-bio_anfc_0.25deg_P1D-m"
-variable_name = "o2"
 accuracy = -999.999
 resolution = -999.999
 drift_per_month = -999.999

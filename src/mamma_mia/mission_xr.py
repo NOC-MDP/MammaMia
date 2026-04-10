@@ -8,7 +8,6 @@ from loguru import logger
 
 from mamma_mia.sim_error_xr import simulate_sensor_error
 
-# TODO need to add cleaning (removing spurious nans)
 # TODO Need to add behaviour generation
 
 
