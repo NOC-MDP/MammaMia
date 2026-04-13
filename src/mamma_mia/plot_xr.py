@@ -167,6 +167,79 @@ def add_bathy_contours(fig, lon, lat, depth, contour_interval=50):
     return fig
 
 
+def add_bathy_heatmap(fig, lon, lat, depth, downsample=5):
+    import xarray as xr
+    from scipy.ndimage import gaussian_filter
+
+    floor_z = np.nanmax(depth)
+
+    # --- Fetch ETOPO bathymetry via OPeNDAP ---
+    lon_pad = (np.nanmax(lon) - np.nanmin(lon)) * 0.3
+    lat_pad = (np.nanmax(lat) - np.nanmin(lat)) * 0.3
+    lon_min, lon_max = np.nanmin(lon) - lon_pad, np.nanmax(lon) + lon_pad
+    lat_min, lat_max = np.nanmin(lat) - lat_pad, np.nanmax(lat) + lat_pad
+
+    etopo_url = "https://www.ngdc.noaa.gov/thredds/dodsC/global/ETOPO2022/30s/30s_bed_elev_netcdf/ETOPO_2022_v1_30s_N90W180_bed.nc"
+    ds = xr.open_dataset(etopo_url)
+    bathy = ds["z"].sel(
+        lon=slice(lon_min, lon_max),
+        lat=slice(lat_min, lat_max),
+    )
+
+    # Smooth and mask land
+    bathy_vals = gaussian_filter(bathy.values.astype(float), sigma=1)
+    bathy_vals[bathy_vals > 0] = np.nan
+
+    bathy_lon = bathy.lon.values
+    bathy_lat = bathy.lat.values
+
+    # --- Downsample to keep the Surface trace lightweight ---
+    bathy_vals_ds = bathy_vals[::downsample, ::downsample]
+    bathy_lon_ds = bathy_lon[::downsample]
+    bathy_lat_ds = bathy_lat[::downsample]
+
+    lon_grid, lat_grid = np.meshgrid(bathy_lon_ds, bathy_lat_ds)
+
+    # z is flat at floor_z; colour encodes actual depth via surfacecolor
+    z_flat = np.full_like(bathy_vals_ds, fill_value=floor_z)
+
+    fig.add_trace(
+        go.Surface(
+            x=lon_grid,
+            y=lat_grid,
+            z=z_flat,  # keeps the surface on the floor plane
+            surfacecolor=bathy_vals_ds,  # actual depth drives the colour
+            colorscale="Blues_r",  # deep = dark blue, shallow = light
+            cmin=np.nanmin(bathy_vals_ds),
+            cmax=0,
+            showscale=True,
+            colorbar=dict(
+                title=dict(
+                    text="Depth (m)", side="top"
+                ),  # "top" places title above a horizontal bar
+                orientation="h",  # horizontal layout
+                thickness=15,
+                len=0.4,  # fraction of plot width
+                x=0.5,  # centred horizontally
+                xanchor="center",
+                y=-0.05,  # below the plot (negative = outside axes)
+                yanchor="top",
+            ),
+            opacity=0.85,
+            showlegend=False,
+            hovertemplate=(
+                "Lon: %{x:.3f}°<br>"
+                "Lat: %{y:.3f}°<br>"
+                "Depth: %{surfacecolor:.0f} m"
+                "<extra></extra>"
+            ),
+            name="Bathymetry",
+        )
+    )
+
+    return fig
+
+
 def make_figure(lon, lat, depth, color, title: str, colorscale: str) -> go.Figure:
     fig = go.Figure(
         data=[
@@ -200,6 +273,7 @@ def make_figure(lon, lat, depth, color, title: str, colorscale: str) -> go.Figur
     )
     fig = add_map_floor(fig, lon, lat, depth)
     # fig = add_bathy_contours(fig, lon, lat, depth, contour_interval=250)
+    # fig = add_bathy_heatmap(fig, lon, lat, depth, downsample=5)
     return fig
 
 
