@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mamma_mia.campaign_xr import create_campaign
+from mamma_mia.campaign_xr import add_missions, create_campaign
 from mamma_mia.get_data_xr import get_data
 from mamma_mia.interpolator_xr import create_interpolator
 from mamma_mia.mission_xr import create_mission, fly
@@ -24,17 +24,12 @@ platform = create_platform(spec_file=spec_file)
 # create mission using trajectory and platform datasets
 # a payload dataset is created but is currently empty
 mission = create_mission(
-    mission_name="BIOCARBON",
+    mission_name="BIOCARBON AL4",
     summary="simulated payload for ALR4 trajectory in BIOCARBON campaign",
     platform=platform,
     trajectory=traj,
     apply_obs_error=True,
 )
-# create a campaign to store the mission (missions can be standalone)
-campaign = create_campaign(mission, mission, campaign_name="test")
-
-# export to zarr (netcdf should be possible too)
-campaign.to_zarr("BIO_ALR4.zarr", "w")
 # get data from specified souce in spec file
 # note mission is returned with locations of data stored as attributes
 mission = get_data(mission=mission)
@@ -45,7 +40,13 @@ interpolator = create_interpolator(mission=mission)
 # fly the mission by interpolating the downloaded data onto the payload dataset
 mission = fly(mission=mission, interpolators=interpolator)
 
-
+# create a campaign to store the mission (missions can be standalone)
+campaign = create_campaign(
+    campaign_name="BIOCARBON", description="BIOCARBON campaign from Iceland to UK"
+)
+campaign = add_missions(campaign=campaign, missions=[mission])
+# export to zarr (netcdf should be possible too)
+campaign.to_zarr("BIO_ALR4.zarr", "w", consolidated=False)
 # simple plot to show payload path
 plot_path(mission=mission)
 # plot a mission payload

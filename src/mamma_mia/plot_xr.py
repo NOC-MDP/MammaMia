@@ -199,7 +199,7 @@ def make_figure(lon, lat, depth, color, title: str, colorscale: str) -> go.Figur
         uirevision="constant",
     )
     fig = add_map_floor(fig, lon, lat, depth)
-    fig = add_bathy_contours(fig, lon, lat, depth, contour_interval=250)
+    # fig = add_bathy_contours(fig, lon, lat, depth, contour_interval=250)
     return fig
 
 
@@ -233,7 +233,10 @@ def create_dashboard(mission: xr.DataTree, port: int = 8050, debug: bool = True)
             "backgroundColor": "#f8f9fa",
         },
         children=[
-            html.H2("Payload Dashboard", style={"marginBottom": "4px"}),
+            html.H2(
+                f"Mission {mission.attrs['mission_attrs']['name']} Payload Dashboard",
+                style={"marginBottom": "4px"},
+            ),
             html.Hr(),
             # Controls row
             html.Div(
