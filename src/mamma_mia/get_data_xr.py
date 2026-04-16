@@ -9,6 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+import tomllib
 
 import copernicusmarine
 import numpy as np
@@ -17,11 +18,39 @@ from loguru import logger
 from OceanDataStore import OceanDataCatalog
 
 
+def get_extent(spec_file: str) -> dict:
+    """
+    gets model data using extent specificied in specification toml file
+    and returns a dictionary detailing their paths/locations.
+    """
+    with open(spec_file, "rb") as f:
+        raw = tomllib.load(f)
+    spec = raw["specification"]
+    sensors = spec["sensors"]
+    geospatial_attrs = spec["environment"]["extent"]
+    stores = __download_data(sensors=sensors, geospatial_attrs=geospatial_attrs)
+
+    return stores
+
+
 def get_data(mission: xr.DataTree) -> xr.DataTree:
+    """
+    gets model data using mission attributes derived from a trajectory dataset and
+    updates mission attributes with paths/locations of downloaded data
+    """
+    sensors = mission["platform"].attrs["sensors"]
+    geospatial_attrs = mission.attrs["geospatial_attrs"]
+    stores = __download_data(sensors=sensors, geospatial_attrs=geospatial_attrs)
+    mission.attrs.update(stores=stores)
+    return mission
+
+
+def __download_data(sensors, geospatial_attrs):
+    """
+    core download component, goes through sensor entries and downloads data based its specification
+    """
     source_ids = {}
     stores = {}
-    sensors = mission["platform"].attrs["sensors"]
-    # go through each sensor
     for sensor in sensors.values():
         # go through each variable in the sensor
         for variable_key, variable in sensor.items():
@@ -41,34 +70,34 @@ def get_data(mission: xr.DataTree) -> xr.DataTree:
                     "variable_names": [variable["variable_name"]],
                     "parameter_names": [variable_key],
                 }
-    # download data using source id
-    for source_id, source_var in source_ids.items():
-        parts = source_id.split("-")
-        parts2 = source_id.split("_")
-        if parts[0] == "noc":
-            store = __get_NOC(
-                source_id=source_id,
-                geospatial_attrs=mission.attrs["geospatial_attrs"],
-            )
-            regrid = True
-        elif parts2[0] == "cmems":
-            store = __get_cmems(
-                source_id=source_id,
-                variables=source_var["variable_names"],
-                geospatial_attrs=mission.attrs["geospatial_attrs"],
-            )
-            regrid = False
-        else:
-            raise Exception(f"unknown source id: {source_id}")
-        # create a store location for each parameter (for interpoator)
-        for i in range(source_var["parameter_names"].__len__()):
-            stores[source_var["parameter_names"][i]] = {
-                "store": store,
-                "variable_name": source_var["variable_names"][i],
-                "regrid": regrid,
-            }
-    mission.attrs.update(stores=stores)
-    return mission
+
+        # download data using source id
+        for source_id, source_var in source_ids.items():
+            parts = source_id.split("-")
+            parts2 = source_id.split("_")
+            if parts[0] == "noc":
+                store = __get_NOC(
+                    source_id=source_id,
+                    geospatial_attrs=geospatial_attrs,
+                )
+                regrid = True
+            elif parts2[0] == "cmems":
+                store = __get_cmems(
+                    source_id=source_id,
+                    variables=source_var["variable_names"],
+                    geospatial_attrs=geospatial_attrs,
+                )
+                regrid = False
+            else:
+                raise Exception(f"unknown source id: {source_id}")
+            # create a store location for each parameter (for interpoator)
+            for i in range(source_var["parameter_names"].__len__()):
+                stores[source_var["parameter_names"][i]] = {
+                    "store": store,
+                    "variable_name": source_var["variable_names"][i],
+                    "regrid": regrid,
+                }
+    return stores
 
 
 def __get_cmems(

@@ -17,12 +17,27 @@ import xesmf as xe
 from loguru import logger
 
 
-def create_interpolator(mission: xr.DataTree):
+def interpolate(interpolators: dict, point: dict):
+    dtypes = {"time": "datetime64[ns]"}
+    numpy_point = {
+        k: np.atleast_1d(np.asarray(v, dtype=dtypes.get(k))) for k, v in point.items()
+    }
+    interpolated_data = {
+        key: interp.quadrivariate(numpy_point) for key, interp in interpolators.items()
+    }
+    return interpolated_data
+
+
+def create_interpolator(mission: xr.DataTree = None, stores: dict = None):
+    if stores is None:
+        if mission is None:
+            raise ValueError("Either mission or stores must be provided")
+        stores = mission.attrs["stores"]
     interpolator = {}
-    for store_key, store in mission.attrs["stores"].items():
+    for store_key, store in stores.items():
         ds = xr.open_zarr(store=store["store"])
         # if regridding is needed
-        if mission.attrs["stores"][store_key]["regrid"]:
+        if stores[store_key]["regrid"]:
             if ds["nav_lat"].sizes["x"] == 1:
                 logger.warning(
                     "dataset latitude dimension length = 1, cannot interpolate, likely too low resolution"
