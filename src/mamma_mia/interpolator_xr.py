@@ -25,6 +25,7 @@ def interpolate(interpolators: dict, point: dict):
     interpolated_data = {
         key: interp.quadrivariate(numpy_point) for key, interp in interpolators.items()
     }
+
     return interpolated_data
 
 
@@ -55,34 +56,25 @@ def create_interpolator(mission: xr.DataTree = None, stores: dict = None):
                 continue
             # rename time and depth dimensions to be consistent
             # depths can be named t u or v depending on their grid
-            try:
-                ds = ds.rename(
-                    {
-                        "deptht": "depth",
-                        "time_counter": "time",
-                        "nav_lon": "lon",
-                        "nav_lat": "lat",
-                    }
+            # rename time and depth dimensions to be consistent
+            # depths can be named t, u, v, or w depending on their grid
+            depth_variants = ["deptht", "depthu", "depthv", "depthw"]
+            depth_dim = next((d for d in depth_variants if d in ds.dims), None)
+
+            if depth_dim is None:
+                raise ValueError(
+                    f"No recognised depth dimension found. Got: {list(ds.dims)}"
                 )
-            except ValueError:
-                try:
-                    ds = ds.rename(
-                        {
-                            "depthu": "depth",
-                            "time_counter": "time",
-                            "nav_lon": "lon",
-                            "nav_lat": "lat",
-                        }
-                    )
-                except ValueError:
-                    ds = ds.rename(
-                        {
-                            "depthv": "depth",
-                            "time_counter": "time",
-                            "nav_lon": "lon",
-                            "nav_lat": "lat",
-                        }
-                    )
+
+            ds = ds.rename(
+                {
+                    depth_dim: "depth",
+                    "time_counter": "time",
+                    "nav_lon": "lon",
+                    "nav_lat": "lat",
+                }
+            )
+
             lat = ds["lat"]
             lon = ds["lon"]
 
