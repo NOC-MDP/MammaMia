@@ -27,6 +27,34 @@ def create_mission(
     mission_time_step: int = 60,
     apply_obs_error: bool = True,
 ) -> xr.DataTree:
+    """
+    Create a mission DataTree from platform and trajectory datasets.
+
+    Parameters
+    ----------
+    platform : xr.Dataset
+        Dataset describing the platform and its sensors, including per-sensor
+        observation error specifications.
+    trajectory : xr.Dataset
+        Dataset describing the mission trajectory. Used to derive the time
+        coordinates of the payload dataset.
+    mission_name : str
+        Name assigned to the mission, stored as a top-level attribute.
+    summary : str
+        Human-readable description of the mission, stored as a top-level attribute.
+    mission_time_step : int, optional
+        Temporal resolution of the mission in seconds. Used to construct the
+        payload coordinate grid. Default is 60.
+    apply_obs_error : bool, optional
+        If True, simulates observation errors for each sensor as specified in
+        the platform dataset. Default is True.
+
+    Returns
+    -------
+    xr.DataTree
+        A DataTree containing the platform, trajectory, and payload datasets
+        as nodes, with mission metadata stored as top-level attributes.
+    """
     logger.info(f"creating a mission datatree called {mission_name}")
     # if platform uses NMEA coords convert them to lat lon for payload
     if platform.attrs["NMEA_coordinates"]:
@@ -160,8 +188,25 @@ def create_mission(
     return mission
 
 
-def fly(mission: xr.DataTree, interpolators) -> xr.DataTree:
-    """ """
+def fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
+    """
+    Fly a mission by interpolating sensor payloads along the payload coordinates.
+
+    Parameters
+    ----------
+    mission : xr.DataTree
+        A mission DataTree as returned by `create_mission`, containing platform,
+        trajectory, and payload nodes with the mission time grid.
+    interpolators :
+        Collection of interpolator objects used to sample geophysical fields at
+        the payload coordinates for each sensor.
+
+    Returns
+    -------
+    xr.DataTree
+        The input mission DataTree with the payload node populated with
+        interpolated sensor observations sampled along the mission time grid.
+    """
     logger.info(
         f"flying {mission.attrs['mission_attrs']['name']} using {mission['platform'].attrs['type']}"
     )

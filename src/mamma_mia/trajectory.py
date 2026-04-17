@@ -16,8 +16,6 @@ import pandas as pd
 import xarray as xr
 from loguru import logger
 
-# TODO need to add a spec file validator, e.g. range is list len 2, etc.
-
 
 def _parse_time(values) -> np.ndarray:
     series = pd.Series(values)
@@ -28,84 +26,89 @@ def _parse_time(values) -> np.ndarray:
     )
 
 
-def create_trajectory(spec_file: str = "") -> xr.Dataset:
+def create_trajectory(spec_file: str) -> xr.Dataset:
     """
-    returns a MAMMA MIA compatible trajectory dataset from an input file,
-    supports netcdf, zarr and csv files. Spec file details input file and the
-    variable names for navigation paramters. Any NaN's are currently interpolated
-    so it is assumed that there is sufficent valid data between them.
+    Create a trajectory Dataset from a TOML specification file.
+
+    Reads navigation data from a source file (NetCDF, Zarr, or CSV) as
+    specified in the TOML config, maps user-defined variable names to
+    standardised navigation parameters, and interpolates any NaN values.
+    Sufficient valid data between gaps is assumed for interpolation to
+    produce reliable results.
+
+    Parameters
+    ----------
+    spec_file : str
+        Path to the TOML specification file, which defines the path to the
+        source navigation data file, its format, and the mapping of variable
+        names to standard navigation parameters (e.g. latitude, longitude,
+        depth, time). Defaults to an empty string.
+
+    Returns
+    -------
+    xr.Dataset
+        A trajectory Dataset with standardised navigation parameter names
+        and NaN values interpolated, compatible with the MAMMA MIA mission
+        framework and suitable for passing to `create_mission`.
     """
     logger.info(f"creating a trajectory dataset using spec file {spec_file}")
-    if spec_file == "":
-        coords = {
-            "time": np.array(-999.999),
-            "latitude": np.array(-999.999),
-            "longitude": np.array(-999.999),
-            "depth": np.array(-999.999),
-        }
-        data_vars = {
-            "pitch": np.array(-999.999),
-            "roll": np.array(-999.999),
-            "yaw": np.array(-999.999),
-        }
-        return xr.Dataset(data_vars=data_vars, coords=coords)
+
+    with open(spec_file, "rb") as f:
+        raw = tomllib.load(f)
+    spec = raw["specification"]
+
+    # Open dataset
+    path = spec["trajectory"]["path"]
+    if path[-3:] == ".nc":
+        ds = xr.open_dataset(path)
+    elif path[-4:] == ".csv":
+        ds = pd.read_csv(path)
+    elif path[-5:] == ".zarr":
+        ds = xr.open_dataset(path, engine="zarr")
     else:
-        with open(spec_file, "rb") as f:
-            raw = tomllib.load(f)
-        spec = raw["specification"]
+        extension = path.split(".")[-1]
+        raise Exception(f"trajectory file type: {extension} is not supported")
 
-        # Open dataset
-        path = spec["trajectory"]["path"]
-        if path[-3:] == ".nc":
-            ds = xr.open_dataset(path)
-        elif path[-4:] == ".csv":
-            ds = pd.read_csv(path)
-        elif path[-5:] == ".zarr":
-            ds = xr.open_dataset(path, engine="zarr")
-        else:
-            extension = path.split(".")[-1]
-            raise Exception(f"trajectory file type: {extension} is not supported")
+    # Extract and clean navigation coordinates
+    lat = np.array(ds[spec["navigation"]["latitude"]], dtype=np.float64)
+    lon = np.array(ds[spec["navigation"]["longitude"]], dtype=np.float64)
+    depth = np.array(ds[spec["navigation"]["depth"]], dtype=np.float64)
+    time = _parse_time(ds[spec["navigation"]["time"]])
 
-        # Extract and clean navigation coordinates
-        lat = np.array(ds[spec["navigation"]["latitude"]], dtype=np.float64)
-        lon = np.array(ds[spec["navigation"]["longitude"]], dtype=np.float64)
-        depth = np.array(ds[spec["navigation"]["depth"]], dtype=np.float64)
-        time = _parse_time(ds[spec["navigation"]["time"]])
+    # Interpolate any NaNs in the coordinate arrays
+    lat = pd.Series(lat).interpolate().to_numpy()
+    lon = pd.Series(lon).interpolate().to_numpy()
+    depth = pd.Series(depth).interpolate().to_numpy()
 
-        # Interpolate any NaNs in the coordinate arrays
-        lat = pd.Series(lat).interpolate().to_numpy()
-        lon = pd.Series(lon).interpolate().to_numpy()
-        depth = pd.Series(depth).interpolate().to_numpy()
+    coords = {
+        "time": time,
+        "latitude": ("time", lat),
+        "longitude": ("time", lon),
+        "depth": ("time", depth),
+    }
 
-        coords = {
-            "time": time,
-            "latitude": ("time", lat),
-            "longitude": ("time", lon),
-            "depth": ("time", depth),
-        }
-
-        data_vars = {}
-        try:
-            data_vars["pitch"] = (
-                "time",
-                np.array(ds[spec["navigation"]["pitch"]], dtype=np.float64),
-            )
-        except KeyError:
-            logger.warning("pitch key not found in trajectory dataset")
-        try:
-            data_vars["roll"] = (
-                "time",
-                np.array(ds[spec["navigation"]["roll"]], dtype=np.float64),
-            )
-        except KeyError:
-            logger.warning("roll key not found in trajectory dataset")
-        try:
-            data_vars["yaw"] = (
-                "time",
-                np.array(ds[spec["navigation"]["yaw"]], dtype=np.float64),
-            )
-        except KeyError:
-            logger.warning("yaw key not found in trajectory dataset")
-        trajectory = xr.Dataset(data_vars=data_vars, coords=coords)
-        logger.success("trajectory dataset created successfully")
-        return trajectory
+    data_vars = {}
+    try:
+        data_vars["pitch"] = (
+            "time",
+            np.array(ds[spec["navigation"]["pitch"]], dtype=np.float64),
+        )
+    except KeyError:
+        logger.warning("pitch key not found in trajectory dataset")
+    try:
+        data_vars["roll"] = (
+            "time",
+            np.array(ds[spec["navigation"]["roll"]], dtype=np.float64),
+        )
+    except KeyError:
+        logger.warning("roll key not found in trajectory dataset")
+    try:
+        data_vars["yaw"] = (
+            "time",
+            np.array(ds[spec["navigation"]["yaw"]], dtype=np.float64),
+        )
+    except KeyError:
+        logger.warning("yaw key not found in trajectory dataset")
+    trajectory = xr.Dataset(data_vars=data_vars, coords=coords)
+    logger.success("trajectory dataset created successfully")
+    return trajectory

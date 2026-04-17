@@ -20,8 +20,23 @@ from OceanDataStore import OceanDataCatalog
 
 def get_extent(spec_file: str) -> dict:
     """
-    gets model data using extent specificied in specification toml file
-    and returns a dictionary detailing their paths/locations.
+    Download model data for the extent defined in a TOML specification file.
+
+    Reads spatial and temporal extent parameters from the specification file,
+    retrieves the corresponding model data, and returns a dictionary mapping
+    each data source to its local path or storage location.
+
+    Parameters
+    ----------
+    spec_file : str
+        Path to the TOML specification file defining the spatial domain,
+        time range, and data sources to retrieve.
+
+    Returns
+    -------
+    dict
+        Mapping of data source names to their local file paths or storage
+        locations for use with `create_interpolator`.
     """
     with open(spec_file, "rb") as f:
         raw = tomllib.load(f)
@@ -35,8 +50,26 @@ def get_extent(spec_file: str) -> dict:
 
 def get_data(mission: xr.DataTree) -> xr.DataTree:
     """
-    gets model data using mission attributes derived from a trajectory dataset and
-    updates mission attributes with paths/locations of downloaded data
+    Download model data for the spatial and temporal extent of a mission.
+
+    Derives the required spatial domain and time range from the mission
+    trajectory, retrieves the corresponding model data, and returns the
+    mission DataTree updated with the paths or storage locations of the
+    downloaded data.
+
+    Parameters
+    ----------
+    mission : xr.DataTree
+        A mission DataTree as returned by `create_mission`, from which
+        trajectory-derived spatial and temporal extent attributes are read
+        to determine the data download bounds.
+
+    Returns
+    -------
+    xr.DataTree
+        The input mission DataTree with top-level attributes updated to
+        include the paths or storage locations of the downloaded model
+        data, suitable for passing to `create_interpolator`.
     """
     logger.info("getting data as specified in mission attributes")
     sensors = mission["platform"].attrs["sensors"]
@@ -133,7 +166,9 @@ def __get_local(source_id, variables, geospatial_attrs):
 def __get_cmems(
     source_id, variables, geospatial_attrs, excess=0.5, excess_depth=100
 ) -> str:
-    """ """
+    """
+    cmems specific function to download data from CMEMS using copernicusmarinetoolbox
+    """
     zarr_f = (
         f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"
         f"{round(geospatial_attrs['geospatial_lat_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lat_min'] - excess, 3)}_"
@@ -191,7 +226,9 @@ def __get_cmems(
 
 
 def __get_NOC(source_id, geospatial_attrs, excess=0.5) -> str:
-    """ """
+    """
+    NOC specific function to download data from OceanDataStore
+    """
     catalog = OceanDataCatalog(catalog_name="noc-model-stac")
     zarr_f = (
         f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"

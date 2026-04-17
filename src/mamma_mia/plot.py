@@ -412,11 +412,32 @@ def start_payload_dashboard(
     mission: xr.DataTree, parameter=None, in_app: bool = False, port: int = 8050
 ):
     """
-    Drop-in replacement for the original plot_payload function.
+    Launch an interactive payload dashboard or return a static figure for a single parameter.
 
-    When `parameter` is None (default) a full Dash dashboard is launched.
-    When `parameter` is supplied a static Plotly figure is returned / shown,
-    preserving backwards-compatibility with the original behaviour.
+    When no parameter is specified, a full multi-parameter Dash dashboard is
+    launched in a browser. When a parameter is specified, a static Plotly figure
+    is returned or displayed inline instead.
+
+    Parameters
+    ----------
+    mission : xr.DataTree
+        A mission DataTree as returned by `fly`, containing populated payload
+        sensor observations to visualise.
+    parameter : str, optional
+        Name of a single payload parameter to plot as a static Plotly figure.
+        If None, the full Dash dashboard is launched. Default is None.
+    in_app : bool, optional
+        If True, renders the output inline (e.g. within a Jupyter notebook)
+        rather than opening a browser window. Default is False.
+    port : int, optional
+        Port on which to serve the Dash dashboard. Only relevant when
+        ``parameter`` is None. Default is 8050.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure or None
+        A static Plotly figure when ``parameter`` is supplied, otherwise None
+        as the Dash app is served in a browser process.
     """
     logger.info("starting payload dashboard...")
     if parameter is None:

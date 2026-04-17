@@ -23,23 +23,53 @@ def simulate_sensor_error(
     m_max,
     percent_errors: bool,
     noise_std: float,
-):
+) -> np.ndarray:
     """
-    Simulate synthetic temperature observations from model truth.
-    Applies:
-    - bias based on accuracy
-    - noise
-    - drift per month
+    Simulate synthetic sensor observations by applying error models to model truth values.
 
-    Parameters:
-    - model_t: array of model "true" sensor values
-    - mission_ts: mission time step (seconds)
-    - accuracy_bias: max absolute bias error (±value)
-    - noise_std: std of random noise (instrumental)
-    - resolution: sensor resolution (quantization step)
-    - drift_per_month: long-term drift in unit/month
-    - m_min, m_max: valid measurement range
-    - percent: if true all error values are % of sensor range
+    Transforms an array of model truth values into realistic synthetic observations
+    by sequentially applying bias, random noise, long-term drift, and quantization.
+    Error magnitudes can be expressed either in absolute units or as a percentage of
+    the sensor measurement range.
+
+    Parameters
+    ----------
+    model_t : array-like
+        Array of model truth values representing the idealised sensor signal.
+    mission_ts : int
+        Mission time step in seconds, used to accumulate drift over the
+        observation period.
+    accuracy_bias : float
+        Maximum absolute bias error applied to the signal (±value). If
+        ``percent_errors`` is True, interpreted as a percentage of the
+        sensor range.
+    resolution : float
+        Sensor quantization step size. Observations are rounded to the nearest
+        multiple of this value. If ``percent_errors`` is True, interpreted as
+        a percentage of the sensor range.
+    drift_per_month : float
+        Long-term linear drift rate in sensor units per month. If
+        ``percent_errors`` is True, interpreted as a percentage of the
+        sensor range per month.
+    m_min : float
+        Lower bound of the valid sensor measurement range.
+    m_max : float
+        Upper bound of the valid sensor measurement range.
+    percent_errors : bool
+        If True, ``accuracy_bias``, ``noise_std``, ``resolution``, and
+        ``drift_per_month`` are all treated as percentages of the sensor
+        range (``m_max - m_min``) rather than absolute values.
+    noise_std : float
+        Standard deviation of the Gaussian random noise component. If
+        ``percent_errors`` is True, interpreted as a percentage of the
+        sensor range.
+
+    Returns
+    -------
+    array-like
+        Array of simulated sensor observations with bias, noise, drift, and
+        quantization applied, clipped to the valid measurement range
+        [``m_min``, ``m_max``].
     """
     if (
         accuracy_bias == -999.999

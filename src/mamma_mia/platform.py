@@ -16,9 +16,20 @@ from loguru import logger
 
 def create_platform(spec_file: str) -> xr.Dataset:
     """
-    creates a platform dataset from a specification file, the file
-    details the platform attributes and sensor specificion
-    (what model to use etc.)
+    Create a platform Dataset from a TOML specification file.
+
+    Parameters
+    ----------
+    spec_file : str
+        Path to the platform specification file, which defines platform-level
+        attributes (e.g. name, type) and the sensor suite configuration
+        (e.g. sensor models, observation error parameters).
+
+    Returns
+    -------
+    xr.Dataset
+        A Dataset encoding the platform attributes and sensor specifications,
+        suitable for passing to `create_mission`.
     """
     with open(spec_file, "rb") as f:
         raw = tomllib.load(f)
