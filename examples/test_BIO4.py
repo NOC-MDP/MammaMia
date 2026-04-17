@@ -9,16 +9,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mamma_mia.campaign_xr import add_missions, create_campaign
-from mamma_mia.get_data_xr import get_data
-from mamma_mia.plot import plot_path, start_payload_dashboard
-from mamma_mia.trajectory import create_trajectory
+from mamma_mia import (
+    add_missions,
+    create_campaign,
+    create_interpolator,
+    create_mission,
+    create_platform,
+    create_trajectory,
+    fly,
+    get_data,
+    plot_path,
+    start_payload_dashboard,
+)
 
-from mamma_mia.interpolator import create_interpolator
-from mamma_mia.mission import create_mission, fly
-from mamma_mia.platform import create_platform
-
-spec_file = "BIOCARBON_ALR4_spec.toml"
+spec_file = "spec_files/BIOCARBON_ALR4_spec.toml"
 traj = create_trajectory(spec_file=spec_file)
 platform = create_platform(spec_file=spec_file)
 

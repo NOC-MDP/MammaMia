@@ -1,5 +1,5 @@
 [specification.trajectory]
-path = "BioCarbonTrajectories/ALR_4_649_R.nc"
+path = "../BioCarbonTrajectories/ALR_4_649_R.nc"
 
 [specification.platform]
 type = "alr1500"
@@ -40,6 +40,16 @@ noise_std = 0.0005
 [specification.sensors.ctd.pressure]
 source_id = ""
 variable_name = "pressure"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.productivity.chlorophyll]
+source_id = "cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m"
+variable_name = "chl"
 accuracy = -999.999
 resolution = -999.999
 drift_per_month = -999.999

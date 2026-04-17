@@ -52,7 +52,7 @@ campaign = create_campaign(
 )
 campaign = add_missions(campaign=campaign, missions=[mission])
 # export to zarr (netcdf should be possible too)
-campaign.to_zarr("BIO_ALR4.zarr", "w", consolidated=False)
+campaign.to_zarr("RAPID.zarr", "w", consolidated=False)
 # simple plot to show payload path
 plot_path(mission=mission)
 # plot a mission payload
