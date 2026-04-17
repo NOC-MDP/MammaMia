@@ -1,4 +1,5 @@
 [specification]
+glider_name = "comet"
 
 [specification.glidersim.mission_parameters]
 mission_name = "rapid-mooring_spiral"
@@ -12,7 +13,7 @@ lon_wp = []
 dive_depth = 1000
 mission_directory = "RAPID ARRAY spiral simulation"
 data_dir = "data"
-spiral= false
+spiral= true
 
 [specification.environment.extent]
 geospatial_lat_max = 28.00
@@ -28,12 +29,12 @@ glider_model = "DEEPEXTENDED"
 [specification.glidersim.run_parameters]
 dt = 0.5
 CPUcycle = 4
-maxSimulationTime = 1
+maxSimulationTime = 1 # days?
 end_on_surfacing = false
 end_on_grounding = false
 verbose = false
 
-[specification.glidersim.flight_parameters]
+[specification.glidersim.flight_model]
 Cd0 = 0.2
 mg = 73.3
 Vg = 71.542e-3
@@ -41,7 +42,7 @@ T1 = 2052
 T2 = -35.5
 T3 = 0.36
 
-[specification.glidersim.bathymetry_parameters]
+[specification.glidersim.bathymetry]
 elevation_name = 'elevation'
 elevation_factor = -1
 lat_name = 'lat'
@@ -85,6 +86,16 @@ noise_std = -999.999
 [specification.sensors.adcp.v_velocity]
 source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/V1m_4d"
 variable_name = "vo"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.adcp.w_velocity]
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/W1m_4d"
+variable_name = "wo"
 accuracy = -999.999
 resolution = -999.999
 drift_per_month = -999.999

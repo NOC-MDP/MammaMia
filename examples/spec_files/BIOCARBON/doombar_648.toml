@@ -17,19 +17,18 @@ descent_thresh= -0.05  # m/s
 near_surface_thresh = 1
 
 [specification.trajectory]
-path = "../data/RAPID-mooring/rapid-mooring.nc"
+path = "../BioCarbonTrajectories/Doombar_648_R.nc"
 
 [specification.navigation]
-latitude = "m_lat"
-longitude = "m_lon"
-depth = "m_depth"
-pitch = "m_pitch"
-time = "time"
+latitude = "LATITUDE"
+longitude = "LONGITUDE"
+depth = "GLIDER_DEPTH"
+pitch = "GLIDER_PITCH"
+time = "TIME"
 
 [specification.sensors.ctd.conservative_temperature]
-# source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
-source_id = "../rapid_data/2_RAPID36_1d_gridT_RAPID1_202303-202303.nc"
-variable_name = "toce_con"
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
+variable_name = "thetao_con"
 accuracy = 0.001
 resolution = 0.0001
 drift_per_month = 0.0002
@@ -38,9 +37,8 @@ percent_errors = false
 noise_std = 0.0005
 
 [specification.sensors.ctd.absolute_salinity]
-# source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
-source_id = "../rapid_data/2_RAPID36_1d_gridT_RAPID1_202303-202303.nc"
-variable_name = "soce_abs"
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
+variable_name = "so_abs"
 accuracy = 0.005
 resolution = 0.0001
 drift_per_month = 0.0003

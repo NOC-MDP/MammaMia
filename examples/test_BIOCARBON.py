@@ -23,10 +23,21 @@ from mamma_mia import (
 )
 
 spec_files = [
-    "spec_files/BIOCARBON_ALR4_spec.toml",
-    "spec_files/BIOCARBON_ALR6_spec.toml",
+    "spec_files/BIOCARBON/ALR4_649.toml",
+    "spec_files/BIOCARBON/ALR6_650.toml",
+    "spec_files/BIOCARBON/cabot_645.toml",
+    # "spec_files/BIOCARBON/churchill_647.toml",
+    "spec_files/BIOCARBON/doombar_648.toml",
+    "spec_files/BIOCARBON/nelson_646.toml",
 ]
-mission_names = ["BIOCARBON AL4", "BIOCARBON AL6"]
+mission_names = [
+    "ALR4_649",
+    "ALR6_650",
+    "cabot_645",
+    # "churchill_647",
+    "doombar_648",
+    "nelson_646",
+]
 missions = []
 interpolators = []
 for i in range(spec_files.__len__()):
@@ -38,7 +49,7 @@ for i in range(spec_files.__len__()):
     missions.append(
         create_mission(
             mission_name=mission_names[i],
-            summary="simulated payload for ALR4 trajectory in BIOCARBON campaign",
+            summary=f"simulated payload for {mission_names[i]} trajectory in BIOCARBON campaign",
             platform=platform,
             trajectory=traj,
             apply_obs_error=True,
@@ -60,7 +71,7 @@ campaign = create_campaign(
 )
 campaign = add_missions(campaign=campaign, missions=missions)
 # export to zarr (netcdf should be possible too)
-campaign.to_netcdf("BIOCARBON.nc", "w")
+campaign.to_zarr("BIOCARBON_2024.zarr", consolidated=False)
 # simple plot to show payload path
 plot_path(mission=missions[1])
 # plot a mission payload
