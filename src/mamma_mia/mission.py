@@ -16,7 +16,7 @@ import numpy as np
 import xarray as xr
 from loguru import logger
 
-from mamma_mia.sim_error_xr import simulate_sensor_error
+from mamma_mia.sim_error import simulate_sensor_error
 
 
 def create_mission(

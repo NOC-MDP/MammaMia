@@ -9,13 +9,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mamma_mia.campaign_xr import add_missions, create_campaign
-from mamma_mia.get_data_xr import get_data
-from mamma_mia.interpolator_xr import create_interpolator
-from mamma_mia.mission_xr import create_mission, fly
-from mamma_mia.platform_xr import create_platform
-from mamma_mia.plot_xr import plot_path, start_payload_dashboard
-from mamma_mia.trajectory_xr import create_trajectory
+from mamma_mia import (
+    add_missions,
+    create_campaign,
+    create_interpolator,
+    create_mission,
+    create_platform,
+    create_trajectory,
+    fly,
+    get_data,
+    plot_path,
+    start_payload_dashboard,
+)
 
 spec_file = "spec_files/glider_spec.toml"
 traj = create_trajectory(spec_file=spec_file)

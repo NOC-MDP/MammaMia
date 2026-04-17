@@ -11,11 +11,12 @@
 
 from mamma_mia.campaign_xr import add_missions, create_campaign
 from mamma_mia.get_data_xr import get_data
-from mamma_mia.interpolator_xr import create_interpolator
-from mamma_mia.mission_xr import create_mission, fly
-from mamma_mia.platform_xr import create_platform
-from mamma_mia.plot_xr import plot_path, start_payload_dashboard
-from mamma_mia.trajectory_xr import create_trajectory
+from mamma_mia.plot import plot_path, start_payload_dashboard
+from mamma_mia.trajectory import create_trajectory
+
+from mamma_mia.interpolator import create_interpolator
+from mamma_mia.mission import create_mission, fly
+from mamma_mia.platform import create_platform
 
 spec_file = "BIOCARBON_ALR4_spec.toml"
 traj = create_trajectory(spec_file=spec_file)

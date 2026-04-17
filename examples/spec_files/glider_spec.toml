@@ -1,15 +1,15 @@
 [specification]
 # This is an example specification file for a MAMMA MIA mission
 
-[specification.trajectory]
-path = "../data/RAPID-mooring/rapid-mooring.nc"
-
 [specification.platform]
 type = "glider"
 NMEA_coordinates = true
 ascent_thresh = 0.05  # m/s
 descent_thresh= -0.05  # m/s
 near_surface_thresh = 1
+
+[specification.trajectory]
+path = "../data/RAPID-mooring/rapid-mooring.nc"
 
 [specification.navigation]
 latitude = "m_lat"
