@@ -308,7 +308,7 @@ def create_dashboard(mission: xr.DataTree, port: int = 8050, debug: bool = True)
         },
         children=[
             html.H2(
-                f"Mission {mission.attrs['mission_attrs']['name']} Payload Dashboard",
+                f"Mission {mission.attrs['name']} Payload Dashboard",
                 style={"marginBottom": "4px"},
             ),
             html.Hr(),

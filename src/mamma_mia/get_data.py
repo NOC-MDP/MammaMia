@@ -73,8 +73,7 @@ def get_data(mission: xr.DataTree) -> xr.DataTree:
     """
     logger.info("getting data as specified in mission attributes")
     sensors = mission["platform"].attrs["sensors"]
-    geospatial_attrs = mission.attrs["geospatial_attrs"]
-    stores = __download_data(sensors=sensors, geospatial_attrs=geospatial_attrs)
+    stores = __download_data(sensors=sensors, geospatial_attrs=mission.attrs)
     mission.attrs.update(stores=stores)
     logger.success("data acquired successfully")
     return mission

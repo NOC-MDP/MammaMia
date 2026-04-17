@@ -81,19 +81,8 @@ def create_mission(
         "geospatial_vertical_max": float(trajectory.depth.max()),
         "geospatial_vertical_min": float(trajectory.depth.min()),
         "geospatial_vertical_units": "m",
-        "Westernmost_Easting": float(trajectory.longitude.min()),
-        "Easternmost_Easting": float(trajectory.longitude.max()),
-        "Northernmost_Northing": float(trajectory.latitude.max()),
-        "Southernmost_Northing": float(trajectory.latitude.min()),
-        "geospatial_bounds": (
-            f"POLYGON(({np.min(trajectory.longitude).values},"
-            f"{np.max(trajectory.longitude).values},"
-            f"{np.min(trajectory.latitude).values},"
-            f"{np.max(trajectory.latitude).values},))"
-        ),
         "time_coverage_end": str(np.datetime_as_string(trajectory.time[-1], unit="s")),
         "time_coverage_start": str(np.datetime_as_string(trajectory.time[0], unit="s")),
-        "featureType": "Trajectory",
     }
 
     mission_attrs = {
@@ -102,13 +91,13 @@ def create_mission(
         "date_created": datetime.strftime(datetime.now(), "%Y/%m/%dT%H:%M:%S"),
         "summary": summary,
         "mission_time_step": mission_time_step,
-        "apply_obs_error": apply_obs_error,
+        "apply_obs_error": int(apply_obs_error),
     }
 
     root = xr.Dataset(
         attrs={
-            "geospatial_attrs": geospatial_attrs,
-            "mission_attrs": mission_attrs,
+            **geospatial_attrs,
+            **mission_attrs,
         }
     )
     logger.success(
@@ -208,7 +197,7 @@ def fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
         interpolated sensor observations sampled along the mission time grid.
     """
     logger.info(
-        f"flying {mission.attrs['mission_attrs']['name']} using {mission['platform'].attrs['type']}"
+        f"flying {mission.attrs['name']} using {mission['platform'].attrs['type']}"
     )
     for sensor_key, sensor in mission.payload.items():
         for variable_key in sensor.keys():
@@ -233,13 +222,13 @@ def fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
                         z=-1 * mission.payload[sensor_key][variable_key].depth.values,
                         lat=mission.payload[sensor_key][variable_key].latitude.values,
                     )
-            if mission.attrs["mission_attrs"]["apply_obs_error"]:
+            if mission.attrs["apply_obs_error"]:
                 logger.info(
                     f"apply simulated observation errors set to True, applying to {variable_key} now"
                 )
                 result = simulate_sensor_error(
                     model_t=result,
-                    mission_ts=mission.attrs["mission_attrs"]["mission_time_step"],
+                    mission_ts=mission.attrs["mission_time_step"],
                     accuracy_bias=mission.platform.attrs["sensors"][sensor_key][
                         variable_key
                     ]["accuracy"],
@@ -267,7 +256,7 @@ def fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
             node = mission.payload[sensor_key]
             __update_node(node, result, variable_key)
 
-    logger.success(f"{mission.attrs['mission_attrs']['name']} flown successfully")
+    logger.success(f"{mission.attrs['name']} flown successfully")
     return mission
 
 

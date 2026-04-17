@@ -39,7 +39,7 @@ def create_campaign(
     """
     missions = missions or []
     children: dict[str, xr.DataTree | xr.Dataset] = {
-        mission.attrs["mission_attrs"]["name"]: mission for mission in missions
+        mission.attrs["name"]: mission for mission in missions
     }
     children["/"] = xr.Dataset(
         attrs={"campaign": campaign_name, "description": description}
@@ -79,7 +79,7 @@ def add_missions(
     updated: dict[str, xr.DataTree | xr.Dataset] = dict(campaign.children)
     updated["/"] = campaign.ds  # preserve root attributes
     for mission in missions:
-        updated[mission.attrs["mission_attrs"]["name"]] = mission
+        updated[mission.attrs["name"]] = mission
 
     campaign_name = campaign.attrs.get("campaign", "campaign")
     updated_campaign = xr.DataTree.from_dict(updated)

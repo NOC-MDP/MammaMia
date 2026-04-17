@@ -91,9 +91,7 @@ def create_interpolator(mission: xr.DataTree = None, stores: dict = None) -> dic
         for all available data stores, ready to be passed to `fly` or
         `interpolate`.
     """
-    logger.info(
-        f"creating interpolator for mission {mission.attrs['mission_attrs']['name']}"
-    )
+    logger.info(f"creating interpolator for mission {mission.attrs['name']}")
     if stores is None:
         if mission is None:
             raise ValueError("Either mission or stores must be provided")
