@@ -27,6 +27,7 @@ def create_mission(
     mission_time_step: int = 60,
     apply_obs_error: bool = True,
 ) -> xr.DataTree:
+    logger.info(f"creating a mission datatree called {mission_name}")
     # if platform uses NMEA coords convert them to lat lon for payload
     if platform.attrs["NMEA_coordinates"]:
         logger.info("Platform requires NMEA coordinate conversion")
@@ -36,7 +37,9 @@ def create_mission(
         trajectory["latitude"] = xr.apply_ufunc(
             __convert_to_decimal, trajectory["latitude"], vectorize=True
         )
-        logger.info("Successfully converted from NMEA coordinates to decimal degrees")
+        logger.success(
+            "Successfully converted from NMEA coordinates to decimal degrees"
+        )
     # write geospatial attributes to allow world search
     geospatial_attrs = {
         "geospatial_bounds_crs": "EPSG:4326",
@@ -80,7 +83,9 @@ def create_mission(
             "mission_attrs": mission_attrs,
         }
     )
-
+    logger.success(
+        "successfully created root dataset with mission and geospatial attributes"
+    )
     t_start = trajectory.time.values[0]
     t_end = trajectory.time.values[-1]
     # create new payload time coords to interpolate trajectory onto
@@ -102,6 +107,9 @@ def create_mission(
         "longitude": ("time", traj_interp.longitude.values),
         "depth": ("time", traj_interp.depth.values),
     }
+    logger.success(
+        "successfully interpolated trajectory to match specified mission timestep"
+    )
     # create payload dataset, an dataset for each sensor with variables stored as empty arrays
     payload = {
         sensor_name: xr.Dataset(
@@ -113,7 +121,7 @@ def create_mission(
         )
         for sensor_name, sensor_params in platform.attrs["sensors"].items()
     }
-
+    logger.success("successfully built payload dataset")
     # Define state mapping (CF convention)
     state_map = {"hovering": 0, "diving": 1, "climbing": 2, "surfaced": 3}
 
@@ -138,6 +146,7 @@ def create_mission(
             "state_meanings": state_map,
         },
     )
+    logger.success("successfully determined and created platform state")
     # combine all the bits into one datatree
     mission = xr.DataTree.from_dict(
         {
@@ -147,7 +156,7 @@ def create_mission(
             **{f"payload/{sensor_name}": ds for sensor_name, ds in payload.items()},
         }
     )
-    logger.success(f"mission {mission_name} created successfully")
+    logger.success(f"mission {mission_name} datatree created successfully")
     return mission
 
 

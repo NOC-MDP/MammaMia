@@ -396,10 +396,7 @@ def create_dashboard(mission: xr.DataTree, port: int = 8050, debug: bool = True)
 
         fig = make_figure(lon, lat, depth, color, title, colorscale)
         logger.info(
-            "Plot updated — sensor=%s variable=%s colorscale=%s",
-            sensor,
-            variable,
-            colorscale,
+            f"Plot updated — sensor={sensor} variable={variable} colorscale={colorscale}",
         )
         return fig
 
@@ -489,3 +486,4 @@ def plot_path(
     fig.update_scenes(zaxis_autorange="reversed")
     fig.update_layout(title=title, scene=scene)
     fig.show()
+    logger.success("successfully created platform path plot.")

@@ -1,5 +1,8 @@
+[specification]
+# This is an example specification file for a MAMMA MIA mission
+
 [specification.trajectory]
-path = "data/RAPID-mooring/rapid-mooring.nc"
+path = "../data/RAPID-mooring/rapid-mooring.nc"
 
 [specification.platform]
 type = "glider"
@@ -17,7 +20,7 @@ time = "time"
 
 [specification.sensors.ctd.conservative_temperature]
 # source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
-source_id = "rapid_data/2_RAPID36_1d_gridT_RAPID1_202303-202303.nc"
+source_id = "../rapid_data/2_RAPID36_1d_gridT_RAPID1_202303-202303.nc"
 variable_name = "toce_con"
 accuracy = 0.001
 resolution = 0.0001
@@ -28,7 +31,7 @@ noise_std = 0.0005
 
 [specification.sensors.ctd.absolute_salinity]
 # source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
-source_id = "rapid_data/2_RAPID36_1d_gridT_RAPID1_202303-202303.nc"
+source_id = "../rapid_data/2_RAPID36_1d_gridT_RAPID1_202303-202303.nc"
 variable_name = "soce_abs"
 accuracy = 0.005
 resolution = 0.0001

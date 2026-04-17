@@ -17,7 +17,7 @@ from mamma_mia.platform_xr import create_platform
 from mamma_mia.plot_xr import plot_path, start_payload_dashboard
 from mamma_mia.trajectory_xr import create_trajectory
 
-spec_file = "glider_spec.toml"
+spec_file = "spec_files/glider_spec.toml"
 traj = create_trajectory(spec_file=spec_file)
 platform = create_platform(spec_file=spec_file)
 

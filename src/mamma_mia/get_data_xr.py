@@ -38,10 +38,12 @@ def get_data(mission: xr.DataTree) -> xr.DataTree:
     gets model data using mission attributes derived from a trajectory dataset and
     updates mission attributes with paths/locations of downloaded data
     """
+    logger.info("getting data as specified in mission attributes")
     sensors = mission["platform"].attrs["sensors"]
     geospatial_attrs = mission.attrs["geospatial_attrs"]
     stores = __download_data(sensors=sensors, geospatial_attrs=geospatial_attrs)
     mission.attrs.update(stores=stores)
+    logger.success("data acquired successfully")
     return mission
 
 
@@ -75,12 +77,14 @@ def __download_data(sensors, geospatial_attrs):
         for source_id, source_var in source_ids.items():
             parts = source_id.split("-")
             parts2 = source_id.split("_")
+            # if NOC datasource
             if parts[0] == "noc":
                 store = __get_NOC(
                     source_id=source_id,
                     geospatial_attrs=geospatial_attrs,
                 )
                 regrid = True
+            # if CMEMS datasource
             elif parts2[0] == "cmems":
                 store = __get_cmems(
                     source_id=source_id,
@@ -88,6 +92,7 @@ def __download_data(sensors, geospatial_attrs):
                     geospatial_attrs=geospatial_attrs,
                 )
                 regrid = False
+            # if its a file path
             elif parts[-1].endswith(".nc") or parts[-1].endswith(".zarr"):
                 store = __get_local(
                     source_id=source_id,
@@ -95,7 +100,6 @@ def __download_data(sensors, geospatial_attrs):
                     geospatial_attrs=geospatial_attrs,
                 )
                 regrid = True
-
             else:
                 raise Exception(f"unknown source id: {source_id}")
             # create a store location for each parameter (for interpoator)
@@ -130,7 +134,6 @@ def __get_cmems(
     source_id, variables, geospatial_attrs, excess=0.5, excess_depth=100
 ) -> str:
     """ """
-
     zarr_f = (
         f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"
         f"{round(geospatial_attrs['geospatial_lat_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lat_min'] - excess, 3)}_"

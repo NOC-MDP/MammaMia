@@ -1,3 +1,5 @@
+[specification]
+
 [specification.glidersim.mission_parameters]
 mission_name = "rapid-mooring_spiral"
 description = "RAPID ARRAY spiral simulation"

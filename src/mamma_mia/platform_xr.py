@@ -15,17 +15,19 @@ from loguru import logger
 
 
 def create_platform(spec_file: str) -> xr.Dataset:
+    """
+    creates a platform dataset from a specification file, the file
+    details the platform attributes and sensor specificion
+    (what model to use etc.)
+    """
     with open(spec_file, "rb") as f:
         raw = tomllib.load(f)
-
     spec = raw["specification"]
-
+    # add platform attribures
     attributes = spec["platform"]
-    attributes["sensors"] = {}
-    # add requested sensors
-    for sensor_key, sensor_val in spec["sensors"].items():
-        attributes["sensors"][sensor_key] = sensor_val
-
+    # add sensors
+    attributes["sensors"] = spec["sensors"]
+    # create platform dataset with empty state array to be filled when creating mission
     platform = xr.Dataset(data_vars={"state": []}, attrs=attributes)
     logger.success(f"Successfully created platform of type: {spec['platform']['type']}")
     return platform

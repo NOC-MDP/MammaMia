@@ -29,6 +29,13 @@ def _parse_time(values) -> np.ndarray:
 
 
 def create_trajectory(spec_file: str = "") -> xr.Dataset:
+    """
+    returns a MAMMA MIA compatible trajectory dataset from an input file,
+    supports netcdf, zarr and csv files. Spec file details input file and the
+    variable names for navigation paramters. Any NaN's are currently interpolated
+    so it is assumed that there is sufficent valid data between them.
+    """
+    logger.info(f"creating a trajectory dataset using spec file {spec_file}")
     if spec_file == "":
         coords = {
             "time": np.array(-999.999),
@@ -99,5 +106,6 @@ def create_trajectory(spec_file: str = "") -> xr.Dataset:
             )
         except KeyError:
             logger.warning("yaw key not found in trajectory dataset")
-
-        return xr.Dataset(data_vars=data_vars, coords=coords)
+        trajectory = xr.Dataset(data_vars=data_vars, coords=coords)
+        logger.success("trajectory dataset created successfully")
+        return trajectory
