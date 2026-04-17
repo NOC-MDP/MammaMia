@@ -99,7 +99,7 @@ def create_mission(
     mission_attrs = {
         "name": mission_name,
         "uuid": str(uuid.uuid4()),
-        "date_created": datetime.strftime(datetime.now(), format="YYYY/MM/DDTHH:MM:SS"),
+        "date_created": datetime.strftime(datetime.now(), "%Y/%m/%dT%H:%M:%S"),
         "summary": summary,
         "mission_time_step": mission_time_step,
         "apply_obs_error": apply_obs_error,

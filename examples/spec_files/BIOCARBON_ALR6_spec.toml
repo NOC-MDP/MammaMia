@@ -1,5 +1,5 @@
 [specification.trajectory]
-path = "BioCarbonTrajectories/ALR_6_650_R.nc"
+path = "../BioCarbonTrajectories/ALR_6_650_R.nc"
 
 [specification.platform]
 type = "alr1500"
