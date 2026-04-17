@@ -6,11 +6,11 @@ stores = get_extent(spec_file="rapid_vm_sim_spec.toml")
 interpolators = create_interpolator(stores=stores)
 
 point = {
-    "latitude": 26.834,
-    "longitude": -15.142,
-    "depth": 25.0,
-    "time": "2023-03-03T00:00:00",
+    "latitude": [26.834],
+    "longitude": [-15.142],
+    "depth": [25.0],
+    "time": ["2023-03-03T00:00:00"],
 }
 
-interp_data = interpolate(interpolators=interpolators, point=point)
+interp_data = interpolate(interpolators=interpolators, coords=point)
 print(interp_data)

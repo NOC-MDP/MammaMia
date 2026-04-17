@@ -88,6 +88,14 @@ def __download_data(sensors, geospatial_attrs):
                     geospatial_attrs=geospatial_attrs,
                 )
                 regrid = False
+            elif parts[-1].endswith(".nc") or parts[-1].endswith(".zarr"):
+                store = __get_local(
+                    source_id=source_id,
+                    variables=source_var["variable_names"],
+                    geospatial_attrs=geospatial_attrs,
+                )
+                regrid = True
+
             else:
                 raise Exception(f"unknown source id: {source_id}")
             # create a store location for each parameter (for interpoator)
@@ -100,21 +108,28 @@ def __download_data(sensors, geospatial_attrs):
     return stores
 
 
+def __get_local(source_id, variables, geospatial_attrs):
+    """
+    check if local data file exists, has all the variables needed and contains
+    the correct temporal and spatial extent
+    """
+    if os.path.isfile(source_id):
+        logger.info(f"file found at source id path: {source_id}")
+    else:
+        raise Exception(f"no input data file found at location {source_id}")
+    ds = xr.open_dataset(source_id)
+    missing = [v for v in variables if v not in ds]
+    if missing:
+        raise Exception(f"Missing variables in dataset: {missing}")
+    if not __check_subset(ds=ds, geospatial_attrs=geospatial_attrs):
+        raise Exception("Dataset does not cover full extent of mission trajectory")
+    return source_id
+
+
 def __get_cmems(
     source_id, variables, geospatial_attrs, excess=0.5, excess_depth=100
 ) -> str:
-    """
-    function that downloads model data from CMEMS, data must match the temporal and spatial extents of the auv, and also
-    have the required variables to match the sensor arrays of the auv.
-    Args:
-        value: object that contains the intake entry of the matched dataset
-        worlds:
-
-    Returns:
-        string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
-        the downloaded model data.
-
-    """
+    """ """
 
     zarr_f = (
         f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"
@@ -173,17 +188,7 @@ def __get_cmems(
 
 
 def __get_NOC(source_id, geospatial_attrs, excess=0.5) -> str:
-    """
-    Function that downloads the NOC source model data that matches the required spatial and temporal extents and sensor
-    specification of the auv.
-    Args:
-        key: model source
-        worlds:
-
-    Returns:
-        string that represents the zarr store location of the downloaded data. The world zarr group is also updated with
-        the downloaded model data.
-    """
+    """ """
     catalog = OceanDataCatalog(catalog_name="noc-model-stac")
     zarr_f = (
         f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"
@@ -234,3 +239,55 @@ def __get_NOC(source_id, geospatial_attrs, excess=0.5) -> str:
         ds.drop_encoding().to_zarr(store=zarr_d + zarr_f)
         logger.success(f"{zarr_f} has been cached")
     return zarr_d + zarr_f
+
+
+def __check_subset(
+    ds: xr.Dataset,
+    geospatial_attrs: dict,
+    fill_value: int = -1,
+) -> bool:
+    """
+    Checks the input dataset to ensure the whole required extent fits within it.
+
+    Args:
+        ds: xarray dataset
+        extent: WorldExtent object
+        time_start: start of required temporal extent (DD/MM/YYYYTHH:MM:SS)
+        time_end: end of required temporal extent (DD/MM/YYYYTHH:MM:SS)
+        fill_value: fill value to exclude from bounds calculation
+    Returns:
+        True if the dataset covers the full extent, False otherwise
+    Raises:
+        ValueError: if no valid lat/lon values are found in the dataset
+    """
+
+    lat = ds["nav_lat"].values
+    lon = ds["nav_lon"].values
+
+    valid_mask = ~np.isclose(lat, fill_value) & ~np.isclose(lon, fill_value)
+    lat_valid = lat[valid_mask]
+    lon_valid = lon[valid_mask]
+
+    if lat_valid.size == 0 or lon_valid.size == 0:
+        raise ValueError(
+            f"No valid lat/lon values found in dataset after excluding fill value ({fill_value})."
+        )
+
+    ds_bounds = {
+        "lat": (float(lat_valid.min()), float(lat_valid.max())),
+        "lon": (float(lon_valid.min()), float(lon_valid.max())),
+        "time": (ds["time_counter"].values.min(), ds["time_counter"].values.max()),
+    }
+
+    requested_time_start = np.datetime64(geospatial_attrs["time_coverage_start"])
+
+    requested_time_end = np.datetime64(geospatial_attrs["time_coverage_end"])
+
+    return (
+        ds_bounds["lat"][0] <= geospatial_attrs["geospatial_lat_min"]
+        and ds_bounds["lat"][1] >= geospatial_attrs["geospatial_lat_max"]
+        and ds_bounds["lon"][0] <= geospatial_attrs["geospatial_lon_min"]
+        and ds_bounds["lon"][1] >= geospatial_attrs["geospatial_lon_max"]
+        and ds_bounds["time"][0] <= requested_time_start
+        and ds_bounds["time"][1] >= requested_time_end
+    )

@@ -16,8 +16,9 @@ pitch = "m_pitch"
 time = "time"
 
 [specification.sensors.ctd.conservative_temperature]
-source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
-variable_name = "thetao_con"
+# source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
+source_id = "rapid_data/2_RAPID36_1d_gridT_RAPID1_202303-202303.nc"
+variable_name = "toce_con"
 accuracy = 0.001
 resolution = 0.0001
 drift_per_month = 0.0002
@@ -26,8 +27,9 @@ percent_errors = false
 noise_std = 0.0005
 
 [specification.sensors.ctd.absolute_salinity]
-source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
-variable_name = "so_abs"
+# source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
+source_id = "rapid_data/2_RAPID36_1d_gridT_RAPID1_202303-202303.nc"
+variable_name = "soce_abs"
 accuracy = 0.005
 resolution = 0.0001
 drift_per_month = 0.0003
