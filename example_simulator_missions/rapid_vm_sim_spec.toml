@@ -2,8 +2,9 @@
 glider_name = "comet"
 
 [specification.glidersim.mission_parameters]
-mission_name = "rapid-mooring_spiral"
-description = "RAPID ARRAY spiral simulation"
+mission_name = "rapid-mooring"
+mission_type = "virtual_mooring"
+description = "RAPID ARRAY simulation"
 datetime_str = "2023-03-03T12:00:00:Z"
 lat_ini = 27.225
 lon_ini = -15.4225
@@ -11,9 +12,9 @@ initial_heading = 200.00
 lat_wp = []
 lon_wp = []
 dive_depth = 1000
-mission_directory = "RAPID ARRAY spiral simulation"
+mission_directory = "RAPID ARRAY simulation"
 data_dir = "data"
-spiral= true
+spiral= false
 
 [specification.environment.extent]
 geospatial_lat_max = 28.00

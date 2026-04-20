@@ -3,6 +3,7 @@ glider_name = "comet"
 
 [specification.glidersim.mission_parameters]
 mission_name = "rapid waypoints"
+mission_type = "follow_waypoints"
 description = "RAPID ARRAY waypoints simulation"
 datetime_str = "2023-03-03T12:00:00:Z"
 lat_ini = 27.225

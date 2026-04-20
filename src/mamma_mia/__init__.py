@@ -13,10 +13,9 @@ from mamma_mia.get_data import get_data
 from mamma_mia.interpolator import create_interpolator
 from mamma_mia.mission import create_mission, fly
 from mamma_mia.mission_builder import (
-    follow_waypoints,
     run_mission,
     save_mission,
-    virtual_mooring,
+    simulate,
 )
 from mamma_mia.platform import create_platform
 from mamma_mia.plot import plot_path, start_payload_dashboard
