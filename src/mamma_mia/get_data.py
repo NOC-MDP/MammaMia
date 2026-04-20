@@ -228,6 +228,7 @@ def __get_NOC(source_id, geospatial_attrs, excess=0.5) -> str:
     """
     NOC specific function to download data from OceanDataStore
     """
+    time_excess = 30  # days
     catalog = OceanDataCatalog(catalog_name="noc-model-stac")
     zarr_f = (
         f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"
@@ -236,14 +237,14 @@ def __get_NOC(source_id, geospatial_attrs, excess=0.5) -> str:
         }_{
             np.datetime_as_string(
                 np.datetime64(geospatial_attrs['time_coverage_start'])
-                - np.timedelta64(30, 'D'),
+                - np.timedelta64(time_excess, 'D'),
                 unit='D',
             )
         }_"
         f"{
             np.datetime_as_string(
                 np.datetime64(geospatial_attrs['time_coverage_end'])
-                + np.timedelta64(30, 'D'),
+                + np.timedelta64(time_excess, 'D'),
                 unit='D',
             )
         }.zarr"
@@ -257,14 +258,14 @@ def __get_NOC(source_id, geospatial_attrs, excess=0.5) -> str:
             start_datetime=str(
                 np.datetime_as_string(
                     np.datetime64(geospatial_attrs["time_coverage_start"])
-                    - np.timedelta64(30, "D"),
+                    - np.timedelta64(time_excess, "D"),
                     unit="D",
                 )
             ),
             end_datetime=str(
                 np.datetime_as_string(
                     np.datetime64(geospatial_attrs["time_coverage_end"])
-                    + np.timedelta64(30, "D"),
+                    + np.timedelta64(time_excess, "D"),
                     unit="D",
                 )
             ),

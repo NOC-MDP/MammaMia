@@ -26,7 +26,7 @@ def _parse_time(values) -> np.ndarray:
     )
 
 
-def create_trajectory(spec_file: str) -> xr.Dataset:
+def create_trajectory(spec_file: str, ds=None) -> xr.Dataset:
     """
     Create a trajectory Dataset from a TOML specification file.
 
@@ -57,17 +57,18 @@ def create_trajectory(spec_file: str) -> xr.Dataset:
         raw = tomllib.load(f)
     spec = raw["specification"]
 
-    # Open dataset
-    path = spec["trajectory"]["path"]
-    if path[-3:] == ".nc":
-        ds = xr.open_dataset(path)
-    elif path[-4:] == ".csv":
-        ds = pd.read_csv(path)
-    elif path[-5:] == ".zarr":
-        ds = xr.open_dataset(path, engine="zarr")
-    else:
-        extension = path.split(".")[-1]
-        raise Exception(f"trajectory file type: {extension} is not supported")
+    if ds is None:
+        # Open dataset
+        path = spec["trajectory"]["path"]
+        if path[-3:] == ".nc":
+            ds = xr.open_dataset(path)
+        elif path[-4:] == ".csv":
+            ds = pd.read_csv(path)
+        elif path[-5:] == ".zarr":
+            ds = xr.open_dataset(path, engine="zarr")
+        else:
+            extension = path.split(".")[-1]
+            raise Exception(f"trajectory file type: {extension} is not supported")
 
     # Extract and clean navigation coordinates
     lat = np.array(ds[spec["navigation"]["latitude"]], dtype=np.float64)

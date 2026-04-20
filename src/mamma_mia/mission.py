@@ -13,6 +13,7 @@ from datetime import datetime
 
 import gsw
 import numpy as np
+import pandas as pd
 import xarray as xr
 from loguru import logger
 
@@ -68,6 +69,13 @@ def create_mission(
         logger.success(
             "Successfully converted from NMEA coordinates to decimal degrees"
         )
+    # Get first and last *valid* (non-NaT) time values
+    time_vals = trajectory.time.values
+    valid_times = time_vals[~pd.isnull(time_vals)]
+    if len(valid_times) == 0:
+        raise ValueError("trajectory contains no valid (non-NaT) time values")
+    t_start = valid_times[0]
+    t_end = valid_times[-1]
     # write geospatial attributes to allow world search
     geospatial_attrs = {
         "geospatial_bounds_crs": "EPSG:4326",
@@ -81,8 +89,8 @@ def create_mission(
         "geospatial_vertical_max": float(trajectory.depth.max()),
         "geospatial_vertical_min": float(trajectory.depth.min()),
         "geospatial_vertical_units": "m",
-        "time_coverage_end": str(np.datetime_as_string(trajectory.time[-1], unit="s")),
-        "time_coverage_start": str(np.datetime_as_string(trajectory.time[0], unit="s")),
+        "time_coverage_end": str(np.datetime_as_string(t_start, unit="s")),
+        "time_coverage_start": str(np.datetime_as_string(t_end, unit="s")),
     }
 
     mission_attrs = {
@@ -103,8 +111,7 @@ def create_mission(
     logger.success(
         "successfully created root dataset with mission and geospatial attributes"
     )
-    t_start = trajectory.time.values[0]
-    t_end = trajectory.time.values[-1]
+
     # create new payload time coords to interpolate trajectory onto
     new_time = np.arange(
         t_start,
@@ -113,8 +120,13 @@ def create_mission(
         dtype="datetime64[ns]",
     )
 
-    # interpolate trajectory coords onto new time axis
-    traj_interp = trajectory.interp(time=new_time, method="linear")
+    # Drop NaT time steps first, then deduplicate and sort
+    valid_mask = ~pd.isnull(trajectory.time.values)
+    traj_clean = trajectory.isel(time=valid_mask)
+
+    _, unique_idx = np.unique(traj_clean.time.values, return_index=True)
+    traj_unique = traj_clean.isel(time=unique_idx)
+    traj_interp = traj_unique.interp(time=new_time, method="linear")
 
     n_times = len(new_time)
     # create new coords for payload dataset
