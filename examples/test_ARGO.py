@@ -9,7 +9,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import xarray as xr
-from pydantic import IPvAnyInterface
 
 from mamma_mia import (
     add_missions,
