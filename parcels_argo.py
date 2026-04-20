@@ -1,5 +1,6 @@
 # Define the new Kernel that mimics Argo vertical movement
 from datetime import timedelta
+
 import numpy as np
 import parcels
 
@@ -52,7 +53,6 @@ def ArgoVerticalMovement(particle, fieldset, time):
         particle.cycle_age += particle.dt  # update cycle_age
 
 
-
 # Load the GlobCurrent data in the Agulhas region from the example_data
 example_dataset_folder = parcels.download_example_dataset("GlobCurrent_example_data")
 filenames = {
@@ -88,7 +88,11 @@ ArgoParticle = parcels.JITParticle.add_variables(
 
 # Initiate one Argo float in the Agulhas Current
 pset = parcels.ParticleSet(
-    fieldset=fieldset, pclass=ArgoParticle, lon=[32], lat=[-31], depth=[0]
+    fieldset=fieldset,
+    pclass=ArgoParticle,
+    lon=[32, 32.1],
+    lat=[-31, -31.1],
+    depth=[0, 0],
 )
 
 # combine Argo vertical movement kernel with built-in Advection kernel
@@ -112,7 +116,7 @@ pset.execute(
 import matplotlib.pyplot as plt
 import xarray as xr
 
-ds = xr.open_zarr("argo_float.zarr")
+ds = xr.open_zarr("argo_float2.zarr")
 x = ds["lon"][:].squeeze()
 y = ds["lat"][:].squeeze()
 z = ds["z"][:].squeeze()

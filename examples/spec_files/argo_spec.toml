@@ -17,7 +17,8 @@ descent_thresh= -0.05  # m/s
 near_surface_thresh = 1
 
 [specification.trajectory]
-path = "../argo_float.zarr"
+path = "trajectories/argo_float.zarr"
+dimension = "trajectory"
 
 [specification.navigation]
 latitude = "lat"

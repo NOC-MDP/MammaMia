@@ -26,6 +26,40 @@ def _parse_time(values) -> np.ndarray:
     )
 
 
+def __open_ds(path: str) -> xr.Dataset:
+    if path[-3:] == ".nc":
+        ds = xr.open_dataset(path)
+    elif path[-4:] == ".csv":
+        ds = pd.read_csv(path)
+    elif path[-5:] == ".zarr":
+        ds = xr.open_dataset(path, engine="zarr")
+    else:
+        extension = path.split(".")[-1]
+        raise Exception(f"trajectory file type: {extension} is not supported")
+    return ds
+
+
+def __open_spec(spec_file: str) -> dict:
+    """
+    open toml file and return a dict containing specification
+    """
+    with open(spec_file, "rb") as f:
+        raw = tomllib.load(f)
+    return raw["specification"]
+
+
+def create_trajectories(spec_file: str) -> [xr.Dataset]:
+    trajectories = []
+
+    spec = __open_spec(spec_file)
+    ds = __open_ds(path=spec["trajectory"]["path"])
+
+    for i in range(ds["trajectory"].__len__()):
+        ds_single_traj = ds.isel(trajectory=i)
+        trajectories.append(create_trajectory(spec_file=spec_file, ds=ds_single_traj))
+    return trajectories
+
+
 def create_trajectory(spec_file: str, ds=None) -> xr.Dataset:
     """
     Create a trajectory Dataset from a TOML specification file.
@@ -53,22 +87,11 @@ def create_trajectory(spec_file: str, ds=None) -> xr.Dataset:
     """
     logger.info(f"creating a trajectory dataset using spec file {spec_file}")
 
-    with open(spec_file, "rb") as f:
-        raw = tomllib.load(f)
-    spec = raw["specification"]
+    spec = __open_spec(spec_file)
 
     if ds is None:
-        # Open dataset
-        path = spec["trajectory"]["path"]
-        if path[-3:] == ".nc":
-            ds = xr.open_dataset(path)
-        elif path[-4:] == ".csv":
-            ds = pd.read_csv(path)
-        elif path[-5:] == ".zarr":
-            ds = xr.open_dataset(path, engine="zarr")
-        else:
-            extension = path.split(".")[-1]
-            raise Exception(f"trajectory file type: {extension} is not supported")
+        # Open dataset using spec file
+        ds = __open_ds(path=spec["trajectory"]["path"])
 
     # Extract and clean navigation coordinates
     lat = np.array(ds[spec["navigation"]["latitude"]], dtype=np.float64)

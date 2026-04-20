@@ -14,35 +14,27 @@ from mamma_mia import (
     add_missions,
     create_campaign,
     create_interpolator,
-    create_mission,
+    create_missions,
     create_platform,
-    create_trajectory,
+    create_trajectories,
     fly,
     get_data,
     plot_path,
     start_payload_dashboard,
 )
 
-ds = xr.open_zarr("../argo_float.zarr")
+ds = xr.open_zarr("trajectories/argo_float.zarr")
 spec_file = "spec_files/argo_spec.toml"
-missions = []
-for i in range(ds["trajectory"].__len__()):
-    ds_single_traj = ds.isel(trajectory=i)
-
-    traj = create_trajectory(spec_file=spec_file, ds=ds_single_traj)
-    platform = create_platform(spec_file=spec_file)
-
-    # create mission using trajectory and platform datasets
-    # a payload dataset is created but is currently empty
-    missions.append(
-        create_mission(
-            mission_name="Example ARGO",
-            summary="Virtual argo float mission",
-            platform=platform,
-            trajectory=traj,
-            apply_obs_error=True,
-        )
-    )
+trajectories = create_trajectories(spec_file=spec_file)
+platform = create_platform(spec_file=spec_file)
+missions = create_missions(
+    mission_name="Example ARGO",
+    summary="Virtual argo float mission",
+    platform=platform,
+    trajectories=trajectories,
+    apply_obs_error=True,
+)
+for i in range(missions.__len__()):
     # get data from specified souce in spec file
     # note mission is returned with locations of data stored as attributes
     missions[i] = get_data(mission=missions[i])

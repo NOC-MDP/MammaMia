@@ -11,7 +11,7 @@
 from mamma_mia.campaign import add_missions, create_campaign
 from mamma_mia.get_data import get_data
 from mamma_mia.interpolator import create_interpolator
-from mamma_mia.mission import create_mission, fly
+from mamma_mia.mission import create_mission, create_missions, fly
 from mamma_mia.mission_builder import (
     run_mission,
     save_mission,
@@ -19,4 +19,4 @@ from mamma_mia.mission_builder import (
 )
 from mamma_mia.platform import create_platform
 from mamma_mia.plot import plot_path, start_payload_dashboard
-from mamma_mia.trajectory import create_trajectory
+from mamma_mia.trajectory import create_trajectories, create_trajectory

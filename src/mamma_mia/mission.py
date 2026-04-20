@@ -20,6 +20,29 @@ from loguru import logger
 from mamma_mia.sim_error import simulate_sensor_error
 
 
+def create_missions(
+    platform: xr.Dataset,
+    trajectories: list[xr.Dataset],
+    mission_name: str,
+    summary: str,
+    mission_time_step: int = 60,
+    apply_obs_error: bool = True,
+) -> [xr.DataTree]:
+    missions = []
+    for trajectory in trajectories:
+        missions.append(
+            create_mission(
+                platform=platform,
+                trajectory=trajectory,
+                mission_name=mission_name,
+                summary=summary,
+                mission_time_step=mission_time_step,
+                apply_obs_error=apply_obs_error,
+            )
+        )
+    return missions
+
+
 def create_mission(
     platform: xr.Dataset,
     trajectory: xr.Dataset,
