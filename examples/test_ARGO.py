@@ -8,37 +8,36 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import xarray as xr
+
 
 from mamma_mia import (
     add_missions,
     create_campaign,
     create_interpolator,
-    create_missions,
+    create_mission,
     create_platform,
     create_trajectory,
-    fly_all,
+    fly,
     get_data,
     plot_path,
     start_payload_dashboard,
 )
 
-ds = xr.open_zarr("trajectories/argo_float.zarr")
 spec_file = "spec_files/argo_spec.toml"
 trajectories = create_trajectory(spec_file=spec_file)
 platform = create_platform(spec_file=spec_file)
-missions = create_missions(
+missions = create_mission(
+    platform=platform,
+    trajectory=trajectories,
     mission_name="Example ARGO",
     summary="Virtual argo float mission",
-    platform=platform,
-    trajectories=trajectories,
     apply_obs_error=True,
 )
 
 missions = get_data(mission=missions)
 interpolators = create_interpolator(mission=missions)
 
-missions = fly_all(missions=missions, interpolators=interpolators)
+missions = fly(mission=missions, interpolators=interpolators)
 
 # create a campaign to store the mission (missions can be standalone)
 campaign = create_campaign(

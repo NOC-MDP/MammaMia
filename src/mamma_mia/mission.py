@@ -10,6 +10,7 @@
 # limitations under the License.
 import uuid
 from datetime import datetime
+from typing import Union, overload
 
 import gsw
 import numpy as np
@@ -20,30 +21,59 @@ from loguru import logger
 from mamma_mia.sim_error import simulate_sensor_error
 
 
-def create_missions(
+@overload
+def create_mission(
     platform: xr.Dataset,
-    trajectories: list[xr.Dataset],
+    trajectory: xr.Dataset,
     mission_name: str,
     summary: str,
     mission_time_step: int = 60,
     apply_obs_error: bool = True,
-) -> [xr.DataTree]:
-    missions = []
-    for trajectory in trajectories:
-        missions.append(
-            create_mission(
-                platform=platform,
-                trajectory=trajectory,
-                mission_name=mission_name,
-                summary=summary,
-                mission_time_step=mission_time_step,
-                apply_obs_error=apply_obs_error,
-            )
-        )
-    return missions
+) -> xr.DataTree: ...
+
+
+@overload
+def create_mission(
+    platform: xr.Dataset,
+    trajectory: list[xr.Dataset],
+    mission_name: str,
+    summary: str,
+    mission_time_step: int = 60,
+    apply_obs_error: bool = True,
+) -> [xr.DataTree]: ...
 
 
 def create_mission(
+    platform: xr.Dataset,
+    trajectory: Union[xr.Dataset, list[xr.Dataset]],
+    mission_name: str,
+    summary: str,
+    mission_time_step: int = 60,
+    apply_obs_error: bool = True,
+) -> Union[xr.DataTree, list[xr.DataTree]]:
+    if isinstance(trajectory, list):
+        return [
+            _create_mission(
+                platform=platform,
+                trajectory=t,
+                mission_name=mission_name,
+                summary=summary,
+                mission_time_step=60,
+                apply_obs_error=apply_obs_error,
+            )
+            for t in trajectory
+        ]
+    return _create_mission(
+        platform=platform,
+        trajectory=trajectory,
+        mission_name=mission_name,
+        summary=summary,
+        mission_time_step=60,
+        apply_obs_error=apply_obs_error,
+    )
+
+
+def _create_mission(
     platform: xr.Dataset,
     trajectory: xr.Dataset,
     mission_name: str,
@@ -212,16 +242,24 @@ def create_mission(
     return mission
 
 
-def fly_all(
-    missions: list[xr.DataTree], interpolators: list[dict]
-) -> list[xr.DataTree]:
-    flown = []
-    for i in range(missions.__len__()):
-        flown.append(fly(mission=missions[i], interpolators=interpolators[i]))
-    return flown
+@overload
+def fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree: ...
 
 
-def fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
+@overload
+def fly(mission: list[xr.DataTree], interpolators: list[dict]) -> list[xr.DataTree]: ...
+
+
+def fly(
+    mission: Union[xr.DataTree, list[xr.DataTree]],
+    interpolators: Union[dict, list[dict]],
+) -> Union[xr.DataTree, list[xr.DataTree]]:
+    if isinstance(mission, list) and isinstance(interpolators, list):
+        return [_fly(m, i) for m, i in zip(mission, interpolators)]
+    return _fly(mission, interpolators)
+
+
+def _fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
     """
     Fly a mission by interpolating sensor payloads along the payload coordinates.
 
