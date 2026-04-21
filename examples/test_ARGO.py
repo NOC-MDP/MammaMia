@@ -16,7 +16,7 @@ from mamma_mia import (
     create_interpolator,
     create_missions,
     create_platform,
-    create_trajectories,
+    create_trajectory,
     fly_all,
     get_data,
     plot_path,
@@ -25,7 +25,7 @@ from mamma_mia import (
 
 ds = xr.open_zarr("trajectories/argo_float.zarr")
 spec_file = "spec_files/argo_spec.toml"
-trajectories = create_trajectories(spec_file=spec_file)
+trajectories = create_trajectory(spec_file=spec_file)
 platform = create_platform(spec_file=spec_file)
 missions = create_missions(
     mission_name="Example ARGO",

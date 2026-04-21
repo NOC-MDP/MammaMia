@@ -10,6 +10,7 @@
 # limitations under the License.
 
 import tomllib
+from typing import Union, overload
 
 import numpy as np
 import pandas as pd
@@ -48,51 +49,7 @@ def __open_spec(spec_file: str) -> dict:
     return raw["specification"]
 
 
-def create_trajectories(spec_file: str) -> [xr.Dataset]:
-    trajectories = []
-
-    spec = __open_spec(spec_file)
-    ds = __open_ds(path=spec["trajectory"]["path"])
-
-    for i in range(ds[spec["trajectory"]["dimension"]].__len__()):
-        ds_single_traj = ds.isel(trajectory=i)
-        trajectories.append(create_trajectory(spec_file=spec_file, ds=ds_single_traj))
-    return trajectories
-
-
-def create_trajectory(spec_file: str, ds=None) -> xr.Dataset:
-    """
-    Create a trajectory Dataset from a TOML specification file.
-
-    Reads navigation data from a source file (NetCDF, Zarr, or CSV) as
-    specified in the TOML config, maps user-defined variable names to
-    standardised navigation parameters, and interpolates any NaN values.
-    Sufficient valid data between gaps is assumed for interpolation to
-    produce reliable results.
-
-    Parameters
-    ----------
-    spec_file : str
-        Path to the TOML specification file, which defines the path to the
-        source navigation data file, its format, and the mapping of variable
-        names to standard navigation parameters (e.g. latitude, longitude,
-        depth, time). Defaults to an empty string.
-
-    Returns
-    -------
-    xr.Dataset
-        A trajectory Dataset with standardised navigation parameter names
-        and NaN values interpolated, compatible with the MAMMA MIA mission
-        framework and suitable for passing to `create_mission`.
-    """
-    logger.info(f"creating a trajectory dataset using spec file {spec_file}")
-
-    spec = __open_spec(spec_file)
-
-    if ds is None:
-        # Open dataset using spec file
-        ds = __open_ds(path=spec["trajectory"]["path"])
-
+def __create_traj(ds, spec):
     # Extract and clean navigation coordinates
     lat = np.array(ds[spec["navigation"]["latitude"]], dtype=np.float64)
     lon = np.array(ds[spec["navigation"]["longitude"]], dtype=np.float64)
@@ -133,6 +90,61 @@ def create_trajectory(spec_file: str, ds=None) -> xr.Dataset:
         )
     except KeyError:
         logger.warning("yaw key not found in trajectory dataset")
-    trajectory = xr.Dataset(data_vars=data_vars, coords=coords)
-    logger.success("trajectory dataset created successfully")
-    return trajectory
+    return xr.Dataset(data_vars=data_vars, coords=coords)
+
+
+@overload
+def create_trajectory(spec_file: str) -> xr.Dataset: ...
+
+
+@overload
+def create_trajectory(spec_file: str) -> list[xr.Dataset]: ...
+
+
+def create_trajectory(spec_file: str) -> [xr.Dataset]:
+    spec = __open_spec(spec_file)
+    try:
+        traj_dim = spec["trajectory"]["dimension"]
+    except KeyError:
+        return _create_trajectory(spec_file=spec_file)
+    if traj_dim == "":
+        return _create_trajectory(spec_file=spec_file)
+    return _create_trajectory(spec_file=spec_file, multi_traj=True)
+
+
+def _create_trajectory(spec_file: str, multi_traj: bool = False) -> xr.Dataset:
+    """
+    Create a trajectory Dataset from a TOML specification file.
+
+    Reads navigation data from a source file (NetCDF, Zarr, or CSV) as
+    specified in the TOML config, maps user-defined variable names to
+    standardised navigation parameters, and interpolates any NaN values.
+    Sufficient valid data between gaps is assumed for interpolation to
+    produce reliable results.
+
+    Parameters
+    ----------
+    spec_file : str
+        Path to the TOML specification file, which defines the path to the
+        source navigation data file, its format, and the mapping of variable
+        names to standard navigation parameters (e.g. latitude, longitude,
+        depth, time). Defaults to an empty string.
+
+    Returns
+    -------
+    xr.Dataset
+        A trajectory Dataset with standardised navigation parameter names
+        and NaN values interpolated, compatible with the MAMMA MIA mission
+        framework and suitable for passing to `create_mission`.
+    """
+    logger.info(f"creating a trajectory dataset using spec file {spec_file}")
+
+    spec = __open_spec(spec_file)
+    ds = __open_ds(path=spec["trajectory"]["path"])
+    if multi_traj is True:
+        return [
+            __create_traj(ds.isel(trajectory=i), spec)
+            for i in range(len(ds[spec["trajectory"]["dimension"]]))
+        ]
+    else:
+        return __create_traj(ds, spec)
