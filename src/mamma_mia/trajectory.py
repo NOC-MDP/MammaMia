@@ -54,7 +54,7 @@ def create_trajectories(spec_file: str) -> [xr.Dataset]:
     spec = __open_spec(spec_file)
     ds = __open_ds(path=spec["trajectory"]["path"])
 
-    for i in range(ds["trajectory"].__len__()):
+    for i in range(ds[spec["trajectory"]["dimension"]].__len__()):
         ds_single_traj = ds.isel(trajectory=i)
         trajectories.append(create_trajectory(spec_file=spec_file, ds=ds_single_traj))
     return trajectories
