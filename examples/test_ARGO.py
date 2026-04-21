@@ -13,11 +13,11 @@ import xarray as xr
 from mamma_mia import (
     add_missions,
     create_campaign,
-    create_interpolator,
+    create_interpolators,
     create_missions,
     create_platform,
     create_trajectories,
-    fly,
+    fly_all,
     get_data,
     plot_path,
     start_payload_dashboard,
@@ -34,16 +34,11 @@ missions = create_missions(
     trajectories=trajectories,
     apply_obs_error=True,
 )
-for i in range(missions.__len__()):
-    # get data from specified souce in spec file
-    # note mission is returned with locations of data stored as attributes
-    missions[i] = get_data(mission=missions[i])
 
-    # create interpolators from downloaded datasets
-    interpolator = create_interpolator(mission=missions[i])
+missions = get_data(mission=missions)
+interpolators = create_interpolators(missions=missions)
 
-    # fly the mission by interpolating the downloaded data onto the payload dataset
-    missions[i] = fly(mission=missions[i], interpolators=interpolator)
+missions = fly_all(missions=missions, interpolators=interpolators)
 
 # create a campaign to store the mission (missions can be standalone)
 campaign = create_campaign(

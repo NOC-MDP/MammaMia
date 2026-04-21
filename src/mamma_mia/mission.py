@@ -212,6 +212,15 @@ def create_mission(
     return mission
 
 
+def fly_all(
+    missions: list[xr.DataTree], interpolators: list[dict]
+) -> list[xr.DataTree]:
+    flown = []
+    for i in range(missions.__len__()):
+        flown.append(fly(mission=missions[i], interpolators=interpolators[i]))
+    return flown
+
+
 def fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
     """
     Fly a mission by interpolating sensor payloads along the payload coordinates.

@@ -10,6 +10,7 @@
 # limitations under the License.
 import os
 import tomllib
+from typing import Union, overload
 
 import copernicusmarine
 import numpy as np
@@ -48,7 +49,23 @@ def get_extent(spec_file: str) -> dict:
     return stores
 
 
-def get_data(mission: xr.DataTree) -> xr.DataTree:
+@overload
+def get_data(mission: xr.DataTree) -> xr.DataTree: ...
+
+
+@overload
+def get_data(mission: list[xr.DataTree]) -> list[xr.DataTree]: ...
+
+
+def get_data(
+    mission: Union[xr.DataTree, list[xr.DataTree]],
+) -> Union[xr.DataTree, list[xr.DataTree]]:
+    if isinstance(mission, list):
+        return [_get_data(m) for m in mission]
+    return _get_data(mission)
+
+
+def _get_data(mission: xr.DataTree) -> xr.DataTree:
     """
     Download model data for the spatial and temporal extent of a mission.
 

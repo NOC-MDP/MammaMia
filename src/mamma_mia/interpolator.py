@@ -63,7 +63,16 @@ def interpolate(
     return interpolated_data
 
 
-def create_interpolator(mission: xr.DataTree = None, stores: dict = None) -> dict:
+def create_interpolators(missions: list[xr.DataTree]) -> list[dict]:
+    interpolators = []
+    for mission in missions:
+        interpolators.append(create_interpolator(mission=mission))
+    return interpolators
+
+
+def create_interpolator(
+    mission: xr.DataTree | None = None, stores: dict | None = None
+) -> dict:
     """
     Create a pyinterp 4D interpolator covering all downloaded data stores.
 
