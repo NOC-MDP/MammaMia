@@ -10,7 +10,7 @@
 # limitations under the License.
 from mamma_mia.campaign import add_missions, create_campaign
 from mamma_mia.get_data import get_data
-from mamma_mia.interpolator import create_interpolator, create_interpolators
+from mamma_mia.interpolator import create_interpolator
 from mamma_mia.mission import create_mission, create_missions, fly, fly_all
 from mamma_mia.mission_builder import (
     run_mission,

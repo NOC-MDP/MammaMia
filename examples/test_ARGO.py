@@ -13,7 +13,7 @@ import xarray as xr
 from mamma_mia import (
     add_missions,
     create_campaign,
-    create_interpolators,
+    create_interpolator,
     create_missions,
     create_platform,
     create_trajectories,
@@ -36,7 +36,7 @@ missions = create_missions(
 )
 
 missions = get_data(mission=missions)
-interpolators = create_interpolators(missions=missions)
+interpolators = create_interpolator(mission=missions)
 
 missions = fly_all(missions=missions, interpolators=interpolators)
 

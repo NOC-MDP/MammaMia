@@ -9,12 +9,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Union, overload
+
 import numpy as np
 import pyinterp
 import pyinterp.backends.xarray
 import xarray as xr
 import xesmf as xe
 from loguru import logger
+from xarray.core.utils import dict_equiv
 
 
 def interpolate(
@@ -63,14 +66,33 @@ def interpolate(
     return interpolated_data
 
 
-def create_interpolators(missions: list[xr.DataTree]) -> list[dict]:
-    interpolators = []
-    for mission in missions:
-        interpolators.append(create_interpolator(mission=mission))
-    return interpolators
+@overload
+def create_interpolator(mission: xr.DataTree) -> dict: ...
+
+
+@overload
+def create_interpolator(mission: list[xr.DataTree]) -> list[dict]: ...
+
+
+@overload
+def create_interpolator(mission: dict) -> dict: ...
 
 
 def create_interpolator(
+    mission: Union[xr.DataTree, list[xr.DataTree], dict],
+) -> Union[dict, list[dict]]:
+    if isinstance(mission, dict):
+        _create_interpolator(stores=mission)
+    elif isinstance(mission, list):
+        return [_create_interpolator(mission=m) for m in mission]
+    else:
+        return _create_interpolator(mission=mission)
+    raise Exception(
+        "unknown mission type, must be a misson dataset, list of datasets or a stores dict"
+    )
+
+
+def _create_interpolator(
     mission: xr.DataTree | None = None, stores: dict | None = None
 ) -> dict:
     """
