@@ -472,6 +472,8 @@ def plot_path(
         interactive plotly figure that opens in a web browser.
 
     """
+    if not isinstance(mission, xr.DataTree):
+        raise TypeError(f"Expected DataTree, got {type(mission)}")
     marker = {
         "size": 2,
         "color": np.array(mission.payload["ctd"].time).tolist(),

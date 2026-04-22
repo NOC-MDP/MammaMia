@@ -9,9 +9,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from mamma_mia.campaign import add_mission, create_campaign
+from mamma_mia.fly import fly
 from mamma_mia.get_data import get_data
 from mamma_mia.interpolator import create_interpolator
-from mamma_mia.mission import create_mission, fly
+from mamma_mia.mission import create_mission
 from mamma_mia.mission_builder import (
     run_mission,
     save_mission,
