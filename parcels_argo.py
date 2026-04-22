@@ -87,12 +87,12 @@ ArgoParticle = parcels.JITParticle.add_variables(
 )
 
 # Initiate one Argo float in the Agulhas Current
-pset = parcels.ParticleSet(
+pset = parcels.ParticleSet.from_list(
     fieldset=fieldset,
     pclass=ArgoParticle,
-    lon=[32, 32.1],
-    lat=[-31, -31.1],
-    depth=[0, 0],
+    lon=[32, 32.1, 32],
+    lat=[-31, -31, -30.9],
+    depth=[0, 0, 0],
 )
 
 # combine Argo vertical movement kernel with built-in Advection kernel
@@ -114,13 +114,18 @@ pset.execute(
 )
 
 import matplotlib.pyplot as plt
+import numpy as np
 import xarray as xr
 
-ds = xr.open_zarr("argo_float2.zarr")
-x = ds["lon"][:].squeeze()
-y = ds["lat"][:].squeeze()
-z = ds["z"][:].squeeze()
+ds = xr.open_zarr("argo_float.zarr")
+x = ds["lon"].values.flatten()
+y = ds["lat"].values.flatten()
+z = ds["z"].values.flatten()
 ds.close()
+
+# Keep only rows where ALL three variables are valid
+mask = ~(np.isnan(x) | np.isnan(y) | np.isnan(z))
+x, y, z = x[mask], y[mask], z[mask]
 
 fig = plt.figure(figsize=(13, 10))
 ax = plt.axes(projection="3d")
@@ -129,4 +134,5 @@ ax.set_xlabel("Longitude")
 ax.set_ylabel("Latitude")
 ax.set_zlabel("Depth (m)")
 ax.set_zlim(np.max(z), 0)
+plt.colorbar(cb, ax=ax, label="Depth (m)")
 plt.show()

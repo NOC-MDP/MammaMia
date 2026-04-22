@@ -27,6 +27,8 @@ catalog.json
 !website/*.png
 !docs/images/*.png
 !website/images/*.png
+!examples/trajectories/*.zarr
+!examples/trajectories/*.csv
 .Rproj.user
 .quarto
 _site

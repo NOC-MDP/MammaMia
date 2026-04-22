@@ -49,6 +49,6 @@ campaign = add_mission(campaign=campaign, mission=missions)
 campaign.to_zarr("ARGO.zarr", "w", consolidated=False)
 # simple plot to show payload path
 
-plot_path(mission=missions[0])
+plot_path(missions=missions)
 # plot a mission payload
-start_payload_dashboard(mission=missions[0])
+start_payload_dashboard(missions=missions)
