@@ -21,3 +21,19 @@ from mamma_mia.mission_builder import (
 from mamma_mia.platform import create_platform
 from mamma_mia.plot import plot_path, start_payload_dashboard
 from mamma_mia.trajectory import create_trajectory
+
+__all__ = [
+    "create_campaign",
+    "add_mission",
+    "create_mission",
+    "fly",
+    "get_data",
+    "create_interpolator",
+    "run_mission",
+    "save_mission",
+    "simulate",
+    "create_platform",
+    "plot_path",
+    "start_payload_dashboard",
+    "create_trajectory",
+]

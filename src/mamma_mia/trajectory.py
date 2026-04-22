@@ -10,7 +10,7 @@
 # limitations under the License.
 
 import tomllib
-from typing import Union, overload
+from typing import overload
 
 import numpy as np
 import pandas as pd

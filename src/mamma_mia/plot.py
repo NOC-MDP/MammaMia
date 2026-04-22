@@ -13,7 +13,7 @@ import cartopy.feature as cfeature
 import numpy as np
 import plotly.graph_objects as go
 import xarray as xr
-from dash import Dash, Input, Output, callback, dcc, html
+from dash import Dash, Input, Output, dcc, html
 from loguru import logger
 from shapely.geometry import box
 
