@@ -9,6 +9,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Union, overload
+
 import xarray as xr
 from loguru import logger
 
@@ -49,37 +51,24 @@ def create_campaign(
     return campaign
 
 
-def add_missions(
+@overload
+def add_mission(campaign: xr.DataTree, mission: xr.DataTree) -> xr.DataTree: ...
+
+
+@overload
+def add_mission(campaign: xr.DataTree, mission: list[xr.DataTree]) -> xr.DataTree: ...
+
+
+def add_mission(
     campaign: xr.DataTree,
-    missions: list[xr.DataTree],
+    mission: Union[xr.DataTree, list[xr.DataTree]],
 ) -> xr.DataTree:
-    """
-    Append one or more mission DataTrees to an existing campaign.
-
-    Parameters
-    ----------
-    campaign : xr.DataTree
-        A campaign DataTree previously created by ``create_campaign``.
-    missions : list[xr.DataTree]
-        One or more mission DataTrees to add.
-
-    Returns
-    -------
-    xr.DataTree
-        The updated campaign DataTree.
-
-    Raises
-    ------
-    ValueError
-        If an empty list is supplied.
-    """
-    if not missions:
-        raise ValueError("At least one mission must be supplied.")
+    missions = mission if isinstance(mission, list) else [mission]
 
     updated: dict[str, xr.DataTree | xr.Dataset] = dict(campaign.children)
     updated["/"] = campaign.ds  # preserve root attributes
-    for mission in missions:
-        updated[mission.attrs["name"]] = mission
+    for m in missions:
+        updated[m.attrs["name"]] = m
 
     campaign_name = campaign.attrs.get("campaign", "campaign")
     updated_campaign = xr.DataTree.from_dict(updated)

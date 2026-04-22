@@ -17,7 +17,6 @@ import pyinterp.backends.xarray
 import xarray as xr
 import xesmf as xe
 from loguru import logger
-from xarray.core.utils import dict_equiv
 
 
 def interpolate(

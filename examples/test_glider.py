@@ -10,7 +10,7 @@
 # limitations under the License.
 
 from mamma_mia import (
-    add_missions,
+    add_mission,
     create_campaign,
     create_interpolator,
     create_mission,
@@ -50,7 +50,7 @@ campaign = create_campaign(
     campaign_name="RAPID virtual mooring",
     description="single glider performing virtual mooring",
 )
-campaign = add_missions(campaign=campaign, missions=[mission])
+campaign = add_mission(campaign=campaign, mission=mission)
 # export to zarr (netcdf should be possible too)
 campaign.to_zarr("RAPID.zarr", "w", consolidated=False)
 # simple plot to show payload path

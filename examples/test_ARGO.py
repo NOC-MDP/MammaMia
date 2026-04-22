@@ -11,7 +11,7 @@
 
 
 from mamma_mia import (
-    add_missions,
+    add_mission,
     create_campaign,
     create_interpolator,
     create_mission,
@@ -44,7 +44,7 @@ campaign = create_campaign(
     campaign_name="Argo mission",
     description="Argo float simulation",
 )
-campaign = add_missions(campaign=campaign, missions=missions)
+campaign = add_mission(campaign=campaign, mission=missions)
 # export to zarr (netcdf should be possible too)
 campaign.to_zarr("ARGO.zarr", "w", consolidated=False)
 # simple plot to show payload path
