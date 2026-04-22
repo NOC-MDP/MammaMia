@@ -56,12 +56,12 @@ def create_mission(
             _create_mission(
                 platform=platform,
                 trajectory=t,
-                mission_name=mission_name,
+                mission_name=f"{mission_name} {i}",
                 summary=summary,
-                mission_time_step=60,
+                mission_time_step=mission_time_step,
                 apply_obs_error=apply_obs_error,
             )
-            for t in trajectory
+            for i, t in enumerate(trajectory, start=1)
         ]
     return _create_mission(
         platform=platform,
