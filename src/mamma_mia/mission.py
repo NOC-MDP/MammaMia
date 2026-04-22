@@ -139,8 +139,8 @@ def _create_mission(
         "geospatial_vertical_max": float(trajectory.depth.max()),
         "geospatial_vertical_min": float(trajectory.depth.min()),
         "geospatial_vertical_units": "m",
-        "time_coverage_end": str(np.datetime_as_string(t_start, unit="s")),
-        "time_coverage_start": str(np.datetime_as_string(t_end, unit="s")),
+        "time_coverage_start": str(np.datetime_as_string(t_start, unit="s")),
+        "time_coverage_end": str(np.datetime_as_string(t_end, unit="s")),
     }
 
     mission_attrs = {

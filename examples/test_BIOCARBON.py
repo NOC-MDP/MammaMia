@@ -10,7 +10,7 @@
 # limitations under the License.
 
 from mamma_mia import (
-    add_missions,
+    add_mission,
     create_campaign,
     create_interpolator,
     create_mission,
@@ -52,6 +52,7 @@ for i in range(spec_files.__len__()):
             summary=f"simulated payload for {mission_names[i]} trajectory in BIOCARBON campaign",
             platform=platform,
             trajectory=traj,
+            mission_time_step=900,
             apply_obs_error=True,
         )
     )
@@ -69,10 +70,10 @@ for i in range(spec_files.__len__()):
 campaign = create_campaign(
     campaign_name="BIOCARBON", description="BIOCARBON campaign from Iceland to UK"
 )
-campaign = add_missions(campaign=campaign, missions=missions)
+campaign = add_mission(campaign=campaign, mission=missions)
 # export to zarr (netcdf should be possible too)
-campaign.to_zarr("BIOCARBON_2024.zarr", consolidated=False)
+campaign.to_zarr("BIOCARBON_2024.zarr", "w", consolidated=False)
 # simple plot to show payload path
-plot_path(mission=missions[1])
+plot_path(missions=missions)
 # plot a mission payload
-start_payload_dashboard(mission=missions[1])
+start_payload_dashboard(missions=missions)

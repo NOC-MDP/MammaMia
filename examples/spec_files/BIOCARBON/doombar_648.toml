@@ -11,13 +11,13 @@
 
 [specification.platform]
 type = "glider"
-NMEA_coordinates = true
+NMEA_coordinates = false
 ascent_thresh = 0.05  # m/s
 descent_thresh= -0.05  # m/s
 near_surface_thresh = 1
 
 [specification.trajectory]
-path = "../BioCarbonTrajectories/Doombar_648_R.nc"
+path = "trajectories/BioCarbonTrajectories/Doombar_648_R.nc"
 
 [specification.navigation]
 latitude = "LATITUDE"
