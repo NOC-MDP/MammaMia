@@ -31,7 +31,10 @@ def fly(
 ) -> Union[xr.DataTree, list[xr.DataTree]]:
     if isinstance(mission, list) and isinstance(interpolators, list):
         return [_fly(m, i) for m, i in zip(mission, interpolators)]
-    return _fly(mission, interpolators)
+    elif isinstance(interpolators, dict) and isinstance(mission, xr.DataTree):
+        return _fly(mission=mission, interpolators=interpolators)
+    else:
+        raise Exception("unsupported mission or interpolator type")
 
 
 def _fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
@@ -79,6 +82,8 @@ def _fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
                         z=-1 * mission.payload[sensor_key][variable_key].depth.values,
                         lat=mission.payload[sensor_key][variable_key].latitude.values,
                     )
+                else:
+                    continue
             if mission.attrs["apply_obs_error"]:
                 logger.info(
                     f"apply simulated observation errors set to True, applying to {variable_key} now"

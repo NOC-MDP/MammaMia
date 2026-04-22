@@ -91,9 +91,7 @@ def create_interpolator(
     )
 
 
-def _create_interpolator(
-    mission: xr.DataTree | None = None, stores: dict | None = None
-) -> dict:
+def _create_interpolator(mission: xr.DataTree | None = None, stores: dict = {}) -> dict:
     """
     Create a pyinterp 4D interpolator covering all downloaded data stores.
 
@@ -125,7 +123,8 @@ def _create_interpolator(
         logger.info(f"creating interpolator for mission {mission.attrs['name']}")
     else:
         logger.info("creating interpolator")
-    if stores is None:
+    # empty dict evaluates to false
+    if not stores:
         if mission is None:
             raise ValueError("Either mission or stores must be provided")
         stores = mission.attrs["stores"]
@@ -201,7 +200,7 @@ def _create_interpolator(
             # Loop and regrid each variable
             ds_regridded = xr.Dataset()
             for var2 in data_vars:
-                if "time" in var2:
+                if isinstance(var2, str) and "time" in var2:
                     continue
                 regridder = xe.Regridder(
                     ds[var2], target_grid, method="bilinear", ignore_degenerate=True
