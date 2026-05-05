@@ -2,7 +2,7 @@ from mamma_mia import create_interpolator, get_extent, interpolate
 
 stores = get_extent(spec_file="spec_files/rapid_vm_sim_spec.toml")
 
-interpolators = create_interpolator(stores=stores, mission=None)
+interpolators = create_interpolator(mission=stores)
 
 coords = {
     "latitude": [26.834],

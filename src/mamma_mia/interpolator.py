@@ -67,23 +67,22 @@ def interpolate(
 
 
 @overload
-def create_interpolator(mission: xr.DataTree, stores: None) -> dict: ...
+def create_interpolator(mission: xr.DataTree) -> dict: ...
 
 
 @overload
-def create_interpolator(mission: list[xr.DataTree], stores: None) -> list[dict]: ...
+def create_interpolator(mission: list[xr.DataTree]) -> list[dict]: ...
 
 
 @overload
-def create_interpolator(mission: None, stores: dict) -> dict: ...
+def create_interpolator(mission: dict) -> dict: ...
 
 
 def create_interpolator(
-    mission: Union[xr.DataTree, list[xr.DataTree], None],
-    stores: Union[dict, None] = None,
+    mission: Union[xr.DataTree, list[xr.DataTree], dict],
 ) -> Union[dict, list[dict]]:
-    if stores is not None:
-        return _create_interpolator(stores=stores)
+    if isinstance(mission, dict):
+        return _create_interpolator(stores=mission)
     elif isinstance(mission, list):
         return [_create_interpolator(mission=m) for m in mission]
     else:
