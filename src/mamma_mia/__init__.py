@@ -10,8 +10,8 @@
 # limitations under the License.
 from mamma_mia.campaign import add_mission, create_campaign
 from mamma_mia.fly import fly
-from mamma_mia.get_data import get_data
-from mamma_mia.interpolator import create_interpolator
+from mamma_mia.get_data import get_data, get_extent
+from mamma_mia.interpolator import create_interpolator, interpolate
 from mamma_mia.mission import create_mission
 from mamma_mia.mission_builder import (
     run_mission,
@@ -36,4 +36,6 @@ __all__ = [
     "plot_path",
     "start_payload_dashboard",
     "create_trajectory",
+    "get_extent",
+    "interpolate",
 ]

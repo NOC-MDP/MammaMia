@@ -1,9 +1,8 @@
-from mamma_mia.get_data_xr import get_extent
-from mamma_mia.interpolator_xr import create_interpolator, interpolate
+from mamma_mia import create_interpolator, get_extent, interpolate
 
-stores = get_extent(spec_file="rapid_vm_sim_spec.toml")
+stores = get_extent(spec_file="spec_files/rapid_vm_sim_spec.toml")
 
-interpolators = create_interpolator(stores=stores)
+interpolators = create_interpolator(mission=stores)
 
 point = {
     "latitude": [26.834],

@@ -81,14 +81,11 @@ def create_interpolator(
     mission: Union[xr.DataTree, list[xr.DataTree], dict],
 ) -> Union[dict, list[dict]]:
     if isinstance(mission, dict):
-        _create_interpolator(stores=mission)
+        return _create_interpolator(stores=mission)
     elif isinstance(mission, list):
         return [_create_interpolator(mission=m) for m in mission]
     else:
         return _create_interpolator(mission=mission)
-    raise Exception(
-        "unknown mission type, must be a misson dataset, list of datasets or a stores dict"
-    )
 
 
 def _create_interpolator(mission: xr.DataTree | None = None, stores: dict = {}) -> dict:
