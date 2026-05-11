@@ -22,7 +22,7 @@ from mamma_mia import (
     start_payload_dashboard,
 )
 
-spec_file = "spec_files/glider_spec.toml"
+spec_file = "spec_files/glider_spec_waypoints.toml"
 traj = create_trajectory(spec_file=spec_file)
 platform = create_platform(spec_file=spec_file)
 
@@ -30,7 +30,7 @@ platform = create_platform(spec_file=spec_file)
 # a payload dataset is created but is currently empty
 mission = create_mission(
     mission_name="Example Glider RAPID",
-    summary="Virtual glider performing mooring replacement mission at RAPID",
+    summary="Virtual glider performing waypoint mission",
     platform=platform,
     trajectory=traj,
     apply_obs_error=True,
@@ -47,12 +47,12 @@ mission = fly(mission=mission, interpolators=interpolator)
 
 # create a campaign to store the mission (missions can be standalone)
 campaign = create_campaign(
-    campaign_name="RAPID virtual mooring",
-    description="single glider performing virtual mooring",
+    campaign_name="Follow waypoints mission",
+    description="single glider following waypoints",
 )
 campaign = add_mission(campaign=campaign, mission=mission)
 # export to zarr (netcdf should be possible too)
-campaign.to_zarr("RAPID.zarr", "w", consolidated=False)
+campaign.to_zarr("waypoints.zarr", "w", consolidated=False)
 # simple plot to show payload path
 plot_path(missions=mission)
 # plot a mission payload
