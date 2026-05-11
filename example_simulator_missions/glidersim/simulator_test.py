@@ -12,9 +12,9 @@
 from mamma_mia import run_mission, save_mission, simulate
 
 # virtual mooring simulation specification
-spec_file = "example_simulator_missions/rapid_vm_sim_spec.toml"
+spec_file = "rapid_vm_sim_spec.toml"
 # follow waypoints simulation specification
-spec_file2 = "example_simulator_missions/rapid_wp_sim_spec.toml"
+spec_file2 = "rapid_wp_sim_spec.toml"
 
 virtual_mooring = simulate(spec_file=spec_file)
 run_mission(gm=virtual_mooring, spec_file=spec_file)
