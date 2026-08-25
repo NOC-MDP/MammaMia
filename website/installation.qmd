@@ -43,6 +43,11 @@ By default no simulator is installed alongside MAMMA MIA, this is to simplify th
 $ pip install '.[glidersim]'
 ```
 
+<<<<<<< HEAD
+=======
+**NOTE** You will need an C++ compiler available on the command line where you are installing MAMMA MIA to be able to install glidersim.
+
+>>>>>>> 24f9ed5becefcb36d3d6b71f50996a5c3d8753cb
 As other simulators become available they will be added here, e.g. parcels for argo float simulation.
 
 To install all simulators (currently just glidersim) then:
