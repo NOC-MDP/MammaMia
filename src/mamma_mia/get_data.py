@@ -246,7 +246,7 @@ def __get_NOC(source_id, geospatial_attrs, excess=0.5) -> str:
     NOC specific function to download data from OceanDataStore
     """
     time_excess = 30  # days
-    catalog = OceanDataCatalog(catalog_name="noc-model-stac")
+    catalog = OceanDataCatalog(catalog_name="noc-stac")
     zarr_f = (
         f"{source_id}_{round(geospatial_attrs['geospatial_lon_max'] + excess, 3)}_{round(geospatial_attrs['geospatial_lon_min'] - excess, 3)}_"
         f"{round(geospatial_attrs['geospatial_lat_max'] + excess, 3)}_{
