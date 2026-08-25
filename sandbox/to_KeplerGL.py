@@ -7,7 +7,7 @@ from shapely.geometry.geo import mapping
 
 # stride = 180
 
-ds = zarr.open("../RAPID_array_virtual_mooring.zarr/RAD24_01/payload")
+ds = zarr.open("../RAPID_array_virtual_mooring_chl.zarr/RAD24_01/payload")
 lat = ds["LATITUDE"][:]
 lon = ds["LONGITUDE"][:]
 depth = ds["GLIDER_DEPTH"][:] * -1 # the -1 is to invert the depths so they plot the "right" way round in kepler.gl

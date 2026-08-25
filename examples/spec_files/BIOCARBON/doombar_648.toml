@@ -1,0 +1,87 @@
+[specification]
+# This is an example specification file for a MAMMA MIA mission
+# The following sections are required:
+    # navigation: this tells MAMMA MIA the variable names of lat,lon depth etc
+    # platform: this holds platform specific attributes such as ascent and descent
+    # thresholds to determine if a platform is diving or surfacing etc.
+    # trajectory: path of the trajectory file (can be csv, netcdf or zarr)
+    # sensors.sensor_name.variable: one of these is required for each variable
+    # being measured, it contains information on the source and variable name to use.
+    # The parameters of applying observation errors are also specified here.
+
+[specification.platform]
+type = "glider"
+NMEA_coordinates = false
+ascent_thresh = 0.05  # m/s
+descent_thresh= -0.05  # m/s
+near_surface_thresh = 1
+
+[specification.trajectory]
+path = "trajectories/BioCarbonTrajectories/Doombar_648_R.nc"
+
+[specification.navigation]
+latitude = "LATITUDE"
+longitude = "LONGITUDE"
+depth = "GLIDER_DEPTH"
+pitch = "GLIDER_PITCH"
+time = "TIME"
+
+[specification.sensors.ctd.conservative_temperature]
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
+variable_name = "thetao_con"
+accuracy = 0.001
+resolution = 0.0001
+drift_per_month = 0.0002
+range = [-5, 42]
+percent_errors = false
+noise_std = 0.0005
+
+[specification.sensors.ctd.absolute_salinity]
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
+variable_name = "so_abs"
+accuracy = 0.005
+resolution = 0.0001
+drift_per_month = 0.0003
+range = [0, 42]
+percent_errors = false
+noise_std = 0.0005
+
+[specification.sensors.ctd.pressure]
+source_id = ""
+variable_name = "pressure"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.dissolved_gas.dissolved_oxygen]
+source_id = "cmems_mod_glo_bgc-bio_anfc_0.25deg_P1D-m"
+variable_name = "o2"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.nutrient.nitrate]
+source_id = "cmems_mod_glo_bgc-nut_anfc_0.25deg_P1D-m"
+variable_name = "no3"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.productivity.chlorophyll]
+source_id = "cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m"
+variable_name = "chl"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999

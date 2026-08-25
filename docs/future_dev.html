@@ -279,10 +279,14 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="support-for-xarray">Support for Xarray</h2>
 <p>MAMMA MIA uses the zarr library directly to export its campaign objects. In hindsight this is less than ideal as it is not currently compatible with Xarray due to missing dim meta data and the fact that xarray datasets cannot handle a zarr group hierarchy.</p>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <p>Xarray datatrees look like a good solution, using this as the export format means that it will be compatible with Xarray and also still able to export as a zarr file.</p>
 =======
 <p>Xarray datatrees look like a good solution, using this as the export format means that it will be compatible with Xarray and also still able to optionally export as a zarr file for backwards compatibility.</p>
 >>>>>>> 24f9ed5becefcb36d3d6b71f50996a5c3d8753cb
+=======
+<p>Xarray datatrees look like a good solution, using this as the export format means that it will be compatible with Xarray and also still able to optionally export as a zarr file for backwards compatibility.</p>
+>>>>>>> xr_refactor
 
 
 </section>

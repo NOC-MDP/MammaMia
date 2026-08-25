@@ -9,219 +9,68 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mamma_mia.mission import Mission, Creator, Contributor, Publisher
-from mamma_mia.interpolator import Interpolators
-from mamma_mia import create_platform_attrs
-from mamma_mia.platforms import Platform
-from mamma_mia.find_worlds import SourceConfig
-from mamma_mia.exceptions import MissionExists, PlatformExists, UnknownPlatform, InvalidEntity
+from typing import Union, overload
+
+import xarray as xr
 from loguru import logger
-import zarr
-from os import sep
-import sys
-from attrs import define, field
-from mamma_mia.log import log_filter
-from mamma_mia.catalog import Cats
-from xarray import DataTree
 
-@define
-class Campaign:
+
+def create_campaign(
+    missions: list[xr.DataTree] | None = None,
+    campaign_name: str = "campaign",
+    description: str = "",
+) -> xr.DataTree:
     """
-    Campaign object, this contains all the missions that auv's are being deployed to undertake. It is the main object
-    to interact with Mamma mia.
+    Create a campaign DataTree from zero or more mission DataTrees.
 
-    Attributes
+    Parameters
     ----------
-    name : str, required
-        Name of the Campaign.
-    description : str, optional
-        Description/Summary of the Campaign
-    catalog : Cats
-        The Mamma Mia catalog class
-    missions: dict[str, Mission]
-        A dictionary containing missions objects
-    interpolators: dict[str, Interpolator]
-        A dictionary containing interpolators, used to interpolate model data to a platforms trajectory
-    verbose: bool
-        Logging verbosity
+    missions : list[xr.DataTree] | None
+        Zero or more mission DataTrees. Pass None or omit to create an empty campaign.
+    campaign_name : str
+        Name stored in the root dataset's 'campaign' attribute.
+    description : str
+        Optional human-readable description stored in the root dataset's
+        'description' attribute.
+
+    Returns
+    -------
+    xr.DataTree
+        A DataTree whose root carries campaign-level attributes and whose
+        children are the supplied missions.
     """
-    name: str
-    description: str
-    catalog: Cats = Cats()
-    missions: dict[str, Mission] = field(factory=dict)
-    interpolators: dict[str, Interpolators] = field(factory=dict)
-    verbose: bool = False
-    debug: bool = False
-
-    def __attrs_post_init__(self):
-        # reset logger
-        logger.remove()        # set logger based on requested verbosity
-        if self.verbose:
-            logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="INFO")
-        elif self.debug:
-            logger.add(sys.stdout, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG")
-        else:
-            logger.add(sys.stderr, format='{time:YYYY-MM-DDTHH:mm:ss} - <level>{level}</level> - {message}',level="DEBUG",filter=log_filter)
-        logger.success(f"Campaign {self.name} created")
-
-    def add_mission(self,
-                    mission_name:str,
-                    summary:str,
-                    title:str,
-                    platform:Platform,
-                    trajectory_path:str,
-                    excess_space: int = 0.5,
-                    extra_depth: int = 100,
-                    crs: str = 'EPSG:4326',
-                    vertical_crs: str = 'EPSG:5831',
-                    creator:Creator = Creator(),
-                    contributor:Contributor = Contributor(),
-                    publisher:Publisher = Publisher(),
-                    source_location: str = "CMEMS",
-                    mission_time_step: int = 60,
-                    apply_obs_error: bool = False,
-                    standard_name_vocabulary: str = "https://cfconventions.org/Data/cf-standard-names/current/build/cf-standard-name-table.html",
-                    ) -> None:
-        """
-        Add an auv mission to the campaign.
-        Parameters
-        ----------
-        summary: str, required
-            summary of mission
-        platform: Platform, required
-            platform to use in the mission
-        mission_name: str, required
-            name of the mission
-        title: str, required
-            title of the mission
-        trajectory_path: str, required
-            path to auv trajectory netcdf/csv file
-        standard_name_vocabulary: str, optional
-            url of standard name vocabulary
-        apply_obs_error: bool, optional
-            apply an observation error to the payload to make more realistic observations
-        mission_time_step: int, optional
-            time step mission will run at, e.g. the output timestep of the payload and flight
-        source_location: str, optional
-            what model source to use, converts to a SourceType
-        crs: str, optional
-            Which CRS to use for geospatial coordinates
-        vertical_crs: str, optional
-            which vertical CRS to use for elevations
-        contributor: Contributor, optional
-            Contributor object
-        publisher: Publisher, optional
-            Publisher object
-        creator: Creator, optional
-            Creator object
-        excess_space: float, optional
-            amount of excess space to add to model/world download in decimal degrees
-        extra_depth: int, optional
-            amount of excess depth to add to model/world download in metres
-
-        Raises
-        ------
-        MissionExists
-            Mission name must not already be registered
-        UnknownPlatform
-            Platform must be registered
-
-        Args:
-            platform:
-
-        """
-        if mission_name in self.missions:
-            logger.error(f"mission {mission_name} already exists")
-            raise MissionExists
-        mission_source = SourceConfig.from_string(source_location)
-        mission = Mission.for_campaign(mission=mission_name,
-                          title=title,
-                          summary=summary,
-                          platform_attributes=platform,
-                          trajectory_path=trajectory_path,
-                          creator=creator,
-                          publisher=publisher,
-                          contributor=contributor,
-                          excess_space=excess_space,
-                          extra_depth=extra_depth,
-                          crs = crs,
-                          vertical_crs = vertical_crs,
-                          source_config=mission_source,
-                          mission_time_step=mission_time_step,
-                          apply_obs_error=apply_obs_error,
-                          standard_name_vocabulary=standard_name_vocabulary
-                          )
-        interpolator = Interpolators()
-        self.missions[mission.attrs.mission] = mission
-        self.interpolators[mission.attrs.mission] = interpolator
-        logger.success(f"successfully added mission {mission.attrs.mission} to campaign {self.name}")
-
-    def build_missions(self) -> None:
-        """
-        Build the missions contained within the missions dictionary.
-        """
-        logger.info(f"building {self.name} missions")
-        for mission in self.missions.values():
-            logger.info(f"building {mission.attrs.mission}")
-            self.catalog.init_catalog(source_type=mission.attrs.source_config.source_type)
-            mission.build_mission(cat=self.catalog)
-            logger.success(f"successfully built {mission.attrs.mission}")
-        for key, interpol in self.interpolators.items():
-            logger.info(f"building interpolators for {key}")
-            interpol.build(worlds=self.missions[key].worlds,mission=key,source_type=self.missions[key].attrs.source_config.source_type)
-            logger.success(f"successfully built interpolators for {key}")
-
-    def enable_interpolator_cache(self) -> None:
-        """
-        enable interpolator cache so generated interpolators are stored on disk
-        """
-        for key, interpol in self.interpolators.items():
-            interpol.cache = True
-            logger.info(f"enabled interpolator cache for {key}")
-
-    def run(self) -> None:
-        """
-        Executes the missions as specified within the mission's dictionary.
-        """
-        logger.info(f"running {self.name}")
-        for mission in self.missions.values():
-            logger.info(f"flying {mission.attrs.mission}")
-            mission.fly(self.interpolators[mission.attrs.mission])
-        logger.success(f"{self.name} finished successfully")
-
-    def export(self,overwrite=True,export_path=None) -> None:
-        """
-        Exports the campaign object as a zarr group
-
-        Parameters
-        -----------
-        overwrite: bool, optional
-            overwrite any existing campaign store
-        export_path: str, optional
-            override default location of campaign store export.
-        """
-        campaign_name = self.name.replace(" ","_")
-        logger.info(f"exporting {self.name}")
-        if export_path is None:
-            logger.info(f"creating zarr store at {campaign_name}.zarr")
-            export_path = f"{campaign_name}.zarr"
-        else:
-            logger.info(f"exporting zarr store at {export_path}{sep}{campaign_name}.zarr")
-        store = zarr.storage.LocalStore(f"{export_path}")
-        logger.info(f"creating zarr group {self.name} in store")
-        camp = zarr.group(store=store,overwrite=overwrite)
-        camp.attrs['name'] = self.name
-        camp.attrs['description'] = self.description
-        #camp.attrs['uuid'] = str(self.uuid)
-        logger.info(f"zarr group {self.name} successfully created")
-
-        for key1, mission in self.missions.items():
-            logger.info(f"creating zarr group for mission {mission.attrs.mission}")
-            camp.create_group(mission.attrs.mission)
-            logger.info(f"exporting {mission.attrs.mission}")
-            mission.export_as_zarr(store=store)
-            logger.info(f"successfully exported {mission.attrs.mission}")
-        logger.success(f"successfully exported {self.name}")
+    missions = missions or []
+    children: dict[str, xr.DataTree | xr.Dataset] = {
+        mission.attrs["name"]: mission for mission in missions
+    }
+    children["/"] = xr.Dataset(
+        attrs={"campaign": campaign_name, "description": description}
+    )
+    campaign = xr.DataTree.from_dict(children)
+    logger.success(f"Campaign '{campaign_name}' created successfully")
+    return campaign
 
 
+@overload
+def add_mission(campaign: xr.DataTree, mission: xr.DataTree) -> xr.DataTree: ...
 
+
+@overload
+def add_mission(campaign: xr.DataTree, mission: list[xr.DataTree]) -> xr.DataTree: ...
+
+
+def add_mission(
+    campaign: xr.DataTree,
+    mission: Union[xr.DataTree, list[xr.DataTree]],
+) -> xr.DataTree:
+    missions = mission if isinstance(mission, list) else [mission]
+
+    updated: dict[str, xr.DataTree | xr.Dataset] = dict(campaign.children)
+    updated["/"] = campaign.ds  # preserve root attributes
+    for m in missions:
+        updated[m.attrs["name"]] = m
+
+    campaign_name = campaign.attrs.get("campaign", "campaign")
+    updated_campaign = xr.DataTree.from_dict(updated)
+    logger.success(f"Added {len(missions)} mission(s) to campaign '{campaign_name}'")
+    return updated_campaign

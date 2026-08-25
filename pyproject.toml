@@ -11,7 +11,7 @@
 
 [project]
 name = "mamma-mia"
-version = "0.4.2-dev"
+version = "0.5.0-dev"
 authors = [
   { name="thopri", email="thopri@noc.ac.uk" },
 ]
@@ -32,7 +32,7 @@ dependencies = ["loguru>=0.7",
                 "gsw>=3.6",
                 "numpy>=2.2",
                 "xesmf@git+https://github.com/pangeo-data/xesmf.git",
-                "OceanDataStore@git+https://github.com/NOC-MSM/OceanDataStore@v0.2.0"
+                "OceanDataStore@git+https://github.com/NOC-MSM/OceanDataStore@v0.3.0"
 ]
 
 classifiers = [

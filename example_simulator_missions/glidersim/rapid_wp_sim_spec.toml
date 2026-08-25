@@ -1,0 +1,105 @@
+[specification]
+glider_name = "comet"
+
+[specification.glidersim.mission_parameters]
+mission_name = "rapid waypoints"
+mission_type = "follow_waypoints"
+description = "RAPID ARRAY waypoints simulation"
+datetime_str = "2023-03-03T12:00:00:Z"
+lat_ini = 27.225
+lon_ini = -15.4225
+initial_heading = 225.00
+lat_wp = [27.425,27.825,28.205,28.503]
+lon_wp = [-15.4225,-15.4225,-15.4225,-15.4225]
+dive_depth = 1000
+mission_directory = "waypoints"
+data_dir = "data"
+spiral= false
+
+[specification.environment.extent]
+geospatial_lat_max = 29.00
+geospatial_lat_min = 26.00
+geospatial_lon_max = -14.5
+geospatial_lon_min =-16.5
+time_coverage_start = "2023-03-02T12:00:00"
+time_coverage_end = "2023-03-04T12:00:00"
+
+[specification.glidersim.sim_model]
+glider_model = "DEEPEXTENDED"
+
+[specification.glidersim.run_parameters]
+dt = 0.5
+CPUcycle = 4
+maxSimulationTime = 1 # days?
+end_on_surfacing = false
+end_on_grounding = false
+verbose = false
+
+[specification.glidersim.flight_model]
+Cd0 = 0.2
+mg = 73.3
+Vg = 71.542e-3
+T1 = 2052
+T2 = -35.5
+T3 = 0.36
+
+[specification.glidersim.bathymetry]
+elevation_name = 'elevation'
+elevation_factor = -1
+lat_name = 'lat'
+lon_name = 'lon'
+file_path = 'gebco_2024_n38.9795_s6.8994_w-30.6299_e-1.626.nc'
+
+[specification.glidersim.special_settings]
+glider_gps_acquiretime = 100.00
+mission_initialisation_time = 400
+
+[specification.sensors.ctd.conservative_temperature]
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
+variable_name = "thetao_con"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.ctd.absolute_salinity]
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/T1m_4d"
+variable_name = "so_abs"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.adcp.u_velocity]
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/U1m_4d"
+variable_name = "uo"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.adcp.v_velocity]
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/V1m_4d"
+variable_name = "vo"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
+
+[specification.sensors.adcp.w_velocity]
+source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/W1m_4d"
+variable_name = "wo"
+accuracy = -999.999
+resolution = -999.999
+drift_per_month = -999.999
+range = [-999.999,-999.999]
+percent_errors = false
+noise_std = -999.999
