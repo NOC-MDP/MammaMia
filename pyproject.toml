@@ -32,7 +32,7 @@ dependencies = ["loguru>=0.7",
                 "gsw>=3.6",
                 "numpy>=2.2",
                 "xesmf@git+https://github.com/pangeo-data/xesmf.git",
-                "OceanDataStore@git+https://github.com/NOC-MSM/OceanDataStore@v0.3.0"
+                "OceanDataStore>=0.3"
 ]
 
 classifiers = [
