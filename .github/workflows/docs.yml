@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install zensical
-      - run: zensical build --clean --site-url "${{ steps.pages.outputs.base_url }}/"
+      - run: zensical build --clean
       - run: touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
