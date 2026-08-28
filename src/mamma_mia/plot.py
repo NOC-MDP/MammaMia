@@ -420,7 +420,7 @@ def create_dashboard(
     colorscale_options = [{"label": cs, "value": cs} for cs in COLOUR_SCALES]
 
     # ── Layout ────────────────────────────────────────────────────────────
-    app = Dash(__name__)
+    app = Dash(__name__, title="MAMMA MIA Payload Simulator")
     app.layout = html.Div(
         style={
             "fontFamily": "sans-serif",

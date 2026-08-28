@@ -1,9 +1,9 @@
 ---
-icon: lucide/rocket
-title: "MAMMA MIA Documentation"
+icon: lucide/home
+title: "MAMMA MIA Payload Simulator"
 ---
 
-## Summary
+## Platform Payload Simulation
 
 MAMMA MIA is a platform payload simulator
 
@@ -15,7 +15,7 @@ Each trajectory is defined as a mission, these can be added to a campaign allowi
 
 
 When the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data substituting observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.
-=======
+
 When the mission is flown, Mamma Mia will create a simulated data payload of what would be expected from the glider if it had been operated in the real world with model data being used to simulate observations. Some effect is made to match datasets that gliders collect operationally, e.g. different sensor rates can be specified and comparable metadata is generated.
 
 

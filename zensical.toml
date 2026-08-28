@@ -11,8 +11,15 @@ site_name = "MAMMA MIA Documentation"
 # edit_uri = "edit/main/docs/"
 
 nav = [
-  { "Get started" = "index.md" },
-  { "Installation" = "installation.md" },
+  { "Home" = "index.md" },
+  {"Installation" = "install.md"},
+  { "Getting Started" = "getting_started.md" },
+  {"Example Missions" = "examples.md"},
+  {"Simulation" = "simulation.md"},
+  {"Specifications" = "specifications.md"},
+  {"How to...?" = "how2.md"},
+  {"Troubleshooting" = "trouble.md"},
+  {"API reference" = "api_ref.md"},
 ]
 
 # extra_css = ["stylesheets/extra.css"]
@@ -52,7 +59,7 @@ features = [
   # "toc.integrate",
 ]
 
-logo = "assets/mammamia_logo.png"
+logo = "images/mammamia_logo.png"
 
 # [project.theme.icon]
 # logo = "lucide/smile"
