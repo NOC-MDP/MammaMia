@@ -55,6 +55,27 @@ To install all simulators (currently just glidersim) then:
 $ pip install '.[all]'
 ```
 
+### PARCELS support
+MAMMA MIA supports PARCELS output but PARCELS itself is not able to be installed in the same python environment due to PARCELS not supporting ZARR version 3 and MAMMA MIA requiring it.
+To get around this, PARCELS runs should be performed in a separate environment.
+
+```bash
+conda create -n mm_parcels python=3.13 parcels
+```
+
+Then activate
+
+```bash
+conda activate mm_parcels
+```
+
+The user can then run PARCELS simulations, there is an basic example in ```example_simulator_missions``` future work will integrate PARCELS into MAMMA MIA.
+When the PARCELS run is complete and the trajectories generated, the MAMMA MIA environment can be reactivated
+
+```bash
+conda activate mm
+```
+
 ### Windows Support
 
 The above steps will most likely not work on windows due to dependencies not having pre built binaries available for Windows (e.g. PyInterp, esmpy). While this is surmountable, by building these dependencies, the recommended workaround is to use a docker or similar container containing a linux distribution or Windows Subsystem for Linux.

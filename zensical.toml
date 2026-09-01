@@ -6,8 +6,8 @@ site_name = "MAMMA MIA Documentation"
 
 # copyright = "Copyright &copy; 2026 Your name"
 
-# repo_url = "https://github.com/user/repo"
-# repo_name = "user/repo"
+repo_url = "https://github.com/NOC-MDP/MammaMia"
+repo_name = "NOC-MDP/MammaMia"
 # edit_uri = "edit/main/docs/"
 
 nav = [
@@ -26,9 +26,9 @@ nav = [
 # extra_javascript = ["javascripts/extra.js"]
 
 [project.theme]
-# variant = "classic"
+variant = "classic"
 # custom_dir = "overrides"
-# favicon = "images/favicon.png"
+favicon = "images/mammamia_logo.png"
 language = "en"
 features = [
   "announce.dismiss",
@@ -67,21 +67,26 @@ logo = "images/mammamia_logo.png"
 # [project.theme.font]
 # text = "Inter"
 # code = "Jetbrains Mono"
+#
+
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme)"
+primary = "light blue"
 toggle.icon = "lucide/sun-moon"
 toggle.name = "Switch to light mode"
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: light)"
 scheme = "default"
+primary = "light blue"
 toggle.icon = "lucide/sun"
 toggle.name = "Switch to dark mode"
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: dark)"
 scheme = "slate"
+primary = "light blue"
 toggle.icon = "lucide/moon"
 toggle.name = "Switch to system preference"
 
