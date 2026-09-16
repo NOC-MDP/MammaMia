@@ -17,7 +17,7 @@ nav = [
   {"Example Missions" = "examples.md"},
   {"Simulation" = "simulation.md"},
   {"Specifications" = "specifications.md"},
-  {"How to...?" = "how2.md"},
+  # {"How to...?" = "how2.md"},
   {"Troubleshooting" = "trouble.md"},
   {"API reference" = "api_ref.md"},
 ]

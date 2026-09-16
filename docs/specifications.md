@@ -29,7 +29,7 @@ descent_thresh= -0.05  # m/s
 near_surface_thresh = 1
 ```
 
-**Type**, the user must specify "type", this is a string that is stored as metadata, showing what platform the input trajectory represents.
+**Type**, the user must specify "type", this is a string that is stored as metadata, showing what platform the input trajectory represents. This is currently used for meta data purposes only and is not directly used by MAMMA MIA
 
 **NMEA_coordinates** used by some platforms (gliders) in place of latitude and longitude, depending on the input trajectory (e.g. if it has come from a simulator or unprocessed real glider) then the coordinates will need converting into latitude and longitude. Processed glider files will generally have been converted so this will need to be set to false in that case.
 
