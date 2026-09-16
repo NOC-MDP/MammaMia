@@ -61,55 +61,55 @@ and develop improved onboard algorithms, without requiring access to the physica
 
 # Example usage
 ```python
-from mamma_mia import Campaign
-from mamma_mia import inventory
+from mamma_mia import (
+    add_mission,
+    create_campaign,
+    create_interpolator,
+    create_mission,
+    create_platform,
+    create_trajectory,
+    fly,
+    get_data,
+    plot_path,
+    start_payload_dashboard,
+)
 
+spec_file = "spec_files/glider_spec_virtual_mooring.toml"
+traj = create_trajectory(spec_file=spec_file)
+platform = create_platform(spec_file=spec_file)
 
-print(f"Available groups in inventory {inventory.list_inventory_groups()}")
-print(f"Available platform types: {inventory.list_platform_types()}")
-print(f"Available parameters: {inventory.list_parameters()}")
-print(f"Available sensor types: {inventory.list_sensor_types()}")
-print(f"Parameters Alias: {inventory.list_parameter_aliases()}")
-print(f"sensors of type CTD: {inventory.list_sensors(sensor_type='CTD')}")
-print(f"sensor info: {inventory.get_sensor_info(platform_type='Slocum_G2', sensor_type='CTD')}")
+# create mission using trajectory and platform datasets
+# a payload dataset is created but is currently empty
+mission = create_mission(
+    mission_name="Example Glider RAPID",
+    summary="Virtual glider performing mooring replacement mission at RAPID",
+    platform=platform,
+    trajectory=traj,
+    apply_obs_error=True,
+)
+# get data from specified souce in spec file
+# note mission is returned with locations of data stored as attributes
+mission = get_data(mission=mission)
 
-print("<=========> starting Mamma Mia AUV Campaign test run <===========>")
-# create campaign
-campaign = Campaign(name="RAPID array virtual mooring",
-                    description="single Slocum glider deployment at a RAPID mooring",
-                    verbose=False,
-                    )
-# create platform entity (mutable)
-Churchill = inventory.create_platform_entity(entity_name="Churchill",platform="Slocum_G2",serial_number="unit_398")
+# create interpolators from downloaded datasets
+interpolator = create_interpolator(mission=mission)
 
-# register sensor to platform
-Churchill.register_sensor(sensor_type="CTD")
-# register platform to the campaign for use in missions
-campaign.register_platform(entity=Churchill)
+# fly the mission by interpolating the downloaded data onto the payload dataset
+mission = fly(mission=mission, interpolators=interpolator)
 
-# # # add mission
-campaign.add_mission(mission_name="RAD24_01",
-                     title="Churchill with CTD deployment at RAPID array mooring eb1l2n",
-                     summary="single glider deployed to perform a virtual mooring flight at the eb1l2n RAPID array.",
-                     platform_name="Churchill",
-                     trajectory_path="data/RAPID-mooring/rapid-mooring.nc",
-                     source_location="MSM",
-                     mission_time_step=60,
-                     apply_obs_error=True)
+# create a campaign to store the mission (missions can be standalone)
+campaign = create_campaign(
+    campaign_name="RAPID virtual mooring",
+    description="single glider performing virtual mooring",
+)
+campaign = add_mission(campaign=campaign, mission=mission)
+# export to zarr (netcdf should be possible too)
+campaign.to_zarr("RAPID.zarr", "w", consolidated=False)
+# simple plot to show payload path
+plot_path(missions=mission)
+# plot a mission payload
+start_payload_dashboard(missions=mission)
 
-# Set interpolators to automatically cache as dat files (no need to regenerate them, useful for large worlds)
-#campaign.enable_interpolator_cache()
-
-# build missions (search datasets, download datasets, build interpolators etc)
-campaign.build_missions()
-
-# run/fly missions
-campaign.run()
-
-# visualise the results
-campaign.missions["RAD24_01"].plot_trajectory()
-campaign.missions["RAD24_01"].show_payload()
-campaign.export()
 
 ```
 
