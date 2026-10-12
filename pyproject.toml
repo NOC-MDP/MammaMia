@@ -47,12 +47,15 @@ glidersim = [   "glidersim@git+https://github.com/NOC-MDP/glidersim",
                 "latlon@git+https://github.com/NOC-MDP/latlon",
                 "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF"
 ]
-#parcels = ["parcels>=0.4"]
+parcels = ["parcels>=4.0.1",
+           "parquet-tools",
+]
 
 all = [         "glidersim@git+https://github.com/NOC-MDP/glidersim",
                 "latlon@git+https://github.com/NOC-MDP/latlon",
                 "GliderNetCDF@git+https://github.com/NOC-MDP/GliderNetCDF",
-#                "parcels>=0.4"
+                "parcels>=0.4.1",
+                "parquet-tools"
 ]
 
 [project.urls]
@@ -62,6 +65,3 @@ Issues = "https://github.com/NOC-MDP/MammaMia/issues"
 [build-system]
 requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools.package-data]
-mamma_mia = ["*.json"]

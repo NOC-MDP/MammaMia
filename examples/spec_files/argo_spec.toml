@@ -16,6 +16,9 @@ ascent_thresh = 0.05  # m/s
 descent_thresh= -0.05  # m/s
 near_surface_thresh = 1
 
+# dimension parameter tells MAMMA MIA that the trajectory has 2 dimensions, time and the dimension set here
+# this is assumed to mean that there are multiple trajectories in shape (time,dimension) e.g. PARCELS output
+# This parameter MUST not be present for 1D trajectories.
 [specification.trajectory]
 path = "trajectories/argo_float.zarr"
 dimension = "trajectory"
