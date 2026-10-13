@@ -34,3 +34,4 @@ catalog.json
 _site
 .Rhistory
 site
+*.pdf
