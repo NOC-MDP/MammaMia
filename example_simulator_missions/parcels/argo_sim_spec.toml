@@ -19,6 +19,7 @@ runtime = 30 # days
 timedelta = 15 # minutes
 output_timedelta = 15 # minutes
 output_file = "argo_float.parquet"
+overwrite = true
 
 [specification.environment.extent]
 geospatial_lat_max = -29.00
@@ -28,7 +29,7 @@ geospatial_lon_min = 34.00
 time_coverage_start = "2023-03-02T12:00:00"
 time_coverage_end = "2023-03-04T12:00:00"
 
-[specification.sensors.adcp.u_velocity]
+[specification.sensors.u_velocity]
 source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/U1m_4d"
 variable_name = "uo"
 accuracy = -999.999
@@ -38,7 +39,7 @@ range = [-999.999,-999.999]
 percent_errors = false
 noise_std = -999.999
 
-[specification.sensors.adcp.v_velocity]
+[specification.sensors.v_velocity]
 source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/V1m_4d"
 variable_name = "vo"
 accuracy = -999.999
@@ -48,7 +49,7 @@ range = [-999.999,-999.999]
 percent_errors = false
 noise_std = -999.999
 
-[specification.sensors.adcp.w_velocity]
+[specification.sensors.w_velocity]
 source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/W1m_4d"
 variable_name = "wo"
 accuracy = -999.999

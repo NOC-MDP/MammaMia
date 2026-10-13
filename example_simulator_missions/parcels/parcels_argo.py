@@ -1,9 +1,11 @@
 # Define the new Kernel that mimics Argo vertical movement
-from datetime import timedelta
 import tomllib
+from datetime import timedelta
+
 import numpy as np
 import parcels
 import parcels.tutorial
+
 from mamma_mia import ArgoVerticalMovement
 
 spec_file = "argo_sim_spec.toml"
@@ -11,6 +13,7 @@ spec_file = "argo_sim_spec.toml"
 with open(spec_file, "rb") as f:
     raw = tomllib.load(f)
 spec = raw["specification"]
+print(spec)
 
 mindepth = spec["argosim"]["kernel_parameters"]["mindepth"]
 
@@ -21,8 +24,8 @@ ds_fields = parcels.tutorial.open_dataset(
 
 # Select fields
 fields = {
-    "U": ds_fields["uo"],
-    "V": ds_fields["vo"],
+    "U": ds_fields[spec["sensors"]["u_velocity"]["variable_name"]],
+    "V": ds_fields[spec["sensors"]["v_velocity"]["variable_name"]],
 }
 
 # Convert to SGRID-compliant dataset and create FieldSet
@@ -43,26 +46,31 @@ ArgoParticle = parcels.Particle.add_variable(
 pset = parcels.ParticleSet(
     fieldset=fieldset,
     pclass=ArgoParticle,
-    x=[32, 32.1, 32],
-    y=[-31, -31, -30.9],
+    x=spec['argosim']['mission_parameters']['lon_ini'],
+    y=spec['argosim']['mission_parameters']['lat_ini'],
     z=[mindepth, mindepth, mindepth],
 )
 
 # combine Argo vertical movement kernel with built-in Advection kernel
 kernels = [ArgoVerticalMovement, parcels.kernels.AdvectionRK4]
 
+if spec['argosim']['mission_parameters']['overwrite']:
+   mode = 'w'
+else:
+   mode = None
+
 # Create a ParticleFile object to store the output
 output_file = parcels.ParticleFile(
-    "argo_float.parquet",
-    outputdt=timedelta(minutes=15),
-    mode='w'
+    spec['argosim']['mission_parameters']['output_file'],
+    outputdt=timedelta(minutes=spec['argosim']['mission_parameters']['timedelta']),
+    mode=mode
 )
 
 # Now execute the kernels for 30 days, saving data every 30 minutes
 pset.execute(
     kernels,
-    runtime=timedelta(days=30),
-    dt=timedelta(minutes=15),
+    runtime=timedelta(days=spec['argosim']['mission_parameters']['runtime']),
+    dt=timedelta(minutes=spec['argosim']['mission_parameters']['output_timedelta']),
     output_file=output_file,
 )
 

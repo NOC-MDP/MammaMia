@@ -50,7 +50,7 @@ def simulate(spec_file: str):
             )
         else:
             shutil.copytree(
-                f"example_simulator_missions{os.sep}virtual_mooring",
+                "virtual_mooring",
                 f"{mission_parameters['data_dir']}{os.sep}{mission_parameters['mission_directory']}",
                 dirs_exist_ok=True,
             )

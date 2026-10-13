@@ -1,3 +1,5 @@
+from loguru import logger
+
 try:
     import parcels
 except ImportError as e:
