@@ -1,5 +1,3 @@
-[specification]
-
 [specification.kernel_parameters]
 mindepth = 1.0  # minimum depth in m
 driftdepth = 1000  # maximum drift depth in m

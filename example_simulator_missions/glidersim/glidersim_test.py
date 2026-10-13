@@ -9,17 +9,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mamma_mia import run_mission, save_mission, simulate
+from mamma_mia import glidersim_builder as gsb
 
 # virtual mooring simulation specification
 spec_file = "rapid_vm_sim_spec.toml"
 # follow waypoints simulation specification
 spec_file2 = "rapid_wp_sim_spec.toml"
 
-virtual_mooring = simulate(spec_file=spec_file)
-run_mission(gm=virtual_mooring, spec_file=spec_file)
-save_mission(gm=virtual_mooring, spec_file=spec_file)
+virtual_mooring = gsb.simulate(spec_file=spec_file)
+gsb.run_mission(gm=virtual_mooring, spec_file=spec_file)
+gsb.save_mission(gm=virtual_mooring, spec_file=spec_file)
 
-follow_waypoints = simulate(spec_file=spec_file2)
-run_mission(gm=follow_waypoints, spec_file=spec_file2)
-save_mission(gm=follow_waypoints, spec_file=spec_file2)
+follow_waypoints = gsb.simulate(spec_file=spec_file2)
+gsb.run_mission(gm=follow_waypoints, spec_file=spec_file2)
+gsb.save_mission(gm=follow_waypoints, spec_file=spec_file2)

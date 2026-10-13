@@ -8,7 +8,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Union, overload
+from typing import overload
 
 import gsw
 import xarray as xr
@@ -26,9 +26,9 @@ def fly(mission: list[xr.DataTree], interpolators: list[dict]) -> list[xr.DataTr
 
 
 def fly(
-    mission: Union[xr.DataTree, list[xr.DataTree]],
-    interpolators: Union[dict, list[dict]],
-) -> Union[xr.DataTree, list[xr.DataTree]]:
+    mission: xr.DataTree | list[xr.DataTree],
+    interpolators: dict | list[dict],
+) -> xr.DataTree | list[xr.DataTree]:
     if isinstance(mission, list) and isinstance(interpolators, list):
         return [_fly(m, i) for m, i in zip(mission, interpolators)]
     elif isinstance(interpolators, dict) and isinstance(mission, xr.DataTree):
@@ -60,7 +60,7 @@ def _fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
         f"flying {mission.attrs['name']} using {mission['platform'].attrs['type']}"
     )
     for sensor_key, sensor in mission.payload.items():
-        for variable_key in sensor.keys():
+        for variable_key in sensor:
             flight = {
                 "longitude": mission.payload[sensor_key][variable_key].longitude.values,
                 "latitude": mission.payload[sensor_key][variable_key].latitude.values,
