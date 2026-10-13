@@ -1,6 +1,6 @@
 [specification]
 
-[specification.argosim.kernel_parameters]
+[specification.kernel_parameters]
 mindepth = 1.0  # minimum depth in m
 driftdepth = 1000  # maximum drift depth in m
 maxdepth = 2000  # maximum depth in m
@@ -8,7 +8,7 @@ vertical_speed = 0.10  # sink and rise speed in m/s
 cycletime = 864000  # total time of cycle in seconds
 drifttime = 777600  # time of deep drift in seconds
 
-[specification.argosim.mission_parameters]
+[specification.mission_parameters]
 mission_name = "argo_deployment"
 mission_type = "multiple argo float deployment"
 description = "Three Argo float deployment"

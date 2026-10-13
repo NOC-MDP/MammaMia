@@ -15,7 +15,7 @@ with open(spec_file, "rb") as f:
 spec = raw["specification"]
 print(spec)
 
-mindepth = spec["argosim"]["kernel_parameters"]["mindepth"]
+mindepth = spec["kernel_parameters"]["mindepth"]
 
 # Load the GlobCurrent data in the Agulhas region from the example_data
 ds_fields = parcels.tutorial.open_dataset(
@@ -33,6 +33,14 @@ ds_fset = parcels.convert.copernicusmarine_to_sgrid(fields=fields)
 fieldset = parcels.FieldSet.from_sgrid_conventions(ds_fset)
 fieldset.to_windowed_arrays()
 
+# Add each configuration parameter as a constant
+fieldset.add_context('mindepth', mindepth)
+fieldset.add_context('driftdepth', spec["kernel_parameters"]['driftdepth'])
+fieldset.add_context('maxdepth', spec["kernel_parameters"]['maxdepth'])
+fieldset.add_context('vertical_speed', spec["kernel_parameters"]['vertical_speed'])
+fieldset.add_context('cycletime', spec["kernel_parameters"]['cycletime'])
+fieldset.add_context('drifttime', spec["kernel_parameters"]['drifttime'])
+
 # Define a new Particle type including extra Variables
 ArgoParticle = parcels.Particle.add_variable(
     [
@@ -42,35 +50,35 @@ ArgoParticle = parcels.Particle.add_variable(
     ]
 )
 
-# Initiate three Argo floats in the Agulhas Current
+# Initiate Argo floats in the Agulhas Current
 pset = parcels.ParticleSet(
     fieldset=fieldset,
     pclass=ArgoParticle,
-    x=spec['argosim']['mission_parameters']['lon_ini'],
-    y=spec['argosim']['mission_parameters']['lat_ini'],
+    x=spec['mission_parameters']['lon_ini'],
+    y=spec['mission_parameters']['lat_ini'],
     z=[mindepth, mindepth, mindepth],
 )
 
 # combine Argo vertical movement kernel with built-in Advection kernel
 kernels = [ArgoVerticalMovement, parcels.kernels.AdvectionRK4]
 
-if spec['argosim']['mission_parameters']['overwrite']:
+if spec['mission_parameters']['overwrite']:
    mode = 'w'
 else:
    mode = None
 
 # Create a ParticleFile object to store the output
 output_file = parcels.ParticleFile(
-    spec['argosim']['mission_parameters']['output_file'],
-    outputdt=timedelta(minutes=spec['argosim']['mission_parameters']['timedelta']),
+    spec['mission_parameters']['output_file'],
+    outputdt=timedelta(minutes=spec['mission_parameters']['timedelta']),
     mode=mode
 )
 
-# Now execute the kernels for 30 days, saving data every 30 minutes
+# Now execute the kernels 
 pset.execute(
     kernels,
-    runtime=timedelta(days=spec['argosim']['mission_parameters']['runtime']),
-    dt=timedelta(minutes=spec['argosim']['mission_parameters']['output_timedelta']),
+    runtime=timedelta(days=spec['mission_parameters']['runtime']),
+    dt=timedelta(minutes=spec['mission_parameters']['output_timedelta']),
     output_file=output_file,
 )
 
