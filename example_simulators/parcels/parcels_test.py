@@ -11,9 +11,8 @@
 
 from mamma_mia import parcels_argo_builder as pab
 
-# virtual mooring simulation specification
+# three argo floats in the Agulhas simulation specification
 spec_file = "argo_sim_spec.toml"
-
 
 argo_mission = pab.simulate(spec_file=spec_file)
 pab.plot_diagnostic(spec_file=spec_file)

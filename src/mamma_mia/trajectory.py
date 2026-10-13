@@ -17,6 +17,8 @@ import pandas as pd
 import xarray as xr
 from loguru import logger
 
+from mamma_mia.exceptions import UnsupportedTrajectory
+
 
 def _parse_time(values) -> np.ndarray:
     series = pd.Series(values)
@@ -36,7 +38,7 @@ def __open_ds(path: str) -> xr.Dataset:
         ds = xr.open_dataset(path, engine="zarr")
     else:
         extension = path.split(".")[-1]
-        raise Exception(f"trajectory file type: {extension} is not supported")
+        raise UnsupportedTrajectory(f"trajectory file type: {extension} is not supported")
     return ds
 
 
@@ -101,7 +103,7 @@ def create_trajectory(spec_file: str) -> xr.Dataset: ...
 def create_trajectory(spec_file: str) -> list[xr.Dataset]: ...
 
 
-def create_trajectory(spec_file: str) -> [xr.Dataset]:
+def create_trajectory(spec_file: str) -> list[xr.Dataset]:
     spec = __open_spec(spec_file)
     try:
         traj_dim = spec["trajectory"]["dimension"]

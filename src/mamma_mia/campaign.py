@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Union, overload
+from typing import overload
 
 import xarray as xr
 from loguru import logger
@@ -61,7 +61,7 @@ def add_mission(campaign: xr.DataTree, mission: list[xr.DataTree]) -> xr.DataTre
 
 def add_mission(
     campaign: xr.DataTree,
-    mission: Union[xr.DataTree, list[xr.DataTree]],
+    mission: xr.DataTree | list[xr.DataTree],
 ) -> xr.DataTree:
     missions = mission if isinstance(mission, list) else [mission]
 

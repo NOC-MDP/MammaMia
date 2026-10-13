@@ -99,7 +99,7 @@ def add_map_floor(fig, lon, lat, depth):
                     y=list(ys),
                     z=[floor_z] * len(xs),
                     mode="lines",
-                    line=dict(color="black", width=2),
+                    line={"color": "black", "width": 2},
                     showlegend=False,
                     hoverinfo="skip",
                 )
@@ -118,7 +118,7 @@ def add_map_floor(fig, lon, lat, depth):
                     y=list(ys),
                     z=[floor_z] * len(xs),
                     mode="lines",
-                    line=dict(color="rgba(180,180,180,0.3)", width=0.5),
+                    line={"color": "rgba(180,180,180,0.3)", "width": 0.5},
                     showlegend=False,
                     hoverinfo="skip",
                 )
@@ -177,7 +177,7 @@ def add_bathy_contours(fig, lon, lat, depth, contour_interval=50):
                     y=coords[:, 1],
                     z=[floor_z] * len(coords),
                     mode="lines",
-                    line=dict(color="rgba(0,0,128,0.5)", width=1),
+                    line={"color": "rgba(0,0,128,0.5)", "width": 1},
                     showlegend=False,
                     hoverinfo="skip",
                     name=f"{int(abs(level))}m",
@@ -224,16 +224,16 @@ def add_bathy_heatmap(fig, lon, lat, depth, downsample=5):
             cmin=np.nanmin(bathy_vals_ds),
             cmax=0,
             showscale=True,
-            colorbar=dict(
-                title=dict(text="Depth (m)", side="top"),
-                orientation="h",
-                thickness=15,
-                len=0.4,
-                x=0.5,
-                xanchor="center",
-                y=-0.05,
-                yanchor="top",
-            ),
+            colorbar={
+                "title": {"text": "Depth (m)", "side": "top"},
+                "orientation": "h",
+                "thickness": 15,
+                "len": 0.4,
+                "x": 0.5,
+                "xanchor": "center",
+                "y": -0.05,
+                "yanchor": "top",
+            },
             opacity=0.85,
             showlegend=False,
             hovertemplate=(
@@ -290,15 +290,15 @@ def make_figure(
                 z=depth,
                 name=label,
                 mode="markers",
-                marker=dict(
-                    size=2,
-                    color=color,
-                    colorscale=colorscale,
-                    cmin=np.nanmin(color),
-                    cmax=np.nanmax(color),
-                    opacity=0.8,
-                    colorbar=dict(thickness=40),
-                ),
+                marker={
+                    "size": 2,
+                    "color": color,
+                    "colorscale": colorscale,
+                    "cmin": np.nanmin(color),
+                    "cmax": np.nanmax(color),
+                    "opacity": 0.8,
+                    "colorbar": {"thickness": 40},
+                },
             )
         )
 
@@ -309,13 +309,13 @@ def make_figure(
 
     fig.update_scenes(zaxis_autorange="reversed")
     fig.update_layout(
-        title=dict(text=title, font=dict(size=24), automargin=True, yref="paper"),
-        scene=dict(
-            xaxis_title="Longitude",
-            yaxis_title="Latitude",
-            zaxis_title="Depth",
-        ),
-        margin=dict(l=0, r=0, t=80, b=0),
+        title={"text": title, "font": {"size": 24}, "automargin": True, "yref": "paper"},
+        scene={
+            "xaxis_title": "Longitude",
+            "yaxis_title": "Latitude",
+            "zaxis_title": "Depth",
+        },
+        margin={"l": 0, "r": 0, "t": 80, "b": 0},
         uirevision="constant",
     )
     fig = add_map_floor(fig, combined_lon, combined_lat, combined_depth)
@@ -676,19 +676,19 @@ def plot_path(
                 z=depth,
                 name=name,
                 mode="markers",
-                marker=dict(
-                    size=2,
-                    color=time,
-                    colorscale=colour_scale,
-                    opacity=0.8,
-                    colorbar=dict(
-                        thickness=20,
-                        title=dict(text="Time"),
+                marker={
+                    "size": 2,
+                    "color": time,
+                    "colorscale": colour_scale,
+                    "opacity": 0.8,
+                    "colorbar": {
+                        "thickness": 20,
+                        "title": {"text": "Time"},
                         # Stack colour bars vertically when there are multiple traces
-                        x=1.0 + i * 0.12,
-                    ),
-                    showscale=True,
-                ),
+                        "x": 1.0 + i * 0.12,
+                    },
+                    "showscale": True,
+                },
             )
         )
 
@@ -698,14 +698,14 @@ def plot_path(
 
     fig.update_scenes(zaxis_autorange="reversed")
     fig.update_layout(
-        title=dict(
-            text="Glider Trajectory", font=dict(size=30), automargin=True, yref="paper"
-        ),
-        scene=dict(
-            xaxis_title="longitude",
-            yaxis_title="latitude",
-            zaxis_title="depth",
-        ),
+        title={
+            "text": "Glider Trajectory", "font": {"size": 30}, "automargin": True, "yref": "paper"
+        },
+        scene={
+            "xaxis_title": "longitude",
+            "yaxis_title": "latitude",
+            "zaxis_title": "depth",
+        },
     )
 
     # Reuse the existing map-floor helper with the combined extent

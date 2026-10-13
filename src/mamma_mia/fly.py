@@ -14,6 +14,7 @@ import gsw
 import xarray as xr
 from loguru import logger
 
+from mamma_mia.exceptions import Unsupported
 from mamma_mia.sim_error import simulate_sensor_error
 
 
@@ -34,7 +35,7 @@ def fly(
     elif isinstance(interpolators, dict) and isinstance(mission, xr.DataTree):
         return _fly(mission=mission, interpolators=interpolators)
     else:
-        raise Exception("unsupported mission or interpolator type")
+        raise Unsupported("unsupported mission or interpolator type")
 
 
 def _fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:

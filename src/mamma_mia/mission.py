@@ -10,7 +10,7 @@
 # limitations under the License.
 import uuid
 from datetime import datetime
-from typing import Union, overload
+from typing import overload
 
 import numpy as np
 import pandas as pd
@@ -37,17 +37,17 @@ def create_mission(
     summary: str,
     mission_time_step: int = 60,
     apply_obs_error: bool = True,
-) -> [xr.DataTree]: ...
+) -> list[xr.DataTree]: ...
 
 
 def create_mission(
     platform: xr.Dataset,
-    trajectory: Union[xr.Dataset, list[xr.Dataset]],
+    trajectory: xr.Dataset | list[xr.Dataset],
     mission_name: str,
     summary: str,
     mission_time_step: int = 60,
     apply_obs_error: bool = True,
-) -> Union[xr.DataTree, list[xr.DataTree]]:
+) -> xr.DataTree | list[xr.DataTree]:
     if isinstance(trajectory, list):
         return [
             _create_mission(
@@ -195,7 +195,7 @@ def _create_mission(
             coords=coords,
             data_vars={
                 param: ("time", np.full(n_times, np.nan))
-                for param in sensor_params.keys()
+                for param in sensor_params
             },
         )
         for sensor_name, sensor_params in platform.attrs["sensors"].items()

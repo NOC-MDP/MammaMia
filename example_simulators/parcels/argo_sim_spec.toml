@@ -1,16 +1,8 @@
-[specification.kernel_parameters]
-mindepth = 1.0  # minimum depth in m
-driftdepth = 1000  # maximum drift depth in m
-maxdepth = 2000  # maximum depth in m
-vertical_speed = 0.10  # sink and rise speed in m/s
-cycletime = 864000  # total time of cycle in seconds
-drifttime = 777600  # time of deep drift in seconds
-
 [specification.mission_parameters]
 mission_name = "argo_deployment"
-mission_type = "multiple argo float deployment"
 description = "Three Argo float deployment"
-datetime_str = "2023-03-03T12:00:00:Z"
+mission_type = "multiple argo float deployment"
+datetime_start = "2023-03-03T12:00:00:Z"
 lat_ini = [-31.000, -31.000, -30.900]
 lon_ini = [32.000, 32.100, 32.000]
 runtime = 30 # days
@@ -30,29 +22,19 @@ time_coverage_end = "2023-03-04T12:00:00"
 [specification.sensors.u_velocity]
 source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/U1m_4d"
 variable_name = "uo"
-accuracy = -999.999
-resolution = -999.999
-drift_per_month = -999.999
-range = [-999.999,-999.999]
-percent_errors = false
-noise_std = -999.999
 
 [specification.sensors.v_velocity]
 source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/V1m_4d"
 variable_name = "vo"
-accuracy = -999.999
-resolution = -999.999
-drift_per_month = -999.999
-range = [-999.999,-999.999]
-percent_errors = false
-noise_std = -999.999
 
 [specification.sensors.w_velocity]
 source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/W1m_4d"
 variable_name = "wo"
-accuracy = -999.999
-resolution = -999.999
-drift_per_month = -999.999
-range = [-999.999,-999.999]
-percent_errors = false
-noise_std = -999.999
+
+[specification.kernel_parameters]
+mindepth = 1.0  # minimum depth in m
+driftdepth = 1000  # maximum drift depth in m
+maxdepth = 2000  # maximum depth in m
+vertical_speed = 0.10  # sink and rise speed in m/s
+cycletime = 864000  # total time of cycle in seconds
+drifttime = 777600  # time of deep drift in seconds

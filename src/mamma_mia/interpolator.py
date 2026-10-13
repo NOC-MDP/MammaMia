@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Union, overload
+from typing import overload
 
 import numpy as np
 import pyinterp
@@ -17,7 +17,8 @@ import pyinterp.backends.xarray
 import xarray as xr
 import xesmf as xe
 from loguru import logger
-from numba.core.types.containers import NoneType
+
+from mamma_mia.exceptions import UnknownZarrStore
 
 
 def interpolate(
@@ -78,9 +79,7 @@ def create_interpolator(mission: list[xr.DataTree]) -> list[dict]: ...
 def create_interpolator(mission: dict) -> dict: ...
 
 
-def create_interpolator(
-    mission: Union[xr.DataTree, list[xr.DataTree], dict],
-) -> Union[dict, list[dict]]:
+def create_interpolator(mission: xr.DataTree | list[xr.DataTree] | dict) -> dict | list[dict]:
     if isinstance(mission, dict):
         return _create_interpolator(stores=mission)
     elif isinstance(mission, list):
@@ -89,7 +88,7 @@ def create_interpolator(
         return _create_interpolator(mission=mission)
 
 
-def _create_interpolator(mission: xr.DataTree | None = None, stores: dict = {}) -> dict:
+def _create_interpolator(mission: xr.DataTree | None = None, stores: dict | None = None) -> dict:
     """
     Create a pyinterp 4D interpolator covering all downloaded data stores.
 
@@ -117,6 +116,8 @@ def _create_interpolator(mission: xr.DataTree | None = None, stores: dict = {}) 
         for all available data stores, ready to be passed to `fly` or
         `interpolate`.
     """
+    if stores is None:
+        stores = {}
     if mission is not None:
         logger.info(f"creating interpolator for mission {mission.attrs['name']}")
     else:
@@ -133,11 +134,11 @@ def _create_interpolator(mission: xr.DataTree | None = None, stores: dict = {}) 
         elif store["store"].endswith(".zarr"):
             ds = xr.open_zarr(store=store["store"])
         else:
-            raise Exception(f"unknown store {store['store']}")
+            raise UnknownZarrStore(f"unknown store {store['store']}")
         # if regridding is needed
-        if stores[store_key]["regrid"]:
+        if store["regrid"]:
             logger.info(
-                f"dataset {stores[store_key]['store']} needs regridding, performing now"
+                f"dataset {store['store']} needs regridding, performing now"
             )
             if ds["nav_lat"].sizes["x"] == 1:
                 logger.warning(

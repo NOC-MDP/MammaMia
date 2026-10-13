@@ -22,9 +22,15 @@ try:
     import glidersim.glidermodels
     import latlon
     from glidersim.environments import VelocityRealityModel
-    from glidersim.glidersim import GliderMission
 except ImportError as e:
     logger.debug(f"optional dependency glidersim is not installed: {e}")
+
+from mamma_mia.exceptions import (
+    DepthExceedance,
+    NoWaypointsSpecified,
+    UnknownMissionType,
+    UnknownModel,
+)
 
 
 def simulate(spec_file: str):
@@ -44,7 +50,7 @@ def simulate(spec_file: str):
     if mission_parameters["mission_type"] == "virtual_mooring":
         if mission_parameters["spiral"]:
             shutil.copytree(
-                f"example_simulator_missions{os.sep}virtual_mooring_spiral",
+                f"example_simulators{os.sep}virtual_mooring_spiral",
                 f"{mission_parameters['data_dir']}{os.sep}{mission_parameters['mission_directory']}",
                 dirs_exist_ok=True,
             )
@@ -72,7 +78,7 @@ def simulate(spec_file: str):
         )
 
     else:
-        raise Exception(f"unknown mission type: {mission_parameters['mission_type']}")
+        raise UnknownMissionType(f"unknown mission type: {mission_parameters['mission_type']}")
 
     # Tell dbdreader where to get the cache files from
     glidersim.environments.GliderData.DBDREADER_CACHEDIR = (
@@ -86,7 +92,7 @@ def simulate(spec_file: str):
         case "200M" | "SHALLOW200M":
             glider = glidersim.glidermodels.Shallow200mExtendedGliderModel()
         case _:
-            raise Exception(
+            raise UnknownModel(
                 f"Unknown model {spec['glidersim']['sim_model']['glider_model']}"
             )
     flight_model = spec["glidersim"]["flight_model"]
@@ -108,13 +114,13 @@ def simulate(spec_file: str):
     nmea_lon, nmea_lat = latlon.convertToNmea(
         x=mission_parameters["lon_ini"], y=mission_parameters["lat_ini"]
     )
-    sensor_settings = dict(
-        c_wpt_lat=mission_parameters["lat_ini"],
-        c_wpt_lon=mission_parameters["lon_ini"],
-        m_water_vx=0,
-        m_water_vy=0,
-    )
-    special_settings = dict(initial_heading=mission_parameters["initial_heading"])
+    sensor_settings = {
+        "c_wpt_lat": mission_parameters["lat_ini"],
+        "c_wpt_lon": mission_parameters["lon_ini"],
+        "m_water_vx": 0,
+        "m_water_vy": 0,
+    }
+    special_settings = {"initial_heading": mission_parameters["initial_heading"]}
     # Create a configuration dictionary
     dt = datetime.datetime.strptime(
         mission_parameters["datetime_str"], "%Y-%m-%dT%H:%M:%S:Z"
@@ -145,7 +151,7 @@ def simulate(spec_file: str):
 
     # prepare the mission files for the virtual mooring plan
     if mission_parameters["dive_depth"] > 1000:
-        raise Exception(f"no glider model capable of greater than 1000 metre depths")
+        raise DepthExceedance("no glider model capable of greater than 1000 metre depths")
 
     # update depth and number of dives in yo file
     with open(
@@ -188,9 +194,9 @@ def simulate(spec_file: str):
         nmea_lats = []
         nmea_lons = []
         if mission_parameters["lat_wp"].__len__() == 0:
-            raise Exception("no lat waypoints specified in spec file")
+            raise NoWaypointsSpecified("no lat waypoints specified in spec file")
         if mission_parameters["lon_wp"].__len__() == 0:
-            raise Exception("no lon waypoints specified in spec file")
+            raise NoWaypointsSpecified("no lon waypoints specified in spec file")
         for i in range(mission_parameters["lat_wp"].__len__()):
             nmea_lat, nmea_lon = latlon.convertToNmea(
                 x=mission_parameters["lon_wp"][i], y=mission_parameters["lat_wp"][i]
