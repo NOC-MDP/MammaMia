@@ -5,6 +5,7 @@ mission_type = "multiple argo float deployment"
 datetime_start = "2023-03-03T12:00:00:Z"
 lat_ini = [-31.000, -31.000, -30.900]
 lon_ini = [32.000, 32.100, 32.000]
+depth_ini = [5.00,5.00,5.00]
 runtime = 30 # days
 timedelta = 15 # minutes
 output_timedelta = 15 # minutes
@@ -14,22 +15,20 @@ overwrite = true
 [specification.environment.extent]
 geospatial_lat_max = -29.00
 geospatial_lat_min = -33.00
-geospatial_lon_max = 30.00
-geospatial_lon_min = 34.00
+geospatial_lon_max = 34.00
+geospatial_lon_min = 30.00
+geospatial_vertical_max = 3000
 time_coverage_start = "2023-03-02T12:00:00"
 time_coverage_end = "2023-03-04T12:00:00"
 
-[specification.sensors.u_velocity]
-source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/U1m_4d"
+[specification.sensors.adcp.u_velocity]
+source_id = "cmems_mod_glo_phy-cur_anfc_0.083deg_P1M-m"
 variable_name = "uo"
 
-[specification.sensors.v_velocity]
-source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/V1m_4d"
+[specification.sensors.adcp.v_velocity]
+source_id = "cmems_mod_glo_phy-cur_anfc_0.083deg_P1M-m"
 variable_name = "vo"
 
-[specification.sensors.w_velocity]
-source_id = "noc-npd-era5/npd-eorca12-era5v1/gn/W1m_4d"
-variable_name = "wo"
 
 [specification.kernel_parameters]
 mindepth = 1.0  # minimum depth in m

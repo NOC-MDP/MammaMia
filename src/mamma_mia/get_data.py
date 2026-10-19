@@ -18,6 +18,13 @@ import xarray as xr
 from loguru import logger
 from OceanDataStore import OceanDataCatalog
 
+def get_parcels_data(sensors,geospatial_attrs) -> dict:
+
+    nc_path = __download_data(sensors=sensors,geospatial_attrs=geospatial_attrs)
+
+    return nc_path
+    
+
 
 def get_extent(spec_file: str) -> dict:
     """

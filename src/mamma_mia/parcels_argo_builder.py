@@ -11,13 +11,14 @@
 # Define the new Kernel that mimics Argo vertical movement
 import tomllib
 from datetime import timedelta
-
+import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
 import parcels
-import parcels.tutorial
+
 
 from mamma_mia.argo_kernel import ArgoVerticalMovement
+from mamma_mia.get_data import get_parcels_data
 
 
 def simulate(spec_file:str):
@@ -28,15 +29,32 @@ def simulate(spec_file:str):
 
     mindepth = spec["kernel_parameters"]["mindepth"]
 
-    # Load the GlobCurrent data in the Agulhas region from the example_data
-    ds_fields = parcels.tutorial.open_dataset(
-        "CopernicusMarine_data_for_Argo_tutorial/data"
-    )
+    # download data to cache and get their paths
+    dataset_paths = get_parcels_data(sensors=spec['sensors'], geospatial_attrs=spec['environment']['extent'])
+
+    # Cache to avoid reopening the same Zarr store multiple times
+    opened_stores = {}
+    datasets = []
+
+    for field_name, params in dataset_paths.items():
+        store_path = params['store']
+        var_name = params['variable_name']
+        
+        # Open the zarr dataset if not already loaded
+        if store_path not in opened_stores:
+            opened_stores[store_path] = xr.open_dataset(store_path, engine='zarr')
+        
+        # Extract the variable and rename it to the dictionary key
+        da = opened_stores[store_path][var_name].rename(field_name)
+        datasets.append(da)
+
+    # Merge into a single xarray.Dataset emulating ds_fields
+    ds_fields = xr.merge(datasets)
 
     # Select fields
     fields = {
-        "U": ds_fields[spec["sensors"]["u_velocity"]["variable_name"]],
-        "V": ds_fields[spec["sensors"]["v_velocity"]["variable_name"]],
+        "U": ds_fields["u_velocity"],
+        "V": ds_fields["v_velocity"],
     }
 
     # Convert to SGRID-compliant dataset and create FieldSet
@@ -67,7 +85,7 @@ def simulate(spec_file:str):
         pclass=ArgoParticle,
         x=spec['mission_parameters']['lon_ini'],
         y=spec['mission_parameters']['lat_ini'],
-        z=[mindepth, mindepth, mindepth],
+        z=spec['mission_parameters']['depth_ini'],
     )
 
     # combine Argo vertical movement kernel with built-in Advection kernel
