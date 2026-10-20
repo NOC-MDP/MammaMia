@@ -19,7 +19,7 @@ description = ""
 readme = "README.md"
 requires-python = "==3.13.*"
 dependencies = ["loguru>=0.7",
-                "pyinterp>=2024.6",
+                "pyinterp==2025.11",
                 "cattrs>=24.1",
                 "xarray>=2025.1",
                 "pyyaml>=6.0",
