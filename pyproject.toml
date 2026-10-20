@@ -31,8 +31,8 @@ dependencies = ["loguru>=0.7",
                 "jsonpickle>=4.1",
                 "gsw>=3.6",
                 "numpy>=2.2",
-                "cartopy",
-                "dash",
+                "cartopy>=0.26.0",
+                "dash>=4.4.1",
                 "xesmf@git+https://github.com/pangeo-data/xesmf.git",
                 "OceanDataStore>=0.3"
 ]
