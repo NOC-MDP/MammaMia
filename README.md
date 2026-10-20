@@ -45,7 +45,7 @@ compatible package manager e.g. conda, miniconda, mamba, miniforge etc.
 Assuming a conda package manager as a virtual env:
 
 ```shell
-$ conda create -n mm python=3.13 esmpy pyinterp  # these dependencies aren't easily installable via pip
+$ conda create -n mm python=3.13 esmpy pyinterp==2025.11  # these dependencies aren't easily installable via pip
 ```
 This should create a virtual environment containing python 3.13 which Mamma mia is compatible with,
 
