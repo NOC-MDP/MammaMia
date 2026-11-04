@@ -16,8 +16,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import parcels
 import datetime as dt
-
-
+import os
+import shutil
+import pathlib
 from mamma_mia.argo_kernel import ArgoVerticalMovement
 from mamma_mia.get_data import get_parcels_data
 
@@ -98,9 +99,12 @@ def simulate(spec_file:str):
     else:
         mode = None
 
+    zarr_output_file = f"{spec['mission_parameters']['output_file']}"
+    parcels_temp_file = "parcels_tmp.parquet"
+
     # Create a ParticleFile object to store the output
     output_file = parcels.ParticleFile(
-        spec['mission_parameters']['output_file'],
+        parcels_temp_file,
         outputdt=timedelta(minutes=spec['mission_parameters']['timedelta']),
         mode=mode
     )
@@ -112,38 +116,63 @@ def simulate(spec_file:str):
         dt=timedelta(minutes=spec['mission_parameters']['output_timedelta']),
         output_file=output_file,
     )
+    # TODO due to the high memory requirements, this should probably improved by handling parquet files directly rather than this hack to get v3 compatible zarrs
+    # 2. Convert the parquet file into a v3-format Zarr store
+    zarr_path = pathlib.Path(zarr_output_file)
+    # Remove the existing Zarr directory if it already exists
+    if zarr_path.exists():
+        shutil.rmtree(zarr_path)
+    parcels.particlefile_to_v3_zarr(
+    from_parquet=pathlib.Path(parcels_temp_file),
+    to_zarr=pathlib.Path(zarr_output_file)
+)
+    os.remove(parcels_temp_file)
 
-def plot_diagnostic(spec_file:str):
+
+def plot_diagnostic(spec_file: str):
 
     with open(spec_file, "rb") as f:
         raw = tomllib.load(f)
     spec = raw["specification"]
 
-    df = parcels.read_particlefile(spec['mission_parameters']['output_file'])
+    # Open the v3 Zarr store directly with xarray
+    ds = xr.open_zarr(spec['mission_parameters']['output_file'])
+
+    # --- 2D Plot (Time vs Depth) ---
     fig = plt.figure(figsize=(13, 6))
     ax = plt.axes()
-    # Group by particle_id and plot each particle's trajectory separately
-    for particle_id, group in df.group_by("particle_id"):
-        ax.plot(group["t"], group["z"], alpha=0.6)
+    
+    for i in range(ds.dims["trajectory"]):
+        t = ds.time.isel(trajectory=i).values
+        z = ds.z.isel(trajectory=i).values
+        
+        valid = ~np.isnan(z)
+        ax.plot(t[valid], z[valid], alpha=0.6)
 
-    # cb = ax.scatter(df["t"], df["z"], s=20, marker="o", zorder=2)
-    ax.set_xlabel("Time [days]")
+    ax.set_xlabel("Time")
     ax.set_ylabel("Depth (m)")
     ax.invert_yaxis()
-    # fig.colorbar(cb, label="Time?")
     plt.show()
 
-
+    # --- 3D Plot (Longitude, Latitude, Depth) ---
     fig = plt.figure(figsize=(13, 8))
     ax = plt.axes(projection="3d")
     ax.view_init(azim=-145)
-    # Group by particle_id and plot each particle's trajectory separately
-    for particle_id, group in df.group_by("particle_id"):
-        ax.plot3D(group["x"], group["y"], group["z"], alpha=0.6)
-    # cb = ax.scatter(df["x"], df["y"], df["z"], s=20, marker="o", zorder=2)
+    
+    for i in range(ds.dims["trajectory"]):
+        x = ds.lon.isel(trajectory=i).values
+        y = ds.lat.isel(trajectory=i).values
+        z = ds.z.isel(trajectory=i).values
+        
+        valid = ~np.isnan(z)
+        ax.plot3D(x[valid], y[valid], z[valid], alpha=0.6)
+
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
     ax.set_zlabel("Depth (m)")
-    ax.set_zlim(df["z"].max(), 0)
-    # fig.colorbar(cb, label="Time?")
+    
+    # Compute the max depth safely by evaluating the Dask array into a scalar float
+    max_z = float(ds.z.max().values)
+    ax.set_zlim(max_z, 0)
+    
     plt.show()
