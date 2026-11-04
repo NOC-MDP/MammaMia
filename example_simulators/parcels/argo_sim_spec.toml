@@ -2,7 +2,7 @@
 mission_name = "argo_deployment"
 description = "Three Argo float deployment"
 mission_type = "multiple argo float deployment"
-datetime_start = "2023-03-03T12:00:00:Z"
+datetime_start = ["2023-03-03T12:00:00:Z","2023-03-03T12:00:00:Z","2023-03-03T12:00:00:Z"]
 lat_ini = [-31.000, -31.000, -30.900]
 lon_ini = [32.000, 32.100, 32.000]
 depth_ini = [5.00,5.00,5.00]

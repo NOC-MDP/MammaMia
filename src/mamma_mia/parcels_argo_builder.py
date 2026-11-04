@@ -15,6 +15,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
 import parcels
+import datetime as dt
 
 
 from mamma_mia.argo_kernel import ArgoVerticalMovement
@@ -78,7 +79,7 @@ def simulate(spec_file:str):
             parcels.Variable("drift_age", dtype=np.float32, initial=0.0),
         ]
     )
-
+    datetime_list = [dt.datetime.strptime(d, "%Y-%m-%dT%H:%M:%SZ") for d in spec['mission_parameters']['datetime_start']]
     # Initiate Argo floats in the Agulhas Current
     pset = parcels.ParticleSet(
         fieldset=fieldset,
@@ -86,6 +87,7 @@ def simulate(spec_file:str):
         x=spec['mission_parameters']['lon_ini'],
         y=spec['mission_parameters']['lat_ini'],
         z=spec['mission_parameters']['depth_ini'],
+        t=datetime_list
     )
 
     # combine Argo vertical movement kernel with built-in Advection kernel
