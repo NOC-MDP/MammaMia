@@ -69,7 +69,7 @@ def _fly(mission: xr.DataTree, interpolators: dict) -> xr.DataTree:
                 "time": mission.payload[sensor_key][variable_key].time.values,
             }
             try:
-                result = interpolators[variable_key].quadrivariate(flight)
+                result = interpolators[variable_key].interpolate(flight)
             except KeyError:
                 logger.warning(
                     f"no interpolator found for variable {variable_key} in sensor {sensor_key}"

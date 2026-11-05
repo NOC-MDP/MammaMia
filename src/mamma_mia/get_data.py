@@ -187,7 +187,7 @@ def __get_local(source_id, variables, geospatial_attrs):
 
 
 def __get_cmems(
-    source_id, variables, geospatial_attrs, excess=0.5, excess_depth=100
+    source_id, variables, geospatial_attrs, excess=0.5, excess_depth=250
 ) -> str:
     """
     cmems specific function to download data from CMEMS using copernicusmarinetoolbox
