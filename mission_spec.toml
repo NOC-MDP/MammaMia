@@ -1,0 +1,41 @@
+[specification.mission_parameters]
+mission_name = "polar argo_deployment"
+description = "Ten Polar Argo float deployment in Arctic Off Svalbard"
+mission_type = "example Polar campaign test case"
+datetime_start = ['2026-11-06T13:00:55Z', '2026-11-06T13:00:55Z', '2026-11-06T13:00:55Z', '2026-11-06T13:00:55Z', '2026-11-06T13:00:55Z', '2026-11-06T13:00:55Z', '2026-11-06T13:00:55Z', '2026-11-06T13:00:55Z', '2026-11-06T13:00:55Z']
+lat_ini = [73.6855, 76.3922, 74.9822, 73.5245, 73.4146, 73.8813, 75.2027, 75.2345, 74.4198]
+lon_ini = [-146.0869, -143.5995, -136.7687, -136.6104, -138.1934, -141.5782, -143.2581, -138.5926, -138.0626]
+depth_ini = [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
+runtime = 365
+timedelta = 15
+output_timedelta = 15
+output_file = "argo_float.zarr"
+overwrite = true
+
+[specification.environment.extent]
+geospatial_lat_max = 90
+geospatial_lat_min = 60
+geospatial_lon_max = 180
+geospatial_lon_min = -180
+geospatial_vertical_max = 3000
+time_coverage_start = "2025-02-02T12:00:00"
+time_coverage_end = "2026-04-04T12:00:00"
+
+[specification.sensors.adcp.u_velocity]
+source_id = "cmems_mod_glo_phy-cur_anfc_0.083deg_P1M-m"
+variable_name = "uo"
+
+[specification.sensors.adcp.v_velocity]
+source_id = "cmems_mod_glo_phy-cur_anfc_0.083deg_P1M-m"
+variable_name = "vo"
+
+[specification.kernel_parameters]
+mindepth = 1.0
+driftdepth = 1000
+maxdepth = 2000
+vertical_speed = 0.10
+cycletime = 864000
+drifttime = 777600
+Kh_zonal = 100
+Kh_meridional = 100
+dres = 0.0001

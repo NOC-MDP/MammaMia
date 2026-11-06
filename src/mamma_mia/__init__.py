@@ -32,5 +32,5 @@ __all__ = [
     "interpolate",
     "parcels_argo_builder",
     "plot_path",
-    "start_payload_dashboard"
+    "start_payload_dashboard",
 ]

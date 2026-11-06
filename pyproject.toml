@@ -17,23 +17,18 @@ authors = [
 ]
 description = ""
 readme = "README.md"
-requires-python = "==3.13.*"
+requires-python = "==3.14.*"
 dependencies = ["loguru>=0.7",
-                "pyinterp==2025.11",
-                "cattrs>=24.1",
                 "xarray>=2025.1",
                 "pyyaml>=6.0",
                 "zarr>=3.1",
                 "plotly>=5.24",
                 "copernicusmarine>=2.1",
                 "s3fs>=2025.3",
-                "blosc>=1.11",
-                "jsonpickle>=4.1",
                 "gsw>=3.6",
                 "numpy>=2.2",
                 "cartopy>=0.26.0",
                 "dash>=4.4.1",
-                "xesmf@git+https://github.com/pangeo-data/xesmf.git",
                 "OceanDataStore>=0.3"
 ]
 

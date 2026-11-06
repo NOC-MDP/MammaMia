@@ -71,6 +71,10 @@ def simulate(spec_file:str):
     fieldset.add_context('vertical_speed', spec["kernel_parameters"]['vertical_speed'])
     fieldset.add_context('cycletime', spec["kernel_parameters"]['cycletime'])
     fieldset.add_context('drifttime', spec["kernel_parameters"]['drifttime'])
+    fieldset.add_constant_field("Kh_zonal", spec["kernel_parameters"]['Kh_zonal'])      # m^2/s
+    fieldset.add_constant_field("Kh_meridional", spec["kernel_parameters"]['Kh_meridional'])  # m^2/s
+    # Set dres (e.g., 0.0001 or smaller depending on your coordinate system/degrees)
+    fieldset.dres = spec["kernel_parameters"]['dres']
 
     # Define a new Particle type including extra Variables
     ArgoParticle = parcels.Particle.add_variable(
@@ -92,7 +96,7 @@ def simulate(spec_file:str):
     )
 
     # combine Argo vertical movement kernel with built-in Advection kernel
-    kernels = [ArgoVerticalMovement, parcels.kernels.AdvectionRK4]
+    kernels = [ArgoVerticalMovement, parcels.kernels.AdvectionRK4, parcels.kernels.AdvectionDiffusionEM]
 
     if spec['mission_parameters']['overwrite']:
         mode = 'w'
